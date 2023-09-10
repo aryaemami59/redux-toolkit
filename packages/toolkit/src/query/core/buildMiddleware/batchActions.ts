@@ -1,13 +1,7 @@
-import type { QueryThunk, RejectedAction } from '../buildThunks'
 import type { InternalHandlerBuilder } from './types'
-import type {
-  SubscriptionState,
-  QuerySubstateIdentifier,
-  Subscribers,
-} from '../apiState'
+import type { SubscriptionState } from '../apiState'
 import { produceWithPatches } from 'immer'
-import type { AnyAction } from '@reduxjs/toolkit';
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import type { AnyAction } from '@reduxjs/toolkit'
 
 // Copied from https://github.com/feross/queue-microtask
 let promise: Promise<any>
@@ -70,13 +64,23 @@ export const buildBatchedActionsHandler: InternalHandlerBuilder<
       const {
         meta: { arg, requestId },
       } = action
+      const substate = (mutableState[arg.queryCacheKey] ??= {})
+      substate[`${requestId}_running`] = {}
       if (arg.subscribe) {
-        const substate = (mutableState[arg.queryCacheKey] ??= {})
         substate[requestId] =
           arg.subscriptionOptions ?? substate[requestId] ?? {}
-
-        return true
       }
+      return true
+    }
+    let mutated = false
+    if (
+      queryThunk.fulfilled.match(action) ||
+      queryThunk.rejected.match(action)
+    ) {
+      const state = mutableState[action.meta.arg.queryCacheKey] || {}
+      const key = `${action.meta.requestId}_running`
+      mutated ||= !!state[key]
+      delete state[key]
     }
     if (queryThunk.rejected.match(action)) {
       const {
@@ -87,11 +91,11 @@ export const buildBatchedActionsHandler: InternalHandlerBuilder<
         substate[requestId] =
           arg.subscriptionOptions ?? substate[requestId] ?? {}
 
-        return true
+        mutated = true
       }
     }
 
-    return false
+    return mutated
   }
 
   return (action, mwApi) => {
