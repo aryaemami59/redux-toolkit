@@ -1819,10 +1819,13 @@ describe('hooks tests', () => {
         checkSession.matchPending,
         api.internalActions.subscriptionsUpdated.match,
         checkSession.matchRejected,
+        api.internalActions.subscriptionsUpdated.match,
         login.matchPending,
         login.matchFulfilled,
         checkSession.matchPending,
-        checkSession.matchFulfilled
+        api.internalActions.subscriptionsUpdated.match,
+        checkSession.matchFulfilled,
+        api.internalActions.subscriptionsUpdated.match
       )
     })
   })

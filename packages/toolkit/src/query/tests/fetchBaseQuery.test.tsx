@@ -175,7 +175,8 @@ describe('fetchBaseQuery', () => {
       expect(res.meta?.response).toBeInstanceOf(Object)
       expect(res.error).toEqual({
         status: 'PARSING_ERROR',
-        error: 'SyntaxError: Unexpected token h in JSON at position 1',
+        error:
+          'SyntaxError: Unexpected token \'h\', "this is not json!" is not valid JSON',
         originalStatus: 200,
         data: `this is not json!`,
       })
@@ -333,7 +334,8 @@ describe('fetchBaseQuery', () => {
       expect(res.meta?.response).toBeInstanceOf(Object)
       expect(res.error).toEqual({
         status: 'PARSING_ERROR',
-        error: 'SyntaxError: Unexpected token h in JSON at position 1',
+        error:
+          'SyntaxError: Unexpected token \'h\', "this is not json!" is not valid JSON',
         originalStatus: 500,
         data: `this is not json!`,
       })
@@ -434,7 +436,7 @@ describe('fetchBaseQuery', () => {
 
     it('supports a custom jsonReplacer', async () => {
       const body = {
-        items: new Set(["A", "B", "C"])
+        items: new Set(['A', 'B', 'C']),
       }
 
       let request: any
@@ -455,7 +457,8 @@ describe('fetchBaseQuery', () => {
       const baseQueryWithReplacer = fetchBaseQuery({
         baseUrl,
         fetchFn: fetchFn as any,
-        jsonReplacer: (key, value) => value instanceof Set ? [...value] : value
+        jsonReplacer: (key, value) =>
+          value instanceof Set ? [...value] : value,
       })
 
       ;({ data: request } = await baseQueryWithReplacer(
@@ -469,8 +472,7 @@ describe('fetchBaseQuery', () => {
       ))
 
       expect(request.headers['content-type']).toBe('application/json')
-      expect(request.body).toEqual({ items: ["A", "B", "C"] }) // Set is marshalled correctly by jsonReplacer
-      
+      expect(request.body).toEqual({ items: ['A', 'B', 'C'] }) // Set is marshalled correctly by jsonReplacer
     })
   })
 

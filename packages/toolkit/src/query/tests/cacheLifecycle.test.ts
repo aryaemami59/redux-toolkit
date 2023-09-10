@@ -68,6 +68,7 @@ describe.each([['query'], ['mutation']] as const)(
       expect(onNewCacheEntry).toHaveBeenCalledWith('arg')
       expect(onCleanup).not.toHaveBeenCalled()
 
+      await promise
       promise.unsubscribe(), await waitMs()
       if (type === 'query') {
         jest.advanceTimersByTime(59000), await waitMs()
@@ -196,6 +197,7 @@ describe.each([['query'], ['mutation']] as const)(
       )
 
       expect(onNewCacheEntry).toHaveBeenCalledWith('arg')
+      await promise
       promise.unsubscribe(), await waitMs()
       if (type === 'query') {
         jest.advanceTimersByTime(59000), await waitMs()
@@ -241,6 +243,7 @@ describe.each([['query'], ['mutation']] as const)(
       )
 
       expect(onNewCacheEntry).toHaveBeenCalledWith('arg')
+      await promise
 
       promise.unsubscribe(), await waitMs()
       if (type === 'query') {
@@ -287,6 +290,7 @@ describe.each([['query'], ['mutation']] as const)(
 
       expect(onNewCacheEntry).toHaveBeenCalledWith('arg')
 
+      await promise
       promise.unsubscribe(), await waitMs()
       if (type === 'query') {
         jest.advanceTimersByTime(59000), await waitMs()
@@ -331,6 +335,7 @@ test(`query: getCacheEntry`, async () => {
   const promise = storeRef.store.dispatch(
     extended.endpoints.injected.initiate('arg')
   )
+  await promise
   promise.unsubscribe()
 
   await fakeTimerWaitFor(() => {
@@ -499,6 +504,7 @@ test('updateCachedData', async () => {
   const promise = storeRef.store.dispatch(
     extended.endpoints.injected.initiate('arg')
   )
+  await promise
   promise.unsubscribe()
 
   await fakeTimerWaitFor(() => {
@@ -536,7 +542,7 @@ test('dispatching further actions does not trigger another lifecycle', async () 
   expect(onNewCacheEntry).toHaveBeenCalledTimes(1)
 })
 
-test('dispatching a query initializer with `subscribe: false` does not start a lifecycle', async () => {
+test('dispatching a query initializer with `subscribe: false` does also start a lifecycle', async () => {
   const extended = api.injectEndpoints({
     overrideExisting: true,
     endpoints: (build) => ({
@@ -551,8 +557,9 @@ test('dispatching a query initializer with `subscribe: false` does not start a l
   await storeRef.store.dispatch(
     extended.endpoints.injected.initiate(undefined, { subscribe: false })
   )
-  expect(onNewCacheEntry).toHaveBeenCalledTimes(0)
+  expect(onNewCacheEntry).toHaveBeenCalledTimes(1)
 
+  // will not be called a second time though
   await storeRef.store.dispatch(extended.endpoints.injected.initiate(undefined))
   expect(onNewCacheEntry).toHaveBeenCalledTimes(1)
 })

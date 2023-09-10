@@ -29,7 +29,9 @@ test(`query: await cleanup, defaults`, async () => {
     })
   )
 
-  store.dispatch(api.endpoints.query.initiate('arg')).unsubscribe()
+  const promise = store.dispatch(api.endpoints.query.initiate('arg'))
+  await promise
+  promise.unsubscribe()
   jest.advanceTimersByTime(59000), await waitMs()
   expect(onCleanup).not.toHaveBeenCalled()
   jest.advanceTimersByTime(2000), await waitMs()
@@ -49,7 +51,9 @@ test(`query: await cleanup, keepUnusedDataFor set`, async () => {
     })
   )
 
-  store.dispatch(api.endpoints.query.initiate('arg')).unsubscribe()
+  const promise = store.dispatch(api.endpoints.query.initiate('arg'))
+  await promise
+  promise.unsubscribe()
   jest.advanceTimersByTime(28000), await waitMs()
   expect(onCleanup).not.toHaveBeenCalled()
   jest.advanceTimersByTime(2000), await waitMs()
@@ -69,7 +73,9 @@ test(`query: handles large keepUnuseDataFor values over 32-bit ms`, async () => 
     })
   )
 
-  store.dispatch(api.endpoints.query.initiate('arg')).unsubscribe()
+  const promise = store.dispatch(api.endpoints.query.initiate('arg'))
+  await promise
+  promise.unsubscribe()
 
   // Shouldn't have been called right away
   jest.advanceTimersByTime(1000), await waitMs()
@@ -111,7 +117,9 @@ describe(`query: await cleanup, keepUnusedDataFor set`, () => {
   )
 
   test('global keepUnusedDataFor', async () => {
-    store.dispatch(api.endpoints.query.initiate('arg')).unsubscribe()
+    const promise = store.dispatch(api.endpoints.query.initiate('arg'))
+    await promise
+    promise.unsubscribe()
     jest.advanceTimersByTime(28000), await waitMs()
     expect(onCleanup).not.toHaveBeenCalled()
     jest.advanceTimersByTime(2000), await waitMs()
@@ -119,7 +127,10 @@ describe(`query: await cleanup, keepUnusedDataFor set`, () => {
   })
 
   test('endpoint keepUnusedDataFor', async () => {
-    store.dispatch(api.endpoints.query2.initiate('arg')).unsubscribe()
+    const promise = store.dispatch(api.endpoints.query2.initiate('arg'))
+    await promise
+    promise.unsubscribe()
+
     jest.advanceTimersByTime(34000), await waitMs()
     expect(onCleanup).not.toHaveBeenCalled()
     jest.advanceTimersByTime(2000), await waitMs()
@@ -128,7 +139,9 @@ describe(`query: await cleanup, keepUnusedDataFor set`, () => {
 
   test('endpoint keepUnusedDataFor: 0 ', async () => {
     expect(onCleanup).not.toHaveBeenCalled()
-    store.dispatch(api.endpoints.query3.initiate('arg')).unsubscribe()
+    const promise = store.dispatch(api.endpoints.query3.initiate('arg'))
+    await promise
+    promise.unsubscribe()
     expect(onCleanup).not.toHaveBeenCalled()
     jest.advanceTimersByTime(1)
     await waitMs()
