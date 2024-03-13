@@ -28,7 +28,7 @@ If you want to customise the list of enhancers, you can supply an array of enhan
 ```js
 const store = configureStore({
   reducer: rootReducer,
-  enhancers: [offline(offlineConfig)],
+  enhancers: () => new Tuple(offline(offlineConfig)),
 })
 
 // store specifically has the offline enhancer applied
@@ -109,6 +109,6 @@ interface GetDefaultEnhancersOptions {
 }
 
 function getDefaultEnhancers<M extends Middlewares<any>>(
-  options: GetDefaultEnhancersOptions = {}
+  options: GetDefaultEnhancersOptions = {},
 ): EnhancerArray<[StoreEnhancer<{ dispatch: ExtractDispatchExtensions<M> }>]>
 ```
