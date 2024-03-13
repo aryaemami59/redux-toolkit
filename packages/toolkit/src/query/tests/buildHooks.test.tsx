@@ -9,6 +9,7 @@ import {
   waitMs,
   withProvider,
 } from '@internal/tests/utils/helpers'
+import { delay } from '@internal/utils'
 import type { UnknownAction } from '@reduxjs/toolkit'
 import {
   configureStore,
@@ -727,17 +728,17 @@ describe('hooks tests', () => {
     // See https://github.com/reduxjs/redux-toolkit/issues/4267 - Memory leak in useQuery rapid query arg changes
     test('Hook subscriptions are properly cleaned up when query is fulfilled/rejected', async () => {
       // This is imported already, but it seems to be causing issues with the test on certain matrixes
-      function delay(ms: number) {
-        return new Promise((resolve) => setTimeout(resolve, ms))
-      }
+      // function delay(ms: number) {
+      //   return new Promise((resolve) => setTimeout(resolve, ms))
+      // }
 
       const pokemonApi = createApi({
         baseQuery: fetchBaseQuery({ baseUrl: 'https://pokeapi.co/api/v2/' }),
         endpoints: (builder) => ({
           getTest: builder.query<string, number>({
             async queryFn() {
-              await new Promise((resolve) => setTimeout(resolve, 1000));
-              return { data: "data!" };
+              await new Promise((resolve) => setTimeout(resolve, 1000))
+              return { data: 'data!' }
             },
             keepUnusedDataFor: 0,
           }),
@@ -749,13 +750,13 @@ describe('hooks tests', () => {
       })
 
       const checkNumQueries = (count: number) => {
-        const cacheEntries = Object.keys((storeRef.store.getState()).api.queries)
+        const cacheEntries = Object.keys(storeRef.store.getState().api.queries)
         const queries = cacheEntries.length
 
         expect(queries).toBe(count)
       }
 
-      let i = 0;
+      let i = 0
 
       function User() {
         const [fetchTest, { isFetching, isUninitialized }] =
@@ -782,7 +783,7 @@ describe('hooks tests', () => {
       })
 
       // There should only be one stored query once they have had time to resolve
-      checkNumQueries( 1)
+      checkNumQueries(1)
     })
 
     // See https://github.com/reduxjs/redux-toolkit/issues/3182
