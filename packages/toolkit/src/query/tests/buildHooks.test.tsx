@@ -9,7 +9,7 @@ import {
   waitMs,
   withProvider,
 } from '@internal/tests/utils/helpers'
-import { delay } from '@internal/utils'
+// import { delay } from '@internal/utils'
 import type { UnknownAction } from '@reduxjs/toolkit'
 import {
   configureStore,
@@ -34,6 +34,7 @@ import userEvent from '@testing-library/user-event'
 import { HttpResponse, http } from 'msw'
 import { useEffect, useState } from 'react'
 import type { MockInstance } from 'vitest'
+import { delay } from '../../utils'
 
 // Just setup a temporary in-memory counter for tests that `getIncrementedAmount`.
 // This can be used to test how many renders happen due to data changes or
