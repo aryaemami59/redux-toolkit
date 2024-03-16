@@ -191,6 +191,12 @@ export default defineConfig((options) => {
             [outputFilename]: entryPoint,
           },
           format,
+          // dts: {
+          //   entry: {
+          //     [outputFilename]: entryPoint,
+          //   },
+          //   resolve: true,
+          // },
           tsconfig,
           outDir: outputFolder,
           target,
@@ -250,21 +256,24 @@ export default defineConfig((options) => {
     })
     .flat()
     .concat([
-      { dts: { only: true, resolve: true }, entry: ['src/index.ts'] },
       {
         dts: { only: true, resolve: true },
-        entry: ['src/react/index.ts'],
-        outDir: 'dist/react',
+        entry: { index: 'src/index.ts' },
       },
       {
         dts: { only: true, resolve: true },
-        entry: ['src/query/index.ts'],
-        outDir: 'dist/query',
+        entry: { 'react/index': 'src/react/index.ts' },
+        // outDir: 'dist/react',
       },
       {
         dts: { only: true, resolve: true },
-        entry: ['src/query/react/index.ts'],
-        outDir: 'dist/query/react',
+        entry: { 'query/index': 'src/react/index.ts' },
+        // outDir: 'dist/query',
+      },
+      {
+        dts: { only: true, resolve: true },
+        entry: { 'query/react/index': 'src/query/react/index.ts' },
+        // outDir: 'dist/query/react',
       },
     ])
 
