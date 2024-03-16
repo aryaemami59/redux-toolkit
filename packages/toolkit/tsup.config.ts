@@ -190,16 +190,19 @@ export default defineConfig((options) => {
       ...commonOptions,
       entry: ['./src/react/index.ts'],
       outDir: 'dist/react',
+      external: ['redux', '@reduxjs/toolkit'],
     },
     {
       ...commonOptions,
       entry: ['./src/query/index.ts'],
       outDir: 'dist/query',
+      external: ['redux', '@reduxjs/toolkit'],
     },
     {
       ...commonOptions,
       entry: ['./src/query/react/index.ts'],
       outDir: 'dist/query/react',
+      external: ['redux', '@reduxjs/toolkit'],
     },
   ]
 })
