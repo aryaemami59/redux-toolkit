@@ -167,7 +167,7 @@ export default defineConfig((options) => {
     // cjsInterop: true,
     plugins: [mangleErrorsTransform],
     target: ['es2017'],
-    outExtension: ({ format }) => ({ js: format === 'esm' ? 'mjs' : 'cjs' }),
+    outExtension: ({ format }) => ({ js: format === 'esm' ? '.mjs' : '.cjs' }),
     // splitting: false,
     format: ['esm', 'cjs'],
   }
