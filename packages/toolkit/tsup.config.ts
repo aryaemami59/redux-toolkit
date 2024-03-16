@@ -250,7 +250,7 @@ export default defineConfig((options) => {
     })
     .flat()
     .concat([
-      // { dts: { only: true, resolve: true }, entry: ['src/index.ts'] },
+      { dts: { only: true, resolve: true }, entry: ['src/index.ts'] },
       {
         dts: { only: true, resolve: true },
         entry: ['src/react/index.ts'],
