@@ -256,28 +256,28 @@ export default defineConfig((options) => {
         clean: true,
         entry: ['src/index.ts'],
         outDir: 'dist',
-        format: 'esm',
+        format: ['esm', 'cjs'],
       },
       {
         dts: { only: true },
         clean: true,
         entry: ['src/react/index.ts'],
         outDir: 'dist/react',
-        format: 'esm',
+        format: ['esm', 'cjs'],
       },
       {
         dts: { only: true },
         clean: true,
         entry: ['src/query/index.ts'],
         outDir: 'dist/query',
-        format: 'esm',
+        format: ['esm', 'cjs'],
       },
       {
         dts: { only: true },
         clean: true,
         entry: ['src/query/react/index.ts'],
         outDir: 'dist/query/react',
-        format: 'esm',
+        format: ['esm', 'cjs'],
       },
     ])
 
