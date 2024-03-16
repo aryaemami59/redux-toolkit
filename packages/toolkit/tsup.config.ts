@@ -164,6 +164,8 @@ export default defineConfig((options) => {
     dts: true,
     sourcemap: true,
     tsconfig,
+    plugins: [mangleErrorsTransform],
+    target: 'esnext',
     // splitting: false,
     format: ['esm', 'cjs'],
   }
