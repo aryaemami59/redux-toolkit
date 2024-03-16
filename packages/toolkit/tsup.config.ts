@@ -166,7 +166,7 @@ export default defineConfig((options) => {
     tsconfig,
     cjsInterop: true,
     plugins: [mangleErrorsTransform],
-    target: ['esnext'],
+    target: ['es2017'],
     // splitting: false,
     format: ['esm', 'cjs'],
   }
