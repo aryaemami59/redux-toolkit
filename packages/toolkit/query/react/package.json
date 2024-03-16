@@ -3,24 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "module": "../../dist/query/react/index.mjs",
-  "main": "../../dist/query/react/index.js",
+  "module": "../../dist/query/react/rtk-query-react.legacy-esm.js",
+  "main": "../../dist/query/react/cjs/index.js",
   "types": "./../../dist/query/react/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "import": {
-        "types": "./../../dist/query/react/index.d.mts",
-        "default": "./../../dist/query/react/index.mjs"
-      },
-      "node": {
-        "types": "./../../dist/query/react/index.d.mts",
-        "default": "./../../dist/query/react/index.mjs"
-      },
-      "require": {
-        "types": "./../../dist/query/react/index.d.ts",
-        "default": "./../../dist/query/react/index.js"
-      }
+      "types": "./../../dist/query/react/index.d.ts",
+      "import": "./../../dist/query/react/rtk-query-react.modern.mjs",
+      "default": "./../../dist/query/react/cjs/index.js"
     }
   },
   "author": "Mark Erikson <mark@isquaredsoftware.com>",

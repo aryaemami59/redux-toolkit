@@ -159,50 +159,96 @@ const tsconfig: NonNullable<TsupOptions['tsconfig']> = path.join(
 )
 
 export default defineConfig((options) => {
-  const commonOptions: TsupOptions = {
-    clean: true,
-    dts: true,
-    sourcemap: true,
-    tsconfig,
-    // cjsInterop: true,
-    plugins: [mangleErrorsTransform],
-    target: ['esnext'],
-    outExtension: ({ format }) => ({ js: format === 'esm' ? '.mjs' : '.cjs' }),
-    // splitting: false,
-    format: ['esm', 'cjs'],
-  }
+  const configs = entryPoints
+    .map((entryPointConfig) => {
+      const artifactOptions: TsupOptions[] = buildTargets.map((buildTarget) => {
+        const { prefix, folder, entryPoint, externals } = entryPointConfig
+        const { format, minify, env, name, target } = buildTarget
+        const outputFilename = `${prefix}.${name}`
 
-  return [
-    {
-      ...commonOptions,
-      entry: [
-        './src/index.ts',
-        // path.resolve('src'),
-        // path.resolve('src/index.ts'),
-        // 'src/react/index.ts',
-        // 'src/query/index.ts',
-        // 'src/query/react/index.ts',
-      ],
-      outDir: 'dist',
-      // outDir: path.resolve('dist'),
-    },
-    {
-      ...commonOptions,
-      entry: ['./src/react/index.ts'],
-      outDir: 'dist/react',
-      external: ['redux', '@reduxjs/toolkit'],
-    },
-    {
-      ...commonOptions,
-      entry: ['./src/query/index.ts'],
-      outDir: 'dist/query',
-      external: ['redux', '@reduxjs/toolkit'],
-    },
-    {
-      ...commonOptions,
-      entry: ['./src/query/react/index.ts'],
-      outDir: 'dist/query/react',
-      external: ['redux', '@reduxjs/toolkit'],
-    },
-  ]
+        const folderSegments = [outputDir, folder]
+        if (format === 'cjs') {
+          folderSegments.push('cjs')
+        }
+
+        const outputFolder = path.join(...folderSegments)
+
+        const extension =
+          name === 'legacy-esm' ? '.js' : format === 'esm' ? '.mjs' : '.cjs'
+
+        const defineValues: Record<string, string> = {}
+
+        if (env) {
+          Object.assign(defineValues, {
+            'process.env.NODE_ENV': JSON.stringify(env),
+          })
+        }
+
+        const generateTypedefs = name === 'modern' && format === 'esm'
+
+        return {
+          entry: {
+            [outputFilename]: entryPoint,
+          },
+          format,
+          tsconfig,
+          outDir: outputFolder,
+          target,
+          outExtension: () => ({ js: extension }),
+          minify,
+          sourcemap: true,
+          external: externals,
+          esbuildPlugins: [mangleErrorsTransform],
+          esbuildOptions(options) {
+            // Needed to prevent auto-replacing of process.env.NODE_ENV in all builds
+            options.platform = 'neutral'
+            // Needed to return to normal lookup behavior when platform: 'neutral'
+            options.mainFields = ['browser', 'module', 'main']
+            options.conditions = ['browser']
+          },
+
+          define: defineValues,
+          async onSuccess() {
+            if (format === 'cjs' && name === 'production.min') {
+              writeCommonJSEntry(outputFolder, prefix)
+            } else if (generateTypedefs) {
+              if (folder === '') {
+                // we need to delete the declaration file and replace it with the original source file
+                fs.rmSync(path.join(outputFolder, 'uncheckedindexed.d.ts'), {
+                  force: true,
+                })
+
+                fs.copyFileSync(
+                  'src/uncheckedindexed.ts',
+                  path.join(outputFolder, 'uncheckedindexed.ts'),
+                )
+              }
+              // TODO Copy/generate `.d.mts` files?
+              // const inputTypedefsFile = `${outputFilename}.d.ts`
+              // const outputTypedefsFile = `${outputFilename}.d.mts`
+              // const inputTypedefsPath = path.join(
+              //   outputFolder,
+              //   inputTypedefsFile
+              // )
+              // const outputTypedefsPath = path.join(
+              //   outputFolder,
+              //   outputTypedefsFile
+              // )
+              // while (!fs.existsSync(inputTypedefsPath)) {
+              //   // console.log(
+              //   //   'Waiting for typedefs to be generated: ' + inputTypedefsFile
+              //   // )
+              //   await delay(100)
+              // }
+              // fs.copyFileSync(inputTypedefsPath, outputTypedefsPath)
+            }
+          },
+        }
+      })
+
+      return artifactOptions
+    })
+    .flat()
+
+  return configs
 })

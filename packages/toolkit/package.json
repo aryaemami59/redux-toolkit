@@ -22,65 +22,30 @@
   "publishConfig": {
     "access": "public"
   },
-  "module": "dist/index.mjs",
-  "main": "dist/index.cjs",
+  "module": "dist/redux-toolkit.legacy-esm.js",
+  "main": "dist/cjs/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.cjs"
-      },
-      "node": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.cjs"
-      }
+      "types": "./dist/index.d.ts",
+      "import": "./dist/redux-toolkit.modern.mjs",
+      "default": "./dist/cjs/index.js"
     },
-    "./react/package.json": "./react/package.json",
     "./react": {
-      "import": {
-        "types": "./dist/react/index.d.ts",
-        "default": "./dist/react/index.cjs"
-      },
-      "node": {
-        "types": "./dist/react/index.d.ts",
-        "default": "./dist/react/index.cjs"
-      },
-      "require": {
-        "types": "./dist/react/index.d.ts",
-        "default": "./dist/react/index.cjs"
-      }
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/redux-toolkit-react.modern.mjs",
+      "default": "./dist/react/cjs/index.js"
     },
-    "./query/package.json": "./react/package.json",
     "./query": {
-      "import": {
-        "types": "./dist/query/index.d.ts",
-        "default": "./dist/query/index.cjs"
-      },
-      "node": {
-        "types": "./dist/query/index.d.ts",
-        "default": "./dist/query/index.cjs"
-      },
-      "require": {
-        "types": "./dist/query/index.d.ts",
-        "default": "./dist/query/index.cjs"
-      }
+      "types": "./dist/query/index.d.ts",
+      "import": "./dist/query/rtk-query.modern.mjs",
+      "default": "./dist/query/cjs/index.js"
     },
-    "./query/react/package.json": "./react/package.json",
     "./query/react": {
-      "import": {
-        "types": "./dist/query/react/index.d.ts",
-        "default": "./dist/query/react/index.cjs"
-      },
-      "node": {
-        "types": "./dist/query/react/index.d.ts",
-        "default": "./dist/query/react/index.cjs"
-      },
-      "require": {
-        "types": "./dist/query/react/index.d.ts",
-        "default": "./dist/query/react/index.cjs"
-      }
+      "types": "./dist/query/react/index.d.ts",
+      "import": "./dist/query/react/rtk-query-react.modern.mjs",
+      "default": "./dist/query/react/cjs/index.js"
     }
   },
   "devDependencies": {
@@ -123,7 +88,7 @@
     "rimraf": "^3.0.2",
     "size-limit": "^11.0.1",
     "tslib": "^1.10.0",
-    "tsup": "^8.0.2",
+    "tsup": "^7.2.0",
     "tsx": "^3.12.2",
     "typescript": "^5.3.3",
     "vite-tsconfig-paths": "^4.3.1",
@@ -133,12 +98,12 @@
   "scripts": {
     "clean": "rimraf dist",
     "run-build": "tsup",
-    "build": "yarn clean &&  yarn run-build",
+    "build": "yarn clean && echo Compiling TS... &&  yarn tsc -p tsconfig.build.json && yarn run-build",
     "build-only": "yarn clean && yarn run-build",
     "format": "prettier --write \"(src|examples)/**/*.{ts,tsx}\" \"**/*.md\"",
     "format:check": "prettier --list-different \"(src|examples)/**/*.{ts,tsx}\" \"docs/*/**.md\"",
     "lint": "eslint src examples",
-    "test": "vitest --run",
+    "test": "vitest --run --typecheck",
     "test:watch": "vitest --watch",
     "type-tests": "yarn tsc -p tsconfig.test.json --noEmit",
     "prepack": "yarn build",
