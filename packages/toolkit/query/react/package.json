@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "module": "../../dist/query/react/index.js",
-  "main": "../../dist/query/react/index.cjs",
-  "types": "./../../dist/query/react/index.d.cts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
