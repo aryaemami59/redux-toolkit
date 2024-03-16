@@ -3,23 +3,23 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "module": "../dist/react/index.js",
-  "main": "../dist/react/index.cjs",
+  "module": "../dist/react/index.mjs",
+  "main": "../dist/react/index.js",
   "types": "../dist/react/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
       "import": {
+        "types": "./../dist/react/index.d.mts",
+        "default": "./../dist/react/index.mjs"
+      },
+      "node": {
         "types": "./../dist/react/index.d.ts",
         "default": "./../dist/react/index.js"
       },
-      "node": {
-        "types": "./../dist/react/index.d.cts",
-        "default": "./../dist/react/index.cjs"
-      },
       "require": {
-        "types": "./../dist/react/index.d.cts",
-        "default": "./../dist/react/index.cjs"
+        "types": "./../dist/react/index.d.ts",
+        "default": "./../dist/react/index.js"
       }
     }
   },
