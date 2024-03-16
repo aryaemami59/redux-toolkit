@@ -165,7 +165,7 @@ export default defineConfig((options) => {
     sourcemap: true,
     tsconfig,
     plugins: [mangleErrorsTransform],
-    target: 'esnext',
+    target: ['esnext'],
     // splitting: false,
     format: ['esm', 'cjs'],
   }
@@ -174,18 +174,27 @@ export default defineConfig((options) => {
     {
       ...commonOptions,
       entry: [
-        'src/index.ts',
+        path.resolve('src/index.ts'),
         // 'src/react/index.ts',
         // 'src/query/index.ts',
         // 'src/query/react/index.ts',
       ],
+      outDir: path.resolve('dist'),
     },
-    { ...commonOptions, entry: ['src/react/index.ts'], outDir: 'dist/react' },
-    { ...commonOptions, entry: ['src/query/index.ts'], outDir: 'dist/query' },
     {
       ...commonOptions,
-      entry: ['src/query/react/index.ts'],
-      outDir: 'dist/query/react',
+      entry: [path.resolve('src/react/index.ts')],
+      outDir: path.resolve('dist/react'),
+    },
+    {
+      ...commonOptions,
+      entry: [path.resolve('src/query/index.ts')],
+      outDir: path.resolve('dist/query'),
+    },
+    {
+      ...commonOptions,
+      entry: [path.resolve('src/query/react/index.ts')],
+      outDir: path.resolve('dist/query/react'),
     },
   ]
 })
