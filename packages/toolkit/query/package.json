@@ -4,7 +4,7 @@
   "description": "",
   "type": "module",
   "module": "../dist/query/index.mjs",
-  "main": "../dist/query/index.js",
+  "main": "../dist/query/index.cjs",
   "types": "./../dist/query/index.d.mts",
   "exports": {
     "./package.json": "./package.json",
@@ -19,7 +19,7 @@
       },
       "require": {
         "types": "./../dist/query/index.d.ts",
-        "default": "./../dist/query/index.js"
+        "default": "./../dist/query/index.cjs"
       }
     }
   },
