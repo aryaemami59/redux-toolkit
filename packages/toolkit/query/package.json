@@ -13,6 +13,10 @@
         "types": "./../dist/query/index.d.mts",
         "default": "./../dist/query/index.mjs"
       },
+      "node": {
+        "types": "./../dist/query/index.d.mts",
+        "default": "./../dist/query/index.mjs"
+      },
       "require": {
         "types": "./../dist/query/index.d.ts",
         "default": "./../dist/query/index.js"

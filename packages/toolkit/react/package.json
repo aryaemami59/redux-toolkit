@@ -13,6 +13,10 @@
         "types": "./../dist/react/index.d.mts",
         "default": "./../dist/react/index.mjs"
       },
+      "node": {
+        "types": "./../dist/react/index.d.mts",
+        "default": "./../dist/react/index.mjs"
+      },
       "require": {
         "types": "./../dist/react/index.d.ts",
         "default": "./../dist/react/index.js"

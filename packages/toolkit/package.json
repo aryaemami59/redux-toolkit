@@ -32,6 +32,10 @@
         "types": "./dist/index.d.mts",
         "default": "./dist/index.mjs"
       },
+      "node": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
       "require": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
@@ -39,6 +43,10 @@
     },
     "./react": {
       "import": {
+        "types": "./dist/react/index.d.mts",
+        "default": "./dist/react/index.mjs"
+      },
+      "node": {
         "types": "./dist/react/index.d.mts",
         "default": "./dist/react/index.mjs"
       },
@@ -52,6 +60,10 @@
         "types": "./dist/query/index.d.mts",
         "default": "./dist/query/index.mjs"
       },
+      "node": {
+        "types": "./dist/query/index.d.mts",
+        "default": "./dist/query/index.mjs"
+      },
       "require": {
         "types": "./dist/query/index.d.ts",
         "default": "./dist/query/index.js"
@@ -59,6 +71,10 @@
     },
     "./query/react": {
       "import": {
+        "types": "./dist/query/react/index.d.mts",
+        "default": "./dist/query/react/index.mjs"
+      },
+      "node": {
         "types": "./dist/query/react/index.d.mts",
         "default": "./dist/query/react/index.mjs"
       },
