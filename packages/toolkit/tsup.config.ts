@@ -175,27 +175,30 @@ export default defineConfig((options) => {
     {
       ...commonOptions,
       entry: [
-        path.resolve('src/index.ts'),
+        './src/index.ts',
+        // path.resolve('src'),
+        // path.resolve('src/index.ts'),
         // 'src/react/index.ts',
         // 'src/query/index.ts',
         // 'src/query/react/index.ts',
       ],
-      outDir: path.resolve('dist'),
+      outDir: 'dist',
+      // outDir: path.resolve('dist'),
     },
     {
       ...commonOptions,
-      entry: [path.resolve('src/react/index.ts')],
-      outDir: path.resolve('dist/react'),
+      entry: ['./src/react/index.ts'],
+      outDir: 'dist/react',
     },
     {
       ...commonOptions,
-      entry: [path.resolve('src/query/index.ts')],
-      outDir: path.resolve('dist/query'),
+      entry: ['./src/query/index.ts'],
+      outDir: 'dist/query',
     },
     {
       ...commonOptions,
-      entry: [path.resolve('src/query/react/index.ts')],
-      outDir: path.resolve('dist/query/react'),
+      entry: ['./src/query/react/index.ts'],
+      outDir: 'dist/query/react',
     },
   ]
 })

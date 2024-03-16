@@ -170,7 +170,6 @@
       "optional": true
     }
   },
-  "sideEffects": false,
   "bugs": {
     "url": "https://github.com/reduxjs/redux-toolkit/issues"
   },
