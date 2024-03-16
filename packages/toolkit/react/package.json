@@ -5,11 +5,11 @@
   "type": "module",
   "module": "../dist/react/redux-toolkit-react.legacy-esm.js",
   "main": "../dist/react/cjs/index.js",
-  "types": "./../dist/react/index.d.ts",
+  "types": "./../dist/react/redux-toolkit-react.modern.d.mts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./../dist/react/index.d.ts",
+      "types": "./../dist/react/redux-toolkit-react.modern.d.mts",
       "import": "./../dist/react/redux-toolkit-react.modern.mjs",
       "default": "./../dist/react/cjs/index.js"
     }
