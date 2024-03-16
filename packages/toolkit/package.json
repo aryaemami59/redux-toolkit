@@ -37,6 +37,7 @@
         "default": "./dist/index.js"
       }
     },
+    "./react/package.json": "./react/package.json",
     "./react": {
       "import": {
         "types": "./dist/react/index.d.ts",
@@ -51,6 +52,7 @@
         "default": "./dist/react/index.cjs"
       }
     },
+    "./query/package.json": "./react/package.json",
     "./query": {
       "import": {
         "types": "./dist/query/index.d.ts",
@@ -65,6 +67,7 @@
         "default": "./dist/query/index.cjs"
       }
     },
+    "./query/react/package.json": "./react/package.json",
     "./query/react": {
       "import": {
         "types": "./dist/query/react/index.d.ts",
