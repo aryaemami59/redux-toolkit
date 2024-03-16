@@ -24,26 +24,26 @@
   },
   "module": "dist/redux-toolkit.legacy-esm.js",
   "main": "dist/cjs/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/redux-toolkit.modern.d.mts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/redux-toolkit.modern.d.mts",
       "import": "./dist/redux-toolkit.modern.mjs",
       "default": "./dist/cjs/index.js"
     },
     "./react": {
-      "types": "./dist/react/index.d.ts",
+      "types": "./dist/react/redux-toolkit-react.modern.d.mts",
       "import": "./dist/react/redux-toolkit-react.modern.mjs",
       "default": "./dist/react/cjs/index.js"
     },
     "./query": {
-      "types": "./dist/query/index.d.ts",
+      "types": "./dist/query/rtk-query.modern.d.mts",
       "import": "./dist/query/rtk-query.modern.mjs",
       "default": "./dist/query/cjs/index.js"
     },
     "./query/react": {
-      "types": "./dist/query/react/index.d.ts",
+      "types": "./dist/query/react/rtk-query-react.modern.d.mts",
       "import": "./dist/query/react/rtk-query-react.modern.mjs",
       "default": "./dist/query/react/cjs/index.js"
     }
@@ -98,7 +98,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "run-build": "tsup",
-    "build": "yarn clean && echo Compiling TS... &&  yarn tsc -p tsconfig.build.json && yarn run-build",
+    "build": "yarn clean &&  yarn run-build",
     "build-only": "yarn clean && yarn run-build",
     "format": "prettier --write \"(src|examples)/**/*.{ts,tsx}\" \"**/*.md\"",
     "format:check": "prettier --list-different \"(src|examples)/**/*.{ts,tsx}\" \"docs/*/**.md\"",
