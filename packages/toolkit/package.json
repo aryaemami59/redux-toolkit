@@ -22,65 +22,66 @@
   "publishConfig": {
     "access": "public"
   },
-  "module": "dist/index.mjs",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "type": "module",
+  "module": "dist/index.js",
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.cts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
       "import": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
-      },
-      "node": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
-      },
-      "require": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
+      },
+      "node": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
       }
     },
     "./react": {
       "import": {
-        "types": "./dist/react/index.d.mts",
-        "default": "./dist/react/index.mjs"
-      },
-      "node": {
-        "types": "./dist/react/index.d.mts",
-        "default": "./dist/react/index.mjs"
-      },
-      "require": {
         "types": "./dist/react/index.d.ts",
         "default": "./dist/react/index.js"
+      },
+      "node": {
+        "types": "./dist/react/index.d.ts",
+        "default": "./dist/react/index.js"
+      },
+      "require": {
+        "types": "./dist/react/index.d.cts",
+        "default": "./dist/react/index.cjs"
       }
     },
     "./query": {
       "import": {
-        "types": "./dist/query/index.d.mts",
-        "default": "./dist/query/index.mjs"
-      },
-      "node": {
-        "types": "./dist/query/index.d.mts",
-        "default": "./dist/query/index.mjs"
-      },
-      "require": {
         "types": "./dist/query/index.d.ts",
         "default": "./dist/query/index.js"
+      },
+      "node": {
+        "types": "./dist/query/index.d.ts",
+        "default": "./dist/query/index.js"
+      },
+      "require": {
+        "types": "./dist/query/index.d.cts",
+        "default": "./dist/query/index.cjs"
       }
     },
     "./query/react": {
       "import": {
-        "types": "./dist/query/react/index.d.mts",
-        "default": "./dist/query/react/index.mjs"
-      },
-      "node": {
-        "types": "./dist/query/react/index.d.mts",
-        "default": "./dist/query/react/index.mjs"
-      },
-      "require": {
         "types": "./dist/query/react/index.d.ts",
         "default": "./dist/query/react/index.js"
+      },
+      "node": {
+        "types": "./dist/query/react/index.d.ts",
+        "default": "./dist/query/react/index.js"
+      },
+      "require": {
+        "types": "./dist/query/react/index.d.cts",
+        "default": "./dist/query/react/index.cjs"
       }
     }
   },

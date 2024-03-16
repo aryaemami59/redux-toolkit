@@ -3,23 +3,23 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "module": "../dist/query/index.mjs",
-  "main": "../dist/query/index.js",
-  "types": "./../dist/query/index.d.ts",
+  "module": "../dist/query/index.js",
+  "main": "../dist/query/index.cjs",
+  "types": "./../dist/query/index.d.cts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
       "import": {
-        "types": "./../dist/query/index.d.mts",
-        "default": "./../dist/query/index.mjs"
-      },
-      "node": {
-        "types": "./../dist/query/index.d.mts",
-        "default": "./../dist/query/index.mjs"
-      },
-      "require": {
         "types": "./../dist/query/index.d.ts",
         "default": "./../dist/query/index.js"
+      },
+      "node": {
+        "types": "./../dist/query/index.d.ts",
+        "default": "./../dist/query/index.js"
+      },
+      "require": {
+        "types": "./../dist/query/index.d.cts",
+        "default": "./../dist/query/index.cjs"
       }
     }
   },
