@@ -1,11 +1,11 @@
-import * as babel from '@babel/core';
-import type { Plugin } from 'esbuild';
-import { getBuildExtensions } from 'esbuild-extra';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import type { Options as TsupOptions } from 'tsup';
-import { defineConfig } from 'tsup';
+import * as babel from '@babel/core'
+import type { Plugin } from 'esbuild'
+import { getBuildExtensions } from 'esbuild-extra'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import type { Options as TsupOptions } from 'tsup'
+import { defineConfig } from 'tsup'
 
 // No __dirname under Node ESM
 const __filename = fileURLToPath(import.meta.url)
@@ -190,7 +190,7 @@ export default defineConfig((options) => {
           entry: {
             [outputFilename]: entryPoint,
           },
-          dts: generateTypedefs,
+          // dts: outputFolder.includes('cjs') && entryPoint.includes('index'),
           format,
           tsconfig,
           outDir: outputFolder,
@@ -250,6 +250,36 @@ export default defineConfig((options) => {
       return artifactOptions
     })
     .flat()
+    .concat([
+      {
+        dts: { only: true },
+        clean: true,
+        entry: ['src/index.ts'],
+        outDir: 'dist',
+        // format: 'esm',
+      },
+      {
+        dts: { only: true },
+        clean: true,
+        entry: ['src/react/index.ts'],
+        outDir: 'dist/react',
+        // format: 'esm',
+      },
+      {
+        dts: { only: true },
+        clean: true,
+        entry: ['src/query/index.ts'],
+        outDir: 'dist/query',
+        // format: 'esm',
+      },
+      {
+        dts: { only: true },
+        clean: true,
+        entry: ['src/query/react/index.ts'],
+        outDir: 'dist/query/react',
+        // format: 'esm',
+      },
+    ])
 
   return configs
 })
