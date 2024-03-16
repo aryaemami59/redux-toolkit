@@ -159,127 +159,31 @@ const tsconfig: NonNullable<TsupOptions['tsconfig']> = path.join(
 )
 
 export default defineConfig((options) => {
-  const configs = entryPoints
-    .map((entryPointConfig) => {
-      const artifactOptions: TsupOptions[] = buildTargets.map((buildTarget) => {
-        const { prefix, folder, entryPoint, externals } = entryPointConfig
-        const { format, minify, env, name, target } = buildTarget
-        const outputFilename = `${prefix}.${name}`
+  const commonOptions: TsupOptions = {
+    clean: true,
+    dts: true,
+    sourcemap: true,
+    tsconfig,
+    // splitting: false,
+    format: ['esm', 'cjs'],
+  }
 
-        const folderSegments = [outputDir, folder]
-        if (format === 'cjs') {
-          folderSegments.push('cjs')
-        }
-
-        const outputFolder = path.join(...folderSegments)
-
-        const extension =
-          name === 'legacy-esm' ? '.js' : format === 'esm' ? '.mjs' : '.cjs'
-
-        const defineValues: Record<string, string> = {}
-
-        if (env) {
-          Object.assign(defineValues, {
-            'process.env.NODE_ENV': JSON.stringify(env),
-          })
-        }
-
-        const generateTypedefs = name === 'modern' && format === 'esm'
-
-        return {
-          entry: {
-            [outputFilename]: entryPoint,
-          },
-          // dts: outputFolder.includes('cjs') && entryPoint.includes('index'),
-          format,
-          tsconfig,
-          outDir: outputFolder,
-          target,
-          outExtension: () => ({ js: extension }),
-          minify,
-          sourcemap: true,
-          external: externals,
-          esbuildPlugins: [mangleErrorsTransform],
-          esbuildOptions(options) {
-            // Needed to prevent auto-replacing of process.env.NODE_ENV in all builds
-            options.platform = 'neutral'
-            // Needed to return to normal lookup behavior when platform: 'neutral'
-            options.mainFields = ['browser', 'module', 'main']
-            options.conditions = ['browser']
-          },
-
-          define: defineValues,
-          async onSuccess() {
-            if (format === 'cjs' && name === 'production.min') {
-              writeCommonJSEntry(outputFolder, prefix)
-            } else if (generateTypedefs) {
-              if (folder === '') {
-                // we need to delete the declaration file and replace it with the original source file
-                fs.rmSync(path.join(outputFolder, 'uncheckedindexed.d.ts'), {
-                  force: true,
-                })
-
-                fs.copyFileSync(
-                  'src/uncheckedindexed.ts',
-                  path.join(outputFolder, 'uncheckedindexed.ts'),
-                )
-              }
-              // TODO Copy/generate `.d.mts` files?
-              // const inputTypedefsFile = `${outputFilename}.d.ts`
-              // const outputTypedefsFile = `${outputFilename}.d.mts`
-              // const inputTypedefsPath = path.join(
-              //   outputFolder,
-              //   inputTypedefsFile
-              // )
-              // const outputTypedefsPath = path.join(
-              //   outputFolder,
-              //   outputTypedefsFile
-              // )
-              // while (!fs.existsSync(inputTypedefsPath)) {
-              //   // console.log(
-              //   //   'Waiting for typedefs to be generated: ' + inputTypedefsFile
-              //   // )
-              //   await delay(100)
-              // }
-              // fs.copyFileSync(inputTypedefsPath, outputTypedefsPath)
-            }
-          },
-        }
-      })
-
-      return artifactOptions
-    })
-    .flat()
-    .concat([
-      {
-        dts: { only: true },
-        clean: true,
-        entry: ['src/index.ts'],
-        outDir: 'dist',
-        format: ['esm', 'cjs'],
-      },
-      {
-        dts: { only: true },
-        clean: true,
-        entry: ['src/react/index.ts'],
-        outDir: 'dist/react',
-        format: ['esm', 'cjs'],
-      },
-      {
-        dts: { only: true },
-        clean: true,
-        entry: ['src/query/index.ts'],
-        outDir: 'dist/query',
-        format: ['esm', 'cjs'],
-      },
-      {
-        dts: { only: true },
-        clean: true,
-        entry: ['src/query/react/index.ts'],
-        outDir: 'dist/query/react',
-        format: ['esm', 'cjs'],
-      },
-    ])
-
-  return configs
+  return [
+    {
+      ...commonOptions,
+      entry: [
+        'src/index.ts',
+        // 'src/react/index.ts',
+        // 'src/query/index.ts',
+        // 'src/query/react/index.ts',
+      ],
+    },
+    { ...commonOptions, entry: ['src/react/index.ts'], outDir: 'dist/react' },
+    { ...commonOptions, entry: ['src/query/index.ts'], outDir: 'dist/query' },
+    {
+      ...commonOptions,
+      entry: ['src/query/react/index.ts'],
+      outDir: 'dist/query/react',
+    },
+  ]
 })
