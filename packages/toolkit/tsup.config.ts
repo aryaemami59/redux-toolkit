@@ -249,6 +249,24 @@ export default defineConfig((options) => {
       return artifactOptions
     })
     .flat()
+    .concat([
+      { dts: { only: true, resolve: true }, entry: ['src/index.ts'] },
+      {
+        dts: { only: true, resolve: true },
+        entry: ['src/react/index.ts'],
+        outDir: 'dist/react',
+      },
+      {
+        dts: { only: true, resolve: true },
+        entry: ['src/query/index.ts'],
+        outDir: 'dist/query',
+      },
+      {
+        dts: { only: true, resolve: true },
+        entry: ['src/query/react/index.ts'],
+        outDir: 'dist/query/react',
+      },
+    ])
 
   return configs
 })
