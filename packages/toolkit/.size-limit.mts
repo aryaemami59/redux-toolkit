@@ -1,5 +1,6 @@
-const webpack = require('webpack')
-let { join, sep } = require('path')
+import { join, sep } from 'path'
+import { Check, SizeLimitConfig } from 'size-limit'
+import webpack from 'webpack'
 
 const esmSuffixes = ['modern.mjs' /*, 'browser.mjs', 'legacy-esm.js'*/]
 const cjsSuffixes = [/*'development.cjs',*/ 'production.min.cjs']
@@ -284,9 +285,9 @@ const allEntries = ESMEntries.concat(CJSEntries).concat(
 // const allImports = entries.map(([key, value]) => value.import.substring(2))
 
 /**
- * @param {string} entryPoint
+ * @param entryPoint
  */
-const getAllImports = async (entryPoint) => {
+const getAllImports = async (entryPoint: string): Promise<SizeLimitConfig> => {
   const mainEntry = [
     {
       name: `1. ${entryPoint.endsWith('.js') ? 'CJS' : 'Production'} entry point: ${entryPoint}`,
@@ -299,7 +300,7 @@ const getAllImports = async (entryPoint) => {
     const module = await import(`./${entryPoint}`)
 
     return Object.keys(module)
-      .map((e) => ({
+      .map<Check>((e) => ({
         name: `${e} (${entryPoint})`,
         path: entryPoint,
         import: `{ ${e} }`,
@@ -408,4 +409,4 @@ const config = (async () =>
 //     )
 // })()
 // console.log(config.then((e) => console.log(e)))
-module.exports = config
+export default config
