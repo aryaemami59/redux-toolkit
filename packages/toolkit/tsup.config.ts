@@ -257,22 +257,22 @@ export default defineConfig((options) => {
     .flat()
     .concat([
       {
-        dts: { only: true },
+        dts: { only: true, entry: { index: 'src/index.ts' }, resolve: false },
         // dts: { only: true, resolve: true },
         entry: { index: 'src/index.ts' },
       },
       {
-        dts: { only: true },
+        dts: { only: true, resolve: false },
         entry: { 'react/index': 'src/react/index.ts' },
         // outDir: 'dist/react',
       },
       {
-        dts: { only: true },
+        dts: { only: true, resolve: false },
         entry: { 'query/index': 'src/react/index.ts' },
         // outDir: 'dist/query',
       },
       {
-        dts: { only: true },
+        dts: { only: true, resolve: false },
         entry: { 'query/react/index': 'src/query/react/index.ts' },
         // outDir: 'dist/query/react',
       },
