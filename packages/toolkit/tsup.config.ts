@@ -268,7 +268,7 @@ export default defineConfig((options) => {
       },
       {
         dts: { only: true, resolve: false },
-        entry: { 'query/index': 'src/react/index.ts' },
+        entry: { 'query/index': 'src/query/index.ts' },
         // outDir: 'dist/query',
       },
       {
