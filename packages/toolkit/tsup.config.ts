@@ -260,55 +260,74 @@ export default defineConfig((options) => {
         dts: { only: true, entry: { index: 'src/index.ts' }, resolve: false },
         // dts: { only: true, resolve: true },
         entry: { index: 'src/index.ts' },
+        tsconfig,
       },
       {
         dts: { only: true, resolve: false },
         // dts: { only: true, resolve: true },
         entry: { 'dynamicMiddleware/index': 'src/dynamicMiddleware/index.ts' },
+        tsconfig,
       },
       {
         dts: { only: true, resolve: false },
         // dts: { only: true, resolve: true },
-        entry: { 'dynamicMiddleware/react/index': 'src/dynamicMiddleware/react/index.ts' },
+        entry: {
+          'dynamicMiddleware/react/index':
+            'src/dynamicMiddleware/react/index.ts',
+        },
+        tsconfig,
       },
       {
         dts: { only: true, resolve: false },
         // dts: { only: true, resolve: true },
-        entry: { 'listenerMiddleware/index': 'src/listenerMiddleware/index.ts' },
+        entry: {
+          'listenerMiddleware/index': 'src/listenerMiddleware/index.ts',
+        },
+        tsconfig,
       },
       {
         dts: { only: true, resolve: false },
         // dts: { only: true, resolve: true },
-        entry: { 'query/core/buildMiddleware/index': 'src/query/core/buildMiddleware/index.ts' },
+        entry: {
+          'query/core/buildMiddleware/index':
+            'src/query/core/buildMiddleware/index.ts',
+        },
+        tsconfig,
       },
       {
         dts: { only: true, resolve: false },
         entry: { 'query/core/module': 'src/query/core/module.ts' },
+        tsconfig,
         // outDir: 'dist/query',
       },
       {
         dts: { only: true, resolve: false },
         entry: { 'query/react/module': 'src/query/react/module.ts' },
+        tsconfig,
         // outDir: 'dist/query/react',
       },
       {
         dts: { only: true, resolve: false },
         entry: { 'query/react/index': 'src/query/react/index.ts' },
+        tsconfig,
         // outDir: 'dist/query/react',
       },
       {
         dts: { only: true, resolve: false },
         entry: { 'react/index': 'src/react/index.ts' },
+        tsconfig,
         // outDir: 'dist/react',
       },
       {
         dts: { only: true, resolve: false },
         entry: { 'query/index': 'src/query/index.ts' },
+        tsconfig,
         // outDir: 'dist/query',
       },
       {
         dts: { only: true, resolve: false },
         entry: { 'query/core/index': 'src/query/core/index.ts' },
+        tsconfig,
         // outDir: 'dist/query',
       },
     ])
