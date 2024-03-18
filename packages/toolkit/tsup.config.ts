@@ -1,11 +1,11 @@
-import * as babel from '@babel/core'
-import type { Plugin } from 'esbuild'
-import { getBuildExtensions } from 'esbuild-extra'
-import fs from 'node:fs'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import type { Options as TsupOptions } from 'tsup'
-import { defineConfig } from 'tsup'
+import * as babel from '@babel/core';
+import type { Plugin } from 'esbuild';
+import { getBuildExtensions } from 'esbuild-extra';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import type { Options as TsupOptions } from 'tsup';
+import { defineConfig } from 'tsup';
 
 // No __dirname under Node ESM
 const __filename = fileURLToPath(import.meta.url)
@@ -345,6 +345,14 @@ export default defineConfig((options) => {
         dts: { only: true, resolve: false },
         entry: {
           'query/endpointDefinitions': 'src/query/endpointDefinitions.ts',
+        },
+        tsconfig,
+        // outDir: 'dist/query',
+      },
+      {
+        dts: { only: true, resolve: false },
+        entry: {
+          'query/core/buildInitiate': 'src/query/core/buildInitiate.ts',
         },
         tsconfig,
         // outDir: 'dist/query',
