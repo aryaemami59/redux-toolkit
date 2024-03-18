@@ -263,6 +263,26 @@ export default defineConfig((options) => {
       },
       {
         dts: { only: true, resolve: false },
+        // dts: { only: true, resolve: true },
+        entry: { 'dynamicMiddleware/index': 'src/dynamicMiddleware/index.ts' },
+      },
+      {
+        dts: { only: true, resolve: false },
+        // dts: { only: true, resolve: true },
+        entry: { 'dynamicMiddleware/react/index': 'src/dynamicMiddleware/react/index.ts' },
+      },
+      {
+        dts: { only: true, resolve: false },
+        // dts: { only: true, resolve: true },
+        entry: { 'listenerMiddleware/index': 'src/listenerMiddleware/index.ts' },
+      },
+      {
+        dts: { only: true, resolve: false },
+        // dts: { only: true, resolve: true },
+        entry: { 'query/core/buildMiddleware/index': 'src/query/core/buildMiddleware/index.ts' },
+      },
+      {
+        dts: { only: true, resolve: false },
         entry: { 'query/core/module': 'src/query/core/module.ts' },
         // outDir: 'dist/query',
       },
