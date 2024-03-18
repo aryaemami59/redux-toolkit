@@ -341,6 +341,14 @@ export default defineConfig((options) => {
         tsconfig,
         // outDir: 'dist/query',
       },
+      {
+        dts: { only: true, resolve: false },
+        entry: {
+          'query/endpointDefinitions': 'src/query/endpointDefinitions.ts',
+        },
+        tsconfig,
+        // outDir: 'dist/query',
+      },
     ])
 
   return configs
