@@ -373,6 +373,14 @@ export default defineConfig((options) => {
         tsconfig,
         // outDir: 'dist/query',
       },
+      {
+        dts: { only: true, resolve: false },
+        entry: {
+          'query/react/namedHooks': 'src/query/react/namedHooks.ts',
+        },
+        tsconfig,
+        // outDir: 'dist/query',
+      },
     ])
 
   return configs
