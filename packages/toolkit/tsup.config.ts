@@ -187,6 +187,11 @@ export default defineConfig((options) => {
         const generateTypedefs = name === 'modern' && format === 'esm'
 
         return {
+          dts: {
+            entry: {
+              [outputFilename]: entryPoint,
+            },
+          },
           entry: {
             [outputFilename]: entryPoint,
           },
