@@ -262,19 +262,19 @@ export default defineConfig((options) => {
     .flat()
     .concat([
       {
-        dts: { only: true, entry: { index: 'src/index.ts' }, resolve: false },
+        dts: { only: true, entry: { index: 'src/index.ts' } },
         // dts: { only: true, resolve: true },
         entry: { index: 'src/index.ts' },
         tsconfig,
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         // dts: { only: true, resolve: true },
         entry: { 'dynamicMiddleware/index': 'src/dynamicMiddleware/index.ts' },
         tsconfig,
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         // dts: { only: true, resolve: true },
         entry: {
           'dynamicMiddleware/react/index':
@@ -283,7 +283,7 @@ export default defineConfig((options) => {
         tsconfig,
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         // dts: { only: true, resolve: true },
         entry: {
           'listenerMiddleware/index': 'src/listenerMiddleware/index.ts',
@@ -291,7 +291,7 @@ export default defineConfig((options) => {
         tsconfig,
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         // dts: { only: true, resolve: true },
         entry: {
           'query/core/buildMiddleware/index':
@@ -300,49 +300,49 @@ export default defineConfig((options) => {
         tsconfig,
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         entry: { 'query/core/module': 'src/query/core/module.ts' },
         tsconfig,
         // outDir: 'dist/query',
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         entry: { 'query/react/module': 'src/query/react/module.ts' },
         tsconfig,
         // outDir: 'dist/query/react',
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         entry: { 'query/react/index': 'src/query/react/index.ts' },
         tsconfig,
         // outDir: 'dist/query/react',
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         entry: { 'react/index': 'src/react/index.ts' },
         tsconfig,
         // outDir: 'dist/react',
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         entry: { 'query/index': 'src/query/index.ts' },
         tsconfig,
         // outDir: 'dist/query',
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         entry: { 'query/core/index': 'src/query/core/index.ts' },
         tsconfig,
         // outDir: 'dist/query',
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         entry: { 'query/apiTypes': 'src/query/apiTypes.ts' },
         tsconfig,
         // outDir: 'dist/query',
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         entry: {
           'query/endpointDefinitions': 'src/query/endpointDefinitions.ts',
         },
@@ -350,7 +350,7 @@ export default defineConfig((options) => {
         // outDir: 'dist/query',
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         entry: {
           'query/core/buildInitiate': 'src/query/core/buildInitiate.ts',
         },
@@ -358,7 +358,7 @@ export default defineConfig((options) => {
         // outDir: 'dist/query',
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         entry: {
           'query/core/buildSelectors': 'src/query/core/buildSelectors.ts',
         },
@@ -366,7 +366,7 @@ export default defineConfig((options) => {
         // outDir: 'dist/query',
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         entry: {
           'query/core/buildThunks': 'src/query/core/buildThunks.ts',
         },
@@ -374,7 +374,7 @@ export default defineConfig((options) => {
         // outDir: 'dist/query',
       },
       {
-        dts: { only: true, resolve: false },
+        dts: { only: true },
         entry: {
           'query/react/namedHooks': 'src/query/react/namedHooks.ts',
         },
