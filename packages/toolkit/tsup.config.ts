@@ -263,6 +263,16 @@ export default defineConfig((options) => {
       },
       {
         dts: { only: true, resolve: false },
+        entry: { 'query/core/module': 'src/query/core/module.ts' },
+        // outDir: 'dist/query',
+      },
+      {
+        dts: { only: true, resolve: false },
+        entry: { 'query/react/module': 'src/query/react/module.ts' },
+        // outDir: 'dist/query/react',
+      },
+      {
+        dts: { only: true, resolve: false },
         entry: { 'react/index': 'src/react/index.ts' },
         // outDir: 'dist/react',
       },
@@ -275,16 +285,6 @@ export default defineConfig((options) => {
         dts: { only: true, resolve: false },
         entry: { 'query/core/index': 'src/query/core/index.ts' },
         // outDir: 'dist/query',
-      },
-      {
-        dts: { only: true, resolve: false },
-        entry: { 'query/core/module': 'src/query/core/module.ts' },
-        // outDir: 'dist/query',
-      },
-      {
-        dts: { only: true, resolve: false },
-        entry: { 'query/react/module': 'src/query/react/module.ts' },
-        // outDir: 'dist/query/react',
       },
     ])
 
