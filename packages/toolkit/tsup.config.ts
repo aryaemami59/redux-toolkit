@@ -262,112 +262,26 @@ export default defineConfig((options) => {
     .flat()
     .concat([
       {
-        dts: { only: true, entry: { index: 'src/index.ts' } },
+        dts: { only: true },
         entry: { index: 'src/index.ts' },
         tsconfig,
       },
-      // {
-      //   dts: { only: true },
-      //   entry: { 'dynamicMiddleware/index': 'src/dynamicMiddleware/index.ts' },
-      //   tsconfig,
-      // },
-      // {
-      //   dts: { only: true },
-      //   entry: {
-      //     'dynamicMiddleware/react/index':
-      //       'src/dynamicMiddleware/react/index.ts',
-      //   },
-      //   tsconfig,
-      // },
-      // {
-      //   dts: { only: true },
-      //   entry: {
-      //     'listenerMiddleware/index': 'src/listenerMiddleware/index.ts',
-      //   },
-      //   tsconfig,
-      // },
-      // {
-      //   dts: { only: true },
-      //   entry: {
-      //     'query/core/buildMiddleware/index':
-      //       'src/query/core/buildMiddleware/index.ts',
-      //   },
-      //   tsconfig,
-      // },
-      // {
-      //   dts: { only: true },
-      //   entry: { 'query/core/module': 'src/query/core/module.ts' },
-      //   tsconfig,
-      // },
-      // {
-      //   dts: { only: true },
-      //   entry: { 'query/react/module': 'src/query/react/module.ts' },
-      //   tsconfig,
-      // },
       {
         dts: { only: true },
         entry: { 'react/index': 'src/react/index.ts' },
         tsconfig,
       },
-      // {
-      //   dts: { only: true },
-      //   entry: { 'query/core/index': 'src/query/core/index.ts' },
-      //   tsconfig,
-      // },
       {
         dts: { only: true },
         entry: { 'query/index': 'src/query/index.ts' },
         tsconfig,
       },
       {
-        // bundle: true,
-        // format: 'esm',
-        // target: 'node20',
         external: ['@reduxjs/toolkit/query'],
         dts: { only: true },
         entry: { 'query/react/index': 'src/query/react/index.ts' },
         tsconfig,
       },
-      // {
-      //   dts: { only: true },
-      //   entry: { 'query/apiTypes': 'src/query/apiTypes.ts' },
-      //   tsconfig,
-      // },
-      // {
-      //   dts: { only: true },
-      //   entry: {
-      //     'query/endpointDefinitions': 'src/query/endpointDefinitions.ts',
-      //   },
-      //   tsconfig,
-      // },
-      // {
-      //   dts: { only: true },
-      //   entry: {
-      //     'query/core/buildInitiate': 'src/query/core/buildInitiate.ts',
-      //   },
-      //   tsconfig,
-      // },
-      // {
-      //   dts: { only: true },
-      //   entry: {
-      //     'query/core/buildSelectors': 'src/query/core/buildSelectors.ts',
-      //   },
-      //   tsconfig,
-      // },
-      // {
-      //   dts: { only: true },
-      //   entry: {
-      //     'query/core/buildThunks': 'src/query/core/buildThunks.ts',
-      //   },
-      //   tsconfig,
-      // },
-      // {
-      //   dts: { only: true },
-      //   entry: {
-      //     'query/react/namedHooks': 'src/query/react/namedHooks.ts',
-      //   },
-      //   tsconfig,
-      // },
     ])
 
   return configs
