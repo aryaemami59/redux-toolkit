@@ -2,7 +2,7 @@ import type { UseMutation, UseQuery } from '@internal/query/react/buildHooks'
 import { ANY } from '@internal/tests/utils/helpers'
 import type { SerializedError } from '@reduxjs/toolkit'
 import type { SubscriptionOptions } from '@reduxjs/toolkit/query/react'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi, fetchBaseQuery } from '@internal/query/react'
 import { useState } from 'react'
 
 let amount = 0
@@ -247,6 +247,8 @@ describe('type tests', () => {
     const fakeQuery = ANY as UseQuery<
       typeof api.endpoints.getUser.Types.QueryDefinition
     >
+
+    assertType<typeof fakeQuery>(api.endpoints.getUser.useQuery)
 
     expectTypeOf(fakeQuery).toEqualTypeOf(api.endpoints.getUser.useQuery)
   })
