@@ -1,25 +1,25 @@
-import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
-import type { QuerySubState, RootState } from './core/apiState'
+import type { CastAny } from '@internal/tsHelpers'
+import type { Api } from '@reduxjs/toolkit/query'
 import type {
+  BaseQueryApi,
+  BaseQueryArg,
+  BaseQueryError,
   BaseQueryExtraOptions,
   BaseQueryFn,
-  BaseQueryResult,
-  BaseQueryArg,
-  BaseQueryApi,
-  QueryReturnValue,
-  BaseQueryError,
   BaseQueryMeta,
+  BaseQueryResult,
+  QueryReturnValue,
 } from './baseQueryTypes'
+import type { QuerySubState, RootState } from './core/apiState'
+import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
+import type { NEVER } from './fakeBaseQuery'
 import type {
   HasRequiredProps,
   MaybePromise,
-  OmitFromUnion,
   NonUndefined,
+  OmitFromUnion,
   UnwrapPromise,
 } from './tsHelpers'
-import type { CastAny } from "@internal/tsHelpers";
-import type { NEVER } from './fakeBaseQuery'
-import type { Api } from '@reduxjs/toolkit/query'
 
 const resultType = /* @__PURE__ */ Symbol()
 const baseQuery = /* @__PURE__ */ Symbol()

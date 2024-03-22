@@ -1,6 +1,7 @@
 import type { Middleware } from 'redux'
 import { isAction, isPlainObject } from 'redux'
 import { getTimeMeasureUtils } from './utils'
+import { IgnorePaths } from "./immutableStateInvariantMiddleware";
 
 /**
  * Returns true if the passed value is "plain", i.e. a value that is either
@@ -27,8 +28,6 @@ interface NonSerializableValue {
   keyPath: string
   value: unknown
 }
-
-type IgnorePaths = readonly (string | RegExp)[]
 
 /**
  * @public

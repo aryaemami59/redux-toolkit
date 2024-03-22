@@ -41,7 +41,6 @@ import {
   useRef,
   useState,
 } from 'react'
-
 import { shallowEqual } from 'react-redux'
 import type { BaseQueryFn } from '../baseQueryTypes'
 import type { SubscriptionSelectors } from '../core/buildMiddleware/types'

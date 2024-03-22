@@ -2,12 +2,6 @@
  * Note: this file should import all other files for type discovery and declaration merging
  */
 import type {
-  PatchQueryDataThunk,
-  UpdateQueryDataThunk,
-  UpsertQueryDataThunk,
-} from './buildThunks'
-import { buildThunks } from './buildThunks'
-import type {
   ActionCreatorWithPayload,
   Middleware,
   Reducer,
@@ -15,40 +9,57 @@ import type {
   ThunkDispatch,
   UnknownAction,
 } from '@reduxjs/toolkit'
+import type { Api, Module } from '../apiTypes'
+import type { BaseQueryFn } from '../baseQueryTypes'
+import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
 import type {
+  AssertTagTypes,
   EndpointDefinitions,
+  MutationDefinition,
   QueryArgFrom,
   QueryDefinition,
-  MutationDefinition,
-  AssertTagTypes,
+  ReducerPathFrom,
   TagDescription,
+  TagTypesFrom,
 } from '../endpointDefinitions'
-import { isQueryDefinition, isMutationDefinition } from '../endpointDefinitions'
+import { isMutationDefinition, isQueryDefinition } from '../endpointDefinitions'
+import { assertCast, safeAssign } from '../tsHelpers'
 import type {
   CombinedState,
-  QueryKeys,
   MutationKeys,
+  QueryKeys,
   RootState,
 } from './apiState'
-import type { Api, Module } from '../apiTypes'
-import { onFocus, onFocusLost, onOnline, onOffline } from './setupListeners'
-import { buildSlice } from './buildSlice'
-import { buildMiddleware } from './buildMiddleware'
-import { buildSelectors } from './buildSelectors'
 import type {
   MutationActionCreatorResult,
   QueryActionCreatorResult,
+  StartMutationActionCreator,
+  StartQueryActionCreator,
 } from './buildInitiate'
 import { buildInitiate } from './buildInitiate'
-import { assertCast, safeAssign } from '../tsHelpers'
-import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
+import { buildMiddleware } from './buildMiddleware'
+import {
+  buildSelectors,
+  MutationResultSelectorFactory,
+  QueryResultSelectorFactory,
+} from './buildSelectors'
 import type { SliceActions } from './buildSlice'
-import type { BaseQueryFn } from '../baseQueryTypes'
+import { buildSlice } from './buildSlice'
+import type {
+  Matchers,
+  MutationThunk,
+  PatchQueryDataThunk,
+  QueryThunk,
+  UpdateQueryDataThunk,
+  UpsertQueryDataThunk,
+} from './buildThunks'
+import { buildThunks } from './buildThunks'
+import { onFocus, onFocusLost, onOffline, onOnline } from './setupListeners'
 
+import { enablePatches } from 'immer'
+import type { ReferenceCacheCollection } from './buildMiddleware/cacheCollection'
 import type { ReferenceCacheLifecycle } from './buildMiddleware/cacheLifecycle'
 import type { ReferenceQueryLifecycle } from './buildMiddleware/queryLifecycle'
-import type { ReferenceCacheCollection } from './buildMiddleware/cacheCollection'
-import { enablePatches } from 'immer'
 import { createSelector as _createSelector } from './rtkImports'
 
 /**
@@ -393,12 +404,23 @@ export interface ApiEndpointQuery<
   Definition extends QueryDefinition<any, any, any, any, any>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Definitions extends EndpointDefinitions,
-> {
+> extends Matchers<QueryThunk, Definition> {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
   Types: NonNullable<Definition['Types']>
+
+  initiate: StartQueryActionCreator<Definition>
+
+  select: QueryResultSelectorFactory<
+    Definition,
+    RootState<
+      Definitions,
+      TagTypesFrom<Definition>,
+      ReducerPathFrom<Definition>
+    >
+  >
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -407,12 +429,23 @@ export interface ApiEndpointMutation<
   Definition extends MutationDefinition<any, any, any, any, any>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Definitions extends EndpointDefinitions,
-> {
+> extends Matchers<MutationThunk, Definition> {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
   Types: NonNullable<Definition['Types']>
+
+  initiate: StartMutationActionCreator<Definition>
+
+  select: MutationResultSelectorFactory<
+    Definition,
+    RootState<
+      Definitions,
+      TagTypesFrom<Definition>,
+      ReducerPathFrom<Definition>
+    >
+  >
 }
 
 export type ListenerActions = {

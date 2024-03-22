@@ -4,27 +4,26 @@ import type {
   ThunkDispatch,
   UnknownAction,
 } from '@reduxjs/toolkit'
-import { isAction, createAction } from '../rtkImports'
-
 import type {
   EndpointDefinitions,
   FullTagDescription,
 } from '../../endpointDefinitions'
 import type { QueryStatus, QuerySubState, RootState } from '../apiState'
 import type { QueryThunkArg } from '../buildThunks'
+import { createAction, isAction } from '../rtkImports'
+import { buildBatchedActionsHandler } from './batchActions'
 import { buildCacheCollectionHandler } from './cacheCollection'
+import { buildCacheLifecycleHandler } from './cacheLifecycle'
+import { buildDevCheckHandler } from './devMiddleware'
 import { buildInvalidationByTagsHandler } from './invalidationByTags'
 import { buildPollingHandler } from './polling'
+import { buildQueryLifecycleHandler } from './queryLifecycle'
 import type {
   BuildMiddlewareInput,
   InternalHandlerBuilder,
   InternalMiddlewareState,
 } from './types'
 import { buildWindowEventHandler } from './windowEventHandling'
-import { buildCacheLifecycleHandler } from './cacheLifecycle'
-import { buildQueryLifecycleHandler } from './queryLifecycle'
-import { buildDevCheckHandler } from './devMiddleware'
-import { buildBatchedActionsHandler } from './batchActions'
 
 export function buildMiddleware<
   Definitions extends EndpointDefinitions,

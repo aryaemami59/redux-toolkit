@@ -1,4 +1,3 @@
-import { isAsyncThunkAction, isFulfilled } from '../rtkImports'
 import type { UnknownAction } from 'redux'
 import type { ThunkDispatch } from 'redux-thunk'
 import type { BaseQueryFn, BaseQueryMeta } from '../../baseQueryTypes'
@@ -10,6 +9,7 @@ import type {
 } from '../buildSelectors'
 import { getMutationCacheKey } from '../buildSlice'
 import type { PatchCollection, Recipe } from '../buildThunks'
+import { isAsyncThunkAction, isFulfilled } from '../rtkImports'
 import type {
   ApiMiddlewareInternalHandler,
   InternalHandlerBuilder,

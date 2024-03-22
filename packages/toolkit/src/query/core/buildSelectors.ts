@@ -49,37 +49,37 @@ export type SkipToken = typeof skipToken
  */
 export const skipToken = /* @__PURE__ */ Symbol.for('RTKQ/skipToken')
 
-declare module './module' {
-  export interface ApiEndpointQuery<
-    Definition extends QueryDefinition<any, any, any, any, any>,
-    Definitions extends EndpointDefinitions,
-  > {
-    select: QueryResultSelectorFactory<
-      Definition,
-      _RootState<
-        Definitions,
-        TagTypesFrom<Definition>,
-        ReducerPathFrom<Definition>
-      >
-    >
-  }
+// declare module '@reduxjs/toolkit/query' {
+  // export interface ApiEndpointQuery<
+  //   Definition extends QueryDefinition<any, any, any, any, any>,
+  //   Definitions extends EndpointDefinitions,
+  // > {
+  //   select: QueryResultSelectorFactory<
+  //     Definition,
+  //     _RootState<
+  //       Definitions,
+  //       TagTypesFrom<Definition>,
+  //       ReducerPathFrom<Definition>
+  //     >
+  //   >
+  // }
 
-  export interface ApiEndpointMutation<
-    Definition extends MutationDefinition<any, any, any, any, any>,
-    Definitions extends EndpointDefinitions,
-  > {
-    select: MutationResultSelectorFactory<
-      Definition,
-      _RootState<
-        Definitions,
-        TagTypesFrom<Definition>,
-        ReducerPathFrom<Definition>
-      >
-    >
-  }
-}
+  // export interface ApiEndpointMutation<
+  //   Definition extends MutationDefinition<any, any, any, any, any>,
+  //   Definitions extends EndpointDefinitions,
+  // > {
+  //   select: MutationResultSelectorFactory<
+  //     Definition,
+  //     _RootState<
+  //       Definitions,
+  //       TagTypesFrom<Definition>,
+  //       ReducerPathFrom<Definition>
+  //     >
+  //   >
+  // }
+// }
 
-type QueryResultSelectorFactory<
+export type QueryResultSelectorFactory<
   Definition extends QueryDefinition<any, any, any, any>,
   RootState,
 > = (
@@ -90,7 +90,7 @@ export type QueryResultSelectorResult<
   Definition extends QueryDefinition<any, any, any, any>,
 > = QuerySubState<Definition> & RequestStatusFlags
 
-type MutationResultSelectorFactory<
+export type MutationResultSelectorFactory<
   Definition extends MutationDefinition<any, any, any, any>,
   RootState,
 > = (

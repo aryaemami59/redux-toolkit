@@ -1,17 +1,17 @@
+import type { UnknownAction } from '@reduxjs/toolkit'
+import { weakMapMemoize } from 'reselect'
 import type { Api, ApiContext, Module, ModuleName } from './apiTypes'
-import type { CombinedState } from './core/apiState'
 import type { BaseQueryArg, BaseQueryFn } from './baseQueryTypes'
+import type { CombinedState } from './core/apiState'
+import { nanoid } from './core/rtkImports'
 import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import { defaultSerializeQueryArgs } from './defaultSerializeQueryArgs'
 import type {
   EndpointBuilder,
   EndpointDefinitions,
 } from './endpointDefinitions'
-import { DefinitionType, isQueryDefinition } from './endpointDefinitions'
-import { nanoid } from './core/rtkImports'
-import type { UnknownAction } from '@reduxjs/toolkit'
+import { DefinitionType } from './endpointDefinitions'
 import type { NoInfer } from './tsHelpers'
-import { weakMapMemoize } from 'reselect'
 
 export interface CreateApiOptions<
   BaseQuery extends BaseQueryFn,

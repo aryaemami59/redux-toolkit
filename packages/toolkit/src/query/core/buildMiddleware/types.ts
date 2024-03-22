@@ -6,7 +6,6 @@ import type {
   ThunkDispatch,
   UnknownAction,
 } from '@reduxjs/toolkit'
-
 import type { Api, ApiContext } from '../../apiTypes'
 import type {
   AssertTagTypes,
