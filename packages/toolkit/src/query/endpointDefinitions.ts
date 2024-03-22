@@ -14,10 +14,10 @@ import type {
   HasRequiredProps,
   MaybePromise,
   OmitFromUnion,
-  CastAny,
   NonUndefined,
   UnwrapPromise,
 } from './tsHelpers'
+import type { CastAny } from "@internal/tsHelpers";
 import type { NEVER } from './fakeBaseQuery'
 import type { Api } from '@reduxjs/toolkit/query'
 
