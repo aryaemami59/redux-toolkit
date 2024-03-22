@@ -320,6 +320,10 @@ export default defineConfig((options) => {
         tsconfig,
       },
       {
+        // bundle: true,
+        // format: 'esm',
+        // target: 'node20',
+        external: ['@reduxjs/toolkit/query'],
         dts: { only: true, resolve: false },
         entry: { 'query/react/index': 'src/query/react/index.ts' },
         tsconfig,
