@@ -1,5 +1,11 @@
 import type { CastAny } from '@internal/tsHelpers'
-import type { Api } from '@reduxjs/toolkit/query'
+import type {
+  Api,
+  MutationResultSelectorResult,
+  QueryResultSelectorResult,
+} from '@reduxjs/toolkit/query'
+import { UnknownAction } from 'redux'
+import { ThunkDispatch } from 'redux-thunk'
 import type {
   BaseQueryApi,
   BaseQueryArg,
@@ -11,6 +17,9 @@ import type {
   QueryReturnValue,
 } from './baseQueryTypes'
 import type { QuerySubState, RootState } from './core/apiState'
+import { neverResolvedError } from './core/buildMiddleware/cacheLifecycle'
+import { PromiseWithKnownReason } from './core/buildMiddleware/types'
+import { PatchCollection, Recipe } from './core/buildThunks'
 import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import type { NEVER } from './fakeBaseQuery'
 import type {
@@ -38,6 +47,7 @@ interface EndpointDefinitionWithQuery<
    * // codeblock-meta title="query example"
    *
    * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { LifecycleApi } from './core/buildMiddleware/cacheLifecycle';
    * interface Post {
    *   id: number
    *   name: string
@@ -499,6 +509,344 @@ export interface QueryExtraOptions<
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
   Types?: QueryTypes<QueryArg, BaseQuery, TagTypes, ResultType, ReducerPath>
+
+  /**
+   * Overrides the api-wide definition of `keepUnusedDataFor` for this endpoint only. _(This value is in seconds.)_
+   *
+   * This is how long RTK Query will keep your data cached for **after** the last component unsubscribes. For example, if you query an endpoint, then unmount the component, then mount another component that makes the same request within the given time frame, the most recent value will be served from the cache.
+   */
+  keepUnusedDataFor?: number
+
+  onCacheEntryAdded?(
+    arg: QueryArg,
+    api: QueryCacheLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
+  ): Promise<void> | void
+
+  /**
+   * A function that is called when the individual query is started. The function is called with a lifecycle api object containing properties such as `queryFulfilled`, allowing code to be run when a query is started, when it succeeds, and when it fails (i.e. throughout the lifecycle of an individual query/mutation call).
+   *
+   * Can be used to perform side-effects throughout the lifecycle of the query.
+   *
+   * @example
+   * ```ts
+   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query'
+   * import { messageCreated } from './notificationsSlice
+   * export interface Post {
+   *   id: number
+   *   name: string
+   * }
+   *
+   * const api = createApi({
+   *   baseQuery: fetchBaseQuery({
+   *     baseUrl: '/',
+   *   }),
+   *   endpoints: (build) => ({
+   *     getPost: build.query<Post, number>({
+   *       query: (id) => `post/${id}`,
+   *       async onQueryStarted(id, { dispatch, queryFulfilled }) {
+   *         // `onStart` side-effect
+   *         dispatch(messageCreated('Fetching posts...'))
+   *         try {
+   *           const { data } = await queryFulfilled
+   *           // `onSuccess` side-effect
+   *           dispatch(messageCreated('Posts received!'))
+   *         } catch (err) {
+   *           // `onError` side-effect
+   *           dispatch(messageCreated('Error fetching posts!'))
+   *         }
+   *       }
+   *     }),
+   *   }),
+   * })
+   * ```
+   */
+  onQueryStarted?(
+    arg: QueryArg,
+    api: QueryLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
+  ): Promise<void> | void
+}
+
+export interface LifecycleApi<ReducerPath extends string = string> {
+  /**
+   * The dispatch method for the store
+   */
+  dispatch: ThunkDispatch<any, any, UnknownAction>
+  /**
+   * A method to get the current state
+   */
+  getState(): RootState<any, any, ReducerPath>
+  /**
+   * `extra` as provided as `thunk.extraArgument` to the `configureStore` `getDefaultMiddleware` option.
+   */
+  extra: unknown
+  /**
+   * A unique ID generated for the mutation
+   */
+  requestId: string
+}
+
+export interface QueryBaseLifecycleApi<
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
+  ResultType,
+  ReducerPath extends string = string,
+> extends LifecycleApi<ReducerPath> {
+  /**
+   * Gets the current value of this cache entry.
+   */
+  getCacheEntry(): QueryResultSelectorResult<
+    { type: DefinitionType.query } & BaseEndpointDefinition<
+      QueryArg,
+      BaseQuery,
+      ResultType
+    >
+  >
+  /**
+   * Updates the current cache entry value.
+   * For documentation see `api.util.updateQueryData`.
+   */
+  updateCachedData(updateRecipe: Recipe<ResultType>): PatchCollection
+}
+
+export interface MutationBaseLifecycleApi<
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
+  ResultType,
+  ReducerPath extends string = string,
+> extends LifecycleApi<ReducerPath> {
+  /**
+   * Gets the current value of this cache entry.
+   */
+  getCacheEntry(): MutationResultSelectorResult<
+    { type: DefinitionType.mutation } & BaseEndpointDefinition<
+      QueryArg,
+      BaseQuery,
+      ResultType
+    >
+  >
+}
+
+export interface LifecycleApi<ReducerPath extends string = string> {
+  /**
+   * The dispatch method for the store
+   */
+  dispatch: ThunkDispatch<any, any, UnknownAction>
+  /**
+   * A method to get the current state
+   */
+  getState(): RootState<any, any, ReducerPath>
+  /**
+   * `extra` as provided as `thunk.extraArgument` to the `configureStore` `getDefaultMiddleware` option.
+   */
+  extra: unknown
+  /**
+   * A unique ID generated for the mutation
+   */
+  requestId: string
+}
+
+export interface CacheLifecyclePromises<
+  ResultType = unknown,
+  MetaType = unknown,
+> {
+  /**
+   * Promise that will resolve with the first value for this cache key.
+   * This allows you to `await` until an actual value is in cache.
+   *
+   * If the cache entry is removed from the cache before any value has ever
+   * been resolved, this Promise will reject with
+   * `new Error('Promise never resolved before cacheEntryRemoved.')`
+   * to prevent memory leaks.
+   * You can just re-throw that error (or not handle it at all) -
+   * it will be caught outside of `cacheEntryAdded`.
+   *
+   * If you don't interact with this promise, it will not throw.
+   */
+  cacheDataLoaded: PromiseWithKnownReason<
+    {
+      /**
+       * The (transformed) query result.
+       */
+      data: ResultType
+      /**
+       * The `meta` returned by the `baseQuery`
+       */
+      meta: MetaType
+    },
+    typeof neverResolvedError
+  >
+  /**
+   * Promise that allows you to wait for the point in time when the cache entry
+   * has been removed from the cache, by not being used/subscribed to any more
+   * in the application for too long or by dispatching `api.util.resetApiState`.
+   */
+  cacheEntryRemoved: Promise<void>
+}
+
+export interface QueryLifecyclePromises<
+  ResultType,
+  BaseQuery extends BaseQueryFn,
+> {
+  /**
+   * Promise that will resolve with the (transformed) query result.
+   *
+   * If the query fails, this promise will reject with the error.
+   *
+   * This allows you to `await` for the query to finish.
+   *
+   * If you don't interact with this promise, it will not throw.
+   */
+  queryFulfilled: PromiseWithKnownReason<
+    {
+      /**
+       * The (transformed) query result.
+       */
+      data: ResultType
+      /**
+       * The `meta` returned by the `baseQuery`
+       */
+      meta: BaseQueryMeta<BaseQuery>
+    },
+    QueryFulfilledRejectionReason<BaseQuery>
+  >
+}
+
+export type QueryFulfilledRejectionReason<BaseQuery extends BaseQueryFn> =
+  | {
+      error: BaseQueryError<BaseQuery>
+      /**
+       * If this is `false`, that means this error was returned from the `baseQuery` or `queryFn` in a controlled manner.
+       */
+      isUnhandledError: false
+      /**
+       * The `meta` returned by the `baseQuery`
+       */
+      meta: BaseQueryMeta<BaseQuery>
+    }
+  | {
+      error: unknown
+      meta?: undefined
+      /**
+       * If this is `true`, that means that this error is the result of `baseQueryFn`, `queryFn`, `transformResponse` or `transformErrorResponse` throwing an error instead of handling it properly.
+       * There can not be made any assumption about the shape of `error`.
+       */
+      isUnhandledError: true
+    }
+
+// interface QueryExtraOptions<
+//   TagTypes extends string,
+//   ResultType,
+//   QueryArg,
+//   BaseQuery extends BaseQueryFn,
+//   ReducerPath extends string = string,
+// > {
+//   /**
+//    * A function that is called when the individual query is started. The function is called with a lifecycle api object containing properties such as `queryFulfilled`, allowing code to be run when a query is started, when it succeeds, and when it fails (i.e. throughout the lifecycle of an individual query/mutation call).
+//    *
+//    * Can be used to perform side-effects throughout the lifecycle of the query.
+//    *
+//    * @example
+//    * ```ts
+//    * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query'
+//    * import { messageCreated } from './notificationsSlice
+//    * export interface Post {
+//    *   id: number
+//    *   name: string
+//    * }
+//    *
+//    * const api = createApi({
+//    *   baseQuery: fetchBaseQuery({
+//    *     baseUrl: '/',
+//    *   }),
+//    *   endpoints: (build) => ({
+//    *     getPost: build.query<Post, number>({
+//    *       query: (id) => `post/${id}`,
+//    *       async onQueryStarted(id, { dispatch, queryFulfilled }) {
+//    *         // `onStart` side-effect
+//    *         dispatch(messageCreated('Fetching posts...'))
+//    *         try {
+//    *           const { data } = await queryFulfilled
+//    *           // `onSuccess` side-effect
+//    *           dispatch(messageCreated('Posts received!'))
+//    *         } catch (err) {
+//    *           // `onError` side-effect
+//    *           dispatch(messageCreated('Error fetching posts!'))
+//    *         }
+//    *       }
+//    *     }),
+//    *   }),
+//    * })
+//    * ```
+//    */
+//   onQueryStarted?(
+//     arg: QueryArg,
+//     api: QueryLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
+//   ): Promise<void> | void
+// }
+
+export interface QueryLifecycleApi<
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
+  ResultType,
+  ReducerPath extends string = string,
+> extends QueryBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
+    QueryLifecyclePromises<ResultType, BaseQuery> {}
+
+export interface MutationLifecycleApi<
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
+  ResultType,
+  ReducerPath extends string = string,
+> extends MutationBaseLifecycleApi<
+      QueryArg,
+      BaseQuery,
+      ResultType,
+      ReducerPath
+    >,
+    QueryLifecyclePromises<ResultType, BaseQuery> {}
+
+export interface QueryCacheLifecycleApi<
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
+  ResultType,
+  ReducerPath extends string = string,
+> extends QueryBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
+    CacheLifecyclePromises<ResultType, BaseQueryMeta<BaseQuery>> {}
+
+export interface MutationCacheLifecycleApi<
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
+  ResultType,
+  ReducerPath extends string = string,
+> extends MutationBaseLifecycleApi<
+      QueryArg,
+      BaseQuery,
+      ResultType,
+      ReducerPath
+    >,
+    CacheLifecyclePromises<ResultType, BaseQueryMeta<BaseQuery>> {}
+
+export interface QueryBaseLifecycleApi<
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
+  ResultType,
+  ReducerPath extends string = string,
+> extends LifecycleApi<ReducerPath> {
+  /**
+   * Gets the current value of this cache entry.
+   */
+  getCacheEntry(): QueryResultSelectorResult<
+    { type: DefinitionType.query } & BaseEndpointDefinition<
+      QueryArg,
+      BaseQuery,
+      ResultType
+    >
+  >
+  /**
+   * Updates the current cache entry value.
+   * For documentation see `api.util.updateQueryData`.
+   */
+  updateCachedData(updateRecipe: Recipe<ResultType>): PatchCollection
 }
 
 export type QueryDefinition<
@@ -604,6 +952,69 @@ export interface MutationExtraOptions<
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
   Types?: MutationTypes<QueryArg, BaseQuery, TagTypes, ResultType, ReducerPath>
+
+  onCacheEntryAdded?(
+    arg: QueryArg,
+    api: MutationCacheLifecycleApi<
+      QueryArg,
+      BaseQuery,
+      ResultType,
+      ReducerPath
+    >,
+  ): Promise<void> | void
+
+  /**
+   * A function that is called when the individual mutation is started. The function is called with a lifecycle api object containing properties such as `queryFulfilled`, allowing code to be run when a query is started, when it succeeds, and when it fails (i.e. throughout the lifecycle of an individual query/mutation call).
+   *
+   * Can be used for `optimistic updates`.
+   *
+   * @example
+   *
+   * ```ts
+   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query'
+   * export interface Post {
+   *   id: number
+   *   name: string
+   * }
+   *
+   * const api = createApi({
+   *   baseQuery: fetchBaseQuery({
+   *     baseUrl: '/',
+   *   }),
+   *   tagTypes: ['Post'],
+   *   endpoints: (build) => ({
+   *     getPost: build.query<Post, number>({
+   *       query: (id) => `post/${id}`,
+   *       providesTags: ['Post'],
+   *     }),
+   *     updatePost: build.mutation<void, Pick<Post, 'id'> & Partial<Post>>({
+   *       query: ({ id, ...patch }) => ({
+   *         url: `post/${id}`,
+   *         method: 'PATCH',
+   *         body: patch,
+   *       }),
+   *       invalidatesTags: ['Post'],
+   *       async onQueryStarted({ id, ...patch }, { dispatch, queryFulfilled }) {
+   *         const patchResult = dispatch(
+   *           api.util.updateQueryData('getPost', id, (draft) => {
+   *             Object.assign(draft, patch)
+   *           })
+   *         )
+   *         try {
+   *           await queryFulfilled
+   *         } catch {
+   *           patchResult.undo()
+   *         }
+   *       },
+   *     }),
+   *   }),
+   * })
+   * ```
+   */
+  onQueryStarted?(
+    arg: QueryArg,
+    api: MutationLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
+  ): Promise<void> | void
 }
 
 export type MutationDefinition<
