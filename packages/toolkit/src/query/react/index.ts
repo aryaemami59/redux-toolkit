@@ -45,48 +45,39 @@ export type {
 export { createApi, reactHooksModule, reactHooksModuleName }
 
 declare module '@reduxjs/toolkit/query' {
-export interface ApiModules<
-  BaseQuery extends BaseQueryFn,
-  Definitions extends EndpointDefinitions,
-  ReducerPath extends string,
-  TagTypes extends string,
-> {
-  [reactHooksModuleName]: {
-    /**
-     *  Endpoints based on the input endpoints provided to `createApi`, containing `select`, `hooks` and `action matchers`.
-     */
-    endpoints: {
-      [K in keyof Definitions]: Definitions[K] extends QueryDefinition<
-        any,
-        any,
-        any,
-        any,
-        any
-      >
-        ? QueryHooks<Definitions[K]>
-        : Definitions[K] extends MutationDefinition<any, any, any, any, any>
-          ? MutationHooks<Definitions[K]>
-          : never
-    }
-    /**
-     * A hook that accepts a string endpoint name, and provides a callback that when called, pre-fetches the data for that endpoint.
-     */
-    usePrefetch<EndpointName extends QueryKeys<Definitions>>(
-      endpointName: EndpointName,
-      options?: PrefetchOptions,
-    ): (
-      arg: QueryArgFrom<Definitions[EndpointName]>,
-      options?: PrefetchOptions,
-    ) => void
-  } & HooksWithUniqueNames<Definitions>
+  export interface ApiModules<
+    BaseQuery extends BaseQueryFn,
+    Definitions extends EndpointDefinitions,
+    ReducerPath extends string,
+    TagTypes extends string,
+  > {
+    [reactHooksModuleName]: {
+      /**
+       *  Endpoints based on the input endpoints provided to `createApi`, containing `select`, `hooks` and `action matchers`.
+       */
+      endpoints: {
+        [K in keyof Definitions]: Definitions[K] extends QueryDefinition<
+          any,
+          any,
+          any,
+          any,
+          any
+        >
+          ? QueryHooks<Definitions[K]>
+          : Definitions[K] extends MutationDefinition<any, any, any, any, any>
+            ? MutationHooks<Definitions[K]>
+            : never
+      }
+      /**
+       * A hook that accepts a string endpoint name, and provides a callback that when called, pre-fetches the data for that endpoint.
+       */
+      usePrefetch<EndpointName extends QueryKeys<Definitions>>(
+        endpointName: EndpointName,
+        options?: PrefetchOptions,
+      ): (
+        arg: QueryArgFrom<Definitions[EndpointName]>,
+        options?: PrefetchOptions,
+      ) => void
+    } & HooksWithUniqueNames<Definitions>
+  }
 }
-}
-// export type ModuleName = keyof ApiModules<any, any, any, any>
-
-// export type Module = RTKQuery.Module<ModuleName>
-
-// export type { Module } from '@reduxjs/toolkit/query'
-// }
-// export type { ApiModules } from './module'
-
-// export type { ApiModules }
