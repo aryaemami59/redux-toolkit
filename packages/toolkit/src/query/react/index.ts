@@ -12,12 +12,8 @@ import {
   QueryDefinition,
   QueryKeys,
 } from '@reduxjs/toolkit/query'
-import { reactHooksModule, reactHooksModuleName } from './module'
-
-import '@reduxjs/toolkit/query'
-import type * as RTKQuery from '@reduxjs/toolkit/query'
-// import type { ApiModules } from '@reduxjs/toolkit/query'
 import { MutationHooks, QueryHooks } from './buildHooks'
+import { reactHooksModule, reactHooksModuleName } from './module'
 import { HooksWithUniqueNames } from './namedHooks'
 export * from '@reduxjs/toolkit/query'
 export { ApiProvider } from './ApiProvider'
@@ -27,7 +23,6 @@ const createApi = /* @__PURE__ */ buildCreateApi(
   reactHooksModule(),
 )
 
-// export type { ApiModules } from '@reduxjs/toolkit/query'
 export type {
   TypedLazyQueryTrigger,
   TypedMutationTrigger,
