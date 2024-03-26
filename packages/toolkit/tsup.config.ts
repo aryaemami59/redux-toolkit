@@ -267,17 +267,19 @@ export default defineConfig((options) => {
         tsconfig,
       },
       {
+        external: ['redux', '@reduxjs/toolkit'],
         dts: { only: true },
         entry: { 'react/index': 'src/react/index.ts' },
         tsconfig,
       },
       {
+        external: ['redux', '@reduxjs/toolkit'],
         dts: { only: true },
         entry: { 'query/index': 'src/query/index.ts' },
         tsconfig,
       },
       {
-        external: ['@reduxjs/toolkit/query'],
+        external: ['redux', '@reduxjs/toolkit', '@reduxjs/toolkit/query'],
         dts: { only: true },
         entry: { 'query/react/index': 'src/query/react/index.ts' },
         tsconfig,
