@@ -1,4 +1,4 @@
-import { Check, SizeLimitConfig } from 'size-limit'
+import type { Check, SizeLimitConfig } from 'size-limit'
 
 const ignoreAll = [
   '@reduxjs/toolkit',
