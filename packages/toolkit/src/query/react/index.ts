@@ -36,6 +36,7 @@ export type {
   TypedUseQueryStateResult,
   TypedUseQuerySubscription,
   TypedUseQuerySubscriptionResult,
+  UseQuerySubscriptionOptions,
 } from './buildHooks'
 export { createApi, reactHooksModule, reactHooksModuleName }
 

@@ -122,7 +122,7 @@ export type TypedUseQueryHookResult<
 > = TypedUseQueryStateResult<ResultType, QueryArg, BaseQuery, R> &
   TypedUseQuerySubscriptionResult<ResultType, QueryArg, BaseQuery>
 
-interface UseQuerySubscriptionOptions extends SubscriptionOptions {
+export interface UseQuerySubscriptionOptions extends SubscriptionOptions {
   /**
    * Prevents a query from automatically running.
    *
