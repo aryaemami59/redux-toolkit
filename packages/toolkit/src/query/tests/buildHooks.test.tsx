@@ -736,8 +736,8 @@ describe('hooks tests', () => {
         endpoints: (builder) => ({
           getTest: builder.query<string, number>({
             async queryFn() {
-              await new Promise((resolve) => setTimeout(resolve, 1000));
-              return { data: "data!" };
+              await new Promise((resolve) => setTimeout(resolve, 1000))
+              return { data: 'data!' }
             },
             keepUnusedDataFor: 0,
           }),
@@ -749,13 +749,13 @@ describe('hooks tests', () => {
       })
 
       const checkNumQueries = (count: number) => {
-        const cacheEntries = Object.keys((storeRef.store.getState()).api.queries)
+        const cacheEntries = Object.keys(storeRef.store.getState().api.queries)
         const queries = cacheEntries.length
 
         expect(queries).toBe(count)
       }
 
-      let i = 0;
+      let i = 0
 
       function User() {
         const [fetchTest, { isFetching, isUninitialized }] =
@@ -783,7 +783,7 @@ describe('hooks tests', () => {
       })
 
       // There should only be one stored query once they have had time to resolve
-      checkNumQueries( 1)
+      checkNumQueries(1)
     })
 
     // See https://github.com/reduxjs/redux-toolkit/issues/3182
@@ -1178,7 +1178,9 @@ describe('hooks tests', () => {
       expect(screen.queryByText(/Successfully fetched user/i)).toBeNull()
       screen.getByText('Request was aborted')
 
-      fireEvent.click(
+      const user = userEvent.setup({ delay: null })
+
+      await user.click(
         screen.getByRole('button', { name: 'Fetch User successfully' }),
       )
       await screen.findByText('Successfully fetched user Timmy')
@@ -1390,7 +1392,9 @@ describe('hooks tests', () => {
       expect(screen.queryByText(/Successfully updated user/i)).toBeNull()
       expect(screen.queryByText('Request was aborted')).toBeNull()
 
-      fireEvent.click(
+      const user = userEvent.setup({ delay: null })
+
+      await user.click(
         screen.getByRole('button', { name: 'Update User and abort' }),
       )
       await screen.findByText('An error has occurred updating user Banana')
@@ -1435,19 +1439,21 @@ describe('hooks tests', () => {
       }
       render(<User />, { wrapper: storeRef.wrapper })
 
-      await screen.findByText(/isUninitialized/i)
+      screen.getByText(/isUninitialized/i)
       expect(screen.queryByText('Yay')).toBeNull()
       expect(countObjectKeys(storeRef.store.getState().api.mutations)).toBe(0)
 
-      userEvent.click(screen.getByRole('button', { name: 'trigger' }))
+      const user = userEvent.setup({ delay: null })
+
+      await user.click(screen.getByRole('button', { name: 'trigger' }))
 
       await screen.findByText(/isSuccess/i)
       expect(screen.queryByText('Yay')).not.toBeNull()
       expect(countObjectKeys(storeRef.store.getState().api.mutations)).toBe(1)
 
-      userEvent.click(screen.getByRole('button', { name: 'reset' }))
+      await user.click(screen.getByRole('button', { name: 'reset' }))
 
-      await screen.findByText(/isUninitialized/i)
+      screen.getByText(/isUninitialized/i)
       expect(screen.queryByText('Yay')).toBeNull()
       expect(countObjectKeys(storeRef.store.getState().api.mutations)).toBe(0)
     })
@@ -1481,7 +1487,9 @@ describe('hooks tests', () => {
         expect(screen.getByTestId('isFetching').textContent).toBe('false'),
       )
 
-      userEvent.hover(screen.getByTestId('highPriority'))
+      const user = userEvent.setup({ delay: null })
+
+      await user.hover(screen.getByTestId('highPriority'))
       expect(
         api.endpoints.getUser.select(USER_ID)(storeRef.store.getState() as any),
       ).toEqual({
@@ -1548,8 +1556,10 @@ describe('hooks tests', () => {
       await waitFor(() =>
         expect(screen.getByTestId('isFetching').textContent).toBe('false'),
       )
+
+      const user = userEvent.setup({ delay: null })
       // Try to prefetch what we just loaded
-      userEvent.hover(screen.getByTestId('lowPriority'))
+      await user.hover(screen.getByTestId('lowPriority'))
 
       expect(
         api.endpoints.getUser.select(USER_ID)(storeRef.store.getState() as any),
@@ -1617,8 +1627,9 @@ describe('hooks tests', () => {
       // Wait 400ms, making it respect ifOlderThan
       await waitMs(400)
 
+      const user = userEvent.setup({ delay: null })
       // This should run the query being that we're past the threshold
-      userEvent.hover(screen.getByTestId('lowPriority'))
+      await user.hover(screen.getByTestId('lowPriority'))
       expect(
         api.endpoints.getUser.select(USER_ID)(storeRef.store.getState() as any),
       ).toEqual({
@@ -1690,7 +1701,9 @@ describe('hooks tests', () => {
         storeRef.store.getState() as any,
       )
 
-      userEvent.hover(screen.getByTestId('lowPriority'))
+      const user = userEvent.setup({ delay: null })
+
+      await user.hover(screen.getByTestId('lowPriority'))
       //  Serve up the result from the cache being that the condition wasn't met
       expect(
         api.endpoints.getUser.select(USER_ID)(storeRef.store.getState() as any),
@@ -1718,7 +1731,9 @@ describe('hooks tests', () => {
 
       render(<User />, { wrapper: storeRef.wrapper })
 
-      userEvent.hover(screen.getByTestId('lowPriority'))
+      const user = userEvent.setup({ delay: null })
+
+      await user.hover(screen.getByTestId('lowPriority'))
 
       expect(
         api.endpoints.getUser.select(USER_ID)(storeRef.store.getState() as any),
