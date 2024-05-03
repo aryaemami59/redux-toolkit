@@ -107,7 +107,9 @@ jobs:
         run: ls -lah
 
       - name: Install React ${{ matrix.react.version }} and React-DOM ${{ matrix.react.react-dom.version }}
-        run: yarn add -D react@${{ matrix.react.version }} react-dom@${{ matrix.react.react-dom.version }} @types/react@${{ matrix.react.types }} @types/react-dom@${{ matrix.react.react-dom.types }}
+        run: |
+          yarn add -D react@${{ matrix.react.version }} react-dom@${{ matrix.react.react-dom.version }} @types/react@${{ matrix.react.types }} @types/react-dom@${{ matrix.react.react-dom.types }}
+          yarn workspace @reduxjs/toolkit add -D react@${{ matrix.react.version }} react-dom@${{ matrix.react.react-dom.version }} @types/react@${{ matrix.react.types }} @types/react-dom@${{ matrix.react.react-dom.types }}
 
       - name: Install build artifact
         run: yarn workspace @reduxjs/toolkit add $(pwd)/package.tgz
