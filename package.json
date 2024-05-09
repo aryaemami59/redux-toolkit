@@ -44,20 +44,11 @@
     "release-it": "^14.12.5",
     "serve": "^14.2.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.4.5"
   },
   "resolutions": {
-    "@babel/core": "7.19.3",
-    "@babel/code-frame": "7.18.6",
-    "@babel/generator": "7.19.3",
-    "@babel/helper-compilation-targets": "7.19.3",
-    "@babel/traverse": "7.19.3",
-    "@babel/types": "7.19.3",
     "esbuild": "0.19.7",
     "jest-snapshot": "29.3.1",
-    "resolve": "1.22.1",
-    "@types/inquirer": "npm:8.2.1",
-    "type-fest": "2.19.0",
     "console-testing-library@0.6.1": "patch:console-testing-library@npm%3A0.6.1#./.yarn/patches/console-testing-library-npm-0.6.1-4d9957d402.patch"
   },
   "scripts": {
