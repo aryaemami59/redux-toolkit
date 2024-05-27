@@ -1,4 +1,4 @@
-import type { Api, Module } from '@reduxjs/toolkit/query/react'
+import type { Api, Module } from '@reduxjs/toolkit/query'
 import {
   batch as rrBatch,
   useDispatch as rrUseDispatch,
