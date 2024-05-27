@@ -1,6 +1,8 @@
-import { buildCreateApi, CreateApi } from '../createApi'
+import type { CreateApi } from '../createApi'
+import { buildCreateApi } from '../createApi'
+import type { CoreModule } from './module'
 import { coreModule, coreModuleName } from './module'
 
-const createApi = /* @__PURE__ */ buildCreateApi(coreModule())
+const createApi: CreateApi<CoreModule> = buildCreateApi(coreModule())
 
-export { createApi, coreModule, coreModuleName }
+export { coreModule, coreModuleName, createApi }

@@ -76,7 +76,7 @@ export type PrefetchOptions =
     }
   | { force?: boolean }
 
-export const coreModuleName = /* @__PURE__ */ Symbol()
+export const coreModuleName = Symbol()
 export type CoreModule =
   | typeof coreModuleName
   | ReferenceCacheLifecycle

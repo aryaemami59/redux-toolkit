@@ -12,7 +12,7 @@ import { capitalize } from '../utils'
 import { countObjectKeys } from '../utils/countObjectKeys'
 import { buildHooks } from './buildHooks'
 
-export const reactHooksModuleName = /* @__PURE__ */ Symbol()
+export const reactHooksModuleName = Symbol()
 export type ReactHooksModule = typeof reactHooksModuleName
 
 // declare module '@reduxjs/toolkit/query' {
