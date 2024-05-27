@@ -1,8 +1,15 @@
-import type { CreateApi } from '../createApi'
 import { buildCreateApi } from '../createApi'
-import type { CoreModule } from './module'
-import { coreModule, coreModuleName } from './module'
+import { coreModule } from './module'
 
-const createApi: CreateApi<CoreModule> = buildCreateApi(coreModule())
+const createApi = buildCreateApi(coreModule())
 
-export { coreModule, coreModuleName, createApi }
+export { createApi }
+
+export * from './apiState'
+export * from './buildInitiate'
+export * from './buildSelectors'
+export * from './buildSlice'
+export * from './buildThunks'
+export * from './module'
+export * from './rtkImports'
+export * from './setupListeners'
