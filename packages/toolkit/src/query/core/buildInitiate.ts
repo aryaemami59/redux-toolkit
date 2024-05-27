@@ -1,9 +1,9 @@
 import type {
+  Dispatch,
   SerializedError,
   ThunkAction,
   UnknownAction,
 } from '@reduxjs/toolkit'
-import type { Dispatch } from 'redux'
 import type { SafePromise } from '../../tsHelpers'
 import { asSafePromise } from '../../tsHelpers'
 import type { Api, ApiContext } from '../apiTypes'
@@ -21,25 +21,25 @@ import { isNotNullish } from '../utils/isNotNullish'
 import type { SubscriptionOptions } from './apiState'
 import type { QueryResultSelectorResult } from './buildSelectors'
 import type { MutationThunk, QueryThunk, QueryThunkArg } from './buildThunks'
-import { ApiEndpointQuery } from "..";
+import type { ApiEndpointQuery } from './module'
 // import type { ApiEndpointQuery } from './module'
 
 // declare module '@reduxjs/toolkit/query' {
-  // export interface ApiEndpointQuery<
-  //   Definition extends QueryDefinition<any, any, any, any, any>,
-  //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  //   Definitions extends EndpointDefinitions,
-  // > {
-  //   initiate: StartQueryActionCreator<Definition>
-  // }
+// export interface ApiEndpointQuery<
+//   Definition extends QueryDefinition<any, any, any, any, any>,
+//   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//   Definitions extends EndpointDefinitions,
+// > {
+//   initiate: StartQueryActionCreator<Definition>
+// }
 
-  // export interface ApiEndpointMutation<
-  //   Definition extends MutationDefinition<any, any, any, any, any>,
-  //   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  //   Definitions extends EndpointDefinitions,
-  // > {
-  //   initiate: StartMutationActionCreator<Definition>
-  // }
+// export interface ApiEndpointMutation<
+//   Definition extends MutationDefinition<any, any, any, any, any>,
+//   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//   Definitions extends EndpointDefinitions,
+// > {
+//   initiate: StartMutationActionCreator<Definition>
+// }
 // }
 
 export const forceQueryFnSymbol = Symbol('forceQueryFn')
