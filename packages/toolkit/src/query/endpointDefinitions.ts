@@ -1,6 +1,6 @@
-import type { CastAny } from '@internal/tsHelpers'
+import type { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit'
 import type { Api } from '@reduxjs/toolkit/query'
-import type { UnknownAction, ThunkDispatch } from '@reduxjs/toolkit'
+import type { CastAny } from '../tsHelpers'
 import type {
   BaseQueryApi,
   BaseQueryArg,

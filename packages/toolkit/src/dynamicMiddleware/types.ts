@@ -1,9 +1,8 @@
-import { GetDispatch, GetState } from '@internal/createAsyncThunk'
 import type { Dispatch, Middleware, MiddlewareAPI, UnknownAction } from 'redux'
 import type { BaseActionCreator, PayloadAction } from '../createAction'
+import type { GetDispatch, GetState } from '../createAsyncThunk'
 import type { ExtractDispatchExtensions } from '../tsHelpers'
-
-export type { GetDispatch, GetState } from '@internal/createAsyncThunk'
+export type { GetDispatch, GetState }
 
 export type GetMiddlewareApi<MiddlewareApiConfig> = MiddlewareAPI<
   GetDispatch<MiddlewareApiConfig>,

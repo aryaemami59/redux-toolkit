@@ -1,5 +1,5 @@
-import { BaseQueryError, BaseQueryMeta } from '@internal/query/baseQueryTypes'
 import { BaseQueryFn } from '@reduxjs/toolkit/query'
+import { BaseQueryError, BaseQueryMeta } from '../../baseQueryTypes'
 import { DefinitionType } from '../../endpointDefinitions'
 import type { Recipe } from '../buildThunks'
 import { isFulfilled, isPending, isRejected } from '../rtkImports'
