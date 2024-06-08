@@ -43,6 +43,7 @@ import { buildSlice } from './buildSlice'
 import { buildMiddleware } from './buildMiddleware'
 import { buildSelectors, MutationResultSelectorResult, QueryResultSelectorResult, SkipToken } from './buildSelectors'
 import type {
+  forceQueryFnSymbol,
   MutationActionCreatorResult,
   QueryActionCreatorResult,
 } from './buildInitiate'
@@ -72,9 +73,23 @@ Definitions extends EndpointDefinitions,
 > extends Matchers<MutationThunk, Definition> {}
 
 
-export const forceQueryFnSymbol = Symbol('forceQueryFn')
-export const isUpsertQuery = (arg: QueryThunkArg) =>
-  typeof arg[forceQueryFnSymbol] === 'function'
+// export const forceQueryFnSymbol = Symbol('forceQueryFn')
+// export const isUpsertQuery = (arg: QueryThunkArg) =>
+//   typeof arg[forceQueryFnSymbol] === 'function'
+// export interface StartQueryActionCreatorOptions {
+//   subscribe?: boolean
+//   forceRefetch?: boolean | number
+//   subscriptionOptions?: SubscriptionOptions
+//   [forceQueryFnSymbol]?: () => QueryReturnValue
+// }
+
+// export type StartQueryActionCreator<
+//   D extends QueryDefinition<any, any, any, any, any>,
+// > = (
+//   arg: QueryArgFrom<D>,
+//   options?: StartQueryActionCreatorOptions,
+// ) => ThunkAction<QueryActionCreatorResult<D>, any, any, UnknownAction>
+
 export interface StartQueryActionCreatorOptions {
   subscribe?: boolean
   forceRefetch?: boolean | number

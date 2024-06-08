@@ -15,7 +15,7 @@ import type {
 import type { SubscriptionOptions, RootState } from './apiState'
 import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
 import type { Api, ApiContext } from '../apiTypes'
-import { forceQueryFnSymbol, StartMutationActionCreator, type ApiEndpointQuery, type StartQueryActionCreator } from './module'
+import type { StartMutationActionCreator, ApiEndpointQuery, StartQueryActionCreator } from './module'
 import type { BaseQueryError, QueryReturnValue } from '../baseQueryTypes'
 import type { QueryResultSelectorResult } from './buildSelectors'
 import type { Dispatch } from 'redux'
@@ -41,6 +41,19 @@ import { asSafePromise } from '../../tsHelpers'
 //     initiate: StartMutationActionCreator<Definition>
 //   }
 // }
+
+export const forceQueryFnSymbol = Symbol('forceQueryFn')
+export const isUpsertQuery = (arg: QueryThunkArg) =>
+  typeof arg[forceQueryFnSymbol] === 'function'
+
+// export interface StartQueryActionCreatorOptions {
+//   subscribe?: boolean
+//   forceRefetch?: boolean | number
+//   subscriptionOptions?: SubscriptionOptions
+//   [forceQueryFnSymbol]?: () => QueryReturnValue
+// }
+
+
 
 export type QueryActionCreatorResult<
   D extends QueryDefinition<any, any, any, any>,

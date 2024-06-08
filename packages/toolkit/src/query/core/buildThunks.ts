@@ -7,8 +7,10 @@ import type {
 } from '../baseQueryTypes'
 import type { RootState, QueryKeys, QuerySubstateIdentifier } from './apiState'
 import { QueryStatus } from './apiState'
-import type {
-  QueryActionCreatorResult,
+import {
+  forceQueryFnSymbol,
+  isUpsertQuery,
+  type QueryActionCreatorResult,
 } from './buildInitiate'
 import type {
   AssertTagTypes,
@@ -42,7 +44,7 @@ import type { ThunkAction, ThunkDispatch, AsyncThunk } from '@reduxjs/toolkit'
 
 import { HandledError } from '../HandledError'
 
-import { forceQueryFnSymbol, isUpsertQuery, StartQueryActionCreatorOptions, type ApiEndpointQuery, type PrefetchOptions } from './module'
+import { StartQueryActionCreatorOptions, type ApiEndpointQuery, type PrefetchOptions } from './module'
 import type { UnwrapPromise } from '../tsHelpers'
 
 // declare module '@reduxjs/toolkit/query' {
