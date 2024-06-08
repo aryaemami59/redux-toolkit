@@ -1,5 +1,6 @@
-import type { Action, UnknownAction, Reducer } from 'redux'
+import type { Action, Reducer, UnknownAction } from 'redux'
 import type { Selector } from 'reselect'
+import type { InjectConfig } from './combineSlices'
 import type {
   ActionCreatorWithoutPayload,
   PayloadAction,
@@ -9,16 +10,6 @@ import type {
 } from './createAction'
 import { createAction } from './createAction'
 import type {
-  ActionMatcherDescriptionCollection,
-  CaseReducer,
-  ReducerWithInitialState,
-} from './createReducer'
-import { createReducer } from './createReducer'
-import type { ActionReducerMapBuilder, TypedActionCreator } from './mapBuilders'
-import { executeReducerBuilderCallback } from './mapBuilders'
-import type { Id, TypeGuard } from './tsHelpers'
-import type { InjectConfig } from './combineSlices'
-import type {
   AsyncThunk,
   AsyncThunkConfig,
   AsyncThunkOptions,
@@ -26,6 +17,15 @@ import type {
   OverrideThunkApiConfigs,
 } from './createAsyncThunk'
 import { createAsyncThunk as _createAsyncThunk } from './createAsyncThunk'
+import type {
+  ActionMatcherDescriptionCollection,
+  CaseReducer,
+  ReducerWithInitialState,
+} from './createReducer'
+import { createReducer } from './createReducer'
+import type { ActionReducerMapBuilder, TypedActionCreator } from './mapBuilders'
+import { executeReducerBuilderCallback } from './mapBuilders'
+import type { Simplify, TypeGuard } from './tsHelpers'
 import { emplace } from './utils'
 
 const asyncThunkSymbol = /* @__PURE__ */ Symbol.for(
@@ -90,21 +90,21 @@ export interface Slice<
   /**
    * Get localised slice selectors (expects to be called with *just* the slice's state as the first parameter)
    */
-  getSelectors(): Id<SliceDefinedSelectors<State, Selectors, State>>
+  getSelectors(): Simplify<SliceDefinedSelectors<State, Selectors, State>>
 
   /**
    * Get globalised slice selectors (`selectState` callback is expected to receive first parameter and return slice state)
    */
   getSelectors<RootState>(
     selectState: (rootState: RootState) => State,
-  ): Id<SliceDefinedSelectors<State, Selectors, RootState>>
+  ): Simplify<SliceDefinedSelectors<State, Selectors, RootState>>
 
   /**
    * Selectors that assume the slice's state is `rootState[slice.reducerPath]` (which is usually the case)
    *
    * Equivalent to `slice.getSelectors((state: RootState) => state[slice.reducerPath])`.
    */
-  get selectors(): Id<
+  get selectors(): Simplify<
     SliceDefinedSelectors<State, Selectors, { [K in ReducerPath]: State }>
   >
 
@@ -148,21 +148,23 @@ interface InjectedSlice<
   /**
    * Get localised slice selectors (expects to be called with *just* the slice's state as the first parameter)
    */
-  getSelectors(): Id<SliceDefinedSelectors<State, Selectors, State | undefined>>
+  getSelectors(): Simplify<
+    SliceDefinedSelectors<State, Selectors, State | undefined>
+  >
 
   /**
    * Get globalised slice selectors (`selectState` callback is expected to receive first parameter and return slice state)
    */
   getSelectors<RootState>(
     selectState: (rootState: RootState) => State | undefined,
-  ): Id<SliceDefinedSelectors<State, Selectors, RootState>>
+  ): Simplify<SliceDefinedSelectors<State, Selectors, RootState>>
 
   /**
    * Selectors that assume the slice's state is `rootState[slice.name]` (which is usually the case)
    *
    * Equivalent to `slice.getSelectors((state: RootState) => state[slice.name])`.
    */
-  get selectors(): Id<
+  get selectors(): Simplify<
     SliceDefinedSelectors<
       State,
       Selectors,
@@ -217,8 +219,8 @@ export interface CreateSliceOptions<
   /**
    * A callback that receives a *builder* object to define
    * case reducers via calls to `builder.addCase(actionCreatorOrType, reducer)`.
-   * 
-   * 
+   *
+   *
    * @example
 ```ts
 import { createAction, createSlice, Action } from '@reduxjs/toolkit'
@@ -513,7 +515,7 @@ type ActionCreatorForCaseReducer<CR, Type extends string> = CR extends (
 type SliceDefinedCaseReducers<CaseReducers extends SliceCaseReducers<any>> = {
   [Type in keyof CaseReducers]: CaseReducers[Type] extends infer Definition
     ? Definition extends AsyncThunkSliceReducerDefinition<any, any, any, any>
-      ? Id<
+      ? Simplify<
           Pick<
             Required<Definition>,
             'fulfilled' | 'rejected' | 'pending' | 'settled'

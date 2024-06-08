@@ -15,7 +15,7 @@ import type {
 import type { SubscriptionOptions, RootState } from './apiState'
 import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
 import type { Api, ApiContext } from '../apiTypes'
-import type { ApiEndpointQuery } from './module'
+import { forceQueryFnSymbol, StartMutationActionCreator, type ApiEndpointQuery, type StartQueryActionCreator } from './module'
 import type { BaseQueryError, QueryReturnValue } from '../baseQueryTypes'
 import type { QueryResultSelectorResult } from './buildSelectors'
 import type { Dispatch } from 'redux'
@@ -24,41 +24,23 @@ import { countObjectKeys } from '../utils/countObjectKeys'
 import type { SafePromise } from '../../tsHelpers'
 import { asSafePromise } from '../../tsHelpers'
 
-declare module './module' {
-  export interface ApiEndpointQuery<
-    Definition extends QueryDefinition<any, any, any, any, any>,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    Definitions extends EndpointDefinitions,
-  > {
-    initiate: StartQueryActionCreator<Definition>
-  }
+// declare module '@reduxjs/toolkit/query' {
+//   export interface ApiEndpointQuery<
+//     Definition extends QueryDefinition<any, any, any, any, any>,
+//     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//     Definitions extends EndpointDefinitions,
+//   > {
+//     initiate: StartQueryActionCreator<Definition>
+//   }
 
-  export interface ApiEndpointMutation<
-    Definition extends MutationDefinition<any, any, any, any, any>,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    Definitions extends EndpointDefinitions,
-  > {
-    initiate: StartMutationActionCreator<Definition>
-  }
-}
-
-export const forceQueryFnSymbol = Symbol('forceQueryFn')
-export const isUpsertQuery = (arg: QueryThunkArg) =>
-  typeof arg[forceQueryFnSymbol] === 'function'
-
-export interface StartQueryActionCreatorOptions {
-  subscribe?: boolean
-  forceRefetch?: boolean | number
-  subscriptionOptions?: SubscriptionOptions
-  [forceQueryFnSymbol]?: () => QueryReturnValue
-}
-
-type StartQueryActionCreator<
-  D extends QueryDefinition<any, any, any, any, any>,
-> = (
-  arg: QueryArgFrom<D>,
-  options?: StartQueryActionCreatorOptions,
-) => ThunkAction<QueryActionCreatorResult<D>, any, any, UnknownAction>
+//   export interface ApiEndpointMutation<
+//     Definition extends MutationDefinition<any, any, any, any, any>,
+//     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//     Definitions extends EndpointDefinitions,
+//   > {
+//     initiate: StartMutationActionCreator<Definition>
+//   }
+// }
 
 export type QueryActionCreatorResult<
   D extends QueryDefinition<any, any, any, any>,
@@ -73,22 +55,6 @@ export type QueryActionCreatorResult<
   updateSubscriptionOptions(options: SubscriptionOptions): void
   queryCacheKey: string
 }
-
-type StartMutationActionCreator<
-  D extends MutationDefinition<any, any, any, any>,
-> = (
-  arg: QueryArgFrom<D>,
-  options?: {
-    /**
-     * If this mutation should be tracked in the store.
-     * If you just want to manually trigger this mutation using `dispatch` and don't care about the
-     * result, state & potential errors being held in store, you can set this to false.
-     * (defaults to `true`)
-     */
-    track?: boolean
-    fixedCacheKey?: string
-  },
-) => ThunkAction<MutationActionCreatorResult<D>, any, any, UnknownAction>
 
 export type MutationActionCreatorResult<
   D extends MutationDefinition<any, any, any, any>,

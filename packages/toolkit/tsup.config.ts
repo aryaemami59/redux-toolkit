@@ -190,6 +190,7 @@ export default defineConfig((options) => {
           entry: {
             [outputFilename]: entryPoint,
           },
+          // dts: generateTypedefs ? {entry: { index: entryPoint }, resolve: [/^\..*/]} : false,
           format,
           tsconfig,
           outDir: outputFolder,
@@ -198,6 +199,7 @@ export default defineConfig((options) => {
           minify,
           sourcemap: true,
           external: externals,
+          // external: generateTypedefs ? [/^\..*/] : externals,
           esbuildPlugins: [mangleErrorsTransform],
           esbuildOptions(options) {
             // Needed to prevent auto-replacing of process.env.NODE_ENV in all builds
@@ -217,7 +219,6 @@ export default defineConfig((options) => {
                 fs.rmSync(path.join(outputFolder, 'uncheckedindexed.d.ts'), {
                   force: true,
                 })
-
                 fs.copyFileSync(
                   'src/uncheckedindexed.ts',
                   path.join(outputFolder, 'uncheckedindexed.ts'),
@@ -249,6 +250,91 @@ export default defineConfig((options) => {
       return artifactOptions
     })
     .flat()
+    .concat([
+      // {
+      //   name: 'apiTypes',
+      //   format: 'esm',
+      //   tsconfig,
+      //   entry: { 'query/apiTypes': './src/query/apiTypes.ts' },
+      //   external: ['./uncheckedindexed'],
+      //   dts: {
+      //     only: true,
+      //   },
+      // },
+      {
+        name: 'Redux-Toolkit',
+        format: 'esm',
+        tsconfig,
+        entry: { index: './src/index.ts' },
+        external: ['./uncheckedindexed'],
+        dts: {
+          // resolve: [/^\..*/],
+          only: true,
+        },
+      },
+      {
+        name: 'RTK-React',
+        format: 'esm',
+        tsconfig,
+        entry: { 'react/index': './src/react/index.ts' },
+        external: ['@reduxjs/toolkit', './uncheckedindexed'],
+        dts: {
+          only: true,
+        },
+      },
+      // {
+      //   name: 'RTK-Query-React',
+      //   format: 'esm',
+      //   splitting: false,
+      //   tsconfig,
+      //   entry: {
+      //     'query/react/index': './src/query/react/index.ts',
+      //   },
+      //   external: [
+      //     '@reduxjs/toolkit',
+      //     '@reduxjs/toolkit/react',
+      //     '@reduxjs/toolkit/query',
+      //     './uncheckedindexed',
+      //     // '@reduxjs/toolkit/query/react',
+      //   ],
+      //   dts: {
+      //     only: true,
+      //     entry: {
+      //       'query/react/index': './src/query/react/index.ts',
+      //     },
+      //   },
+      // },
+      {
+        name: 'RTK-Query',
+        format: 'esm',
+        tsconfig,
+        entry: { 'query/index': './src/query/index.ts' },
+        external: [
+          '@reduxjs/toolkit',
+          '@reduxjs/toolkit/react',
+          './uncheckedindexed',
+        ],
+        dts: {
+          only: true,
+        },
+      },
+      {
+        name: 'RTK-Query-React',
+        format: 'esm',
+        tsconfig,
+        entry: { 'query/react/index': './src/query/react/index.ts' },
+        external: [
+          '@reduxjs/toolkit',
+          '@reduxjs/toolkit/react',
+          '@reduxjs/toolkit/query',
+          './uncheckedindexed',
+        ],
+        dts: {
+          only: true,
+          // resolve: ['@reduxjs/toolkit/query'],
+        },
+      },
+    ])
 
   return configs
 })

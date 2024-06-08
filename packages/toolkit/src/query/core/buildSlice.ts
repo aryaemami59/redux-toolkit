@@ -41,7 +41,8 @@ import {
   copyWithStructuralSharing,
 } from '../utils'
 import type { ApiContext } from '../apiTypes'
-import { isUpsertQuery } from './buildInitiate'
+import { isUpsertQuery } from "./module"
+// import { isUpsertQuery } from './buildInitiate'
 
 function updateQuerySubstateIfExists(
   state: QueryState<any>,
