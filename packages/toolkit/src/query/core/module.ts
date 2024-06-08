@@ -191,8 +191,7 @@ export type CoreModule =
   | ReferenceQueryLifecycle
   | ReferenceCacheCollection
 
-export interface ThunkWithReturnValue<T>
-  extends ThunkAction<T, any, any, UnknownAction> {}
+export type ThunkWithReturnValue<T> = ThunkAction<T, any, any, UnknownAction>;
 
 // declare module '@reduxjs/toolkit/query' {
 //   export interface ApiModules<
