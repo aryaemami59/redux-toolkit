@@ -1,6 +1,6 @@
 import type {
   Middleware,
-  Dispatch as ReduxDispatch,
+  Dispatch,
   UnknownAction,
   MiddlewareAPI,
 } from 'redux'
@@ -14,7 +14,7 @@ export type GetMiddlewareApi<MiddlewareApiConfig> = MiddlewareAPI<
 
 export type MiddlewareApiConfig = {
   state?: unknown
-  dispatch?: ReduxDispatch
+  dispatch?: Dispatch
 }
 
 // TODO: consolidate with cAT helpers?
@@ -25,16 +25,16 @@ export type GetState<MiddlewareApiConfig> = MiddlewareApiConfig extends {
   : unknown
 
 export type GetDispatch<MiddlewareApiConfig> = MiddlewareApiConfig extends {
-  dispatch: infer Dispatch
+  dispatch: infer DispatchType
 }
-  ? FallbackIfUnknown<Dispatch, ReduxDispatch>
-  : ReduxDispatch
+  ? FallbackIfUnknown<DispatchType, Dispatch>
+  : Dispatch
 
 export type AddMiddleware<
   State = any,
-  Dispatch extends ReduxDispatch<UnknownAction> = ReduxDispatch<UnknownAction>,
+  DispatchType extends Dispatch<UnknownAction> = Dispatch<UnknownAction>,
 > = {
-  (...middlewares: Middleware<any, State, Dispatch>[]): void
+  (...middlewares: Middleware<any, State, DispatchType>[]): void
   withTypes<MiddlewareConfig extends MiddlewareApiConfig>(): AddMiddleware<
     GetState<MiddlewareConfig>,
     GetDispatch<MiddlewareConfig>
@@ -43,13 +43,13 @@ export type AddMiddleware<
 
 export interface WithMiddleware<
   State = any,
-  Dispatch extends ReduxDispatch<UnknownAction> = ReduxDispatch<UnknownAction>,
+  DispatchType extends Dispatch<UnknownAction> = Dispatch<UnknownAction>,
 > extends BaseActionCreator<
-    Middleware<any, State, Dispatch>[],
+    Middleware<any, State, DispatchType>[],
     'dynamicMiddleware/add',
     { instanceId: string }
   > {
-  <Middlewares extends Middleware<any, State, Dispatch>[]>(
+  <Middlewares extends Middleware<any, State, DispatchType>[]>(
     ...middlewares: Middlewares
   ): PayloadAction<Middlewares, 'dynamicMiddleware/add', { instanceId: string }>
   withTypes<MiddlewareConfig extends MiddlewareApiConfig>(): WithMiddleware<
@@ -67,27 +67,27 @@ export interface DynamicDispatch {
 
 export type MiddlewareEntry<
   State = unknown,
-  Dispatch extends ReduxDispatch<UnknownAction> = ReduxDispatch<UnknownAction>,
+  DispatchType extends Dispatch<UnknownAction> = Dispatch<UnknownAction>,
 > = {
   id: string
-  middleware: Middleware<any, State, Dispatch>
+  middleware: Middleware<any, State, DispatchType>
   applied: Map<
-    MiddlewareAPI<Dispatch, State>,
-    ReturnType<Middleware<any, State, Dispatch>>
+    MiddlewareAPI<DispatchType, State>,
+    ReturnType<Middleware<any, State, DispatchType>>
   >
 }
 
 export type DynamicMiddleware<
   State = unknown,
-  Dispatch extends ReduxDispatch<UnknownAction> = ReduxDispatch<UnknownAction>,
-> = Middleware<DynamicDispatch, State, Dispatch>
+  DispatchType extends Dispatch<UnknownAction> = Dispatch<UnknownAction>,
+> = Middleware<DynamicDispatch, State, DispatchType>
 
 export type DynamicMiddlewareInstance<
   State = unknown,
-  Dispatch extends ReduxDispatch<UnknownAction> = ReduxDispatch<UnknownAction>,
+  DispatchType extends Dispatch<UnknownAction> = Dispatch<UnknownAction>,
 > = {
-  middleware: DynamicMiddleware<State, Dispatch>
-  addMiddleware: AddMiddleware<State, Dispatch>
-  withMiddleware: WithMiddleware<State, Dispatch>
+  middleware: DynamicMiddleware<State, DispatchType>
+  addMiddleware: AddMiddleware<State, DispatchType>
+  withMiddleware: WithMiddleware<State, DispatchType>
   instanceId: string
 }

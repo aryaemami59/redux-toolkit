@@ -5,6 +5,7 @@ import { formatProdErrorMessage } from '@reduxjs/toolkit'
 import { buildCreateApi, coreModule } from '@reduxjs/toolkit/query'
 import { reactHooksModule, reactHooksModuleName } from './module'
 
+export type * from '@reduxjs/toolkit/query'
 export * from '@reduxjs/toolkit/query'
 export { ApiProvider } from './ApiProvider'
 

@@ -1,5 +1,5 @@
 import type {
-  Action as ReduxAction,
+  Action,
   UnknownAction,
   Dispatch,
   Middleware,
@@ -46,7 +46,7 @@ export type CreateDispatchWithMiddlewareHook<
   >
 }
 
-type ActionFromDispatch<DispatchType extends Dispatch<ReduxAction>> =
+type ActionFromDispatch<DispatchType extends Dispatch<Action>> =
   DispatchType extends Dispatch<infer Action> ? Action : never
 
 interface ReactDynamicMiddlewareInstance<

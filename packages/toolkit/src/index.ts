@@ -1,5 +1,6 @@
 // This must remain here so that the `mangleErrors.cjs` build script
 // does not have to import this into each source file it rewrites.
+import { formatProdErrorMessage } from './formatProdErrorMessage'
 
 export {
   produce as createNextState,
@@ -211,6 +212,6 @@ export type {
   Simplify as TSHelpersId,
 } from './tsHelpers'
 
-export { formatProdErrorMessage } from './formatProdErrorMessage'
+export { formatProdErrorMessage }
 
 export type { UncheckedIndexedAccess } from './uncheckedindexed'
