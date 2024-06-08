@@ -60,6 +60,7 @@ export type {
   Actions,
   CaseReducer,
   CaseReducers,
+  ReducerWithInitialState,
 } from './createReducer'
 export {
   // js
@@ -79,6 +80,7 @@ export type {
   CaseReducerWithPrepare,
   ReducerCreators,
   SliceSelectors,
+  CaseReducerDefinition,
 } from './createSlice'
 export type { ActionCreatorInvariantMiddlewareOptions } from './actionCreatorInvariantMiddleware'
 export { createActionCreatorInvariantMiddleware } from './actionCreatorInvariantMiddleware'
@@ -202,11 +204,14 @@ export type { AutoBatchOptions } from './autoBatchEnhancer'
 
 export { combineSlices } from './combineSlices'
 
-export type { WithSlice } from './combineSlices'
+export type { CombinedSliceReducer, WithSlice } from './combineSlices'
 
 export type {
   ExtractDispatchExtensions as TSHelpersExtractDispatchExtensions,
+  Id as TSHelpersId,
   SafePromise,
 } from './tsHelpers'
 
 export { formatProdErrorMessage } from './formatProdErrorMessage'
+
+export type { UncheckedIndexedAccess } from './uncheckedindexed'

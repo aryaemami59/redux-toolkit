@@ -14,6 +14,7 @@ const createApi = /* @__PURE__ */ buildCreateApi(
 )
 
 export type {
+  QueryHooks,
   TypedUseMutationResult,
   TypedUseQueryHookResult,
   TypedUseQueryStateResult,
@@ -26,5 +27,7 @@ export type {
   TypedUseQuery,
   TypedUseQuerySubscription,
   TypedUseLazyQuerySubscription,
+  UseLazyQuery,
+  UseQuery,
 } from './buildHooks'
 export { createApi, reactHooksModule, reactHooksModuleName }
