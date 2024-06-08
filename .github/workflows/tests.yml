@@ -101,7 +101,7 @@ jobs:
         run: yarn tsc -p . --moduleResolution Bundler --noEmit false --declaration --emitDeclarationOnly --outDir dist
 
       - name: Test types using example packages
-        run: yarn workspaces foreach --from @examples-query-react/* -R run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module Bundler --moduleResolution Bundler --noEmitOnError --emitDeclarationOnly --jsx react-jsx
+        run: yarn workspaces foreach --from @examples-query-react/* -R run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module ESNext --moduleResolution Bundler --noEmitOnError --emitDeclarationOnly --jsx react-jsx
 
   test-types:
     name: Test Types with TypeScript ${{ matrix.ts }}
