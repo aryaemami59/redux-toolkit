@@ -106,7 +106,7 @@ jobs:
           path: .
 
       - name: Install build artifact in example packages
-        run: yarn workspaces foreach --from @examples-query-react/* -R add --prefer-dev $(pwd)/package.tgz
+        run: yarn up @reduxjs/toolkit@package.tgz
 
       - name: Test types using example packages
         run: yarn workspaces foreach --from @examples-query-react/* -R run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module ESNext --moduleResolution Bundler --noEmitOnError --emitDeclarationOnly --jsx react-jsx
