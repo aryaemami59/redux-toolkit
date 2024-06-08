@@ -1,77 +1,58 @@
 /**
  * Note: this file should import all other files for type discovery and declaration merging
  */
+import type { ThunkAction, UnknownAction } from '@reduxjs/toolkit'
+import type { Api, Module } from '../apiTypes'
+import type { QueryReturnValue } from '../baseQueryTypes'
+import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
 import type {
-  Matchers,
-  MutationThunk,
-  PatchQueryDataThunk,
-  QueryThunk,
-  QueryThunkArg,
-  UpdateQueryDataThunk,
-  UpsertQueryDataThunk,
-} from './buildThunks'
-import { buildThunks } from './buildThunks'
-import type {
-  ActionCreatorWithPayload,
-  Middleware,
-  Reducer,
-  ThunkAction,
-  ThunkDispatch,
-  UnknownAction,
-} from '@reduxjs/toolkit'
-import type {
+  AssertTagTypes,
   EndpointDefinitions,
+  MutationDefinition,
   QueryArgFrom,
   QueryDefinition,
-  MutationDefinition,
-  AssertTagTypes,
-  TagDescription,
-  TagTypesFrom,
   ReducerPathFrom,
+  TagTypesFrom,
 } from '../endpointDefinitions'
-import { isQueryDefinition, isMutationDefinition } from '../endpointDefinitions'
-import type {
-  CombinedState,
-  QueryKeys,
-  MutationKeys,
-  RootState,
-  SubscriptionOptions,
-} from './apiState'
-import type { Api, Module } from '../apiTypes'
-import { onFocus, onFocusLost, onOnline, onOffline } from './setupListeners'
-import { buildSlice } from './buildSlice'
-import { buildMiddleware } from './buildMiddleware'
-import { buildSelectors, MutationResultSelectorResult, QueryResultSelectorResult, SkipToken } from './buildSelectors'
+import { isMutationDefinition, isQueryDefinition } from '../endpointDefinitions'
+import { assertCast, safeAssign } from '../tsHelpers'
+import type { RootState, SubscriptionOptions } from './apiState'
 import type {
   forceQueryFnSymbol,
   MutationActionCreatorResult,
   QueryActionCreatorResult,
 } from './buildInitiate'
 import { buildInitiate } from './buildInitiate'
-import { assertCast, safeAssign } from '../tsHelpers'
-import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
+import { buildMiddleware } from './buildMiddleware'
+import type {
+  MutationResultSelectorResult,
+  QueryResultSelectorResult,
+  SkipToken,
+} from './buildSelectors'
+import { buildSelectors } from './buildSelectors'
 import type { SliceActions } from './buildSlice'
-import type { BaseQueryFn, QueryReturnValue } from '../baseQueryTypes'
+import { buildSlice } from './buildSlice'
+import type { Matchers, MutationThunk, QueryThunk } from './buildThunks'
+import { buildThunks } from './buildThunks'
+import { onFocus, onFocusLost, onOffline, onOnline } from './setupListeners'
 
+import { enablePatches } from 'immer'
+import type { ReferenceCacheCollection } from './buildMiddleware/cacheCollection'
 import type { ReferenceCacheLifecycle } from './buildMiddleware/cacheLifecycle'
 import type { ReferenceQueryLifecycle } from './buildMiddleware/queryLifecycle'
-import type { ReferenceCacheCollection } from './buildMiddleware/cacheCollection'
-import { enablePatches } from 'immer'
 import { createSelector as _createSelector } from './rtkImports'
 
-
 export interface ApiEndpointQuery<
-Definition extends QueryDefinition<any, any, any, any, any>,
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-Definitions extends EndpointDefinitions,
+  Definition extends QueryDefinition<any, any, any, any, any>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Definitions extends EndpointDefinitions,
 > extends Matchers<QueryThunk, Definition> {}
 
 export interface ApiEndpointMutation<
-Definition extends MutationDefinition<any, any, any, any, any>,
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-Definitions extends EndpointDefinitions,
+  Definition extends MutationDefinition<any, any, any, any, any>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Definitions extends EndpointDefinitions,
 > extends Matchers<MutationThunk, Definition> {}
-
 
 // export const forceQueryFnSymbol = Symbol('forceQueryFn')
 // export const isUpsertQuery = (arg: QueryThunkArg) =>
@@ -104,13 +85,12 @@ export type StartQueryActionCreator<
   options?: StartQueryActionCreatorOptions,
 ) => ThunkAction<QueryActionCreatorResult<D>, any, any, UnknownAction>
 
-
 export interface ApiEndpointQuery<
-Definition extends QueryDefinition<any, any, any, any, any>,
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-Definitions extends EndpointDefinitions,
+  Definition extends QueryDefinition<any, any, any, any, any>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Definitions extends EndpointDefinitions,
 > {
-initiate: StartQueryActionCreator<Definition>
+  initiate: StartQueryActionCreator<Definition>
 }
 
 export type StartMutationActionCreator<
@@ -130,11 +110,11 @@ export type StartMutationActionCreator<
 ) => ThunkAction<MutationActionCreatorResult<D>, any, any, UnknownAction>
 
 export interface ApiEndpointMutation<
-Definition extends MutationDefinition<any, any, any, any, any>,
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-Definitions extends EndpointDefinitions,
+  Definition extends MutationDefinition<any, any, any, any, any>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Definitions extends EndpointDefinitions,
 > {
-initiate: StartMutationActionCreator<Definition>
+  initiate: StartMutationActionCreator<Definition>
 }
 
 export type QueryResultSelectorFactory<
@@ -144,19 +124,18 @@ export type QueryResultSelectorFactory<
   queryArg: QueryArgFrom<Definition> | SkipToken,
 ) => (state: RootState) => QueryResultSelectorResult<Definition>
 
-
 export interface ApiEndpointQuery<
-Definition extends QueryDefinition<any, any, any, any, any>,
-Definitions extends EndpointDefinitions,
+  Definition extends QueryDefinition<any, any, any, any, any>,
+  Definitions extends EndpointDefinitions,
 > {
-select: QueryResultSelectorFactory<
-  Definition,
-  RootState<
-    Definitions,
-    TagTypesFrom<Definition>,
-    ReducerPathFrom<Definition>
+  select: QueryResultSelectorFactory<
+    Definition,
+    RootState<
+      Definitions,
+      TagTypesFrom<Definition>,
+      ReducerPathFrom<Definition>
+    >
   >
->
 }
 
 export type MutationResultSelectorFactory<
@@ -170,20 +149,18 @@ export type MutationResultSelectorFactory<
 ) => (state: RootState) => MutationResultSelectorResult<Definition>
 
 export interface ApiEndpointMutation<
-Definition extends MutationDefinition<any, any, any, any, any>,
-Definitions extends EndpointDefinitions,
+  Definition extends MutationDefinition<any, any, any, any, any>,
+  Definitions extends EndpointDefinitions,
 > {
-select: MutationResultSelectorFactory<
-  Definition,
-  RootState<
-    Definitions,
-    TagTypesFrom<Definition>,
-    ReducerPathFrom<Definition>
+  select: MutationResultSelectorFactory<
+    Definition,
+    RootState<
+      Definitions,
+      TagTypesFrom<Definition>,
+      ReducerPathFrom<Definition>
+    >
   >
->
 }
-
-
 
 /**
  * `ifOlderThan` - (default: `false` | `number`) - _number is value in seconds_
@@ -206,7 +183,7 @@ export type CoreModule =
   | ReferenceQueryLifecycle
   | ReferenceCacheCollection
 
-export type ThunkWithReturnValue<T> = ThunkAction<T, any, any, UnknownAction>;
+export type ThunkWithReturnValue<T> = ThunkAction<T, any, any, UnknownAction>
 
 // declare module '@reduxjs/toolkit/query' {
 //   export interface ApiModules<

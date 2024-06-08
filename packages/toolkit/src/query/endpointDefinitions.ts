@@ -10,7 +10,7 @@ import type {
   QueryReturnValue,
 } from './baseQueryTypes'
 import type { QuerySubState, RootState } from './core/apiState'
-import { PromiseWithKnownReason } from './core/buildMiddleware/types'
+import type { PromiseWithKnownReason } from './core/buildMiddleware/types'
 import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import type { NEVER } from './fakeBaseQuery'
 import type {
@@ -23,12 +23,12 @@ import type {
 } from './tsHelpers'
 // import { MutationBaseLifecycleApi, QueryBaseLifecycleApi } from "./core/buildMiddleware/cacheLifecycle"
 import type { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit'
-import { neverResolvedError } from './core/buildMiddleware/cacheLifecycle'
+import type { neverResolvedError } from './core/buildMiddleware/cacheLifecycle'
 import type {
   MutationResultSelectorResult,
   QueryResultSelectorResult,
 } from './core/buildSelectors'
-import { PatchCollection, Recipe } from './core/buildThunks'
+import type { PatchCollection, Recipe } from './core/buildThunks'
 
 export interface QueryBaseLifecycleApi<
   QueryArg,

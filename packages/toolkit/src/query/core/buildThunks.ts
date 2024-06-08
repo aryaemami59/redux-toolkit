@@ -44,7 +44,8 @@ import type { ThunkAction, ThunkDispatch, AsyncThunk } from '@reduxjs/toolkit'
 
 import { HandledError } from '../HandledError'
 
-import { StartQueryActionCreatorOptions, type ApiEndpointQuery, type PrefetchOptions } from './module'
+import type { StartQueryActionCreatorOptions} from './module';
+import type { ApiEndpointQuery, PrefetchOptions } from './module'
 import type { UnwrapPromise } from '../tsHelpers'
 
 // declare module '@reduxjs/toolkit/query' {

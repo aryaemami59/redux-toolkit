@@ -18,9 +18,9 @@ import type { CreateApiOptions } from './createApi'
 import type { BaseQueryFn } from './baseQueryTypes'
 import type { CombinedState, MutationKeys, QueryKeys, RootState } from './core/apiState'
 import type { ActionCreatorWithPayload, Middleware, Reducer, ThunkAction, ThunkDispatch, UnknownAction } from '@reduxjs/toolkit'
-import { MutationActionCreatorResult, QueryActionCreatorResult } from "./core/buildInitiate"
-import { PatchQueryDataThunk, UpdateQueryDataThunk, UpsertQueryDataThunk } from "./core/buildThunks"
-import { SliceActions } from "./core/buildSlice"
+import type { MutationActionCreatorResult, QueryActionCreatorResult } from "./core/buildInitiate"
+import type { PatchQueryDataThunk, UpdateQueryDataThunk, UpsertQueryDataThunk } from "./core/buildThunks"
+import type { SliceActions } from "./core/buildSlice"
 
 export interface ApiModules<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
