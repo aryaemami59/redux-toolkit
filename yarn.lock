@@ -5602,7 +5602,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@examples-action-listener/counter@workspace:examples/action-listener/counter"
   dependencies:
-    "@reduxjs/toolkit": "npm:^1.8.0"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/node": "npm:^12.0.0"
     "@types/react": "npm:^18.0.12"
     "@types/react-dom": "npm:^18.0.5"
@@ -5612,7 +5612,7 @@ __metadata:
     react-dom: "npm:^18.1.0"
     react-redux: "npm:^9.1.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5620,14 +5620,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@examples-query-react/advanced@workspace:examples/query/react/advanced"
   dependencies:
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
     react: "npm:^18.1.0"
     react-dom: "npm:^18.1.0"
     react-redux: "npm:^9.1.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5638,7 +5638,7 @@ __metadata:
     "@chakra-ui/react": "npm:1.0.0"
     "@emotion/react": "npm:^11.4.0"
     "@emotion/styled": "npm:^11.3.0"
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
     framer-motion: "npm:^2.9.5"
@@ -5649,7 +5649,7 @@ __metadata:
     react-redux: "npm:^9.1.0"
     react-router-dom: "npm:6.3.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5660,7 +5660,7 @@ __metadata:
     "@chakra-ui/react": "npm:1.0.0"
     "@emotion/react": "npm:^11.4.0"
     "@emotion/styled": "npm:^11.3.0"
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
     framer-motion: "npm:^2.9.5"
@@ -5671,7 +5671,7 @@ __metadata:
     react-redux: "npm:^9.1.0"
     react-router-dom: "npm:6.3.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5679,7 +5679,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@examples-query-react/basic@workspace:examples/query/react/basic"
   dependencies:
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@testing-library/react": "npm:^13.3.0"
     "@types/jest": "npm:^26.0.23"
     "@types/react": "npm:^18.0.5"
@@ -5689,7 +5689,7 @@ __metadata:
     react-dom: "npm:^18.1.0"
     react-redux: "npm:^9.1.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5697,14 +5697,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@examples-query-react/conditional-fetching@workspace:examples/query/react/conditional-fetching"
   dependencies:
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
     react: "npm:^18.1.0"
     react-dom: "npm:^18.1.0"
     react-redux: "npm:^9.1.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5712,14 +5712,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@examples-query-react/deduping-queries@workspace:examples/query/react/deduping-queries"
   dependencies:
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
     react: "npm:^18.1.0"
     react-dom: "npm:^18.1.0"
     react-redux: "npm:^9.1.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5740,7 +5740,7 @@ __metadata:
     "@graphql-codegen/typescript-rtk-query": "npm:^1.1.0"
     "@graphql-typed-document-node/core": "npm:^3.1.0"
     "@mswjs/data": "npm:^0.4.0"
-    "@reduxjs/toolkit": "npm:^1.6.0"
+    "@reduxjs/toolkit": "workspace:^"
     "@rtk-query/graphql-request-base-query": "npm:^2.0.0"
     "@types/faker": "npm:^5.5.5"
     "@types/react": "npm:^18.0.5"
@@ -5760,7 +5760,7 @@ __metadata:
     react-router-dom: "npm:6.3.0"
     react-scripts: "npm:5.0.1"
     ts-node: "npm:^10.0.0"
-    typescript: "npm:4.1.3"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5772,7 +5772,7 @@ __metadata:
     "@emotion/react": "npm:^11.4.0"
     "@emotion/styled": "npm:^11.3.0"
     "@mswjs/data": "npm:^0.3.0"
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@rtk-query/graphql-request-base-query": "npm:^2.0.0"
     "@types/faker": "npm:^5.5.5"
     "@types/react": "npm:^18.0.5"
@@ -5788,7 +5788,7 @@ __metadata:
     react-redux: "npm:^9.1.0"
     react-router-dom: "npm:6.3.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.2.4"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5796,7 +5796,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@examples-query-react/kitchen-sink@workspace:examples/query/react/kitchen-sink"
   dependencies:
-    "@reduxjs/toolkit": "npm:1.8.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@testing-library/jest-dom": "npm:^5.11.5"
     "@testing-library/react": "npm:^13.3.0"
     "@types/jest": "npm:^26.0.23"
@@ -5809,7 +5809,7 @@ __metadata:
     react-redux: "npm:^9.1.0"
     react-router-dom: "npm:6.3.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
     whatwg-fetch: "npm:^3.4.1"
   languageName: unknown
   linkType: soft
@@ -5822,7 +5822,7 @@ __metadata:
     "@emotion/react": "npm:^11.4.0"
     "@emotion/styled": "npm:^11.3.0"
     "@mswjs/data": "npm:^0.3.0"
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
     framer-motion: "npm:^2.9.5"
@@ -5833,7 +5833,7 @@ __metadata:
     react-redux: "npm:^9.1.0"
     react-router-dom: "npm:6.3.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5845,7 +5845,7 @@ __metadata:
     "@emotion/react": "npm:^11.4.0"
     "@emotion/styled": "npm:^11.3.0"
     "@mswjs/data": "npm:^0.3.0"
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
     framer-motion: "npm:^2.9.5"
@@ -5856,7 +5856,7 @@ __metadata:
     react-redux: "npm:^9.1.0"
     react-router-dom: "npm:6.3.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
     uuid: "npm:^8.3.2"
     whatwg-fetch: "npm:^3.4.1"
   languageName: unknown
@@ -5870,7 +5870,7 @@ __metadata:
     "@emotion/react": "npm:^11.4.0"
     "@emotion/styled": "npm:^11.3.0"
     "@mswjs/data": "npm:^0.3.0"
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/faker": "npm:^5.5.5"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
@@ -5882,7 +5882,7 @@ __metadata:
     react-icons: "npm:^5.0.1"
     react-redux: "npm:^9.1.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5890,14 +5890,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@examples-query-react/polling@workspace:examples/query/react/polling"
   dependencies:
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
     react: "npm:^18.1.0"
     react-dom: "npm:^18.1.0"
     react-redux: "npm:^9.1.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5909,7 +5909,7 @@ __metadata:
     "@emotion/react": "npm:^11.4.0"
     "@emotion/styled": "npm:^11.3.0"
     "@mswjs/data": "npm:^0.3.0"
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/faker": "npm:^5.5.5"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
@@ -5922,7 +5922,7 @@ __metadata:
     react-redux: "npm:^9.1.0"
     react-router-dom: "npm:6.3.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5934,7 +5934,7 @@ __metadata:
     "@emotion/react": "npm:^11.4.0"
     "@emotion/styled": "npm:^11.3.0"
     "@mswjs/data": "npm:^0.3.0"
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/faker": "npm:^5.5.5"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
@@ -5947,7 +5947,7 @@ __metadata:
     react-redux: "npm:^9.1.0"
     react-router-dom: "npm:6.3.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5959,7 +5959,7 @@ __metadata:
     "@emotion/react": "npm:^11.4.0"
     "@emotion/styled": "npm:^11.3.0"
     "@mswjs/data": "npm:^0.3.0"
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/faker": "npm:^5.5.5"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
@@ -5972,7 +5972,7 @@ __metadata:
     react-redux: "npm:^9.1.0"
     react-router-dom: "npm:6.3.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -5980,14 +5980,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@examples-query-react/with-apiprovider@workspace:examples/query/react/with-apiprovider"
   dependencies:
-    "@reduxjs/toolkit": "npm:^1.6.0-rc.1"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
     react: "npm:^18.1.0"
     react-dom: "npm:^18.1.0"
     react-redux: "npm:^9.1.0"
     react-scripts: "npm:5.0.1"
-    typescript: "npm:~4.9"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -7748,34 +7748,14 @@ __metadata:
     jscodeshift: "npm:^0.15.1"
     prettier: "npm:^3.2.5"
     ts-node: "npm:^10.9.2"
-    typescript: "npm:^5.3.3"
+    typescript: "npm:^5.4.5"
     vitest: "npm:^1.2.1"
   bin:
     rtk-codemods: ./bin/cli.mjs
   languageName: unknown
   linkType: soft
 
-"@reduxjs/toolkit@npm:1.8.1":
-  version: 1.8.1
-  resolution: "@reduxjs/toolkit@npm:1.8.1"
-  dependencies:
-    immer: "npm:^9.0.7"
-    redux: "npm:^4.1.2"
-    redux-thunk: "npm:^2.4.1"
-    reselect: "npm:^4.1.5"
-  peerDependencies:
-    react: ^16.9.0 || ^17.0.0 || ^18
-    react-redux: ^7.2.1 || ^8.0.0-beta
-  peerDependenciesMeta:
-    react:
-      optional: true
-    react-redux:
-      optional: true
-  checksum: 10/c488a25de2e374cc8c2da07e5c5ba395a54f3e55ab974df54af817dbba4a57936da36a46735206aa6eaa9e461bad383826206deac660e2803c7df6c1f7ce2839
-  languageName: node
-  linkType: hard
-
-"@reduxjs/toolkit@npm:^1.6.0 || ^2.0.0, @reduxjs/toolkit@workspace:packages/toolkit":
+"@reduxjs/toolkit@workspace:^, @reduxjs/toolkit@workspace:packages/toolkit":
   version: 0.0.0-use.local
   resolution: "@reduxjs/toolkit@workspace:packages/toolkit"
   dependencies:
@@ -7840,26 +7820,6 @@ __metadata:
       optional: true
   languageName: unknown
   linkType: soft
-
-"@reduxjs/toolkit@npm:^1.6.0, @reduxjs/toolkit@npm:^1.6.0-rc.1, @reduxjs/toolkit@npm:^1.8.0":
-  version: 1.9.1
-  resolution: "@reduxjs/toolkit@npm:1.9.1"
-  dependencies:
-    immer: "npm:^9.0.16"
-    redux: "npm:^4.2.0"
-    redux-thunk: "npm:^2.4.2"
-    reselect: "npm:^4.1.7"
-  peerDependencies:
-    react: ^16.9.0 || ^17.0.0 || ^18
-    react-redux: ^7.2.1 || ^8.0.2
-  peerDependenciesMeta:
-    react:
-      optional: true
-    react-redux:
-      optional: true
-  checksum: 10/7a9fcdd714aed061509052aa9a6c10dd46d6040d921a13071c473192fcea37c3f9574c2bf0c5b1015b8f5f5dc3ddce7f3cb0fb4b10ffa087afb463815a3230a6
-  languageName: node
-  linkType: hard
 
 "@rollup/plugin-alias@npm:^3.1.1":
   version: 3.1.2
@@ -8078,7 +8038,7 @@ __metadata:
     "@babel/core": "npm:^7.12.10"
     "@babel/preset-env": "npm:^7.12.11"
     "@babel/preset-typescript": "npm:^7.12.7"
-    "@reduxjs/toolkit": "npm:^1.6.0"
+    "@reduxjs/toolkit": "workspace:^"
     "@types/commander": "npm:^2.12.2"
     "@types/glob-to-regexp": "npm:^0.4.0"
     "@types/lodash": "npm:^4.14.165"
@@ -8100,7 +8060,7 @@ __metadata:
     semver: "npm:^7.3.5"
     swagger2openapi: "npm:^7.0.4"
     ts-node: "npm:^10.9.2"
-    typescript: "npm:^5.3.3"
+    typescript: "npm:^5.4.5"
     vitest: "npm:^1.2.2"
     yalc: "npm:^1.0.0-pre.47"
   bin:
@@ -8112,12 +8072,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rtk-query/graphql-request-base-query@workspace:packages/rtk-query-graphql-request-base-query"
   dependencies:
-    "@reduxjs/toolkit": "npm:^1.6.0 || ^2.0.0"
+    "@reduxjs/toolkit": "workspace:^"
     graphql: "npm:^16.5.0"
     graphql-request: "npm:^4.0.0 || ^5.0.0 || ^6.0.0"
     microbundle: "npm:^0.13.3"
     rimraf: "npm:^3.0.2"
-    typescript: "npm:^4.3.4"
+    typescript: "npm:^5.4.5"
   peerDependencies:
     "@reduxjs/toolkit": ^1.7.1 || ^2.0.0
     graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
@@ -18206,13 +18166,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"immer@npm:^9.0.16":
-  version: 9.0.16
-  resolution: "immer@npm:9.0.16"
-  checksum: 10/071d293409e53f1ceae7e32a8feb91379d4f1f1d26a35a3075b56b2170fd5c91666f648bcee0f259184e2bc5bf37e6e64ae325ff32b4e2289aba45a34ea86842
-  languageName: node
-  linkType: hard
-
 "immer@npm:^9.0.7":
   version: 9.0.7
   resolution: "immer@npm:9.0.7"
@@ -25522,48 +25475,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"redux-thunk@npm:^2.4.1":
-  version: 2.4.1
-  resolution: "redux-thunk@npm:2.4.1"
-  peerDependencies:
-    redux: ^4
-  checksum: 10/b81cdb5fa83dbfb49abc220242dfb9bc76143924d2bf4b62c0730d5dc7eed716b5800e4284e8fed8bd9fc9ea0d7757e5fe8e4a1380e63656782b9f474da25efa
-  languageName: node
-  linkType: hard
-
-"redux-thunk@npm:^2.4.2":
-  version: 2.4.2
-  resolution: "redux-thunk@npm:2.4.2"
-  peerDependencies:
-    redux: ^4
-  checksum: 10/9bcb1193835128ecebf1e1a1b1a37bc15e8dfbdf6b6ee1b5566dd4c8e4ca05a81175f0c6dda34ab47f87053cd13b74d9f881d59446691d7b192831852b5d7a72
-  languageName: node
-  linkType: hard
-
 "redux-thunk@npm:^3.1.0":
   version: 3.1.0
   resolution: "redux-thunk@npm:3.1.0"
   peerDependencies:
     redux: ^5.0.0
   checksum: 10/38c563db5f0bbec90d2e65cc27f3c870c1b6102e0c071258734fac41cb0e51d31d894125815c2f4133b20aff231f51f028ad99bccc05a7e3249f1a5d5a959ed3
-  languageName: node
-  linkType: hard
-
-"redux@npm:^4.1.2":
-  version: 4.1.2
-  resolution: "redux@npm:4.1.2"
-  dependencies:
-    "@babel/runtime": "npm:^7.9.2"
-  checksum: 10/764a64692f7184fb373dd38bcddbe1581e2c9cd3766a3ad6a5c5d19177db1fb164240f07b97cef40d29a632620b6c5e3a08abd8ea912e4c232b2f31bbd2431e6
-  languageName: node
-  linkType: hard
-
-"redux@npm:^4.2.0":
-  version: 4.2.1
-  resolution: "redux@npm:4.2.1"
-  dependencies:
-    "@babel/runtime": "npm:^7.9.2"
-  checksum: 10/371e4833b671193303a7dea7803c8fdc8e0d566740c78f580e0a3b77b4161da25037626900a2205a5d616117fa6ad09a4232e5a110bd437186b5c6355a041750
   languageName: node
   linkType: hard
 
@@ -25992,20 +25909,6 @@ __metadata:
   version: 1.0.0
   resolution: "requires-port@npm:1.0.0"
   checksum: 10/878880ee78ccdce372784f62f52a272048e2d0827c29ae31e7f99da18b62a2b9463ea03a75f277352f4697c100183debb0532371ad515a2d49d4bfe596dd4c20
-  languageName: node
-  linkType: hard
-
-"reselect@npm:^4.1.5":
-  version: 4.1.5
-  resolution: "reselect@npm:4.1.5"
-  checksum: 10/eabf06f34ef316526cb6841cb3fcf0c03a77bec296e03f94e9520d354d539f3f62cfcc50ad07523a74ce21bda9d8009995eca43b60c34b89cb7a264721c81380
-  languageName: node
-  linkType: hard
-
-"reselect@npm:^4.1.7":
-  version: 4.1.8
-  resolution: "reselect@npm:4.1.8"
-  checksum: 10/199984d9872f71cd207f4aa6e6fd2bd48d95154f7aa9b3aee3398335f39f5491059e732f28c12e9031d5d434adab2c458dc8af5afb6564d0ad37e1644445e09c
   languageName: node
   linkType: hard
 
@@ -26464,7 +26367,7 @@ __metadata:
     release-it: "npm:^14.12.5"
     serve: "npm:^14.2.0"
     ts-node: "npm:^10.9.2"
-    typescript: "npm:^5.4.3"
+    typescript: "npm:^5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -29054,17 +28957,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:4.1.3":
-  version: 4.1.3
-  resolution: "typescript@npm:4.1.3"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10/674a898cc5c3afc4ad52d7305af7fee8b2ba17721b680d99907d450df9956137de8be456c47959ccbf59bce2281678c7e27e3a78c775cd24471bcd96883c0724
-  languageName: node
-  linkType: hard
-
-"typescript@npm:5.3.3, typescript@npm:^5.2.2, typescript@npm:^5.3.3":
+"typescript@npm:5.3.3, typescript@npm:^5.2.2":
   version: 5.3.3
   resolution: "typescript@npm:5.3.3"
   bin:
@@ -29074,23 +28967,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.1.3, typescript@npm:^4.3.4, typescript@npm:^4.9, typescript@npm:~4.9":
+"typescript@npm:^4.1.3, typescript@npm:^4.9":
   version: 4.9.5
   resolution: "typescript@npm:4.9.5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10/458f7220ab11e0fc191514cc41be1707645ec9a8c2d609448a448e18c522cef9646f58728f6811185a4c35613dacdf6c98cf8965c88b3541d0288c47291e4300
-  languageName: node
-  linkType: hard
-
-"typescript@npm:^5.4.3":
-  version: 5.4.3
-  resolution: "typescript@npm:5.4.3"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10/de4c69f49a7ad4b1ea66a6dcc8b055ac34eb56af059a069d8988dd811c5e649be07e042e5bf573e8d0ac3ec2f30e6c999aa651cd09f6e9cbc6113749e8b6be20
   languageName: node
   linkType: hard
 
@@ -29104,16 +28987,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:~4.2.4":
-  version: 4.2.4
-  resolution: "typescript@npm:4.2.4"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10/ca42873f8cdf67f7540e923475e7ad2a31aaa6e5e336ac309c9ab08ccc04555f4d3779285e8e8d8ab05413d4c02c5a26f96e0f8ea9a16affe721f639f87d053a
-  languageName: node
-  linkType: hard
-
 "typescript@npm:~4.3.2":
   version: 4.3.5
   resolution: "typescript@npm:4.3.5"
@@ -29124,17 +28997,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A4.1.3#optional!builtin<compat/typescript>":
-  version: 4.1.3
-  resolution: "typescript@patch:typescript@npm%3A4.1.3#optional!builtin<compat/typescript>::version=4.1.3&hash=4a8eb8"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10/085045b2cf7bdd60cb48bdf63469af4488f827df149c92a834f38aa89460e12b47402d8c0414b4e87c65fba3cb154285b3fbb581747985a597cced90c4973f77
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@npm%3A5.3.3#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.2.2#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.3.3#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A5.3.3#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.2.2#optional!builtin<compat/typescript>":
   version: 5.3.3
   resolution: "typescript@patch:typescript@npm%3A5.3.3#optional!builtin<compat/typescript>::version=5.3.3&hash=e012d7"
   bin:
@@ -29144,23 +29007,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^4.1.3#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^4.3.4#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^4.9#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A~4.9#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A^4.1.3#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^4.9#optional!builtin<compat/typescript>":
   version: 4.9.5
   resolution: "typescript@patch:typescript@npm%3A4.9.5#optional!builtin<compat/typescript>::version=4.9.5&hash=289587"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10/5659316360b5cc2d6f5931b346401fa534107b68b60179cf14970e27978f0936c1d5c46f4b5b8175f8cba0430f522b3ce355b4b724c0ea36ce6c0347fab25afd
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@npm%3A^5.4.3#optional!builtin<compat/typescript>":
-  version: 5.4.3
-  resolution: "typescript@patch:typescript@npm%3A5.4.3#optional!builtin<compat/typescript>::version=5.4.3&hash=d69c25"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10/3abea475798fdf7ee46e75dafc50c85f30fd1e7061559ec2af61646f23d16c91742703f04f0ac55be52f58ca05c02f77404b7b94bbad16278c9a54c9eeb4f4ea
   languageName: node
   linkType: hard
 
@@ -29171,16 +29024,6 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10/584be8bac7112ad49a9eb9992f71d542b1ff2fafb5bb315e1c196145e8feab589f1d7223cfb2d5df6770789582e6918f8287d1f2f89911b38eb80e29c560ad00
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@npm%3A~4.2.4#optional!builtin<compat/typescript>":
-  version: 4.2.4
-  resolution: "typescript@patch:typescript@npm%3A4.2.4#optional!builtin<compat/typescript>::version=4.2.4&hash=334f98"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10/1ea3cb3bd8aca37b6fd4970ffecf2da000ce4ccaed54c71de87f56f6b0d792a8a7d8a36b521574911804a9789c2f461d319679e1f5580440910987e9f1fcc22a
   languageName: node
   linkType: hard
 
