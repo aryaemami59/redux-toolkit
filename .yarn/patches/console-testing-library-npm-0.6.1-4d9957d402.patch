@@ -1,3 +1,23 @@
+diff --git a/package.json b/package.json
+index b924e066ecfdb30917b9c1056b360834da357698..15e155bd84f9d16537ffe36f9a87debcb0ec3591 100644
+--- a/package.json
++++ b/package.json
+@@ -8,12 +8,15 @@
+   "type": "module",
+   "main": "dist/index.js",
+   "typings": "index.d.ts",
++  "types": "index.d.ts",
+   "exports": {
+     ".": {
++      "types": "./index.d.ts",
+       "require": "./dist/index.js",
+       "default": "./src/index.js"
+     },
+     "./pure": {
++      "types": "./pure.d.ts",
+       "require": "./dist/pure.js",
+       "default": "./src/pure.js"
+     }
 diff --git a/src/index.js b/src/index.js
 index 90ff7fa3d7d4fa62dbbf638958ae4e28abd089a8..28434687b5163b7472e86bdb11bed69e0868e660 100644
 --- a/src/index.js
