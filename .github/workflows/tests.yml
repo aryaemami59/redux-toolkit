@@ -97,6 +97,9 @@ jobs:
       - name: Run tests, against dist
         run: yarn test
 
+      - name: Run type tests with `moduleResolution Bundler`
+        run: yarn tsc -p tsconfig.test.json --moduleResolution Bundler --noEmit false --declaration --emitDeclarationOnly --outDir dist
+
   test-types:
     name: Test Types with TypeScript ${{ matrix.ts }}
 
