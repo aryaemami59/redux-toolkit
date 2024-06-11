@@ -3,13 +3,20 @@
 import { formatProdErrorMessage } from '@reduxjs/toolkit'
 export { formatProdErrorMessage }
 
-// import type { CreateApi } from '@reduxjs/toolkit/query'
+// import type { CreateApi } from '../createApi'
+import type {
+  Api,
+  ApiModules,
+  CoreModule,
+  CreateApi,
+} from '@reduxjs/toolkit/query'
 import {
   buildCreateApi,
   coreModule,
-  // coreModuleName,
+  coreModuleName,
 } from '@reduxjs/toolkit/query'
 import { reactHooksModule, reactHooksModuleName } from './module'
+// import { coreModuleName } from "../core/module"
 
 // export type * from '@reduxjs/toolkit/query'
 export * from '@reduxjs/toolkit/query'
@@ -37,6 +44,7 @@ export type {
   UseLazyQuery,
   UseQuery,
 } from './buildHooks'
-export { createApi, reactHooksModule, reactHooksModuleName }
-// export { coreModuleName, createApi, reactHooksModule, reactHooksModuleName }
-export type { CreateApi } from '@reduxjs/toolkit/query'
+// export { createApi, reactHooksModule, reactHooksModuleName }
+export { coreModuleName, createApi, reactHooksModule, reactHooksModuleName }
+export type { Api, ApiModules, CoreModule, CreateApi }
+// export type { CreateApi } from '@reduxjs/toolkit/query'

@@ -1,9 +1,9 @@
 import { isAction } from 'redux'
 import type {
-  IsUnknownOrNonInferrable,
   IfMaybeUndefined,
   IfVoid,
   IsAny,
+  IsUnknownOrNonInferrable,
 } from './tsHelpers'
 import { hasMatchFunction } from './tsHelpers'
 

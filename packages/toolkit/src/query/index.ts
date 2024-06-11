@@ -1,27 +1,13 @@
 // This must remain here so that the `mangleErrors.cjs` build script
 // does not have to import this into each source file it rewrites.
 import { formatProdErrorMessage } from '@reduxjs/toolkit'
-export { formatProdErrorMessage }
-
-export type { Api, ApiContext, ApiModules, Module } from './apiTypes'
-export type {
-  BaseQueryApi,
-  BaseQueryEnhancer,
-  BaseQueryFn,
-} from './baseQueryTypes'
-export {
-  coreModule,
-  coreModuleName,
-  createApi,
-  QueryStatus,
-  setupListeners,
-  skipToken,
-} from './core'
-export type {
+import type {
   ApiEndpointMutation,
   ApiEndpointQuery,
   CombinedState,
   CoreModule,
+  // CreateApi,
+  CreateApiOptions,
   MutationActionCreatorResult,
   MutationResultSelectorResult,
   PrefetchOptions,
@@ -34,8 +20,51 @@ export type {
   SkipToken,
   SubscriptionOptions,
 } from './core'
-export { buildCreateApi } from './createApi'
-export type { CreateApi, CreateApiOptions } from './createApi'
+export { formatProdErrorMessage }
+
+export type {
+  Api,
+  ApiContext,
+  ApiModules,
+  Module,
+  ModuleName,
+} from './apiTypes'
+export type {
+  BaseQueryApi,
+  BaseQueryEnhancer,
+  BaseQueryFn,
+} from './baseQueryTypes'
+export {
+  buildCreateApi,
+  coreModule,
+  coreModuleName,
+  createApi,
+  QueryStatus,
+  setupListeners,
+  skipToken,
+} from './core'
+export type {
+  ApiEndpointMutation,
+  ApiEndpointQuery,
+  CombinedState,
+  CoreModule,
+  // CreateApi,
+  CreateApiOptions,
+  MutationActionCreatorResult,
+  MutationResultSelectorResult,
+  PrefetchOptions,
+  QueryActionCreatorResult,
+  QueryCacheKey,
+  QueryKeys,
+  QueryResultSelectorResult,
+  QuerySubState,
+  RootState,
+  SkipToken,
+  SubscriptionOptions,
+}
+// export { buildCreateApi } from './createApi'
+export type { CreateApi } from './createApi'
+// export type { CreateApi, CreateApiOptions } from './createApi'
 export { defaultSerializeQueryArgs } from './defaultSerializeQueryArgs'
 export type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 export type {

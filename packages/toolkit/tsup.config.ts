@@ -251,16 +251,6 @@ export default defineConfig((options) => {
     })
     .flat()
     .concat([
-      // {
-      //   name: 'apiTypes',
-      //   format: 'esm',
-      //   tsconfig,
-      //   entry: { 'query/apiTypes': './src/query/apiTypes.ts' },
-      //   external: ['./uncheckedindexed'],
-      //   dts: {
-      //     only: true,
-      //   },
-      // },
       {
         name: 'Redux-Toolkit',
         format: 'cjs',
@@ -282,28 +272,6 @@ export default defineConfig((options) => {
           only: true,
         },
       },
-      // {
-      //   name: 'RTK-Query-React',
-      //   format: 'esm',
-      //   splitting: false,
-      //   tsconfig,
-      //   entry: {
-      //     'query/react/index': './src/query/react/index.ts',
-      //   },
-      //   external: [
-      //     '@reduxjs/toolkit',
-      //     '@reduxjs/toolkit/react',
-      //     '@reduxjs/toolkit/query',
-      //     './uncheckedindexed',
-      //     // '@reduxjs/toolkit/query/react',
-      //   ],
-      //   dts: {
-      //     only: true,
-      //     entry: {
-      //       'query/react/index': './src/query/react/index.ts',
-      //     },
-      //   },
-      // },
       {
         name: 'RTK-Query',
         format: 'cjs',
@@ -331,7 +299,6 @@ export default defineConfig((options) => {
         ],
         dts: {
           only: true,
-          // resolve: ['@reduxjs/toolkit/query'],
         },
       },
     ])
