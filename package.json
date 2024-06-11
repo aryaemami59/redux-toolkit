@@ -53,8 +53,7 @@
     "typescript": "^5.4.5"
   },
   "resolutions": {
-    "jest-snapshot": "29.3.1",
-    "tsup/rollup-plugin-dts": "patch:rollup-plugin-dts@npm%3A6.1.1#~/.yarn/patches/rollup-plugin-dts-npm-6.1.1-f13d240779.patch"
+    "jest-snapshot": "29.3.1"
   },
   "scripts": {
     "build": "yarn build:packages",
