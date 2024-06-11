@@ -88,6 +88,7 @@
     "prettier": "^3.2.5",
     "query-string": "^7.0.1",
     "rimraf": "^3.0.2",
+    "rollup-plugin-dts": "patch:rollup-plugin-dts@npm%3A6.1.1#~/.yarn/patches/rollup-plugin-dts-npm-6.1.1-f13d240779.patch",
     "size-limit": "^11.0.1",
     "tslib": "^1.10.0",
     "tsup": "^8.1.0",
