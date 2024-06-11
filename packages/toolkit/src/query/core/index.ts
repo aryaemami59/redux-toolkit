@@ -1,6 +1,33 @@
-import { buildCreateApi, CreateApi } from '../createApi'
-import { coreModule, coreModuleName } from './module'
+import { buildCreateApi } from '../createApi'
+import { coreModule } from './module'
 
-const createApi = /* @__PURE__ */ buildCreateApi(coreModule())
+export const createApi = /* @__PURE__ */ buildCreateApi(coreModule())
 
-export { createApi, coreModule, coreModuleName }
+export { QueryStatus } from './apiState'
+export type {
+  CombinedState,
+  QueryCacheKey,
+  QueryKeys,
+  QuerySubState,
+  RootState,
+  SubscriptionOptions,
+} from './apiState'
+export type {
+  MutationActionCreatorResult,
+  QueryActionCreatorResult,
+} from './buildInitiate'
+export { skipToken } from './buildSelectors'
+export type {
+  MutationResultSelectorResult,
+  QueryResultSelectorResult,
+  SkipToken,
+} from './buildSelectors'
+export { coreModuleName } from './module'
+export type {
+  ApiEndpointMutation,
+  ApiEndpointQuery,
+  CoreModule,
+  PrefetchOptions,
+} from './module'
+export { setupListeners } from './setupListeners'
+export { coreModule }
