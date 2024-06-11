@@ -7802,10 +7802,10 @@ __metadata:
     redux-thunk: "npm:^3.1.0"
     reselect: "npm:^5.1.0"
     rimraf: "npm:^3.0.2"
-    rollup-plugin-dts: "npm:^6.1.1"
+    rollup-plugin-dts: "patch:rollup-plugin-dts@npm%3A6.1.1#~/.yarn/patches/rollup-plugin-dts-npm-6.1.1-f13d240779.patch"
     size-limit: "npm:^11.0.1"
     tslib: "npm:^1.10.0"
-    tsup: "npm:^8.1.0"
+    tsup: "patch:tsup@npm%3A8.1.0#~/.yarn/patches/tsup-npm-8.1.0-e8aa84f4b8.patch"
     tsx: "npm:^3.12.2"
     typescript: "npm:^5.4.5"
     vite-tsconfig-paths: "npm:^4.3.1"
@@ -26207,7 +26207,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup-plugin-dts@npm:^6.1.1":
+"rollup-plugin-dts@npm:6.1.1":
   version: 6.1.1
   resolution: "rollup-plugin-dts@npm:6.1.1"
   dependencies:
@@ -26220,6 +26220,22 @@ __metadata:
     "@babel/code-frame":
       optional: true
   checksum: 10/8a66833a5af32f77d9bbc746339097d4af2382e5160f7629d85dcecb4efad12cbfebd37c79147fa688f073c333d71f53135e08a225a3fc3e9a3b3f92c46b2381
+  languageName: node
+  linkType: hard
+
+"rollup-plugin-dts@patch:rollup-plugin-dts@npm%3A6.1.1#~/.yarn/patches/rollup-plugin-dts-npm-6.1.1-f13d240779.patch":
+  version: 6.1.1
+  resolution: "rollup-plugin-dts@patch:rollup-plugin-dts@npm%3A6.1.1#~/.yarn/patches/rollup-plugin-dts-npm-6.1.1-f13d240779.patch::version=6.1.1&hash=2f190e"
+  dependencies:
+    "@babel/code-frame": "npm:^7.24.2"
+    magic-string: "npm:^0.30.10"
+  peerDependencies:
+    rollup: ^3.29.4 || ^4
+    typescript: ^4.5 || ^5.0
+  dependenciesMeta:
+    "@babel/code-frame":
+      optional: true
+  checksum: 10/f145d432d7f8e41edf54e7ea17310475a6d96361e75b335e06d77133e7f915a3078da44e21f810f4ca117d3306c5611764adb26e678d358ab60e25b169faedf7
   languageName: node
   linkType: hard
 
@@ -28809,7 +28825,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsup@npm:^8.1.0":
+"tsup@npm:8.1.0":
   version: 8.1.0
   resolution: "tsup@npm:8.1.0"
   dependencies:
@@ -28845,6 +28861,45 @@ __metadata:
     tsup: dist/cli-default.js
     tsup-node: dist/cli-node.js
   checksum: 10/5a575e8d45eb91b7a0850fa554166a8a1f047b35601bfc0eb2cd04804403bf1eef8a9799207748efe10e35da748a79da7546124a253ee07c6b27753a64b04bcc
+  languageName: node
+  linkType: hard
+
+"tsup@patch:tsup@npm%3A8.1.0#~/.yarn/patches/tsup-npm-8.1.0-e8aa84f4b8.patch":
+  version: 8.1.0
+  resolution: "tsup@patch:tsup@npm%3A8.1.0#~/.yarn/patches/tsup-npm-8.1.0-e8aa84f4b8.patch::version=8.1.0&hash=144258"
+  dependencies:
+    bundle-require: "npm:^4.0.0"
+    cac: "npm:^6.7.12"
+    chokidar: "npm:^3.5.1"
+    debug: "npm:^4.3.1"
+    esbuild: "npm:^0.21.4"
+    execa: "npm:^5.0.0"
+    globby: "npm:^11.0.3"
+    joycon: "npm:^3.0.1"
+    postcss-load-config: "npm:^4.0.1"
+    resolve-from: "npm:^5.0.0"
+    rollup: "npm:^4.0.2"
+    source-map: "npm:0.8.0-beta.0"
+    sucrase: "npm:^3.20.3"
+    tree-kill: "npm:^1.2.2"
+  peerDependencies:
+    "@microsoft/api-extractor": ^7.36.0
+    "@swc/core": ^1
+    postcss: ^8.4.12
+    typescript: ">=4.5.0"
+  peerDependenciesMeta:
+    "@microsoft/api-extractor":
+      optional: true
+    "@swc/core":
+      optional: true
+    postcss:
+      optional: true
+    typescript:
+      optional: true
+  bin:
+    tsup: dist/cli-default.js
+    tsup-node: dist/cli-node.js
+  checksum: 10/b2e3243a06aee5a8bd9e846a380faa323d42ef46d8c624b1dcaffd0fd7f9fe6b57e41a0a91cfd9f03b1123bc3209a11a6d8add53c6b6965cf21b2aa0befa1721
   languageName: node
   linkType: hard
 
