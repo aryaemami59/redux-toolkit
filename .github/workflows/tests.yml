@@ -217,6 +217,9 @@ jobs:
           java-version: '17.x'
           distribution: 'temurin'
 
+      - name: Install latest version of TypeScript
+        run: yarn add typescript@latest
+
       - name: Run type tests with `moduleResolution Bundler`
         run: yarn tsc -p . --moduleResolution Bundler --noEmit false --declaration --emitDeclarationOnly --outDir dist --target ESNext
 
