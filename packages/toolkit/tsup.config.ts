@@ -190,7 +190,6 @@ export default defineConfig((options) => {
           entry: {
             [outputFilename]: entryPoint,
           },
-          // dts: generateTypedefs ? {entry: { index: entryPoint }, resolve: [/^\..*/]} : false,
           format,
           tsconfig,
           outDir: outputFolder,
@@ -199,7 +198,6 @@ export default defineConfig((options) => {
           minify,
           sourcemap: true,
           external: externals,
-          // external: generateTypedefs ? [/^\..*/] : externals,
           esbuildPlugins: [mangleErrorsTransform],
           esbuildOptions(options) {
             // Needed to prevent auto-replacing of process.env.NODE_ENV in all builds
@@ -256,9 +254,8 @@ export default defineConfig((options) => {
         format: 'cjs',
         tsconfig,
         entry: { index: './src/index.ts' },
-        external: ['./uncheckedindexed'],
+        external: [/uncheckedindexed/],
         dts: {
-          // resolve: [/^\..*/],
           only: true,
         },
       },
@@ -267,7 +264,7 @@ export default defineConfig((options) => {
         format: 'cjs',
         tsconfig,
         entry: { 'react/index': './src/react/index.ts' },
-        external: ['@reduxjs/toolkit', './uncheckedindexed'],
+        external: ['@reduxjs/toolkit', /uncheckedindexed/],
         dts: {
           only: true,
         },
@@ -280,7 +277,7 @@ export default defineConfig((options) => {
         external: [
           '@reduxjs/toolkit',
           '@reduxjs/toolkit/react',
-          './uncheckedindexed',
+          /uncheckedindexed/,
         ],
         dts: {
           only: true,
@@ -295,7 +292,7 @@ export default defineConfig((options) => {
           '@reduxjs/toolkit',
           '@reduxjs/toolkit/react',
           '@reduxjs/toolkit/query',
-          './uncheckedindexed',
+          /uncheckedindexed/,
         ],
         dts: {
           only: true,
