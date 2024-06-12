@@ -1,21 +1,28 @@
+#!/usr/bin/env node --import=tsx
+
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const files = ['', 'react', 'query', 'query/react']
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
-const fullPaths = files.map((file) => path.resolve('dist', file, 'index.d.ts'))
+const entryPointDirectories = ['', 'react', 'query', 'query/react']
 
-const map = new Map(
+const typeDefinitionEntryFiles = entryPointDirectories.map((filePath) =>
+  path.resolve(__dirname, '..', 'dist', filePath, 'index.d.ts'),
+)
+
+const filePathsToContentMap = new Map(
   await Promise.all(
-    fullPaths.map(
-      async (file) => [file, await fs.readFile(file, 'utf-8')] as const,
+    typeDefinitionEntryFiles.map(
+      async (filePath) => [filePath, await fs.readFile(filePath, 'utf-8')] as const,
     ),
   ),
 )
 
 const exportedUniqueSymbols = new Set()
 
-map.forEach(async (content, filePath) => {
+filePathsToContentMap.forEach(async (content, filePath) => {
   const lines = content.split('\n')
 
   const allUniqueSymbols = lines
@@ -27,13 +34,13 @@ map.forEach(async (content, filePath) => {
     ?.match(/export \{ (.*) \}/)?.[1]
     .split(', ')
 
-  allNamedExports?.forEach((e) => {
-    if (allUniqueSymbols.includes(e)) {
-      exportedUniqueSymbols.add(e)
+  allNamedExports?.forEach((namedExport) => {
+    if (allUniqueSymbols.includes(namedExport)) {
+      exportedUniqueSymbols.add(namedExport)
     }
   })
 
-  let newContent = `${lines.slice(0, -2).join('\n')}export { ${allNamedExports?.filter((e) => !exportedUniqueSymbols.has(e)).join(', ')} }`
+  let newContent = `${lines.slice(0, -2).join('\n')}export { ${allNamedExports?.filter((namedExport) => !exportedUniqueSymbols.has(namedExport)).join(', ')} }`
 
   exportedUniqueSymbols.forEach(async (uniqueSymbol) => {
     newContent = newContent.replace(
