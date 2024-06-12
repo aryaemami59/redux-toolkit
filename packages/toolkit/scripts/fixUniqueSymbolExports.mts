@@ -40,7 +40,7 @@ filePathsToContentMap.forEach(async (content, filePath) => {
     }
   })
 
-  let newContent = `${lines.slice(0, -2).join('\n')}export { ${allNamedExports?.filter((namedExport) => !exportedUniqueSymbols.has(namedExport)).join(', ')} }`
+  let newContent = `${lines.slice(0, -2).join('\n')}\nexport { ${allNamedExports?.filter((namedExport) => !exportedUniqueSymbols.has(namedExport)).join(', ')} }`
 
   exportedUniqueSymbols.forEach(async (uniqueSymbol) => {
     newContent = newContent.replace(
@@ -48,6 +48,6 @@ filePathsToContentMap.forEach(async (content, filePath) => {
       `export declare const ${uniqueSymbol}`,
     )
 
-    await fs.writeFile(filePath, newContent)
+    await fs.writeFile(filePath, `${newContent}\n`)
   })
 })
