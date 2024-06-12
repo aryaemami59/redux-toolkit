@@ -217,6 +217,9 @@ jobs:
           java-version: '17.x'
           distribution: 'temurin'
 
+      - name: Run type tests with `moduleResolution Bundler`
+        run: yarn tsc -p . --moduleResolution Bundler --noEmit false --declaration --emitDeclarationOnly --outDir dist --target ESNext
+
       - name: Build example
         env:
           NODE_OPTIONS: --openssl-legacy-provider
