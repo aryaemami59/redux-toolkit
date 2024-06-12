@@ -31,7 +31,7 @@ filePathsToContentMap.forEach(async (content, filePath) => {
 
   const allNamedExports = lines
     .at(-2)
-    ?.match(/export \{ (.*) \}/)?.[1]
+    ?.match(/^export \{ (.*) \}$/)?.[1]
     .split(', ')
 
   allNamedExports?.forEach((namedExport) => {
@@ -40,7 +40,7 @@ filePathsToContentMap.forEach(async (content, filePath) => {
     }
   })
 
-  let newContent = `${lines.slice(0, -2).join('\n')}\nexport { ${allNamedExports?.filter((namedExport) => !exportedUniqueSymbols.has(namedExport)).join(', ')} }`
+  let newContent = `${lines.slice(0, -2).join('\n')}\nexport { ${allNamedExports?.filter((namedExport) => !exportedUniqueSymbols.has(namedExport)).join(', ')} }\n`
 
   exportedUniqueSymbols.forEach(async (uniqueSymbol) => {
     newContent = newContent.replace(
