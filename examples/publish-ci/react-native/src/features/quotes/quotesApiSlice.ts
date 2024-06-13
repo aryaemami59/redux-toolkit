@@ -1,13 +1,13 @@
 // Need to use the React-specific entry point to import `createApi`
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 
-interface Quote {
+export interface Quote {
   id: number
   quote: string
   author: string
 }
 
-interface QuotesApiResponse {
+export interface QuotesApiResponse {
   quotes: Quote[]
   total: number
   skip: number
