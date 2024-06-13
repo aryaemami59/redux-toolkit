@@ -1,7 +1,6 @@
 // This must remain here so that the `mangleErrors.cjs` build script
 // does not have to import this into each source file it rewrites.
 import { formatProdErrorMessage } from './formatProdErrorMessage'
-
 export {
   produce as createNextState,
   current,
@@ -19,22 +18,19 @@ export {
   weakMapMemoize,
 } from 'reselect'
 export type { OutputSelector, Selector } from 'reselect'
+export { createActionCreatorInvariantMiddleware } from './actionCreatorInvariantMiddleware'
+export type { ActionCreatorInvariantMiddlewareOptions } from './actionCreatorInvariantMiddleware'
 export {
-  createDraftSafeSelector,
-  createDraftSafeSelectorCreator,
-} from './createDraftSafeSelector'
-
+  autoBatchEnhancer,
+  prepareAutoBatched,
+  SHOULD_AUTOBATCH,
+} from './autoBatchEnhancer'
+export type { AutoBatchOptions } from './autoBatchEnhancer'
+export { combineSlices } from './combineSlices'
+export type { CombinedSliceReducer, WithSlice } from './combineSlices'
+export { configureStore } from './configureStore'
+export type { ConfigureStoreOptions, EnhancedStore } from './configureStore'
 export {
-  // js
-  configureStore,
-} from './configureStore'
-export type {
-  // types
-  ConfigureStoreOptions,
-  EnhancedStore,
-} from './configureStore'
-export {
-  // js
   createAction,
   isActionCreator,
   isFSA as isFluxStandardAction,
@@ -45,82 +41,10 @@ export type {
   ActionCreatorWithoutPayload,
   ActionCreatorWithPayload,
   ActionCreatorWithPreparedPayload,
-  // types
   PayloadAction,
   PayloadActionCreator,
   PrepareAction,
 } from './createAction'
-export {
-  // js
-  createReducer,
-} from './createReducer'
-export type {
-  // types
-  Actions,
-  CaseReducer,
-  CaseReducers,
-  ReducerWithInitialState,
-} from './createReducer'
-export {
-  asyncThunkCreator,
-  buildCreateSlice,
-  // js
-  createSlice,
-  ReducerType,
-} from './createSlice'
-export type { DevToolsEnhancerOptions } from './devtoolsExtension'
-
-export { createActionCreatorInvariantMiddleware } from './actionCreatorInvariantMiddleware'
-export type { ActionCreatorInvariantMiddlewareOptions } from './actionCreatorInvariantMiddleware'
-export type {
-  CaseReducerActions,
-  CaseReducerDefinition,
-  CaseReducerWithPrepare,
-  // types
-  CreateSliceOptions,
-  ReducerCreators,
-  Slice,
-  SliceCaseReducers,
-  SliceSelectors,
-  ValidateSliceCaseReducers,
-} from './createSlice'
-export {
-  // js
-  createImmutableStateInvariantMiddleware,
-  isImmutableDefault,
-} from './immutableStateInvariantMiddleware'
-export type {
-  // types
-  ImmutableStateInvariantMiddlewareOptions,
-} from './immutableStateInvariantMiddleware'
-export type {
-  // types
-  ActionReducerMapBuilder,
-} from './mapBuilders'
-export {
-  // js
-  createSerializableStateInvariantMiddleware,
-  findNonSerializableValue,
-  isPlain,
-} from './serializableStateInvariantMiddleware'
-export type {
-  // types
-  SerializableStateInvariantMiddlewareOptions,
-} from './serializableStateInvariantMiddleware'
-export { Tuple } from './utils'
-
-export { createEntityAdapter } from './entities/create_adapter'
-export type {
-  Comparer,
-  EntityAdapter,
-  EntityId,
-  EntitySelectors,
-  EntityState,
-  EntityStateAdapter,
-  IdSelector,
-  Update,
-} from './entities/models'
-
 export {
   createAsyncThunk,
   miniSerializeError,
@@ -135,25 +59,65 @@ export type {
   GetThunkAPI,
   SerializedError,
 } from './createAsyncThunk'
-
 export {
-  // js
-  isAllOf,
-  isAnyOf,
-  isAsyncThunkAction,
-  isFulfilled,
-  isPending,
-  isRejected,
-  isRejectedWithValue,
-} from './matchers'
+  createDraftSafeSelector,
+  createDraftSafeSelectorCreator,
+} from './createDraftSafeSelector'
+export { createReducer } from './createReducer'
 export type {
-  // types
-  ActionMatchingAllOf,
-  ActionMatchingAnyOf,
-} from './matchers'
-
-export { nanoid } from './nanoid'
-
+  Actions,
+  CaseReducer,
+  CaseReducers,
+  ReducerWithInitialState,
+} from './createReducer'
+export {
+  asyncThunkCreator,
+  buildCreateSlice,
+  createSlice,
+  ReducerType,
+} from './createSlice'
+export type {
+  CaseReducerActions,
+  CaseReducerDefinition,
+  CaseReducerWithPrepare,
+  CreateSliceOptions,
+  ReducerCreators,
+  Slice,
+  SliceCaseReducers,
+  SliceSelectors,
+  ValidateSliceCaseReducers,
+} from './createSlice'
+export type { DevToolsEnhancerOptions } from './devtoolsExtension'
+export { createDynamicMiddleware } from './dynamicMiddleware/index'
+export type {
+  DynamicMiddlewareInstance,
+  GetDispatch,
+  GetState,
+  MiddlewareApiConfig,
+} from './dynamicMiddleware/types'
+export { createEntityAdapter } from './entities/create_adapter'
+export type {
+  Comparer,
+  EntityAdapter,
+  EntityId,
+  EntitySelectors,
+  EntityState,
+  EntityStateAdapter,
+  IdSelector,
+  Update,
+} from './entities/models'
+export {
+  createImmutableStateInvariantMiddleware,
+  isImmutableDefault,
+} from './immutableStateInvariantMiddleware'
+export type { ImmutableStateInvariantMiddlewareOptions } from './immutableStateInvariantMiddleware'
+export {
+  addListener,
+  clearAllListeners,
+  createListenerMiddleware,
+  removeListener,
+  TaskAbortError,
+} from './listenerMiddleware/index'
 export type {
   AsyncTaskExecutor,
   CreateListenerMiddlewareOptions,
@@ -178,38 +142,28 @@ export type {
   UnsubscribeListenerOptions,
 } from './listenerMiddleware/index'
 export type { AnyListenerPredicate } from './listenerMiddleware/types'
-
+export type { ActionReducerMapBuilder } from './mapBuilders'
 export {
-  addListener,
-  clearAllListeners,
-  createListenerMiddleware,
-  removeListener,
-  TaskAbortError,
-} from './listenerMiddleware/index'
-
-export { createDynamicMiddleware } from './dynamicMiddleware/index'
-export type {
-  DynamicMiddlewareInstance,
-  GetDispatch,
-  GetState,
-  MiddlewareApiConfig,
-} from './dynamicMiddleware/types'
-
+  isAllOf,
+  isAnyOf,
+  isAsyncThunkAction,
+  isFulfilled,
+  isPending,
+  isRejected,
+  isRejectedWithValue,
+} from './matchers'
+export type { ActionMatchingAllOf, ActionMatchingAnyOf } from './matchers'
+export { nanoid } from './nanoid'
 export {
-  autoBatchEnhancer,
-  prepareAutoBatched,
-  SHOULD_AUTOBATCH,
-} from './autoBatchEnhancer'
-export type { AutoBatchOptions } from './autoBatchEnhancer'
-
-export { combineSlices } from './combineSlices'
-
-export type { CombinedSliceReducer, WithSlice } from './combineSlices'
-
+  createSerializableStateInvariantMiddleware,
+  findNonSerializableValue,
+  isPlain,
+} from './serializableStateInvariantMiddleware'
+export type { SerializableStateInvariantMiddlewareOptions } from './serializableStateInvariantMiddleware'
 export type {
   SafePromise,
   ExtractDispatchExtensions as TSHelpersExtractDispatchExtensions,
   Simplify as TSHelpersId,
 } from './tsHelpers'
-
+export { Tuple } from './utils'
 export { formatProdErrorMessage }
