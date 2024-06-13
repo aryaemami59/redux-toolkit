@@ -2,7 +2,7 @@ import { nanoid } from '@reduxjs/toolkit'
 import { factory, primaryKey } from '@mswjs/data'
 import faker from 'faker'
 import { Post, postStatuses } from '../app/services/posts'
-import { rest } from 'msw'
+import { http, HttpResponse } from 'msw'
 
 const db = factory({
   post: {
@@ -36,22 +36,21 @@ const createPostData = (): Post => {
 ;[...new Array(50)].forEach((_) => db.post.create(createPostData()))
 
 export const handlers = [
-  rest.get('/posts', (req, res, ctx) => {
-    const page = (req.url.searchParams.get('page') || 1) as number
-    const per_page = (req.url.searchParams.get('per_page') || 10) as number
+  http.get('/posts', ({ request }) => {
+    const url = new URL(request.url)
+    const page = (url.searchParams.get('page') || 1) as number
+    const per_page = (url.searchParams.get('per_page') || 10) as number
     const data = db.post.findMany({
       take: per_page,
       skip: Math.max(per_page * (page - 1), 0),
     })
 
-    return res(
-      ctx.json({
-        data,
-        page,
-        total_pages: Math.ceil(db.post.count() / per_page),
-        total: db.post.count(),
-      }),
-    )
+    return HttpResponse.json({
+      data,
+      page,
+      total_pages: Math.ceil(db.post.count() / per_page),
+      total: db.post.count(),
+    })
   }),
   ...db.post.toHandlers('rest'),
 ] as const

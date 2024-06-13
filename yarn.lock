@@ -6309,9 +6309,9 @@ __metadata:
     "@graphql-codegen/typescript-operations": "npm:^1.18.0"
     "@graphql-codegen/typescript-rtk-query": "npm:^1.1.0"
     "@graphql-typed-document-node/core": "npm:^3.1.0"
-    "@mswjs/data": "npm:^0.4.0"
+    "@mswjs/data": "npm:^0.16.1"
     "@reduxjs/toolkit": "workspace:^"
-    "@rtk-query/graphql-request-base-query": "npm:^2.0.0"
+    "@rtk-query/graphql-request-base-query": "workspace:^"
     "@types/faker": "npm:^5.5.5"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
@@ -6321,8 +6321,7 @@ __metadata:
     faker: "npm:^5.5.3"
     framer-motion: "npm:^2.9.5"
     graphql: "npm:^15.5.0"
-    graphql-request: "npm:^3.4.0"
-    msw: "npm:0.40.2"
+    msw: "npm:^2.3.1"
     react: "npm:^18.1.0"
     react-dom: "npm:^18.1.0"
     react-icons: "npm:3.11.0"
@@ -6439,14 +6438,14 @@ __metadata:
     "@chakra-ui/react": "npm:^2.8.2"
     "@emotion/react": "npm:^11.4.0"
     "@emotion/styled": "npm:^11.3.0"
-    "@mswjs/data": "npm:^0.3.0"
+    "@mswjs/data": "npm:^0.16.1"
     "@reduxjs/toolkit": "workspace:^"
     "@types/faker": "npm:^5.5.5"
     "@types/react": "npm:^18.0.5"
     "@types/react-dom": "npm:^18.0.5"
     faker: "npm:^5.5.3"
     framer-motion: "npm:^2.9.5"
-    msw: "npm:^0.40.2"
+    msw: "npm:^2.3.1"
     react: "npm:^18.1.0"
     react-dom: "npm:^18.1.0"
     react-icons: "npm:^5.0.1"
@@ -7202,6 +7201,51 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@inquirer/confirm@npm:^3.0.0":
+  version: 3.1.9
+  resolution: "@inquirer/confirm@npm:3.1.9"
+  dependencies:
+    "@inquirer/core": "npm:^8.2.2"
+    "@inquirer/type": "npm:^1.3.3"
+  checksum: 10/aa240ab879cc87c783229185ad34642414fb29a8bbdefdced5defa9e2fbbd030187224274d53b35365bfffa41c509cde08faf73c64af818a9cbb1b972d76986a
+  languageName: node
+  linkType: hard
+
+"@inquirer/core@npm:^8.2.2":
+  version: 8.2.2
+  resolution: "@inquirer/core@npm:8.2.2"
+  dependencies:
+    "@inquirer/figures": "npm:^1.0.3"
+    "@inquirer/type": "npm:^1.3.3"
+    "@types/mute-stream": "npm:^0.0.4"
+    "@types/node": "npm:^20.12.13"
+    "@types/wrap-ansi": "npm:^3.0.0"
+    ansi-escapes: "npm:^4.3.2"
+    chalk: "npm:^4.1.2"
+    cli-spinners: "npm:^2.9.2"
+    cli-width: "npm:^4.1.0"
+    mute-stream: "npm:^1.0.0"
+    signal-exit: "npm:^4.1.0"
+    strip-ansi: "npm:^6.0.1"
+    wrap-ansi: "npm:^6.2.0"
+  checksum: 10/63f7ed154b6a8d8b278d96755379ef46c8bae7a8593e1967d0e051164dd952806f1a9b66347886fe70ddf126eccafc27ff7a81ff9f6ec490e6a9cab4a35c367f
+  languageName: node
+  linkType: hard
+
+"@inquirer/figures@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@inquirer/figures@npm:1.0.3"
+  checksum: 10/fa5c46527580c64ba151e1399f91772670f5f59e47045a3d2366188ed4cab1b63b7fb2a6d40d340f622cb174ca6dd3d5e22b962811c00548f9a9b4024b105dce
+  languageName: node
+  linkType: hard
+
+"@inquirer/type@npm:^1.3.3":
+  version: 1.3.3
+  resolution: "@inquirer/type@npm:1.3.3"
+  checksum: 10/1de6fed6bca013d1d84c6f280c5cb5d1ac7788aed1bbdb3315977abda33dcea234e1e9b7d917fcad573192af9de12b1363c4ea4bf81318f6c45299e3521dbee6
+  languageName: node
+  linkType: hard
+
 "@isaacs/cliui@npm:^8.0.2":
   version: 8.0.2
   resolution: "@isaacs/cliui@npm:8.0.2"
@@ -7870,6 +7914,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mswjs/data@npm:^0.16.1":
+  version: 0.16.1
+  resolution: "@mswjs/data@npm:0.16.1"
+  dependencies:
+    "@types/lodash": "npm:^4.14.172"
+    "@types/md5": "npm:^2.3.0"
+    "@types/pluralize": "npm:^0.0.29"
+    "@types/uuid": "npm:^8.3.0"
+    date-fns: "npm:^2.21.1"
+    debug: "npm:^4.3.1"
+    graphql: "npm:^16.8.1"
+    lodash: "npm:^4.17.21"
+    md5: "npm:^2.3.0"
+    msw: "npm:^2.0.8"
+    outvariant: "npm:^1.2.1"
+    pluralize: "npm:^8.0.0"
+    strict-event-emitter: "npm:^0.5.0"
+    uuid: "npm:^8.3.1"
+  dependenciesMeta:
+    msw:
+      optional: true
+  checksum: 10/a16d0ed61e820ab5775b5392bf268bfe3f422f7dcfdcf893e10a477f9aa49cdcecc710f86e9dad25d6d6446c11effb5fd62eb18e79199360968b5b571a2b839a
+  languageName: node
+  linkType: hard
+
 "@mswjs/data@npm:^0.3.0":
   version: 0.3.0
   resolution: "@mswjs/data@npm:0.3.0"
@@ -7888,27 +7957,6 @@ __metadata:
     msw:
       optional: true
   checksum: 10/6d5fca445635fddd443cd514b90165e862593552178d263a04213d27c25c9eecf6f080a386a3a8dc7aadda8380e5deae54c0df595d0dd62bb806f6d99298ac77
-  languageName: node
-  linkType: hard
-
-"@mswjs/data@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@mswjs/data@npm:0.4.0"
-  dependencies:
-    "@types/md5": "npm:^2.3.0"
-    "@types/pluralize": "npm:^0.0.29"
-    "@types/uuid": "npm:^8.3.0"
-    date-fns: "npm:^2.21.1"
-    graphql: "npm:^15.5.0"
-    md5: "npm:^2.3.0"
-    msw: "npm:^0.28.2"
-    pluralize: "npm:^8.0.0"
-    strict-event-emitter: "npm:^0.2.0"
-    uuid: "npm:^8.3.1"
-  dependenciesMeta:
-    msw:
-      optional: true
-  checksum: 10/ee6bf75a8e1e42ce4bf1b4ce08b0dee0d05a8c4340a3b6d51ba6bf42453dc266cd549c08ba9320154bc98307c9bf0c9c9b405525d2e6bf7dadb1966a1b1f9ddd
   languageName: node
   linkType: hard
 
@@ -7951,6 +7999,20 @@ __metadata:
     outvariant: "npm:^1.2.1"
     strict-event-emitter: "npm:^0.5.1"
   checksum: 10/9cdcad91fca0fb30f5c7e8de0ed294bb2c2815e92b8236da8c49faa3605571460d143fa34f80ba62e8594af9b1ab7eb4b3b8207889cec225e9e17c52e8883ae5
+  languageName: node
+  linkType: hard
+
+"@mswjs/interceptors@npm:^0.29.0":
+  version: 0.29.1
+  resolution: "@mswjs/interceptors@npm:0.29.1"
+  dependencies:
+    "@open-draft/deferred-promise": "npm:^2.2.0"
+    "@open-draft/logger": "npm:^0.3.0"
+    "@open-draft/until": "npm:^2.0.0"
+    is-node-process: "npm:^1.2.0"
+    outvariant: "npm:^1.2.1"
+    strict-event-emitter: "npm:^0.5.1"
+  checksum: 10/6a6ee6eb3db0fed60bbeb710288f8c1e2cac84f08254756b684dbd553b04449dfe4cce1261fcc83772ee114be2043d9777e2ee6d72bc8d14fd394f961827e528
   languageName: node
   linkType: hard
 
@@ -8597,7 +8659,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rtk-query/graphql-request-base-query@workspace:packages/rtk-query-graphql-request-base-query":
+"@rtk-query/graphql-request-base-query@workspace:^, @rtk-query/graphql-request-base-query@workspace:packages/rtk-query-graphql-request-base-query":
   version: 0.0.0-use.local
   resolution: "@rtk-query/graphql-request-base-query@workspace:packages/rtk-query-graphql-request-base-query"
   dependencies:
@@ -9637,6 +9699,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/lodash@npm:^4.14.172":
+  version: 4.17.5
+  resolution: "@types/lodash@npm:4.17.5"
+  checksum: 10/10e2e9cbeb16998026f4071f9f5f2a38b651eba15302f512e0b8ab904c07c197ca0282d2821f64e53c2b692d7046af0a1ce3ead190fb077cbe4036948fce1924
+  languageName: node
+  linkType: hard
+
 "@types/md5@npm:^2.3.0":
   version: 2.3.0
   resolution: "@types/md5@npm:2.3.0"
@@ -9659,6 +9728,15 @@ __metadata:
   version: 1.3.2
   resolution: "@types/mime@npm:1.3.2"
   checksum: 10/0493368244cced1a69cb791b485a260a422e6fcc857782e1178d1e6f219f1b161793e9f87f5fae1b219af0f50bee24fcbe733a18b4be8fdd07a38a8fb91146fd
+  languageName: node
+  linkType: hard
+
+"@types/mute-stream@npm:^0.0.4":
+  version: 0.0.4
+  resolution: "@types/mute-stream@npm:0.0.4"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10/af8d83ad7b68ea05d9357985daf81b6c9b73af4feacb2f5c2693c7fd3e13e5135ef1bd083ce8d5bdc8e97acd28563b61bb32dec4e4508a8067fcd31b8a098632
   languageName: node
   linkType: hard
 
@@ -9714,6 +9792,15 @@ __metadata:
   dependencies:
     undici-types: "npm:~5.26.4"
   checksum: 10/41ca9c7e7c95bf070ad747ab266f267f41950e01f5ddda739d0665c2ed39acc45cce46f78e33ffa2bf2dacd74a8493044b967c86358017dacce12958e49db664
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^20.12.13":
+  version: 20.14.2
+  resolution: "@types/node@npm:20.14.2"
+  dependencies:
+    undici-types: "npm:~5.26.4"
+  checksum: 10/c38e47b190fa0a8bdfde24b036dddcf9401551f2fb170a90ff33625c7d6f218907e81c74e0fa6e394804a32623c24c60c50e249badc951007830f0d02c48ee0f
   languageName: node
   linkType: hard
 
@@ -9998,6 +10085,13 @@ __metadata:
   dependencies:
     "@types/node": "npm:*"
   checksum: 10/c6d8470dc365361cc4868061c58064b39c2ac19dca628b22fbe40fb17b6956e87959c9b43f36ea0402a1342e82382ae8d2cb06c51bfb6295bd26d568549c73a5
+  languageName: node
+  linkType: hard
+
+"@types/wrap-ansi@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@types/wrap-ansi@npm:3.0.0"
+  checksum: 10/8aa644946ca4e859668c36b8e2bcf2ac4bdee59dac760414730ea57be8a93ae9166ebd40a088f2ab714843aaea2a2a67f0e6e6ec11cfc9c8701b2466ca1c4089
   languageName: node
   linkType: hard
 
@@ -11348,7 +11442,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ansi-escapes@npm:^4.2.1, ansi-escapes@npm:^4.3.1":
+"ansi-escapes@npm:^4.2.1, ansi-escapes@npm:^4.3.1, ansi-escapes@npm:^4.3.2":
   version: 4.3.2
   resolution: "ansi-escapes@npm:4.3.2"
   dependencies:
@@ -13063,6 +13157,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cli-spinners@npm:^2.9.2":
+  version: 2.9.2
+  resolution: "cli-spinners@npm:2.9.2"
+  checksum: 10/a0a863f442df35ed7294424f5491fa1756bd8d2e4ff0c8736531d886cec0ece4d85e8663b77a5afaf1d296e3cbbebff92e2e99f52bbea89b667cbe789b994794
+  languageName: node
+  linkType: hard
+
 "cli-table3@npm:^0.6.2":
   version: 0.6.2
   resolution: "cli-table3@npm:0.6.2"
@@ -13103,6 +13204,13 @@ __metadata:
   version: 3.0.0
   resolution: "cli-width@npm:3.0.0"
   checksum: 10/8730848b04fb189666ab037a35888d191c8f05b630b1d770b0b0e4c920b47bb5cc14bddf6b8ffe5bfc66cee97c8211d4d18e756c1ffcc75d7dbe7e1186cd7826
+  languageName: node
+  linkType: hard
+
+"cli-width@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "cli-width@npm:4.1.0"
+  checksum: 10/b58876fbf0310a8a35c79b72ecfcf579b354e18ad04e6b20588724ea2b522799a758507a37dfe132fafaf93a9922cafd9514d9e1598e6b2cd46694853aed099f
   languageName: node
   linkType: hard
 
@@ -22015,6 +22123,38 @@ __metadata:
   languageName: node
   linkType: hard
 
+"msw@npm:^2.0.8, msw@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "msw@npm:2.3.1"
+  dependencies:
+    "@bundled-es-modules/cookie": "npm:^2.0.0"
+    "@bundled-es-modules/statuses": "npm:^1.0.1"
+    "@inquirer/confirm": "npm:^3.0.0"
+    "@mswjs/cookies": "npm:^1.1.0"
+    "@mswjs/interceptors": "npm:^0.29.0"
+    "@open-draft/until": "npm:^2.1.0"
+    "@types/cookie": "npm:^0.6.0"
+    "@types/statuses": "npm:^2.0.4"
+    chalk: "npm:^4.1.2"
+    graphql: "npm:^16.8.1"
+    headers-polyfill: "npm:^4.0.2"
+    is-node-process: "npm:^1.2.0"
+    outvariant: "npm:^1.4.2"
+    path-to-regexp: "npm:^6.2.0"
+    strict-event-emitter: "npm:^0.5.1"
+    type-fest: "npm:^4.9.0"
+    yargs: "npm:^17.7.2"
+  peerDependencies:
+    typescript: ">= 4.7.x"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  bin:
+    msw: cli/index.js
+  checksum: 10/449df7c48f82eaa3de4b40ca106be232b09dcf7f736b1bb7410109702f803262016db35247b299c1ec378346678f48d1d50752ee18fc90329c2531326cec7ec4
+  languageName: node
+  linkType: hard
+
 "msw@npm:^2.1.4":
   version: 2.1.4
   resolution: "msw@npm:2.1.4"
@@ -22097,6 +22237,13 @@ __metadata:
   version: 0.0.8
   resolution: "mute-stream@npm:0.0.8"
   checksum: 10/a2d2e79dde87e3424ffc8c334472c7f3d17b072137734ca46e6f221131f1b014201cc593b69a38062e974fb2394d3d1cb4349f80f012bbf8b8ac1b28033e515f
+  languageName: node
+  linkType: hard
+
+"mute-stream@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "mute-stream@npm:1.0.0"
+  checksum: 10/36fc968b0e9c9c63029d4f9dc63911950a3bdf55c9a87f58d3a266289b67180201cade911e7699f8b2fa596b34c9db43dad37649e3f7fdd13c3bb9edb0017ee7
   languageName: node
   linkType: hard
 
@@ -27933,7 +28080,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"strict-event-emitter@npm:^0.5.1":
+"strict-event-emitter@npm:^0.5.0, strict-event-emitter@npm:^0.5.1":
   version: 0.5.1
   resolution: "strict-event-emitter@npm:0.5.1"
   checksum: 10/25c84d88be85940d3547db665b871bfecea4ea0bedfeb22aae8db48126820cfb2b0bc2fba695392592a09b1aa36b686d6eede499e1ecd151593c03fe5a50d512
