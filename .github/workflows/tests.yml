@@ -124,6 +124,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: package
+          path: packages/toolkit
 
       - name: Install build artifact in example packages
         run: yarn workspaces foreach -A --include '@examples-query-react/*' add $(pwd)/package.tgz
