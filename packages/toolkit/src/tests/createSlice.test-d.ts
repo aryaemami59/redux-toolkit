@@ -15,7 +15,6 @@ import type {
   SerializedError,
   SliceCaseReducers,
   ThunkDispatch,
-  UnknownAction,
   ValidateSliceCaseReducers,
 } from '@reduxjs/toolkit'
 import {
@@ -915,6 +914,10 @@ describe('type tests', () => {
     expectTypeOf(slice.caseReducers.testInfer.rejected).toEqualTypeOf<
       CaseReducer<TestState, ReturnType<TestInferThunk['rejected']>>
     >()
+
+    expectTypeOf(slice.caseReducers.testInfer).not.toHaveProperty(
+      'payloadCreator',
+    )
   })
 
   test('wrapping createSlice should be possible, with callback', () => {

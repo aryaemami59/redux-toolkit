@@ -142,9 +142,9 @@ type InjectedSlice<
   ReducerPath extends string = Name,
   Selectors extends SliceSelectors<State> = SliceSelectors<State>,
 > = Omit<
-    Slice<State, CaseReducers, Name, ReducerPath, Selectors>,
-    'getSelectors' | 'selectors'
-  > & {
+  Slice<State, CaseReducers, Name, ReducerPath, Selectors>,
+  'getSelectors' | 'selectors'
+> & {
   /**
    * Get localised slice selectors (expects to be called with *just* the slice's state as the first parameter)
    */
@@ -272,7 +272,7 @@ export enum ReducerType {
   asyncThunk = 'asyncThunk',
 }
 
-interface ReducerDefinition<T extends ReducerType = ReducerType> {
+type ReducerDefinition<T extends ReducerType = ReducerType> = {
   _reducerDefinitionType: T
 }
 
@@ -298,12 +298,12 @@ export interface CaseReducerWithPrepareDefinition<
 > extends CaseReducerWithPrepare<State, Action>,
     ReducerDefinition<ReducerType.reducerWithPrepare> {}
 
-export interface AsyncThunkSliceReducerConfig<
+type AsyncThunkSliceReducerConfig<
   State,
   ThunkArg extends any,
   Returned = unknown,
   ThunkApiConfig extends AsyncThunkConfig = {},
-> {
+> = {
   pending?: CaseReducer<
     State,
     ReturnType<AsyncThunk<Returned, ThunkArg, ThunkApiConfig>['pending']>
@@ -325,20 +325,15 @@ export interface AsyncThunkSliceReducerConfig<
   options?: AsyncThunkOptions<ThunkArg, ThunkApiConfig>
 }
 
-export interface AsyncThunkSliceReducerDefinition<
+type AsyncThunkSliceReducerDefinition<
   State,
   ThunkArg extends any,
   Returned = unknown,
   ThunkApiConfig extends AsyncThunkConfig = {},
-> extends AsyncThunkSliceReducerConfig<
-      State,
-      ThunkArg,
-      Returned,
-      ThunkApiConfig
-    >,
-    ReducerDefinition<ReducerType.asyncThunk> {
-  payloadCreator: AsyncThunkPayloadCreator<Returned, ThunkArg, ThunkApiConfig>
-}
+> = AsyncThunkSliceReducerConfig<State, ThunkArg, Returned, ThunkApiConfig> &
+  ReducerDefinition<ReducerType.asyncThunk> & {
+    payloadCreator: AsyncThunkPayloadCreator<Returned, ThunkArg, ThunkApiConfig>
+  }
 
 /**
  * Providing these as part of the config would cause circular types, so we disallow passing them
@@ -514,7 +509,7 @@ type ActionCreatorForCaseReducer<CR, Type extends string> = CR extends (
  */
 type SliceDefinedCaseReducers<CaseReducers extends SliceCaseReducers<any>> = {
   [Type in keyof CaseReducers]: CaseReducers[Type] extends infer Definition
-    ? Definition extends AsyncThunkSliceReducerDefinition<any, any, any, any>
+    ? Definition extends AsyncThunkSliceReducerDefinition<any, any, any>
       ? Simplify<
           Pick<
             Required<Definition>,
