@@ -104,7 +104,7 @@ jobs:
         run: yarn workspaces foreach -A --include '@examples-query-react/*' add $(pwd)/package.tgz
 
       - name: Test types using example packages
-        run: yarn workspaces foreach -A --include '@examples-query-react/*' run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module ESNext --moduleResolution Bundler --noEmitOnError --emitDeclarationOnly --jsx react-jsx
+        run: yarn workspaces foreach -Atp --include '@examples-query-react/*' run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module ESNext --moduleResolution Bundler --noEmitOnError --emitDeclarationOnly --jsx react-jsx
 
   test-types:
     name: Test Types with TypeScript ${{ matrix.ts }}
