@@ -84,9 +84,9 @@ export interface QueryHooks<
   useQueryState: UseQueryState<Definition>
 }
 
-export interface MutationHooks<
+export type MutationHooks<
   Definition extends MutationDefinition<any, any, any, any, any>,
-> {
+> = {
   useMutation: UseMutation<Definition>
 }
 
