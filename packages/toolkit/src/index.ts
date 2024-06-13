@@ -213,5 +213,3 @@ export type {
 } from './tsHelpers'
 
 export { formatProdErrorMessage }
-
-export type { UncheckedIndexedAccess } from './uncheckedindexed'
