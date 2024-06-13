@@ -225,8 +225,6 @@ jobs:
         run: yarn tsc -p . --moduleResolution Bundler --noEmit false --declaration --emitDeclarationOnly --outDir dist --target ESNext && rm -rf dist
 
       - name: Build example
-        env:
-          NODE_OPTIONS: --openssl-legacy-provider
         run: yarn build
 
       - name: Run test step
