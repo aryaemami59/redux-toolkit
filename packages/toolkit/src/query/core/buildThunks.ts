@@ -1,52 +1,54 @@
-import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
+import type {
+  AsyncThunk,
+  AsyncThunkPayloadCreator,
+  Draft,
+  ThunkAction,
+  ThunkDispatch,
+  UnknownAction,
+} from '@reduxjs/toolkit'
+import type { Patch } from 'immer'
+import { isDraftable, produceWithPatches } from 'immer'
 import type { Api, ApiContext } from '../apiTypes'
 import type {
-  BaseQueryFn,
   BaseQueryError,
+  BaseQueryFn,
   QueryReturnValue,
 } from '../baseQueryTypes'
-import type { RootState, QueryKeys, QuerySubstateIdentifier } from './apiState'
+import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
+import type {
+  AssertTagTypes,
+  EndpointDefinition,
+  EndpointDefinitions,
+  QueryArgFrom,
+  QueryDefinition,
+  ResultTypeFrom,
+} from '../endpointDefinitions'
+import { calculateProvidedBy, isQueryDefinition } from '../endpointDefinitions'
+import type { QueryKeys, QuerySubstateIdentifier, RootState } from './apiState'
 import { QueryStatus } from './apiState'
 import {
   forceQueryFnSymbol,
   isUpsertQuery,
   type QueryActionCreatorResult,
 } from './buildInitiate'
-import type {
-  AssertTagTypes,
-  EndpointDefinition,
-  EndpointDefinitions,
-  MutationDefinition,
-  QueryArgFrom,
-  QueryDefinition,
-  ResultTypeFrom,
-  FullTagDescription,
-} from '../endpointDefinitions'
-import { isQueryDefinition } from '../endpointDefinitions'
-import { calculateProvidedBy } from '../endpointDefinitions'
-import type {
-  AsyncThunkPayloadCreator,
-  Draft,
-  UnknownAction,
-} from '@reduxjs/toolkit'
 import {
+  createAsyncThunk,
   isAllOf,
   isFulfilled,
   isPending,
   isRejected,
   isRejectedWithValue,
-  createAsyncThunk,
   SHOULD_AUTOBATCH,
 } from './rtkImports'
-import type { Patch } from 'immer'
-import { isDraftable, produceWithPatches } from 'immer'
-import type { ThunkAction, ThunkDispatch, AsyncThunk } from '@reduxjs/toolkit'
 
 import { HandledError } from '../HandledError'
 
-import type { StartQueryActionCreatorOptions} from './module';
-import type { ApiEndpointQuery, PrefetchOptions } from './module'
 import type { UnwrapPromise } from '../tsHelpers'
+import type {
+  ApiEndpointQuery,
+  PrefetchOptions,
+  StartQueryActionCreatorOptions,
+} from './module'
 
 // declare module '@reduxjs/toolkit/query' {
 //   export interface ApiEndpointQuery<
@@ -115,7 +117,7 @@ export interface QueryThunkArg
   endpointName: string
 }
 
-export interface MutationThunkArg {
+type MutationThunkArg = {
   type: 'mutation'
   originalArgs: unknown
   endpointName: string
