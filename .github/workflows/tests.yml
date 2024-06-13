@@ -140,7 +140,7 @@ jobs:
 
       - name: Add .js extensions to relative imports
         if: matrix.TSConfig.moduleResolution == 'NodeNext'
-        run: yarn workspaces foreach -Atp --include '@examples-query-react/*' --exclude @examples-query-react/graphql-codegen dlx @magic-works/ts-esm-migrate@latest .
+        run: yarn workspaces foreach -Atp --include '@examples-query-react/*' --exclude @examples-query-react/graphql-codegen dlx @magic-works/ts-esm-migrate@latest src
 
       - name: Test types using example packages with `moduleResolution ${{ matrix.TSConfig.moduleResolution }}`
         run: yarn workspaces foreach -Atp --include '@examples-query-react/*' --exclude @examples-query-react/graphql-codegen run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module ${{ matrix.TSConfig.module }} --moduleResolution ${{ matrix.TSConfig.moduleResolution }} --noEmitOnError --emitDeclarationOnly --jsx react-jsx
