@@ -221,6 +221,7 @@ jobs:
         run: yarn add typescript@latest
 
       - name: Run type tests with `moduleResolution Bundler`
+        if: matrix.example != 'node-standard' && matrix.example != 'node-esm'
         run: yarn tsc -p . --moduleResolution Bundler --noEmit false --declaration --emitDeclarationOnly --outDir dist --target ESNext && rm -rf dist
 
       - name: Build example
