@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react'
-import { RootState } from '../store'
+import type { RootState } from '../store'
 
 // Create our baseQuery instance
-const baseQuery = fetchBaseQuery({
+export const baseQuery = fetchBaseQuery({
   baseUrl: '/',
   prepareHeaders: (headers, { getState }) => {
     // By default, if we have a token in the store, let's use that for authenticated requests
@@ -14,7 +14,7 @@ const baseQuery = fetchBaseQuery({
   },
 })
 
-const baseQueryWithRetry = retry(baseQuery, { maxRetries: 6 })
+export const baseQueryWithRetry = retry(baseQuery, { maxRetries: 6 })
 
 /**
  * Create a base API to inject endpoints into elsewhere.
@@ -53,3 +53,63 @@ export const enhancedApi = api.enhanceEndpoints({
     getPost: () => 'test',
   }),
 })
+
+export const {
+  endpoints: _endpoints,
+  enhanceEndpoints: _enhanceEndpoints,
+  injectEndpoints: _injectEndpoints,
+  internalActions: _internalActions,
+  middleware: _middleware,
+  reducer: _reducer,
+  reducerPath: _reducerPath,
+  usePrefetch: _usePrefetch,
+  util: _util,
+} = api
+
+export const {
+  endpoints,
+  enhanceEndpoints,
+  injectEndpoints,
+  internalActions,
+  middleware,
+  reducer,
+  reducerPath,
+  usePrefetch,
+  util,
+} = enhancedApi
+
+export const {
+  internal_getRTKQSubscriptions,
+  middlewareRegistered,
+  onFocus,
+  onFocusLost,
+  onOffline,
+  onOnline,
+  queryResultPatched,
+  removeMutationResult,
+  removeQueryResult,
+  resetApiState: _resetApiState,
+  subscriptionsUpdated,
+  unsubscribeQueryResult,
+  updateProvidedBy,
+  updateSubscriptionOptions,
+} = internalActions
+
+export const { match, type } = updateSubscriptionOptions
+
+export const {
+  getRunningMutationThunk,
+  getRunningMutationsThunk,
+  getRunningQueriesThunk,
+  getRunningQueryThunk,
+  invalidateTags,
+  patchQueryData,
+  prefetch,
+  resetApiState,
+  selectCachedArgsForQuery,
+  selectInvalidatedBy,
+  updateQueryData,
+  upsertQueryData,
+} = util
+
+export const { match: _match, type: _type } = invalidateTags

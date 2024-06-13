@@ -39,3 +39,90 @@ export const postApi = api.injectEndpoints({
     }),
   }),
 })
+
+export const {
+  endpoints,
+  enhanceEndpoints,
+  injectEndpoints,
+  internalActions,
+  middleware,
+  reducer,
+  reducerPath,
+  usePrefetch,
+  util,
+} = postApi
+
+export const { addPost, deletePost, getPost, updatePost } = endpoints
+
+export const {
+  Types,
+  initiate,
+  matchFulfilled,
+  matchPending,
+  matchRejected,
+  name,
+  select,
+  useMutation,
+} = addPost
+
+export const {
+  BaseQuery,
+  MutationDefinition,
+  QueryArg,
+  ReducerPath,
+  ResultType,
+  TagTypes,
+} = Types
+
+export const {
+  type: __type,
+  Types: _Types,
+  extraOptions,
+  invalidatesTags,
+  onCacheEntryAdded,
+  onQueryStarted,
+  providesTags,
+  query,
+  queryFn,
+  structuralSharing,
+  transformErrorResponse,
+  transformResponse,
+} = MutationDefinition
+
+export const { fetched_at, id, name: _name } = QueryArg
+
+export const {
+  internal_getRTKQSubscriptions,
+  middlewareRegistered,
+  onFocus,
+  onFocusLost,
+  onOffline,
+  onOnline,
+  queryResultPatched,
+  removeMutationResult,
+  removeQueryResult,
+  resetApiState: _resetApiState,
+  subscriptionsUpdated,
+  unsubscribeQueryResult,
+  updateProvidedBy,
+  updateSubscriptionOptions,
+} = internalActions
+
+export const { match, type } = updateSubscriptionOptions
+
+export const {
+  getRunningMutationThunk,
+  getRunningMutationsThunk,
+  getRunningQueriesThunk,
+  getRunningQueryThunk,
+  invalidateTags,
+  patchQueryData,
+  prefetch,
+  resetApiState,
+  selectCachedArgsForQuery,
+  selectInvalidatedBy,
+  updateQueryData,
+  upsertQueryData,
+} = util
+
+export const { match: _match, type: _type } = invalidateTags
