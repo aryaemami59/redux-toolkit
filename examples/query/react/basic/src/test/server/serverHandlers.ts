@@ -1,7 +1,7 @@
-import { rest } from 'msw'
+import { http, HttpResponse } from 'msw'
 
 const handlers = [
-  rest.get('https://pokeapi.co/api/v2/pokemon/bulbasaur', (req, res, ctx) => {
+  http.get('https://pokeapi.co/api/v2/pokemon/bulbasaur', () => {
     const mockApiResponse = {
       species: {
         name: 'bulbasaur',
@@ -11,7 +11,7 @@ const handlers = [
           'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/1.png',
       },
     }
-    return res(ctx.json(mockApiResponse))
+    return HttpResponse.json(mockApiResponse)
   }),
 ]
 

@@ -1,4 +1,4 @@
-import { rest } from 'msw'
+import { http, HttpResponse } from 'msw'
 import { screen } from '@testing-library/react'
 
 import App from './App'
@@ -25,12 +25,9 @@ describe('App', () => {
   it('handles error response', async () => {
     // force msw to return error response
     server.use(
-      rest.get(
-        'https://pokeapi.co/api/v2/pokemon/bulbasaur',
-        (req, res, ctx) => {
-          return res(ctx.status(500))
-        },
-      ),
+      http.get('https://pokeapi.co/api/v2/pokemon/bulbasaur', () => {
+        return HttpResponse.json(null, { status: 500 })
+      }),
     )
 
     renderWithProviders(<App />)

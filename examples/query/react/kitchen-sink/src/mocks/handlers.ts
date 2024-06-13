@@ -1,4 +1,4 @@
-import { rest } from 'msw'
+import { http, delay, HttpResponse } from 'msw'
 import { createEntityAdapter, nanoid } from '@reduxjs/toolkit'
 import { Post } from '../app/services/posts'
 
@@ -26,100 +26,115 @@ export { state }
 const token = nanoid()
 
 export const handlers = [
-  rest.get('/time/:offset', (req, res, ctx) => {
-    const { offset } = req.params as { offset: string }
+  http.get<{ offset: string }>('/time/:offset', async ({ params }) => {
+    const { offset } = params
     const date = new Date()
     const localDate = date.getTime() // users local time
-    const localOffset = date.getTimezoneOffset() * 60000
+    const localOffset = date.getTimezoneOffset() * 60_000
     const formattedOffset = Number(offset.replace(':', '.'))
-    const target = localDate + localOffset + 3600000 * formattedOffset
-    return res(
-      ctx.json({ time: new Date(target).toUTCString() }),
-      ctx.delay(400),
-    )
+    const target = localDate + localOffset + 3_600_000 * formattedOffset
+    await delay(400)
+    return HttpResponse.json({ time: new Date(target).toUTCString() })
   }),
 
-  rest.put<{ amount: number }>('/increment', (req, res, ctx) => {
-    const { amount } = req.body
-    count = count += amount
+  http.put<Record<string, string>, { amount: number }>(
+    '/increment',
+    async ({ request }) => {
+      const body = await request.json()
+      const { amount } = body
+      count = count += amount
 
-    return res(ctx.json({ count }))
+      return HttpResponse.json({ count })
+    },
+  ),
+
+  http.put<Record<string, string>, { amount: number }>(
+    '/decrement',
+    async ({ request }) => {
+      const body = await request.json()
+      const { amount } = body
+      count = count -= amount
+
+      return HttpResponse.json({ count })
+    },
+  ),
+
+  http.get('/count', () => {
+    return HttpResponse.json({ count })
   }),
 
-  rest.put<{ amount: number }>('/decrement', (req, res, ctx) => {
-    const { amount } = req.body
-    count = count -= amount
-
-    return res(ctx.json({ count }))
+  http.post(
+    '/login',
+    () => {
+      return HttpResponse.json({ message: 'i fail once' }, { status: 500 })
+    },
+    { once: true },
+  ),
+  http.post('/login', () => {
+    return HttpResponse.json({
+      token,
+      user: { first_name: 'Test', last_name: 'User' },
+    })
   }),
 
-  rest.get('/count', (req, res, ctx) => {
-    return res(ctx.json({ count }))
+  http.get('/posts', () => {
+    return HttpResponse.json(Object.values(state.entities))
   }),
 
-  rest.post('/login', (req, res, ctx) => {
-    return res.once(ctx.json({ message: 'i fail once' }), ctx.status(500))
-  }),
-  rest.post('/login', (req, res, ctx) => {
-    return res(
-      ctx.json({ token, user: { first_name: 'Test', last_name: 'User' } }),
-    )
-  }),
-
-  rest.get('/posts', (req, res, ctx) => {
-    return res(ctx.json(Object.values(state.entities)))
-  }),
-
-  rest.post('/posts', (req, res, ctx) => {
-    let post = req.body as Partial<Post>
+  http.post<any, Post>('/posts', async ({ request }) => {
+    const body = await request.json()
+    const post = body
     startingId += 1
-    state = adapter.addOne(state, { ...post, id: startingId } as Post)
-    return res(ctx.json(Object.values(state.entities)), ctx.delay(400))
+    state = adapter.addOne(state, { ...post, id: startingId })
+    await delay(400)
+    return HttpResponse.json(Object.values(state.entities))
   }),
 
-  rest.get('/posts/:id', (req, res, ctx) => {
-    const { id: idParam } = req.params as { id: string }
+  http.get<{ id: string }>('/posts/:id', async ({ params }) => {
+    const { id: idParam } = params
     const id = parseInt(idParam, 10)
     state = adapter.updateOne(state, {
       id,
       changes: { fetched_at: new Date().toUTCString() },
     })
-    return res(ctx.json(state.entities[id]), ctx.delay(400))
+    await delay(400)
+    return HttpResponse.json(state.entities[id])
   }),
 
-  rest.put('/posts/:id', (req, res, ctx) => {
-    const { id: idParam } = req.params as { id: string }
-    const id = parseInt(idParam, 10)
-    const changes = req.body as Partial<Post>
+  http.put<{ id: string }, Partial<Post>>(
+    '/posts/:id',
+    async ({ request, params }) => {
+      const body = await request.json()
+      const { id: idParam } = params
+      const id = parseInt(idParam, 10)
+      const changes = body
 
-    state = adapter.updateOne(state, { id, changes })
+      state = adapter.updateOne(state, { id, changes })
+      await delay(400)
 
-    return res(ctx.json(state.entities[id]), ctx.delay(400))
-  }),
+      return HttpResponse.json(state.entities[id])
+    },
+  ),
 
-  rest.delete('/posts/:id', (req, res, ctx) => {
-    const { id: idParam } = req.params as { id: string }
+  http.delete<{ id: string }>('/posts/:id', async ({ params }) => {
+    const { id: idParam } = params
     const id = parseInt(idParam, 10)
 
     state = adapter.removeOne(state, id)
+    await delay(600)
 
-    return res(
-      ctx.json({
-        id,
-        success: true,
-      }),
-      ctx.delay(600),
-    )
+    return HttpResponse.json({
+      id,
+      success: true,
+    })
   }),
 
-  rest.get('/error-prone', (req, res, ctx) => {
+  http.get('/error-prone', () => {
     if (Math.random() > 0.1) {
-      return res(ctx.json({ error: 'failed!' }), ctx.status(500))
+      return HttpResponse.json({ error: 'failed!' }, { status: 500 })
     }
-    return res(
-      ctx.json({
-        success: true,
-      }),
-    )
+    return HttpResponse.json({
+      success: true,
+    })
   }),
 ]

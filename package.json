@@ -58,6 +58,8 @@
   "scripts": {
     "build": "yarn build:packages",
     "test": "yarn test:packages",
+    "type-tests:bundler": "rm -rf dist && tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false --module ESNext --moduleResolution Bundler --noEmitOnError --emitDeclarationOnly --jsx react-jsx --strict && rm -rf dist",
+    "type-tests": "yarn workspaces foreach -Atp --include '@examples-query-react/*' --exclude @examples-query-react/graphql-codegen run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false --module ESNext --moduleResolution Bundler --noEmitOnError --emitDeclarationOnly --jsx react-jsx --strict",
     "build:examples": "yarn workspaces foreach -A --include '@reduxjs/*' --include '@examples-query-react/*' --include '@examples-action-listener/*' -vtp run build",
     "build:docs": "yarn workspace website run build",
     "build:packages": "yarn workspaces foreach -A --include '@reduxjs/*' --include '@rtk-query/*' --topological-dev run build",

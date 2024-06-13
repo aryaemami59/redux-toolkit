@@ -46,7 +46,7 @@
     "esbuild": "~0.17",
     "esbuild-runner": "^2.2.1",
     "husky": "^4.3.6",
-    "msw": "^2.1.5",
+    "msw": "^2.3.1",
     "node-fetch": "^3.3.2",
     "openapi-types": "^9.1.0",
     "pretty-quick": "^4.0.0",
