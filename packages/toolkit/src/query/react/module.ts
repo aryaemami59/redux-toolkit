@@ -9,7 +9,6 @@ import type {
   QueryDefinition,
   QueryKeys,
 } from '@reduxjs/toolkit/query'
-import { safeAssign } from '@reduxjs/toolkit/query'
 import {
   batch as rrBatch,
   useDispatch as rrUseDispatch,
@@ -18,6 +17,7 @@ import {
 } from 'react-redux'
 import { createSelector as _createSelector } from 'reselect'
 import { isMutationDefinition, isQueryDefinition } from '../endpointDefinitions'
+import { safeAssign } from '../tsHelpers'
 import { capitalize, countObjectKeys } from '../utils'
 import type { MutationHooks, QueryHooks } from './buildHooks'
 import { buildHooks } from './buildHooks'

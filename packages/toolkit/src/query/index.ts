@@ -6,7 +6,6 @@ import type {
   ApiEndpointQuery,
   CombinedState,
   CoreModule,
-  // CreateApi,
   CreateApiOptions,
   MutationActionCreatorResult,
   MutationResultSelectorResult,
@@ -20,8 +19,6 @@ import type {
   SkipToken,
   SubscriptionOptions,
 } from './core'
-// export { formatProdErrorMessage }
-
 export type {
   Api,
   ApiContext,
@@ -43,28 +40,7 @@ export {
   setupListeners,
   skipToken,
 } from './core'
-export type {
-  ApiEndpointMutation,
-  ApiEndpointQuery,
-  CombinedState,
-  CoreModule,
-  // CreateApi,
-  CreateApiOptions,
-  MutationActionCreatorResult,
-  MutationResultSelectorResult,
-  PrefetchOptions,
-  QueryActionCreatorResult,
-  QueryCacheKey,
-  QueryKeys,
-  QueryResultSelectorResult,
-  QuerySubState,
-  RootState,
-  SkipToken,
-  SubscriptionOptions,
-}
-// export { buildCreateApi } from './createApi'
 export type { CreateApi } from './createApi'
-// export type { CreateApi, CreateApiOptions } from './createApi'
 export { defaultSerializeQueryArgs } from './defaultSerializeQueryArgs'
 export type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 export type {
@@ -89,10 +65,27 @@ export type {
   FetchBaseQueryMeta,
 } from './fetchBaseQuery'
 export { retry } from './retry'
-export { safeAssign } from './tsHelpers'
 export type {
   Id as TSHelpersId,
   NoInfer as TSHelpersNoInfer,
   Override as TSHelpersOverride,
 } from './tsHelpers'
 export { copyWithStructuralSharing } from './utils'
+export type {
+  ApiEndpointMutation,
+  ApiEndpointQuery,
+  CombinedState,
+  CoreModule,
+  CreateApiOptions,
+  MutationActionCreatorResult,
+  MutationResultSelectorResult,
+  PrefetchOptions,
+  QueryActionCreatorResult,
+  QueryCacheKey,
+  QueryKeys,
+  QueryResultSelectorResult,
+  QuerySubState,
+  RootState,
+  SkipToken,
+  SubscriptionOptions,
+}
