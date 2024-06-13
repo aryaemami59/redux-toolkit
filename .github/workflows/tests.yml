@@ -108,6 +108,12 @@ jobs:
       fail-fast: false
       matrix:
         node: ['20.x']
+        TSConfig:
+          [
+            { module: 'ESNext', moduleResolution: 'Bundler' },
+            { module: 'ESNext', moduleResolution: 'Node10' },
+            { module: 'NodeNext', moduleResolution: 'NodeNext' },
+          ]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -129,14 +135,15 @@ jobs:
       - name: Install build artifact in example packages
         run: yarn workspaces foreach -A --include '@examples-query-react/*' add $(pwd)/package.tgz
 
-      - name: Test types using example packages with `moduleResolution Bundler`
-        run: npx rimraf@latest -g '**/!(node_modules)/**/dist' && yarn workspaces foreach -Atp --include '@examples-query-react/*' --exclude @examples-query-react/graphql-codegen run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module ESNext --moduleResolution Bundler --noEmitOnError --emitDeclarationOnly --jsx react-jsx
+      - name: Remove all dist folders
+        run: npx rimraf@latest -g '**/!(node_modules)/**/dist'
 
-      - name: Test types using example packages with `moduleResolution Node10`
-        run: npx rimraf@latest -g '**/!(node_modules)/**/dist' && yarn workspaces foreach -Atp --include '@examples-query-react/*' --exclude @examples-query-react/graphql-codegen run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module ESNext --moduleResolution Node10 --noEmitOnError --emitDeclarationOnly --jsx react-jsx
+      - name: Add .js extensions to relative imports
+        if: matrix.TSConfig.moduleResolution == 'NodeNext'
+        run: yarn workspaces foreach -Atp --include '@examples-query-react/*' --exclude @examples-query-react/graphql-codegen dlx @magic-works/ts-esm-migrate@latest .
 
-      - name: Test types using example packages with `moduleResolution NodeNext`
-        run: npx rimraf@latest -g '**/!(node_modules)/**/dist' && yarn workspaces foreach -Atp --include '@examples-query-react/*' --exclude @examples-query-react/graphql-codegen dlx @magic-works/ts-esm-migrate@latest . && yarn workspaces foreach -Atp --include '@examples-query-react/*' --exclude @examples-query-react/graphql-codegen run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module NodeNext --moduleResolution NodeNext --noEmitOnError --emitDeclarationOnly --jsx react-jsx
+      - name: Test types using example packages with `moduleResolution ${{ matrix.TSConfig.moduleResolution }}`
+        run: yarn workspaces foreach -Atp --include '@examples-query-react/*' --exclude @examples-query-react/graphql-codegen run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module ${{ matrix.TSConfig.module }} --moduleResolution ${{ matrix.TSConfig.moduleResolution }} --noEmitOnError --emitDeclarationOnly --jsx react-jsx
 
   test-types:
     name: Test Types with TypeScript ${{ matrix.ts }}
