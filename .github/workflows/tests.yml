@@ -109,6 +109,9 @@ jobs:
       - name: Test types using example packages with `moduleResolution Node10`
         run: npx rimraf@latest -g '**/!(node_modules)/**/dist' && yarn workspaces foreach -Atp --include '@examples-query-react/*' --exclude @examples-query-react/graphql-codegen run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module ESNext --moduleResolution Node10 --noEmitOnError --emitDeclarationOnly --jsx react-jsx
 
+      - name: Test types using example packages with `moduleResolution NodeNext`
+        run: npx rimraf@latest -g '**/!(node_modules)/**/dist' && yarn workspaces foreach -Atp --include '@examples-query-react/*' --exclude @examples-query-react/graphql-codegen dlx @magic-works/ts-esm-migrate@latest . && yarn workspaces foreach -Atp --include '@examples-query-react/*' --exclude @examples-query-react/graphql-codegen run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module NodeNext --moduleResolution NodeNext --noEmitOnError --emitDeclarationOnly --jsx react-jsx
+
   test-types:
     name: Test Types with TypeScript ${{ matrix.ts }}
 
