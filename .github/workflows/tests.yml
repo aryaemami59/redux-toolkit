@@ -145,6 +145,28 @@ jobs:
       - name: Test types using example packages with `moduleResolution ${{ matrix.TSConfig.moduleResolution }}`
         run: yarn workspaces foreach -Atp --include '@examples-query-react/*' --exclude @examples-query-react/graphql-codegen run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module ${{ matrix.TSConfig.module }} --moduleResolution ${{ matrix.TSConfig.moduleResolution }} --noEmitOnError --emitDeclarationOnly --jsx react-jsx
 
+  build-website:
+    name: Build website
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ['20.x']
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Use node 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'yarn'
+
+      - name: Install deps
+        run: yarn install
+
+      - name: Build website
+        run: yarn workspace website build
+
   test-types:
     name: Test Types with TypeScript ${{ matrix.ts }}
 
