@@ -1,7 +1,7 @@
 // This must remain here so that the `mangleErrors.cjs` build script
 // does not have to import this into each source file it rewrites.
-import { formatProdErrorMessage } from '@reduxjs/toolkit'
-export { formatProdErrorMessage }
+// import { formatProdErrorMessage } from '@reduxjs/toolkit'
+// export { formatProdErrorMessage }
 
 // import type { CreateApi } from '../createApi'
 import type {
