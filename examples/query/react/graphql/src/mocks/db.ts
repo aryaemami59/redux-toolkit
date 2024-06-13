@@ -1,7 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit'
 import { factory, primaryKey } from '@mswjs/data'
 import faker from 'faker'
-import { graphql } from 'msw'
+import { graphql, HttpResponse } from 'msw'
 import { postStatuses } from '../app/services/posts'
 import type { Pagination, Post } from '../app/services/posts'
 
@@ -48,16 +48,16 @@ interface Posts extends Pagination {
 }
 
 export const handlers = [
-  graphql.query<Posts, PaginationOptions>('GetPosts', (req, res, ctx) => {
-    const { page = 1, per_page = 10 } = req.variables
+  graphql.query<Posts, PaginationOptions>('GetPosts', ({ variables }) => {
+    const { page = 1, per_page = 10 } = variables
 
     const posts = db.post.findMany({
       take: per_page,
       skip: Math.max(per_page * (page - 1), 0),
     })
 
-    return res(
-      ctx.data({
+    return HttpResponse.json({
+      data: {
         data: {
           posts,
         } as { posts: Post[] },
@@ -65,8 +65,8 @@ export const handlers = [
         page,
         total_pages: Math.ceil(db.post.count() / per_page),
         total: db.post.count(),
-      }),
-    )
+      },
+    })
   }),
   ...db.post.toHandlers('graphql'),
 ] as const
