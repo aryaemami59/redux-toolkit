@@ -5,6 +5,7 @@
   "description": "",
   "keywords": [],
   "main": "./src/index.tsx",
+  "type": "module",
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.4.0",
