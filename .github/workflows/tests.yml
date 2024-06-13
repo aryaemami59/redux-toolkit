@@ -100,16 +100,11 @@ jobs:
       - name: Run type tests with `moduleResolution Bundler`
         run: rm -rf dist && yarn tsc -p . --moduleResolution Bundler --module ESNext --noEmit false --declaration --emitDeclarationOnly --outDir dist --target ESNext && rm -rf dist
 
-      # - uses: actions/download-artifact@v4
-      #   with:
-      #     name: package
-      #     path: .
+      - name: Install build artifact in example packages
+        run: yarn workspaces foreach -A --include '@examples-query-react/*' add $(pwd)/package.tgz
 
-      # - name: Install build artifact in example packages
-      #   run: yarn up @reduxjs/toolkit@package.tgz
-
-      # - name: Test types using example packages
-      #   run: yarn workspaces foreach --from @examples-query-react/* -R run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module ESNext --moduleResolution Bundler --noEmitOnError --emitDeclarationOnly --jsx react-jsx
+      - name: Test types using example packages
+        run: yarn workspaces foreach -A --include '@examples-query-react/*' run tsc -p tsconfig.json --skipLibCheck --declaration --outDir dist --noEmit false  --module ESNext --moduleResolution Bundler --noEmitOnError --emitDeclarationOnly --jsx react-jsx
 
   test-types:
     name: Test Types with TypeScript ${{ matrix.ts }}
