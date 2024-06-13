@@ -18,7 +18,7 @@ export const setupTests = () => {
   afterEach(() => server.resetHandlers())
   afterAll(() => server.close())
 
-  interface RenderOptions {
+  type RenderOptions = {
     route: string
     path?: string
   }
