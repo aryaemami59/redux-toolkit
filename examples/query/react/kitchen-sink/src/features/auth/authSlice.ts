@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { postsApi } from '../../app/services/posts'
 import type { User } from '../../app/services/posts'
+import { postsApi } from '../../app/services/posts'
 import type { RootState } from '../../app/store'
 
 const initialState = {
@@ -9,7 +9,7 @@ const initialState = {
   isAuthenticated: false,
 } as { user: null | User; token: string | null; isAuthenticated: boolean }
 
-const slice = createSlice({
+export const slice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
@@ -31,6 +31,19 @@ const slice = createSlice({
       })
   },
 })
+
+export const {
+  actions,
+  caseReducers,
+  getInitialState,
+  getSelectors,
+  injectInto,
+  name,
+  reducer,
+  reducerPath,
+  selectSlice,
+  selectors,
+} = slice
 
 export const { logout } = slice.actions
 export default slice.reducer

@@ -87,3 +87,16 @@ export const incrementIfOdd =
       dispatch(incrementByAmount(amount))
     }
   }
+
+export const {
+  actions,
+  caseReducers,
+  getInitialState,
+  getSelectors,
+  injectInto,
+  name,
+  reducer,
+  reducerPath,
+  selectSlice,
+  selectors,
+} = counterSlice

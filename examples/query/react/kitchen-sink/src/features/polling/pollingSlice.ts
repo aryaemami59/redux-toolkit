@@ -33,7 +33,7 @@ const initialState: SliceState = {
 
 type PollingAppKey = keyof (typeof initialState)['apps']
 
-const slice = createSlice({
+export const slice = createSlice({
   name: 'polling',
   initialState,
   reducers: {
@@ -58,6 +58,19 @@ const slice = createSlice({
     },
   },
 })
+
+export const {
+  actions,
+  caseReducers,
+  getInitialState,
+  getSelectors,
+  injectInto,
+  name,
+  reducer,
+  reducerPath,
+  selectSlice,
+  selectors,
+} = slice
 
 export const { toggleGlobalPolling, updatePolling } = slice.actions
 
