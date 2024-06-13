@@ -100,6 +100,31 @@ jobs:
       - name: Run type tests with `moduleResolution Bundler`
         run: rm -rf dist && yarn tsc -p . --moduleResolution Bundler --module ESNext --noEmit false --declaration --emitDeclarationOnly --outDir dist --target ESNext && rm -rf dist
 
+  test-bundled-type-definitions:
+    name: Run type tests with different TS configs
+    needs: [build]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['20.x']
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Use node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'yarn'
+
+      - name: Install deps
+        run: yarn install
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: package
+
       - name: Install build artifact in example packages
         run: yarn workspaces foreach -A --include '@examples-query-react/*' add $(pwd)/package.tgz
 
