@@ -5,6 +5,7 @@
   "description": "getting-started-hooks",
   "keywords": [],
   "main": "src/index.tsx",
+  "type": "module",
   "dependencies": {
     "@reduxjs/toolkit": "workspace:^",
     "msw": "^2.3.1",
