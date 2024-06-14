@@ -188,10 +188,7 @@ export interface QueryExtraOptions<
 }
 //
 
-export interface QueryLifecyclePromises<
-  ResultType,
-  BaseQuery extends BaseQueryFn,
-> {
+type QueryLifecyclePromises<ResultType, BaseQuery extends BaseQueryFn> = {
   /**
    * Promise that will resolve with the (transformed) query result.
    *
