@@ -521,11 +521,7 @@ interface EndpointDefinitionWithQueryFn<
   structuralSharing?: boolean
 }
 
-export interface BaseEndpointTypes<
-  QueryArg,
-  BaseQuery extends BaseQueryFn,
-  ResultType,
-> {
+type BaseEndpointTypes<QueryArg, BaseQuery extends BaseQueryFn, ResultType> = {
   QueryArg: QueryArg
   BaseQuery: BaseQuery
   ResultType: ResultType
