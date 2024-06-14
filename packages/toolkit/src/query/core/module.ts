@@ -71,7 +71,7 @@ export interface ApiEndpointMutation<
 //   options?: StartQueryActionCreatorOptions,
 // ) => ThunkAction<QueryActionCreatorResult<D>, any, any, UnknownAction>
 
-export interface StartQueryActionCreatorOptions {
+export type StartQueryActionCreatorOptions = {
   subscribe?: boolean
   forceRefetch?: boolean | number
   subscriptionOptions?: SubscriptionOptions
