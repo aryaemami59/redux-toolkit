@@ -109,13 +109,12 @@ export interface Matchers<
   matchRejected: Matcher<RejectedAction<Thunk, Definition>>
 }
 
-export interface QueryThunkArg
-  extends QuerySubstateIdentifier,
-    StartQueryActionCreatorOptions {
-  type: 'query'
-  originalArgs: unknown
-  endpointName: string
-}
+export type QueryThunkArg = QuerySubstateIdentifier &
+  StartQueryActionCreatorOptions & {
+    type: 'query'
+    originalArgs: unknown
+    endpointName: string
+  }
 
 type MutationThunkArg = {
   type: 'mutation'
