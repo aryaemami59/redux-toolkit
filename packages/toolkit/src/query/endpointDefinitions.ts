@@ -71,7 +71,7 @@ type MutationBaseLifecycleApi<
   >
 }
 
-export interface LifecycleApi<ReducerPath extends string = string> {
+type LifecycleApi<ReducerPath extends string = string> = {
   /**
    * The dispatch method for the store
    */
