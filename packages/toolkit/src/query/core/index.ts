@@ -1,17 +1,5 @@
-import type { CreateApiOptions } from '../createApi'
 import { buildCreateApi } from '../createApi'
-import type {
-  ApiEndpointMutation,
-  ApiEndpointQuery,
-  CoreModule,
-  // CoreModuleOptions,
-  // InternalActions,
-  // ListenerActions,
-  // MutationResultSelectorFactory,
-  PrefetchOptions,
-} from './module'
-import { coreModule, coreModuleName } from './module'
-// import { coreModule } from './module'
+import { coreModule } from './module'
 
 export const createApi = /* @__PURE__ */ buildCreateApi(coreModule())
 
@@ -34,25 +22,13 @@ export type {
   QueryResultSelectorResult,
   SkipToken,
 } from './buildSelectors'
-export { coreModuleName }
-// export { coreModuleName } from './module'
-// export type {
-//   ApiEndpointMutation,
-//   ApiEndpointQuery,
-//   CoreModule,
-//   PrefetchOptions,
-// } from './module'
-export { setupListeners } from './setupListeners'
-export { buildCreateApi, coreModule }
+export { coreModuleName } from './module'
 export type {
   ApiEndpointMutation,
   ApiEndpointQuery,
   CoreModule,
-  // CoreModuleOptions,
-  // CreateApi,
-  CreateApiOptions,
-  // InternalActions,
-  // ListenerActions,
-  // MutationResultSelectorFactory,
   PrefetchOptions,
-}
+  StartQueryActionCreatorOptions,
+} from './module'
+export { setupListeners } from './setupListeners'
+export { buildCreateApi, coreModule }
