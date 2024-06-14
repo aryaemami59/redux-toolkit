@@ -13,4 +13,64 @@ export const timeApi = api.injectEndpoints({
   }),
 })
 
-export const { usePrefetch: usePrefetchTime, useGetTimeQuery } = timeApi
+export const {
+  usePrefetch: usePrefetchTime,
+  useGetTimeQuery,
+  endpoints,
+  enhanceEndpoints,
+  injectEndpoints,
+  internalActions,
+  middleware,
+  reducer,
+  reducerPath,
+  util,
+} = timeApi
+
+export const { getTime } = endpoints
+
+export const {
+  Types,
+  initiate,
+  matchFulfilled,
+  matchPending,
+  matchRejected,
+  name,
+  select,
+  useQuery,
+  useLazyQuery,
+  useQuerySubscription,
+  useQueryState,
+  useLazyQuerySubscription,
+} = getTime
+
+export const {
+  internal_getRTKQSubscriptions,
+  middlewareRegistered,
+  onFocus,
+  onFocusLost,
+  onOffline,
+  onOnline,
+  queryResultPatched,
+  removeMutationResult,
+  removeQueryResult,
+  resetApiState: _resetApiState,
+  subscriptionsUpdated,
+  unsubscribeQueryResult,
+  updateProvidedBy,
+  updateSubscriptionOptions,
+} = internalActions
+
+export const {
+  getRunningMutationThunk,
+  getRunningMutationsThunk,
+  getRunningQueriesThunk,
+  getRunningQueryThunk,
+  invalidateTags,
+  patchQueryData,
+  prefetch,
+  resetApiState,
+  selectCachedArgsForQuery,
+  selectInvalidatedBy,
+  updateQueryData,
+  upsertQueryData,
+} = util
