@@ -45,6 +45,8 @@ export const {
   selectors,
 } = slice
 
+export const { logout: _logout } = caseReducers
+
 export const { logout } = slice.actions
 export default slice.reducer
 

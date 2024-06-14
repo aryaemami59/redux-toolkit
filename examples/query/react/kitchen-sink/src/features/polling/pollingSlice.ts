@@ -72,6 +72,11 @@ export const {
   selectors,
 } = slice
 
+export const {
+  toggleGlobalPolling: _toggleGlobalPolling,
+  updatePolling: _updatePolling,
+} = caseReducers
+
 export const { toggleGlobalPolling, updatePolling } = slice.actions
 
 export default slice.reducer

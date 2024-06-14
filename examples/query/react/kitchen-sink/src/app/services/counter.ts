@@ -49,6 +49,8 @@ export const {
   util,
 } = counterApi
 
+export const { decrementCount, getCount, incrementCount } = endpoints
+
 export const {
   internal_getRTKQSubscriptions,
   middlewareRegistered,
