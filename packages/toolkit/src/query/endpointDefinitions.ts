@@ -90,10 +90,7 @@ export interface LifecycleApi<ReducerPath extends string = string> {
   requestId: string
 }
 
-export interface CacheLifecyclePromises<
-  ResultType = unknown,
-  MetaType = unknown,
-> {
+type CacheLifecyclePromises<ResultType = unknown, MetaType = unknown> = {
   /**
    * Promise that will resolve with the first value for this cache key.
    * This allows you to `await` until an actual value is in cache.
