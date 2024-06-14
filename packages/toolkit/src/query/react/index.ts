@@ -3,22 +3,10 @@
 // import { formatProdErrorMessage } from '@reduxjs/toolkit'
 // export { formatProdErrorMessage }
 
-// import type { CreateApi } from '../createApi'
-import type {
-  Api,
-  ApiModules,
-  CoreModule,
-  CreateApi,
-} from '@reduxjs/toolkit/query'
-import {
-  buildCreateApi,
-  coreModule,
-  coreModuleName,
-} from '@reduxjs/toolkit/query'
-import { reactHooksModule, reactHooksModuleName } from './module'
-// import { coreModuleName } from "../core/module"
+import { buildCreateApi, coreModule } from '@reduxjs/toolkit/query'
+import { reactHooksModule } from './module'
+export { reactHooksModuleName } from './module'
 
-// export type * from '@reduxjs/toolkit/query'
 export * from '@reduxjs/toolkit/query'
 export { ApiProvider } from './ApiProvider'
 
@@ -27,6 +15,12 @@ const createApi = /* @__PURE__ */ buildCreateApi(
   reactHooksModule(),
 )
 
+export type {
+  Api,
+  ApiModules,
+  CoreModule,
+  CreateApi,
+} from '@reduxjs/toolkit/query'
 export type {
   QueryHooks,
   TypedLazyQueryTrigger,
@@ -44,7 +38,6 @@ export type {
   UseLazyQuery,
   UseQuery,
 } from './buildHooks'
-// export { createApi, reactHooksModule, reactHooksModuleName }
-export { coreModuleName, createApi, reactHooksModule, reactHooksModuleName }
-export type { Api, ApiModules, CoreModule, CreateApi }
-// export type { CreateApi } from '@reduxjs/toolkit/query'
+export { UNINITIALIZED_VALUE } from './constants'
+export { createApi, reactHooksModule }
+// export { coreModuleName, createApi, reactHooksModule, reactHooksModuleName }
