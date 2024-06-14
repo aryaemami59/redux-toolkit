@@ -361,18 +361,13 @@ export interface QueryLifecycleApi<
 > extends QueryBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
     QueryLifecyclePromises<ResultType, BaseQuery> {}
 
-export interface MutationLifecycleApi<
+type MutationLifecycleApi<
   QueryArg,
   BaseQuery extends BaseQueryFn,
   ResultType,
   ReducerPath extends string = string,
-> extends MutationBaseLifecycleApi<
-      QueryArg,
-      BaseQuery,
-      ResultType,
-      ReducerPath
-    >,
-    QueryLifecyclePromises<ResultType, BaseQuery> {}
+> = MutationBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath> &
+  QueryLifecyclePromises<ResultType, BaseQuery>
 
 const resultType = /* @__PURE__ */ Symbol()
 const baseQuery = /* @__PURE__ */ Symbol()
