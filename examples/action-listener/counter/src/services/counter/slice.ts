@@ -1,6 +1,6 @@
 import {
-  createSlice,
   createEntityAdapter,
+  createSlice,
   nanoid,
   PayloadAction,
 } from '@reduxjs/toolkit'
@@ -11,7 +11,26 @@ export interface Counter {
   intervalMs?: number
 }
 
-const counterEntity = createEntityAdapter<Counter>()
+export const counterEntity = createEntityAdapter<Counter>()
+
+export const {
+  addMany,
+  addOne,
+  getInitialState,
+  getSelectors,
+  removeAll,
+  removeMany,
+  removeOne,
+  selectId,
+  setAll,
+  setMany,
+  setOne,
+  sortComparer,
+  updateMany,
+  updateOne,
+  upsertMany,
+  upsertOne,
+} = counterEntity
 
 export const counterSlice = createSlice({
   name: 'counter',

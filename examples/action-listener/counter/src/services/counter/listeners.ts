@@ -1,14 +1,13 @@
-import { counterActions, counterSelectors } from './slice'
-import {
-  UnknownAction,
-  isAllOf,
-  isAnyOf,
+import type {
   PayloadAction,
+  UnknownAction,
   Unsubscribe,
 } from '@reduxjs/toolkit'
+import { isAllOf, isAnyOf } from '@reduxjs/toolkit'
 import type { AppListenerEffectAPI, AppStartListening } from '../../store'
+import { counterActions, counterSelectors } from './slice'
 
-function shouldStopAsyncTasksOf(id: string) {
+export function shouldStopAsyncTasksOf(id: string) {
   return isAllOf(
     isAnyOf(counterActions.cancelAsyncUpdates, counterActions.removeCounter),
     (action: UnknownAction): action is PayloadAction<string> =>

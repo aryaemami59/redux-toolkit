@@ -10,7 +10,7 @@ import {
 import { counterSlice } from './services/counter/slice'
 import { themeSlice } from './services/theme/slice'
 
-const listenerMiddlewareInstance = createListenerMiddleware({
+export const listenerMiddlewareInstance = createListenerMiddleware({
   onError: () => console.error,
 })
 
