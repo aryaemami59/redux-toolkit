@@ -53,12 +53,12 @@ export interface QueryBaseLifecycleApi<
   updateCachedData(updateRecipe: Recipe<ResultType>): PatchCollection
 }
 
-export interface MutationBaseLifecycleApi<
+type MutationBaseLifecycleApi<
   QueryArg,
   BaseQuery extends BaseQueryFn,
   ResultType,
   ReducerPath extends string = string,
-> extends LifecycleApi<ReducerPath> {
+> = LifecycleApi<ReducerPath> & {
   /**
    * Gets the current value of this cache entry.
    */
