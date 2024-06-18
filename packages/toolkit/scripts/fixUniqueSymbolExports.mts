@@ -12,7 +12,7 @@ const typeDefinitionEntryFiles = entryPointDirectories.map((filePath) =>
   path.resolve(__dirname, '..', 'dist', filePath, 'index.d.ts'),
 )
 
-const filePathsToContentMap = new Map(
+const filePathsToContentMap = new Map<string, string>(
   await Promise.all(
     typeDefinitionEntryFiles.map(
       async (filePath) =>
@@ -21,10 +21,12 @@ const filePathsToContentMap = new Map(
   ),
 )
 
-const exportedUniqueSymbols = new Set()
+const exportedUniqueSymbols = new Set<string>()
 
 const main = async () => {
   filePathsToContentMap.forEach(async (content, filePath) => {
+    console.log(`Fixing \`unique symbol\` exports in ${filePath}`)
+
     const lines = content.split('\n')
 
     const allUniqueSymbols = lines
@@ -32,6 +34,8 @@ const main = async () => {
       .map((line) => line.match(/declare const (\w+)\: unique symbol;/)?.[1])
 
     if (allUniqueSymbols.length === 0) {
+      console.log(`${filePath} does not have any unique symbols.`)
+
       return
     }
 
@@ -47,12 +51,18 @@ const main = async () => {
     })
 
     if (exportedUniqueSymbols.size === 0) {
+      console.log(
+        `${filePath} has unique symbols but none of them are exported.`,
+      )
+
       return
     }
 
     let newContent = `${lines.slice(0, -2).join('\n')}\nexport { ${allNamedExports?.filter((namedExport) => !exportedUniqueSymbols.has(namedExport)).join(', ')} };\n`
 
     exportedUniqueSymbols.forEach((uniqueSymbol) => {
+      console.log(`Exporting \`${uniqueSymbol}\` from ${filePath}`)
+
       newContent = newContent.replace(
         `declare const ${uniqueSymbol}`,
         `export declare const ${uniqueSymbol}`,
