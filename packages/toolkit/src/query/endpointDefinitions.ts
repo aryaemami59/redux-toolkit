@@ -10,7 +10,14 @@ import type {
   QueryReturnValue,
 } from './baseQueryTypes'
 import type { QuerySubState, RootState } from './core/apiState'
+import type {
+  CacheLifecyclePromises,
+  LifecycleApi,
+  QueryBaseLifecycleApi,
+  QueryCacheLifecycleApi,
+} from './core/buildMiddleware/cacheLifecycle'
 import type { PromiseWithKnownReason } from './core/buildMiddleware/types'
+import type { MutationResultSelectorResult } from './core/buildSelectors'
 import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import type { NEVER } from './fakeBaseQuery'
 import type {
@@ -21,13 +28,6 @@ import type {
   OmitFromUnion,
   UnwrapPromise,
 } from './tsHelpers'
-// import { MutationBaseLifecycleApi, QueryBaseLifecycleApi } from "./core/buildMiddleware/cacheLifecycle"
-import type {
-  LifecycleApi,
-  neverResolvedError,
-  QueryBaseLifecycleApi,
-} from './core/buildMiddleware/cacheLifecycle'
-import type { MutationResultSelectorResult } from './core/buildSelectors'
 
 type MutationBaseLifecycleApi<
   QueryArg,
@@ -46,49 +46,6 @@ type MutationBaseLifecycleApi<
     >
   >
 }
-
-type CacheLifecyclePromises<ResultType = unknown, MetaType = unknown> = {
-  /**
-   * Promise that will resolve with the first value for this cache key.
-   * This allows you to `await` until an actual value is in cache.
-   *
-   * If the cache entry is removed from the cache before any value has ever
-   * been resolved, this Promise will reject with
-   * `new Error('Promise never resolved before cacheEntryRemoved.')`
-   * to prevent memory leaks.
-   * You can just re-throw that error (or not handle it at all) -
-   * it will be caught outside of `cacheEntryAdded`.
-   *
-   * If you don't interact with this promise, it will not throw.
-   */
-  cacheDataLoaded: PromiseWithKnownReason<
-    {
-      /**
-       * The (transformed) query result.
-       */
-      data: ResultType
-      /**
-       * The `meta` returned by the `baseQuery`
-       */
-      meta: MetaType
-    },
-    typeof neverResolvedError
-  >
-  /**
-   * Promise that allows you to wait for the point in time when the cache entry
-   * has been removed from the cache, by not being used/subscribed to any more
-   * in the application for too long or by dispatching `api.util.resetApiState`.
-   */
-  cacheEntryRemoved: Promise<void>
-}
-
-export interface QueryCacheLifecycleApi<
-  QueryArg,
-  BaseQuery extends BaseQueryFn,
-  ResultType,
-  ReducerPath extends string = string,
-> extends QueryBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
-    CacheLifecyclePromises<ResultType, BaseQueryMeta<BaseQuery>> {}
 
 type MutationCacheLifecycleApi<
   QueryArg,

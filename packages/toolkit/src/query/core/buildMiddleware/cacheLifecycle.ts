@@ -1,5 +1,5 @@
 import type { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit'
-import type { BaseQueryFn } from '../../baseQueryTypes'
+import type { BaseQueryFn, BaseQueryMeta } from '../../baseQueryTypes'
 import {
   BaseEndpointDefinition,
   DefinitionType,
@@ -57,6 +57,49 @@ export interface QueryBaseLifecycleApi<
    */
   updateCachedData(updateRecipe: Recipe<ResultType>): PatchCollection
 }
+
+export type CacheLifecyclePromises<ResultType = unknown, MetaType = unknown> = {
+  /**
+   * Promise that will resolve with the first value for this cache key.
+   * This allows you to `await` until an actual value is in cache.
+   *
+   * If the cache entry is removed from the cache before any value has ever
+   * been resolved, this Promise will reject with
+   * `new Error('Promise never resolved before cacheEntryRemoved.')`
+   * to prevent memory leaks.
+   * You can just re-throw that error (or not handle it at all) -
+   * it will be caught outside of `cacheEntryAdded`.
+   *
+   * If you don't interact with this promise, it will not throw.
+   */
+  cacheDataLoaded: PromiseWithKnownReason<
+    {
+      /**
+       * The (transformed) query result.
+       */
+      data: ResultType
+      /**
+       * The `meta` returned by the `baseQuery`
+       */
+      meta: MetaType
+    },
+    typeof neverResolvedError
+  >
+  /**
+   * Promise that allows you to wait for the point in time when the cache entry
+   * has been removed from the cache, by not being used/subscribed to any more
+   * in the application for too long or by dispatching `api.util.resetApiState`.
+   */
+  cacheEntryRemoved: Promise<void>
+}
+
+export interface QueryCacheLifecycleApi<
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
+  ResultType,
+  ReducerPath extends string = string,
+> extends QueryBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
+    CacheLifecyclePromises<ResultType, BaseQueryMeta<BaseQuery>> {}
 
 export type ReferenceCacheLifecycle = never
 
