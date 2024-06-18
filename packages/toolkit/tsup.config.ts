@@ -187,6 +187,7 @@ export default defineConfig((options) => {
         const generateTypedefs = name === 'modern' && format === 'esm'
 
         return {
+          name: `${prefix}-${name}`,
           entry: {
             [outputFilename]: entryPoint,
           },
@@ -250,7 +251,7 @@ export default defineConfig((options) => {
     .flat()
     .concat([
       {
-        name: 'Redux-Toolkit',
+        name: 'Redux-Toolkit-Type-Definitions',
         format: ['cjs'],
         tsconfig,
         entry: { index: './src/index.ts' },
@@ -260,7 +261,7 @@ export default defineConfig((options) => {
         },
       },
       {
-        name: 'RTK-React',
+        name: 'RTK-React-Type-Definitions',
         format: ['cjs'],
         tsconfig,
         entry: { 'react/index': './src/react/index.ts' },
@@ -270,7 +271,7 @@ export default defineConfig((options) => {
         },
       },
       {
-        name: 'RTK-Query',
+        name: 'RTK-Query-Type-Definitions',
         format: ['cjs'],
         tsconfig,
         entry: { 'query/index': './src/query/index.ts' },
@@ -284,7 +285,7 @@ export default defineConfig((options) => {
         },
       },
       {
-        name: 'RTK-Query-React',
+        name: 'RTK-Query-React-Type-Definitions',
         format: ['cjs'],
         tsconfig,
         entry: { 'query/react/index': './src/query/react/index.ts' },
