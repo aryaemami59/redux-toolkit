@@ -5,7 +5,10 @@ import {
   DefinitionType,
 } from '../../endpointDefinitions'
 import type { RootState } from '../apiState'
-import { QueryResultSelectorResult } from '../buildSelectors'
+import {
+  MutationResultSelectorResult,
+  QueryResultSelectorResult,
+} from '../buildSelectors'
 import { getMutationCacheKey } from '../buildSlice'
 import type { PatchCollection, Recipe } from '../buildThunks'
 import { isAsyncThunkAction, isFulfilled } from '../rtkImports'
@@ -100,6 +103,32 @@ export interface QueryCacheLifecycleApi<
   ReducerPath extends string = string,
 > extends QueryBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
     CacheLifecyclePromises<ResultType, BaseQueryMeta<BaseQuery>> {}
+
+export type MutationBaseLifecycleApi<
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
+  ResultType,
+  ReducerPath extends string = string,
+> = LifecycleApi<ReducerPath> & {
+  /**
+   * Gets the current value of this cache entry.
+   */
+  getCacheEntry(): MutationResultSelectorResult<
+    { type: DefinitionType.mutation } & BaseEndpointDefinition<
+      QueryArg,
+      BaseQuery,
+      ResultType
+    >
+  >
+}
+
+export type MutationCacheLifecycleApi<
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
+  ResultType,
+  ReducerPath extends string = string,
+> = MutationBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath> &
+  CacheLifecyclePromises<ResultType, BaseQueryMeta<BaseQuery>>
 
 export type ReferenceCacheLifecycle = never
 

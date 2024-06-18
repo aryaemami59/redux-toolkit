@@ -11,13 +11,12 @@ import type {
 } from './baseQueryTypes'
 import type { QuerySubState, RootState } from './core/apiState'
 import type {
-  CacheLifecyclePromises,
-  LifecycleApi,
+  MutationBaseLifecycleApi,
+  MutationCacheLifecycleApi,
   QueryBaseLifecycleApi,
   QueryCacheLifecycleApi,
 } from './core/buildMiddleware/cacheLifecycle'
 import type { PromiseWithKnownReason } from './core/buildMiddleware/types'
-import type { MutationResultSelectorResult } from './core/buildSelectors'
 import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import type { NEVER } from './fakeBaseQuery'
 import type {
@@ -28,32 +27,6 @@ import type {
   OmitFromUnion,
   UnwrapPromise,
 } from './tsHelpers'
-
-type MutationBaseLifecycleApi<
-  QueryArg,
-  BaseQuery extends BaseQueryFn,
-  ResultType,
-  ReducerPath extends string = string,
-> = LifecycleApi<ReducerPath> & {
-  /**
-   * Gets the current value of this cache entry.
-   */
-  getCacheEntry(): MutationResultSelectorResult<
-    { type: DefinitionType.mutation } & BaseEndpointDefinition<
-      QueryArg,
-      BaseQuery,
-      ResultType
-    >
-  >
-}
-
-type MutationCacheLifecycleApi<
-  QueryArg,
-  BaseQuery extends BaseQueryFn,
-  ResultType,
-  ReducerPath extends string = string,
-> = MutationBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath> &
-  CacheLifecyclePromises<ResultType, BaseQueryMeta<BaseQuery>>
 
 export interface QueryExtraOptions<
   TagTypes extends string,
@@ -100,7 +73,6 @@ export interface QueryExtraOptions<
    */
   keepUnusedDataFor?: number
 }
-//
 
 type QueryLifecyclePromises<ResultType, BaseQuery extends BaseQueryFn> = {
   /**
