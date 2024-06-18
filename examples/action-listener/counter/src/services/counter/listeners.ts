@@ -15,7 +15,7 @@ export function shouldStopAsyncTasksOf(id: string) {
   )
 }
 
-async function onUpdateByPeriodically(
+export async function onUpdateByPeriodically(
   {
     payload: { id, delta },
   }: ReturnType<typeof counterActions.updateByPeriodically>,
@@ -45,7 +45,7 @@ async function onUpdateByPeriodically(
   console.log(`stopped periodic update of ${counter.id}`)
 }
 
-async function onUpdateAsync(
+export async function onUpdateAsync(
   {
     payload: { id, delta, delayMs },
   }: ReturnType<typeof counterActions.updateByAsync>,
