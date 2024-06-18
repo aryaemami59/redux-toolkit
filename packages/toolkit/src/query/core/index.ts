@@ -16,6 +16,7 @@ export type {
   MutationActionCreatorResult,
   QueryActionCreatorResult,
 } from './buildInitiate'
+export type { SubscriptionSelectors } from './buildMiddleware'
 export { skipToken } from './buildSelectors'
 export type {
   MutationResultSelectorResult,

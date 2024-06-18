@@ -40,4 +40,3 @@ export type {
 } from './buildHooks'
 export { UNINITIALIZED_VALUE } from './constants'
 export { createApi, reactHooksModule }
-// export { coreModuleName, createApi, reactHooksModule, reactHooksModuleName }

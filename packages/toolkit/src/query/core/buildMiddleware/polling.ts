@@ -1,12 +1,11 @@
 import type { QuerySubstateIdentifier, Subscribers } from '../apiState'
 import { QueryStatus } from '../apiState'
 import type {
+  ApiMiddlewareInternalHandler,
+  InternalHandlerBuilder,
   QueryStateMeta,
   SubMiddlewareApi,
   TimeoutId,
-  InternalHandlerBuilder,
-  ApiMiddlewareInternalHandler,
-  InternalMiddlewareState,
 } from './types'
 
 export const buildPollingHandler: InternalHandlerBuilder = ({

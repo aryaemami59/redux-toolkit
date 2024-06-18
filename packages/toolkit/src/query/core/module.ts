@@ -2,6 +2,7 @@
  * Note: this file should import all other files for type discovery and declaration merging
  */
 import type { ThunkAction, UnknownAction } from '@reduxjs/toolkit'
+import { enablePatches } from 'immer'
 import type { Api, Module } from '../apiTypes'
 import type { QueryReturnValue } from '../baseQueryTypes'
 import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
@@ -23,6 +24,11 @@ import type {
   QueryActionCreatorResult,
 } from './buildInitiate'
 import { buildInitiate } from './buildInitiate'
+import type {
+  ReferenceCacheCollection,
+  ReferenceCacheLifecycle,
+  ReferenceQueryLifecycle,
+} from './buildMiddleware'
 import { buildMiddleware } from './buildMiddleware'
 import type {
   MutationResultSelectorResult,
@@ -34,13 +40,8 @@ import type { SliceActions } from './buildSlice'
 import { buildSlice } from './buildSlice'
 import type { Matchers, MutationThunk, QueryThunk } from './buildThunks'
 import { buildThunks } from './buildThunks'
-import { onFocus, onFocusLost, onOffline, onOnline } from './setupListeners'
-
-import { enablePatches } from 'immer'
-import type { ReferenceCacheCollection } from './buildMiddleware/cacheCollection'
-import type { ReferenceCacheLifecycle } from './buildMiddleware/cacheLifecycle'
-import type { ReferenceQueryLifecycle } from './buildMiddleware/queryLifecycle'
 import { createSelector as _createSelector } from './rtkImports'
+import { onFocus, onFocusLost, onOffline, onOnline } from './setupListeners'
 
 export interface ApiEndpointQuery<
   Definition extends QueryDefinition<any, any, any, any, any>,

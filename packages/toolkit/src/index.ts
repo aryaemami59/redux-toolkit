@@ -88,14 +88,14 @@ export type {
   ValidateSliceCaseReducers,
 } from './createSlice'
 export type { DevToolsEnhancerOptions } from './devtoolsExtension'
-export { createDynamicMiddleware } from './dynamicMiddleware/index'
+export { createDynamicMiddleware } from './dynamicMiddleware'
 export type {
   DynamicMiddlewareInstance,
   GetDispatch,
   GetState,
   MiddlewareApiConfig,
-} from './dynamicMiddleware/types'
-export { createEntityAdapter } from './entities/create_adapter'
+} from './dynamicMiddleware'
+export { createEntityAdapter } from './entities'
 export type {
   Comparer,
   EntityAdapter,
@@ -105,7 +105,7 @@ export type {
   EntityStateAdapter,
   IdSelector,
   Update,
-} from './entities/models'
+} from './entities'
 export {
   createImmutableStateInvariantMiddleware,
   isImmutableDefault,
@@ -117,8 +117,9 @@ export {
   createListenerMiddleware,
   removeListener,
   TaskAbortError,
-} from './listenerMiddleware/index'
+} from './listenerMiddleware'
 export type {
+  AnyListenerPredicate,
   AsyncTaskExecutor,
   CreateListenerMiddlewareOptions,
   ForkedTask,
@@ -140,8 +141,7 @@ export type {
   TypedStopListening,
   UnsubscribeListener,
   UnsubscribeListenerOptions,
-} from './listenerMiddleware/index'
-export type { AnyListenerPredicate } from './listenerMiddleware/types'
+} from './listenerMiddleware'
 export type { ActionReducerMapBuilder } from './mapBuilders'
 export {
   isAllOf,

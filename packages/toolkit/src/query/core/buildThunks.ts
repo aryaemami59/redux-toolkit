@@ -24,13 +24,17 @@ import type {
   ResultTypeFrom,
 } from '../endpointDefinitions'
 import { calculateProvidedBy, isQueryDefinition } from '../endpointDefinitions'
+import { HandledError } from '../HandledError'
+import type { UnwrapPromise } from '../tsHelpers'
 import type { QueryKeys, QuerySubstateIdentifier, RootState } from './apiState'
 import { QueryStatus } from './apiState'
-import {
-  forceQueryFnSymbol,
-  isUpsertQuery,
-  type QueryActionCreatorResult,
-} from './buildInitiate'
+import type { QueryActionCreatorResult } from './buildInitiate'
+import { forceQueryFnSymbol, isUpsertQuery } from './buildInitiate'
+import type {
+  ApiEndpointQuery,
+  PrefetchOptions,
+  StartQueryActionCreatorOptions,
+} from './module'
 import {
   createAsyncThunk,
   isAllOf,
@@ -40,15 +44,6 @@ import {
   isRejectedWithValue,
   SHOULD_AUTOBATCH,
 } from './rtkImports'
-
-import { HandledError } from '../HandledError'
-
-import type { UnwrapPromise } from '../tsHelpers'
-import type {
-  ApiEndpointQuery,
-  PrefetchOptions,
-  StartQueryActionCreatorOptions,
-} from './module'
 
 // declare module '@reduxjs/toolkit/query' {
 //   export interface ApiEndpointQuery<

@@ -1,5 +1,6 @@
+import { createNextState, isDraft } from '@reduxjs/toolkit'
 import type { Draft } from 'immer'
-import { produce as createNextState, isDraft, isDraftable } from 'immer'
+import { isDraftable } from 'immer'
 import type { Action, Reducer, UnknownAction } from 'redux'
 import type { ActionReducerMapBuilder } from './mapBuilders'
 import { executeReducerBuilderCallback } from './mapBuilders'

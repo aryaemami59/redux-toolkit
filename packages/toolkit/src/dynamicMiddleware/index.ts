@@ -1,19 +1,21 @@
-import type {
-  Middleware,
-  Dispatch,
-  UnknownAction,
-} from 'redux'
+import type { Dispatch, Middleware, UnknownAction } from 'redux'
 import { compose } from 'redux'
 import { createAction } from '../createAction'
 import { isAllOf } from '../matchers'
 import { nanoid } from '../nanoid'
 import { emplace, find } from '../utils'
 import type {
-  WithMiddleware,
   AddMiddleware,
-  MiddlewareEntry,
   DynamicMiddleware,
   DynamicMiddlewareInstance,
+  MiddlewareEntry,
+  WithMiddleware,
+} from './types'
+export type {
+  DynamicMiddlewareInstance,
+  GetDispatch,
+  GetState,
+  MiddlewareApiConfig,
 } from './types'
 
 const createMiddlewareEntry = <
@@ -53,7 +55,9 @@ export const createDynamicMiddleware = <
   ) as WithMiddleware<State, DispatchType>
 
   const addMiddleware = Object.assign(
-    function addMiddleware(...middlewares: Middleware<any, State, DispatchType>[]) {
+    function addMiddleware(
+      ...middlewares: Middleware<any, State, DispatchType>[]
+    ) {
       middlewares.forEach((middleware) => {
         let entry = find(
           Array.from(middlewareMap.values()),

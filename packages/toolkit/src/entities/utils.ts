@@ -1,9 +1,9 @@
-import { current, isDraft } from 'immer'
+import { current, isDraft } from '@reduxjs/toolkit'
 import type {
+  DraftableEntityState,
+  EntityId,
   IdSelector,
   Update,
-  EntityId,
-  DraftableEntityState,
 } from './models'
 
 export function selectIdValue<T, Id extends EntityId>(

@@ -1,9 +1,8 @@
 import type { UnknownAction } from '@reduxjs/toolkit'
-import { weakMapMemoize } from 'reselect'
 import type { Api, ApiContext, Module, ModuleName } from './apiTypes'
 import type { BaseQueryArg, BaseQueryFn } from './baseQueryTypes'
 import type { CombinedState } from './core'
-import { nanoid } from './core/rtkImports'
+import { nanoid, weakMapMemoize } from './core/rtkImports'
 import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import { defaultSerializeQueryArgs } from './defaultSerializeQueryArgs'
 import type {
