@@ -1,13 +1,16 @@
-import type { PayloadAction } from '@reduxjs/toolkit'
+import type {
+  EntityAdapter,
+  EntityState,
+  PayloadAction,
+} from '@reduxjs/toolkit'
 import {
   configureStore,
   createAction,
+  createEntityAdapter,
+  createNextState,
   createSlice,
   nanoid,
 } from '@reduxjs/toolkit'
-import { createNextState } from '../..'
-import { createEntityAdapter } from '../create_adapter'
-import type { EntityAdapter, EntityState } from '../models'
 import type { BookModel } from './fixtures/book'
 import {
   AClockworkOrange,

@@ -1,9 +1,11 @@
-import type { Middleware } from 'redux'
-import { createDynamicMiddleware } from '../index'
-import { configureStore } from '../../configureStore'
-import type { BaseActionCreator, PayloadAction } from '../../createAction'
-import { createAction } from '../../createAction'
-import { isAllOf } from '../../matchers'
+import type { Middleware, PayloadAction } from '@reduxjs/toolkit'
+import {
+  configureStore,
+  createAction,
+  createDynamicMiddleware,
+  isAllOf,
+} from '@reduxjs/toolkit'
+import type { BaseActionCreator } from '../../createAction'
 
 const probeType = 'probeableMW/probe'
 

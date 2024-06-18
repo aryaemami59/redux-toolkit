@@ -1,4 +1,3 @@
-import { vi } from 'vitest'
 import { AClockworkOrange } from './fixtures/book'
 
 describe('Entity utils', () => {
