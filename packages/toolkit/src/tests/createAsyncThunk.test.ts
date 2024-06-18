@@ -1,19 +1,17 @@
+import { delay } from '@internal/utils'
 import type { UnknownAction } from '@reduxjs/toolkit'
 import {
   configureStore,
   createAsyncThunk,
   createReducer,
-  unwrapResult,
   miniSerializeError,
+  unwrapResult,
 } from '@reduxjs/toolkit'
-import { vi } from 'vitest'
-
 import {
   createConsole,
   getLog,
   mockConsole,
 } from 'console-testing-library/pure'
-import { delay } from '@internal/utils'
 
 declare global {
   interface Window {

@@ -1,3 +1,4 @@
+import type { TSVersion } from '@phryneas/ts-version'
 import type {
   AsyncThunk,
   SerializedError,
@@ -11,8 +12,6 @@ import {
   createSlice,
   unwrapResult,
 } from '@reduxjs/toolkit'
-
-import type { TSVersion } from '@phryneas/ts-version'
 import type { AxiosError } from 'axios'
 import apiRequest from 'axios'
 

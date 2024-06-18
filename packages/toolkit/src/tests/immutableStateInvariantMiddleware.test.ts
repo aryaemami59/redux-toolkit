@@ -1,19 +1,18 @@
+import { trackForMutations } from '@internal/immutableStateInvariantMiddleware'
 import type {
-  Store,
-  MiddlewareAPI,
   ImmutableStateInvariantMiddlewareOptions,
   Middleware,
+  MiddlewareAPI,
+  Store,
 } from '@reduxjs/toolkit'
 import {
   createImmutableStateInvariantMiddleware,
   isImmutableDefault,
 } from '@reduxjs/toolkit'
-
-import { trackForMutations } from '@internal/immutableStateInvariantMiddleware'
 import {
-  mockConsole,
   createConsole,
   getLog,
+  mockConsole,
 } from 'console-testing-library/pure'
 
 type MWNext = Parameters<ReturnType<Middleware>>[0]

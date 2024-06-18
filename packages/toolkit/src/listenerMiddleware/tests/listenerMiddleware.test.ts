@@ -1,4 +1,21 @@
 import {
+  listenerCancelled,
+  listenerCompleted,
+} from '@internal/listenerMiddleware/exceptions'
+import type {
+  AbortSignalWithReason,
+  AddListenerOverloads,
+} from '@internal/listenerMiddleware/types'
+import type {
+  Action,
+  ListenerEffect,
+  ListenerEffectAPI,
+  PayloadAction,
+  TypedRemoveListener,
+  TypedStartListening,
+  UnknownAction,
+} from '@reduxjs/toolkit'
+import {
   TaskAbortError,
   addListener,
   clearAllListeners,
@@ -10,28 +27,6 @@ import {
   removeListener,
 } from '@reduxjs/toolkit'
 import type { Mock } from 'vitest'
-import { vi } from 'vitest'
-
-import type {
-  Action,
-  ListenerEffect,
-  ListenerEffectAPI,
-  PayloadAction,
-  TypedAddListener,
-  TypedRemoveListener,
-  TypedStartListening,
-  UnknownAction,
-} from '@reduxjs/toolkit'
-
-import {
-  listenerCancelled,
-  listenerCompleted,
-} from '@internal/listenerMiddleware/exceptions'
-
-import type {
-  AbortSignalWithReason,
-  AddListenerOverloads,
-} from '@internal/listenerMiddleware/types'
 
 const middlewareApi = {
   getState: expect.any(Function),

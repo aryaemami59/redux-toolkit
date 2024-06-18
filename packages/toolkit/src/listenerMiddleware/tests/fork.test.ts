@@ -1,19 +1,22 @@
-import type { EnhancedStore } from '@reduxjs/toolkit'
-import { configureStore, createSlice, createAction } from '@reduxjs/toolkit'
-
-import type { PayloadAction } from '@reduxjs/toolkit'
 import type {
-  AbortSignalWithReason,
   ForkedTaskExecutor,
+  PayloadAction,
   TaskResult,
-} from '../types'
-import { createListenerMiddleware, TaskAbortError } from '../index'
+} from '@reduxjs/toolkit'
+import {
+  configureStore,
+  createAction,
+  createListenerMiddleware,
+  createSlice,
+  TaskAbortError,
+} from '@reduxjs/toolkit'
 import {
   listenerCancelled,
   listenerCompleted,
   taskCancelled,
   taskCompleted,
 } from '../exceptions'
+import type { AbortSignalWithReason } from '../types'
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))

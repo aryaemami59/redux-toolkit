@@ -1,16 +1,12 @@
+import type { PayloadAction } from '@reduxjs/toolkit'
 import {
   configureStore,
   createAction,
+  createListenerMiddleware,
   createSlice,
   isAnyOf,
+  TaskAbortError,
 } from '@reduxjs/toolkit'
-import { vi } from 'vitest'
-
-import type { PayloadAction } from '@reduxjs/toolkit'
-
-import { createListenerMiddleware, TaskAbortError } from '../index'
-
-import type { TypedAddListener } from '../index'
 
 describe('Saga-style Effects Scenarios', () => {
   interface CounterState {

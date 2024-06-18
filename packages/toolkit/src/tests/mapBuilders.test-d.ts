@@ -1,8 +1,6 @@
-import type { SerializedError } from '@internal/createAsyncThunk'
-import { createAsyncThunk } from '@internal/createAsyncThunk'
 import { executeReducerBuilderCallback } from '@internal/mapBuilders'
-import type { UnknownAction } from '@reduxjs/toolkit'
-import { createAction } from '@reduxjs/toolkit'
+import type { SerializedError, UnknownAction } from '@reduxjs/toolkit'
+import { createAction, createAsyncThunk } from '@reduxjs/toolkit'
 
 describe('type tests', () => {
   test('builder callback for actionMap', () => {

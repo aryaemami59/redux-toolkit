@@ -2,7 +2,6 @@ import * as DevTools from '@internal/devtoolsExtension'
 import type { StoreEnhancer } from '@reduxjs/toolkit'
 import { Tuple } from '@reduxjs/toolkit'
 import type * as Redux from 'redux'
-import { vi } from 'vitest'
 
 vi.doMock('redux', async (importOriginal) => {
   const redux = await importOriginal<typeof import('redux')>()

@@ -1,8 +1,8 @@
 import { configureStore, isAllOf } from '@reduxjs/toolkit'
+import type { BaseQueryApi } from '@reduxjs/toolkit/query'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { renderHook, waitFor } from '@testing-library/react'
 import { actionsReducer, withProvider } from '../../tests/utils/helpers'
-import type { BaseQueryApi } from '../baseQueryTypes'
 
 test('handles a non-async baseQuery without error', async () => {
   const baseQuery = (args?: any) => ({ data: args })

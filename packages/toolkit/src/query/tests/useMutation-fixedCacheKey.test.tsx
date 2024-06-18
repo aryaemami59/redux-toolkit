@@ -7,7 +7,6 @@ import {
   waitFor,
 } from '@testing-library/react'
 import { delay } from 'msw'
-import { vi } from 'vitest'
 import { setupApiStore } from '../../tests/utils/helpers'
 
 describe('fixedCacheKey', () => {

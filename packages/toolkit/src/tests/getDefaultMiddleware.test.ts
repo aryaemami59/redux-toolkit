@@ -1,15 +1,12 @@
-import { Tuple } from '@internal/utils'
+import { buildGetDefaultMiddleware } from '@internal/getDefaultMiddleware'
 import type {
   Action,
   Middleware,
   ThunkAction,
   UnknownAction,
 } from '@reduxjs/toolkit'
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore, Tuple } from '@reduxjs/toolkit'
 import { thunk } from 'redux-thunk'
-import { vi } from 'vitest'
-
-import { buildGetDefaultMiddleware } from '@internal/getDefaultMiddleware'
 
 const getDefaultMiddleware = buildGetDefaultMiddleware()
 

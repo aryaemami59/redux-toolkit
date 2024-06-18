@@ -14,7 +14,6 @@ import {
   createSlice,
   removeListener,
 } from '@reduxjs/toolkit'
-import { describe, expectTypeOf, test } from 'vitest'
 
 export interface CounterState {
   counter: number

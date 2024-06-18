@@ -1,4 +1,3 @@
-import { vi } from 'vitest'
 import type { BaseQueryFn, FetchBaseQueryError } from '@reduxjs/toolkit/query'
 import { createApi, retry } from '@reduxjs/toolkit/query'
 import { setupApiStore } from '../../tests/utils/helpers'

@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query'
 import {
-  mockConsole,
   createConsole,
   getLog,
+  mockConsole,
 } from 'console-testing-library/pure'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query'
 
 let restore: () => void = () => {}
 let nodeEnv: string

@@ -1,18 +1,17 @@
-import { vi } from 'vitest'
 import type {
   CaseReducer,
-  PayloadAction,
   Draft,
+  PayloadAction,
   Reducer,
   UnknownAction,
 } from '@reduxjs/toolkit'
-import { isPlainObject } from '@reduxjs/toolkit'
-import { createReducer, createAction, createNextState } from '@reduxjs/toolkit'
 import {
-  mockConsole,
-  createConsole,
-  getLog,
-} from 'console-testing-library/pure'
+  createAction,
+  createNextState,
+  createReducer,
+  isPlainObject,
+} from '@reduxjs/toolkit'
+import { createConsole, mockConsole } from 'console-testing-library/pure'
 
 interface Todo {
   text: string

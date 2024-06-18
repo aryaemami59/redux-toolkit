@@ -1,12 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
+import type { BaseQueryApi } from '@reduxjs/toolkit/query'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query'
 import { headersToObject } from 'headers-polyfill'
 import { HttpResponse, delay, http } from 'msw'
 import nodeFetch from 'node-fetch'
 import queryString from 'query-string'
-import { vi } from 'vitest'
 import { setupApiStore } from '../../tests/utils/helpers'
-import type { BaseQueryApi } from '../baseQueryTypes'
 import { server } from './mocks/server'
 
 const defaultHeaders: Record<string, string> = {
