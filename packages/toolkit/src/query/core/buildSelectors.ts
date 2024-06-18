@@ -19,7 +19,6 @@ import type {
 } from './apiState'
 import { QueryStatus, getRequestStatusFlags } from './apiState'
 import { getMutationCacheKey } from './buildSlice'
-import type { MutationResultSelectorFactory } from './module'
 import type { createSelector as _createSelector } from './rtkImports'
 import { createNextState } from './rtkImports'
 
@@ -54,6 +53,16 @@ export type QueryResultSelectorFactory<
 > = (
   queryArg: QueryArgFrom<Definition> | SkipToken,
 ) => (state: RootState) => QueryResultSelectorResult<Definition>
+
+export type MutationResultSelectorFactory<
+  Definition extends MutationDefinition<any, any, any, any>,
+  RootState,
+> = (
+  requestId:
+    | string
+    | { requestId: string | undefined; fixedCacheKey: string | undefined }
+    | SkipToken,
+) => (state: RootState) => MutationResultSelectorResult<Definition>
 
 export type QueryResultSelectorResult<
   Definition extends QueryDefinition<any, any, any, any>,

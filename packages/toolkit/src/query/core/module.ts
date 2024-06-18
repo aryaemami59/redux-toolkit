@@ -28,9 +28,8 @@ import type {
 } from './buildMiddleware'
 import { buildMiddleware } from './buildMiddleware'
 import type {
-  MutationResultSelectorResult,
+  MutationResultSelectorFactory,
   QueryResultSelectorFactory,
-  SkipToken,
 } from './buildSelectors'
 import { buildSelectors } from './buildSelectors'
 import type { SliceActions } from './buildSlice'
@@ -81,16 +80,6 @@ export interface ApiEndpointQuery<
     >
   >
 }
-
-export type MutationResultSelectorFactory<
-  Definition extends MutationDefinition<any, any, any, any>,
-  RootState,
-> = (
-  requestId:
-    | string
-    | { requestId: string | undefined; fixedCacheKey: string | undefined }
-    | SkipToken,
-) => (state: RootState) => MutationResultSelectorResult<Definition>
 
 export interface ApiEndpointMutation<
   Definition extends MutationDefinition<any, any, any, any, any>,
