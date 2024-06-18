@@ -1,6 +1,6 @@
-import { http, delay, HttpResponse } from 'msw'
 import { createEntityAdapter, nanoid } from '@reduxjs/toolkit'
-import { Post } from '../app/services/posts'
+import { delay, http, HttpResponse } from 'msw'
+import type { Post } from '../app/services/posts'
 
 // We're just going to use a simple in-memory store for both the counter and posts
 // The entity adapter will handle modifications when triggered by the MSW handlers

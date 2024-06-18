@@ -17,7 +17,8 @@ import {
   StatNumber,
 } from '@chakra-ui/react'
 import { MdArrowBack, MdArrowForward, MdBook } from 'react-icons/md'
-import { Post, usePrefetch, useListPostsQuery } from '../../app/services/posts'
+import type { Post } from '../../app/services/posts'
+import { usePrefetch, useListPostsQuery } from '../../app/services/posts'
 
 const getColorForStatus = (status: Post['status']) => {
   return status === 'draft'

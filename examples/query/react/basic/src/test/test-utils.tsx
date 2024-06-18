@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react'
 import type { RenderOptions } from '@testing-library/react'
-import type React from 'react'
+import React from 'react'
 import type { PropsWithChildren, JSX } from 'react'
 import { Provider } from 'react-redux'
 import { setupStore } from '../store'

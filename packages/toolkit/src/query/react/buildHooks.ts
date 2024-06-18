@@ -27,14 +27,11 @@ import type {
   SerializeQueryArgs,
   SkipToken,
   SubscriptionOptions,
-} from '@reduxjs/toolkit/query'
-import {
-  QueryStatus,
-  skipToken,
   TSHelpersId,
   TSHelpersNoInfer,
   TSHelpersOverride,
 } from '@reduxjs/toolkit/query'
+import { QueryStatus, skipToken } from '@reduxjs/toolkit/query'
 import type { DependencyList } from 'react'
 import {
   useCallback,

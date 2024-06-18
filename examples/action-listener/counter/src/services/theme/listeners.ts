@@ -1,4 +1,4 @@
-import { Unsubscribe } from '@reduxjs/toolkit'
+import type { Unsubscribe } from '@reduxjs/toolkit'
 import type { AppStartListening } from '../../store'
 import { themeActions } from './slice'
 

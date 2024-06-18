@@ -1,9 +1,5 @@
-import {
-  createEntityAdapter,
-  createSlice,
-  nanoid,
-  PayloadAction,
-} from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import { createEntityAdapter, createSlice, nanoid } from '@reduxjs/toolkit'
 
 export interface Counter {
   value: number

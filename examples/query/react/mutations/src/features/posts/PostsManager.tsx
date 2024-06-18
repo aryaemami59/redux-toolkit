@@ -20,11 +20,8 @@ import {
 import { MdBook } from 'react-icons/md'
 import React, { useState } from 'react'
 import { Route, Routes, useNavigate } from 'react-router-dom'
-import {
-  Post,
-  useAddPostMutation,
-  useGetPostsQuery,
-} from '../../app/services/posts'
+import type { Post } from '../../app/services/posts'
+import { useAddPostMutation, useGetPostsQuery } from '../../app/services/posts'
 import { PostDetail } from './PostDetail'
 
 const AddPost = () => {
