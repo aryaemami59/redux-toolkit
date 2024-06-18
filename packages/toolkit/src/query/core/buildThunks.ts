@@ -28,12 +28,12 @@ import { HandledError } from '../HandledError'
 import type { UnwrapPromise } from '../tsHelpers'
 import type { QueryKeys, QuerySubstateIdentifier, RootState } from './apiState'
 import { QueryStatus } from './apiState'
-import type { QueryActionCreatorResult, StartQueryActionCreatorOptions } from './buildInitiate'
-import { forceQueryFnSymbol, isUpsertQuery } from './buildInitiate'
 import type {
-  ApiEndpointQuery,
-  PrefetchOptions,
-} from './module'
+  QueryActionCreatorResult,
+  StartQueryActionCreatorOptions,
+} from './buildInitiate'
+import { forceQueryFnSymbol, isUpsertQuery } from './buildInitiate'
+import type { ApiEndpointQuery, PrefetchOptions } from './module'
 import {
   createAsyncThunk,
   isAllOf,
@@ -43,20 +43,6 @@ import {
   isRejectedWithValue,
   SHOULD_AUTOBATCH,
 } from './rtkImports'
-
-// declare module '@reduxjs/toolkit/query' {
-//   export interface ApiEndpointQuery<
-//     Definition extends QueryDefinition<any, any, any, any, any>,
-//     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-//     Definitions extends EndpointDefinitions,
-//   > extends Matchers<QueryThunk, Definition> {}
-
-//   export interface ApiEndpointMutation<
-//     Definition extends MutationDefinition<any, any, any, any, any>,
-//     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-//     Definitions extends EndpointDefinitions,
-//   > extends Matchers<MutationThunk, Definition> {}
-// }
 
 type EndpointThunk<
   Thunk extends QueryThunk | MutationThunk,
