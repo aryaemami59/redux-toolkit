@@ -136,7 +136,7 @@ jobs:
         run: yarn workspaces foreach -A --include '@examples-query-react/*' add $(pwd)/package.tgz
 
       - name: Remove all dist folders
-        run: npx rimraf@latest -g '**/!(node_modules)/**/dist'
+        run: find . -type d -name 'dist' -not -path '*/node_modules/*' -not -path './packages/toolkit/dist' -exec npx rimraf@latest -v {} +
 
       - name: Add .js extensions to relative imports
         if: matrix.TSConfig.moduleResolution == 'NodeNext'
