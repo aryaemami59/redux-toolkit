@@ -22,36 +22,12 @@ import type {
   UnwrapPromise,
 } from './tsHelpers'
 // import { MutationBaseLifecycleApi, QueryBaseLifecycleApi } from "./core/buildMiddleware/cacheLifecycle"
-import type { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit'
-import type { neverResolvedError } from './core/buildMiddleware/cacheLifecycle'
 import type {
-  MutationResultSelectorResult,
-  QueryResultSelectorResult,
-} from './core/buildSelectors'
-import type { PatchCollection, Recipe } from './core/buildThunks'
-
-export interface QueryBaseLifecycleApi<
-  QueryArg,
-  BaseQuery extends BaseQueryFn,
-  ResultType,
-  ReducerPath extends string = string,
-> extends LifecycleApi<ReducerPath> {
-  /**
-   * Gets the current value of this cache entry.
-   */
-  getCacheEntry(): QueryResultSelectorResult<
-    { type: DefinitionType.query } & BaseEndpointDefinition<
-      QueryArg,
-      BaseQuery,
-      ResultType
-    >
-  >
-  /**
-   * Updates the current cache entry value.
-   * For documentation see `api.util.updateQueryData`.
-   */
-  updateCachedData(updateRecipe: Recipe<ResultType>): PatchCollection
-}
+  LifecycleApi,
+  neverResolvedError,
+  QueryBaseLifecycleApi,
+} from './core/buildMiddleware/cacheLifecycle'
+import type { MutationResultSelectorResult } from './core/buildSelectors'
 
 type MutationBaseLifecycleApi<
   QueryArg,
@@ -69,25 +45,6 @@ type MutationBaseLifecycleApi<
       ResultType
     >
   >
-}
-
-type LifecycleApi<ReducerPath extends string = string> = {
-  /**
-   * The dispatch method for the store
-   */
-  dispatch: ThunkDispatch<any, any, UnknownAction>
-  /**
-   * A method to get the current state
-   */
-  getState(): RootState<any, any, ReducerPath>
-  /**
-   * `extra` as provided as `thunk.extraArgument` to the `configureStore` `getDefaultMiddleware` option.
-   */
-  extra: unknown
-  /**
-   * A unique ID generated for the mutation
-   */
-  requestId: string
 }
 
 type CacheLifecyclePromises<ResultType = unknown, MetaType = unknown> = {
