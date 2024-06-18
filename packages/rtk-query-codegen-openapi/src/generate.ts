@@ -395,7 +395,7 @@ export async function generateApi(
                 (param) =>
                   createPropertyAssignment(
                     param.originalName,
-                    isFlatArg ? rootObject : accessProperty(rootObject, param.name)
+                    isFlatArg ? rootObject : accessProperty(rootObject, param.name) as any
                   ),
                 true
               )
