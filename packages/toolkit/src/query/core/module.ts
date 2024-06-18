@@ -18,7 +18,7 @@ import { isMutationDefinition, isQueryDefinition } from '../endpointDefinitions'
 import { assertCast, safeAssign } from '../tsHelpers'
 import type { RootState } from './apiState'
 import type {
-  MutationActionCreatorResult,
+  StartMutationActionCreator,
   StartQueryActionCreator,
 } from './buildInitiate'
 import { buildInitiate } from './buildInitiate'
@@ -60,22 +60,6 @@ export interface ApiEndpointQuery<
 > {
   initiate: StartQueryActionCreator<Definition>
 }
-
-export type StartMutationActionCreator<
-  D extends MutationDefinition<any, any, any, any>,
-> = (
-  arg: QueryArgFrom<D>,
-  options?: {
-    /**
-     * If this mutation should be tracked in the store.
-     * If you just want to manually trigger this mutation using `dispatch` and don't care about the
-     * result, state & potential errors being held in store, you can set this to false.
-     * (defaults to `true`)
-     */
-    track?: boolean
-    fixedCacheKey?: string
-  },
-) => ThunkAction<MutationActionCreatorResult<D>, any, any, UnknownAction>
 
 export interface ApiEndpointMutation<
   Definition extends MutationDefinition<any, any, any, any, any>,
