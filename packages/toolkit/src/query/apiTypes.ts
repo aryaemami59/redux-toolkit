@@ -8,30 +8,24 @@ import type {
 } from '@reduxjs/toolkit'
 import type { BaseQueryFn } from './baseQueryTypes'
 import type {
-  CombinedState,
-  MutationKeys,
-  QueryKeys,
-  RootState,
-} from './core/apiState'
-import type {
-  MutationActionCreatorResult,
-  QueryActionCreatorResult,
-} from './core/buildInitiate'
-import type { SliceActions } from './core/buildSlice'
-import type {
-  PatchQueryDataThunk,
-  UpdateQueryDataThunk,
-  UpsertQueryDataThunk,
-} from './core/buildThunks'
-import type {
   ApiEndpointMutation,
   ApiEndpointQuery,
+  CombinedState,
   CoreModule,
   coreModuleName,
   InternalActions,
+  MutationActionCreatorResult,
+  MutationKeys,
+  PatchQueryDataThunk,
   PrefetchOptions,
+  QueryActionCreatorResult,
+  QueryKeys,
+  RootState,
+  SliceActions,
   ThunkWithReturnValue,
-} from './core/module'
+  UpdateQueryDataThunk,
+  UpsertQueryDataThunk,
+} from './core'
 import type { CreateApiOptions } from './createApi'
 import type {
   EndpointBuilder,

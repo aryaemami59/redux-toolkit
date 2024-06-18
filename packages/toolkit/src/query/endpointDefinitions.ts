@@ -9,15 +9,14 @@ import type {
   BaseQueryResult,
   QueryReturnValue,
 } from './baseQueryTypes'
-import type { QuerySubState, RootState } from './core/apiState'
 import type {
   MutationCacheLifecycleApi,
-  QueryCacheLifecycleApi,
-} from './core/buildMiddleware/cacheLifecycle'
-import type {
   MutationLifecycleApi,
+  QueryCacheLifecycleApi,
   QueryLifecycleApi,
-} from './core/buildMiddleware/queryLifecycle'
+  QuerySubState,
+  RootState,
+} from './core'
 import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import type { NEVER } from './fakeBaseQuery'
 import type {

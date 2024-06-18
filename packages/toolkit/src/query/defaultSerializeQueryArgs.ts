@@ -1,6 +1,6 @@
-import type { QueryCacheKey } from './core/apiState'
-import type { EndpointDefinition } from './endpointDefinitions'
+import type { QueryCacheKey } from './core'
 import { isPlainObject } from './core/rtkImports'
+import type { EndpointDefinition } from './endpointDefinitions'
 
 const cache: WeakMap<any, string> | undefined = WeakMap
   ? new WeakMap()
