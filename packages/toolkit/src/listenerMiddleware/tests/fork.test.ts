@@ -1,17 +1,12 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
-import {
-  configureStore,
-  createAction,
-  createListenerMiddleware,
-  createSlice,
-} from '@reduxjs/toolkit'
+import { configureStore, createAction, createSlice } from '@reduxjs/toolkit'
 import {
   listenerCancelled,
   listenerCompleted,
   taskCancelled,
   taskCompleted,
 } from '../exceptions'
-import { TaskAbortError } from '../index'
+import { createListenerMiddleware, TaskAbortError } from '../index'
 import type {
   AbortSignalWithReason,
   ForkedTaskExecutor,
