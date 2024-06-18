@@ -9,7 +9,6 @@ import type {
   AssertTagTypes,
   EndpointDefinitions,
   MutationDefinition,
-  QueryArgFrom,
   QueryDefinition,
   ReducerPathFrom,
   TagTypesFrom,
@@ -30,7 +29,7 @@ import type {
 import { buildMiddleware } from './buildMiddleware'
 import type {
   MutationResultSelectorResult,
-  QueryResultSelectorResult,
+  QueryResultSelectorFactory,
   SkipToken,
 } from './buildSelectors'
 import { buildSelectors } from './buildSelectors'
@@ -68,13 +67,6 @@ export interface ApiEndpointMutation<
 > {
   initiate: StartMutationActionCreator<Definition>
 }
-
-export type QueryResultSelectorFactory<
-  Definition extends QueryDefinition<any, any, any, any>,
-  RootState,
-> = (
-  queryArg: QueryArgFrom<Definition> | SkipToken,
-) => (state: RootState) => QueryResultSelectorResult<Definition>
 
 export interface ApiEndpointQuery<
   Definition extends QueryDefinition<any, any, any, any, any>,
