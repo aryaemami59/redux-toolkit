@@ -19,8 +19,7 @@ import { assertCast, safeAssign } from '../tsHelpers'
 import type { RootState } from './apiState'
 import type {
   MutationActionCreatorResult,
-  QueryActionCreatorResult,
-  StartQueryActionCreatorOptions,
+  StartQueryActionCreator,
 } from './buildInitiate'
 import { buildInitiate } from './buildInitiate'
 import type {
@@ -53,20 +52,6 @@ export interface ApiEndpointMutation<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Definitions extends EndpointDefinitions,
 > extends Matchers<MutationThunk, Definition> {}
-
-// export type StartQueryActionCreatorOptions = {
-//   subscribe?: boolean
-//   forceRefetch?: boolean | number
-//   subscriptionOptions?: SubscriptionOptions
-//   [forceQueryFnSymbol]?: () => QueryReturnValue
-// }
-
-export type StartQueryActionCreator<
-  D extends QueryDefinition<any, any, any, any, any>,
-> = (
-  arg: QueryArgFrom<D>,
-  options?: StartQueryActionCreatorOptions,
-) => ThunkAction<QueryActionCreatorResult<D>, any, any, UnknownAction>
 
 export interface ApiEndpointQuery<
   Definition extends QueryDefinition<any, any, any, any, any>,

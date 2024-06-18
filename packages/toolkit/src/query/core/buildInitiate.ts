@@ -1,4 +1,8 @@
-import type { SerializedError } from '@reduxjs/toolkit'
+import type {
+  SerializedError,
+  ThunkAction,
+  UnknownAction,
+} from '@reduxjs/toolkit'
 import type { Dispatch } from 'redux'
 import type { SafePromise } from '../../tsHelpers'
 import { asSafePromise } from '../../tsHelpers'
@@ -17,11 +21,7 @@ import { isNotNullish } from '../utils/isNotNullish'
 import type { SubscriptionOptions } from './apiState'
 import type { QueryResultSelectorResult } from './buildSelectors'
 import type { MutationThunk, QueryThunk, QueryThunkArg } from './buildThunks'
-import type {
-  ApiEndpointQuery,
-  StartMutationActionCreator,
-  StartQueryActionCreator,
-} from './module'
+import type { ApiEndpointQuery, StartMutationActionCreator } from './module'
 
 export const forceQueryFnSymbol = Symbol('forceQueryFn')
 export const isUpsertQuery = (arg: QueryThunkArg) =>
@@ -33,6 +33,13 @@ export type StartQueryActionCreatorOptions = {
   subscriptionOptions?: SubscriptionOptions
   [forceQueryFnSymbol]?: () => QueryReturnValue
 }
+
+export type StartQueryActionCreator<
+  D extends QueryDefinition<any, any, any, any, any>,
+> = (
+  arg: QueryArgFrom<D>,
+  options?: StartQueryActionCreatorOptions,
+) => ThunkAction<QueryActionCreatorResult<D>, any, any, UnknownAction>
 
 export type QueryActionCreatorResult<
   D extends QueryDefinition<any, any, any, any>,
