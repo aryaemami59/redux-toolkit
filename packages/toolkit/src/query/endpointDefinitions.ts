@@ -74,28 +74,6 @@ export interface QueryExtraOptions<
   keepUnusedDataFor?: number
 }
 
-export type QueryFulfilledRejectionReason<BaseQuery extends BaseQueryFn> =
-  | {
-      error: BaseQueryError<BaseQuery>
-      /**
-       * If this is `false`, that means this error was returned from the `baseQuery` or `queryFn` in a controlled manner.
-       */
-      isUnhandledError: false
-      /**
-       * The `meta` returned by the `baseQuery`
-       */
-      meta: BaseQueryMeta<BaseQuery>
-    }
-  | {
-      error: unknown
-      meta?: undefined
-      /**
-       * If this is `true`, that means that this error is the result of `baseQueryFn`, `queryFn`, `transformResponse` or `transformErrorResponse` throwing an error instead of handling it properly.
-       * There can not be made any assumption about the shape of `error`.
-       */
-      isUnhandledError: true
-    }
-
 export interface QueryExtraOptions<
   TagTypes extends string,
   ResultType,

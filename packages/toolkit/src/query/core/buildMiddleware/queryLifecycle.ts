@@ -1,5 +1,8 @@
-import type { BaseQueryFn, BaseQueryMeta } from '../../baseQueryTypes'
-import type { QueryFulfilledRejectionReason } from '../../endpointDefinitions'
+import type {
+  BaseQueryError,
+  BaseQueryFn,
+  BaseQueryMeta,
+} from '../../baseQueryTypes'
 import { DefinitionType } from '../../endpointDefinitions'
 import type { Recipe } from '../buildThunks'
 import { isFulfilled, isPending, isRejected } from '../rtkImports'
@@ -39,6 +42,28 @@ export type QueryLifecyclePromises<
     QueryFulfilledRejectionReason<BaseQuery>
   >
 }
+
+type QueryFulfilledRejectionReason<BaseQuery extends BaseQueryFn> =
+  | {
+      error: BaseQueryError<BaseQuery>
+      /**
+       * If this is `false`, that means this error was returned from the `baseQuery` or `queryFn` in a controlled manner.
+       */
+      isUnhandledError: false
+      /**
+       * The `meta` returned by the `baseQuery`
+       */
+      meta: BaseQueryMeta<BaseQuery>
+    }
+  | {
+      error: unknown
+      meta?: undefined
+      /**
+       * If this is `true`, that means that this error is the result of `baseQueryFn`, `queryFn`, `transformResponse` or `transformErrorResponse` throwing an error instead of handling it properly.
+       * There can not be made any assumption about the shape of `error`.
+       */
+      isUnhandledError: true
+    }
 
 export const buildQueryLifecycleHandler: InternalHandlerBuilder = ({
   api,
