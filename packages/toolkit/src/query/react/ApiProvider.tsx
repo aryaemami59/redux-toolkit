@@ -1,12 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
+import type { Api } from '@reduxjs/toolkit/query'
+import { setupListeners } from '@reduxjs/toolkit/query'
 import type { Context } from 'react'
-import { useContext } from 'react'
-import { useEffect } from 'react'
-import React from 'react'
+import * as React from 'react'
 import type { ReactReduxContextValue } from 'react-redux'
 import { Provider, ReactReduxContext } from 'react-redux'
-import { setupListeners } from '@reduxjs/toolkit/query'
-import type { Api } from '@reduxjs/toolkit/query'
 
 /**
  * Can be used as a `Provider` if you **do not already have a Redux store**.
@@ -39,7 +37,7 @@ export function ApiProvider(props: {
   context?: Context<ReactReduxContextValue | null>
 }) {
   const context = props.context || ReactReduxContext
-  const existingContext = useContext(context)
+  const existingContext = React.useContext(context)
   if (existingContext) {
     throw new Error(
       'Existing Redux context detected. If you already have a store set up, please use the traditional Redux setup.',
@@ -54,7 +52,7 @@ export function ApiProvider(props: {
     }),
   )
   // Adds the event listeners for online/offline/focus/etc
-  useEffect(
+  React.useEffect(
     (): undefined | (() => void) =>
       props.setupListeners === false
         ? undefined
