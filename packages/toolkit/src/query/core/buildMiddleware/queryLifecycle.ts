@@ -6,7 +6,10 @@ import type {
 import { DefinitionType } from '../../endpointDefinitions'
 import type { Recipe } from '../buildThunks'
 import { isFulfilled, isPending, isRejected } from '../rtkImports'
-import { QueryBaseLifecycleApi } from './cacheLifecycle'
+import {
+  MutationBaseLifecycleApi,
+  QueryBaseLifecycleApi,
+} from './cacheLifecycle'
 import type {
   ApiMiddlewareInternalHandler,
   InternalHandlerBuilder,
@@ -73,6 +76,14 @@ export interface QueryLifecycleApi<
   ReducerPath extends string = string,
 > extends QueryBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
     QueryLifecyclePromises<ResultType, BaseQuery> {}
+
+export type MutationLifecycleApi<
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
+  ResultType,
+  ReducerPath extends string = string,
+> = MutationBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath> &
+  QueryLifecyclePromises<ResultType, BaseQuery>
 
 export const buildQueryLifecycleHandler: InternalHandlerBuilder = ({
   api,
