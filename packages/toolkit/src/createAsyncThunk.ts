@@ -5,6 +5,7 @@ import type {
   PayloadAction,
 } from './createAction'
 import { createAction } from './createAction'
+import type { GetState } from './dynamicMiddleware/types'
 import { isAnyOf } from './matchers'
 import { nanoid } from './nanoid'
 import type {
@@ -123,11 +124,6 @@ export type AsyncThunkConfig = {
   rejectedMeta?: unknown
 }
 
-type GetState<ThunkApiConfig> = ThunkApiConfig extends {
-  state: infer State
-}
-  ? State
-  : unknown
 type GetExtra<ThunkApiConfig> = ThunkApiConfig extends { extra: infer Extra }
   ? Extra
   : unknown
