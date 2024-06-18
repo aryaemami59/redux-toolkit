@@ -16,7 +16,7 @@ import type {
   QueryBaseLifecycleApi,
   QueryCacheLifecycleApi,
 } from './core/buildMiddleware/cacheLifecycle'
-import type { PromiseWithKnownReason } from './core/buildMiddleware/types'
+import { QueryLifecyclePromises } from './core/buildMiddleware/queryLifecycle'
 import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import type { NEVER } from './fakeBaseQuery'
 import type {
@@ -72,31 +72,6 @@ export interface QueryExtraOptions<
    * This is how long RTK Query will keep your data cached for **after** the last component unsubscribes. For example, if you query an endpoint, then unmount the component, then mount another component that makes the same request within the given time frame, the most recent value will be served from the cache.
    */
   keepUnusedDataFor?: number
-}
-
-type QueryLifecyclePromises<ResultType, BaseQuery extends BaseQueryFn> = {
-  /**
-   * Promise that will resolve with the (transformed) query result.
-   *
-   * If the query fails, this promise will reject with the error.
-   *
-   * This allows you to `await` for the query to finish.
-   *
-   * If you don't interact with this promise, it will not throw.
-   */
-  queryFulfilled: PromiseWithKnownReason<
-    {
-      /**
-       * The (transformed) query result.
-       */
-      data: ResultType
-      /**
-       * The `meta` returned by the `baseQuery`
-       */
-      meta: BaseQueryMeta<BaseQuery>
-    },
-    QueryFulfilledRejectionReason<BaseQuery>
-  >
 }
 
 export type QueryFulfilledRejectionReason<BaseQuery extends BaseQueryFn> =
