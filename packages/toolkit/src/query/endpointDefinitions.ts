@@ -14,7 +14,7 @@ import type {
   MutationCacheLifecycleApi,
   QueryCacheLifecycleApi,
 } from './core/buildMiddleware/cacheLifecycle'
-import {
+import type {
   MutationLifecycleApi,
   QueryLifecycleApi,
 } from './core/buildMiddleware/queryLifecycle'

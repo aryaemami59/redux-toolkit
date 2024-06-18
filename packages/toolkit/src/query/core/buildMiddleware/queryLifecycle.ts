@@ -6,7 +6,7 @@ import type {
 import { DefinitionType } from '../../endpointDefinitions'
 import type { Recipe } from '../buildThunks'
 import { isFulfilled, isPending, isRejected } from '../rtkImports'
-import {
+import type {
   MutationBaseLifecycleApi,
   QueryBaseLifecycleApi,
 } from './cacheLifecycle'
