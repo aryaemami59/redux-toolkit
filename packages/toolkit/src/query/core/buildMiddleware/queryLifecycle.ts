@@ -6,6 +6,7 @@ import type {
 import { DefinitionType } from '../../endpointDefinitions'
 import type { Recipe } from '../buildThunks'
 import { isFulfilled, isPending, isRejected } from '../rtkImports'
+import { QueryBaseLifecycleApi } from './cacheLifecycle'
 import type {
   ApiMiddlewareInternalHandler,
   InternalHandlerBuilder,
@@ -64,6 +65,14 @@ type QueryFulfilledRejectionReason<BaseQuery extends BaseQueryFn> =
        */
       isUnhandledError: true
     }
+
+export interface QueryLifecycleApi<
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
+  ResultType,
+  ReducerPath extends string = string,
+> extends QueryBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
+    QueryLifecyclePromises<ResultType, BaseQuery> {}
 
 export const buildQueryLifecycleHandler: InternalHandlerBuilder = ({
   api,

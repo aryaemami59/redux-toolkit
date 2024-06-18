@@ -13,10 +13,12 @@ import type { QuerySubState, RootState } from './core/apiState'
 import type {
   MutationBaseLifecycleApi,
   MutationCacheLifecycleApi,
-  QueryBaseLifecycleApi,
   QueryCacheLifecycleApi,
 } from './core/buildMiddleware/cacheLifecycle'
-import { QueryLifecyclePromises } from './core/buildMiddleware/queryLifecycle'
+import {
+  QueryLifecycleApi,
+  QueryLifecyclePromises,
+} from './core/buildMiddleware/queryLifecycle'
 import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import type { NEVER } from './fakeBaseQuery'
 import type {
@@ -185,14 +187,6 @@ export interface MutationExtraOptions<
     api: MutationLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
   ): Promise<void> | void
 }
-
-export interface QueryLifecycleApi<
-  QueryArg,
-  BaseQuery extends BaseQueryFn,
-  ResultType,
-  ReducerPath extends string = string,
-> extends QueryBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
-    QueryLifecyclePromises<ResultType, BaseQuery> {}
 
 type MutationLifecycleApi<
   QueryArg,
