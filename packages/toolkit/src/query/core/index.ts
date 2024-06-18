@@ -15,6 +15,7 @@ export type {
 export type {
   MutationActionCreatorResult,
   QueryActionCreatorResult,
+  StartQueryActionCreatorOptions,
 } from './buildInitiate'
 export type { SubscriptionSelectors } from './buildMiddleware'
 export { skipToken } from './buildSelectors'
@@ -29,7 +30,6 @@ export type {
   ApiEndpointQuery,
   CoreModule,
   PrefetchOptions,
-  StartQueryActionCreatorOptions,
 } from './module'
 export { setupListeners } from './setupListeners'
 export { buildCreateApi, coreModule }

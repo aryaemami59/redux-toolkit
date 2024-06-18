@@ -28,12 +28,11 @@ import { HandledError } from '../HandledError'
 import type { UnwrapPromise } from '../tsHelpers'
 import type { QueryKeys, QuerySubstateIdentifier, RootState } from './apiState'
 import { QueryStatus } from './apiState'
-import type { QueryActionCreatorResult } from './buildInitiate'
+import type { QueryActionCreatorResult, StartQueryActionCreatorOptions } from './buildInitiate'
 import { forceQueryFnSymbol, isUpsertQuery } from './buildInitiate'
 import type {
   ApiEndpointQuery,
   PrefetchOptions,
-  StartQueryActionCreatorOptions,
 } from './module'
 import {
   createAsyncThunk,
