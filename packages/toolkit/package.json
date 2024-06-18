@@ -68,7 +68,7 @@
     "axios": "^0.19.2",
     "bundle-require": "^4.2.1",
     "console-testing-library": "patch:console-testing-library@npm%3A0.6.1#~/.yarn/patches/console-testing-library-npm-0.6.1-4d9957d402.patch",
-    "esbuild": "^0.21.4",
+    "esbuild": "^0.21.5",
     "esbuild-extra": "^0.3.1",
     "eslint": "^7.25.0",
     "eslint-config-prettier": "^9.1.0",
