@@ -252,7 +252,7 @@ export default defineConfig((options) => {
     .concat([
       {
         name: 'Redux-Toolkit-Type-Definitions',
-        format: ['cjs'],
+        format: ['cjs', 'esm'],
         tsconfig,
         entry: { index: './src/index.ts' },
         external: [/uncheckedindexed/],
@@ -262,7 +262,7 @@ export default defineConfig((options) => {
       },
       {
         name: 'RTK-React-Type-Definitions',
-        format: ['cjs'],
+        format: ['cjs', 'esm'],
         tsconfig,
         entry: { 'react/index': './src/react/index.ts' },
         external: ['@reduxjs/toolkit', /uncheckedindexed/],
@@ -272,7 +272,7 @@ export default defineConfig((options) => {
       },
       {
         name: 'RTK-Query-Type-Definitions',
-        format: ['cjs'],
+        format: ['cjs', 'esm'],
         tsconfig,
         entry: { 'query/index': './src/query/index.ts' },
         external: [
@@ -286,7 +286,7 @@ export default defineConfig((options) => {
       },
       {
         name: 'RTK-Query-React-Type-Definitions',
-        format: ['cjs'],
+        format: ['cjs', 'esm'],
         tsconfig,
         entry: { 'query/react/index': './src/query/react/index.ts' },
         external: [
