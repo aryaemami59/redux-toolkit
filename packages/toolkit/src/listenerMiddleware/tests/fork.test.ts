@@ -1,14 +1,9 @@
-import type {
-  ForkedTaskExecutor,
-  PayloadAction,
-  TaskResult,
-} from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
 import {
   configureStore,
   createAction,
   createListenerMiddleware,
   createSlice,
-  TaskAbortError,
 } from '@reduxjs/toolkit'
 import {
   listenerCancelled,
@@ -16,7 +11,12 @@ import {
   taskCancelled,
   taskCompleted,
 } from '../exceptions'
-import type { AbortSignalWithReason } from '../types'
+import { TaskAbortError } from '../index'
+import type {
+  AbortSignalWithReason,
+  ForkedTaskExecutor,
+  TaskResult,
+} from '../types'
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
