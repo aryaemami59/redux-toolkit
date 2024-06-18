@@ -61,6 +61,7 @@ export { fakeBaseQuery } from './fakeBaseQuery'
 export { fetchBaseQuery } from './fetchBaseQuery'
 export type {
   FetchArgs,
+  FetchBaseQueryArgs,
   FetchBaseQueryError,
   FetchBaseQueryMeta,
 } from './fetchBaseQuery'
