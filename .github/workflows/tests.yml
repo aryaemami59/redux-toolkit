@@ -92,7 +92,7 @@ jobs:
       - name: Install build artifact
         run: yarn workspace @reduxjs/toolkit add $(pwd)/package.tgz
 
-      - run: sed -i -e /@remap-prod-remove-line/d ./tsconfig.base.json ./src/tests/*.* ./src/query/tests/*.*
+      - run: sed -i -e /@remap-prod-remove-line/d ./tsconfig.base.json
 
       - name: Run tests, against dist
         env:
@@ -171,7 +171,7 @@ jobs:
       - name: Show installed RTK versions
         run: yarn info @reduxjs/toolkit
 
-      - run: sed -i -e /@remap-prod-remove-line/d ./tsconfig.base.json ./src/tests/*.* ./src/query/tests/*.*
+      - run: sed -i -e /@remap-prod-remove-line/d ./tsconfig.base.json
 
       - name: Test types
         env:
