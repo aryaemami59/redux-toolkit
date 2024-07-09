@@ -38,7 +38,11 @@ describe('configureStore', async () => {
         expect.any(Function),
       )
       expect(redux.applyMiddleware).toHaveBeenCalled()
-      expect(composeWithDevToolsSpy).toHaveBeenCalled() // @remap-prod-remove-line
+      if (process.env.TEST_DIST) {
+        expect(composeWithDevToolsSpy).not.toHaveBeenCalled()
+      } else {
+        expect(composeWithDevToolsSpy).toHaveBeenCalledTimes(2)
+      }
     })
   })
 
@@ -52,7 +56,11 @@ describe('configureStore', async () => {
       expect(configureStore({ reducer })).toBeInstanceOf(Object)
       expect(redux.combineReducers).toHaveBeenCalledWith(reducer)
       expect(redux.applyMiddleware).toHaveBeenCalled()
-      expect(composeWithDevToolsSpy).toHaveBeenCalled() // @remap-prod-remove-line
+      if (process.env.TEST_DIST) {
+        expect(composeWithDevToolsSpy).not.toHaveBeenCalled()
+      } else {
+        expect(composeWithDevToolsSpy).toHaveBeenCalledOnce()
+      }
       expect(redux.createStore).toHaveBeenCalledWith(
         expect.any(Function),
         undefined,
@@ -75,7 +83,11 @@ describe('configureStore', async () => {
         configureStore({ middleware: () => new Tuple(), reducer }),
       ).toBeInstanceOf(Object)
       expect(redux.applyMiddleware).toHaveBeenCalledWith()
-      expect(composeWithDevToolsSpy).toHaveBeenCalled() // @remap-prod-remove-line
+      if (process.env.TEST_DIST) {
+        expect(composeWithDevToolsSpy).not.toHaveBeenCalled()
+      } else {
+        expect(composeWithDevToolsSpy).toHaveBeenCalledOnce()
+      }
       expect(redux.createStore).toHaveBeenCalledWith(
         reducer,
         undefined,
@@ -104,7 +116,11 @@ describe('configureStore', async () => {
         expect.any(Function), // serializableCheck
         expect.any(Function), // actionCreatorCheck
       )
-      expect(composeWithDevToolsSpy).toHaveBeenCalled() // @remap-prod-remove-line
+      if (process.env.TEST_DIST) {
+        expect(composeWithDevToolsSpy).not.toHaveBeenCalled()
+      } else {
+        expect(composeWithDevToolsSpy).toHaveBeenCalledOnce()
+      }
       expect(redux.createStore).toHaveBeenCalledWith(
         reducer,
         undefined,
@@ -141,7 +157,11 @@ describe('configureStore', async () => {
         configureStore({ middleware: () => new Tuple(thank), reducer }),
       ).toBeInstanceOf(Object)
       expect(redux.applyMiddleware).toHaveBeenCalledWith(thank)
-      expect(composeWithDevToolsSpy).toHaveBeenCalled() // @remap-prod-remove-line
+      if (process.env.TEST_DIST) {
+        expect(composeWithDevToolsSpy).not.toHaveBeenCalled()
+      } else {
+        expect(composeWithDevToolsSpy).toHaveBeenCalledOnce()
+      }
       expect(redux.createStore).toHaveBeenCalledWith(
         reducer,
         undefined,
@@ -196,7 +216,13 @@ describe('configureStore', async () => {
         Object,
       )
       expect(redux.applyMiddleware).toHaveBeenCalled()
-      expect(composeWithDevToolsSpy).toHaveBeenCalledWith(options) // @remap-prod-remove-line
+      if (process.env.TEST_DIST) {
+        expect(composeWithDevToolsSpy).not.toHaveBeenCalled()
+      } else {
+        expect(composeWithDevToolsSpy).toHaveBeenCalledOnce()
+
+        expect(composeWithDevToolsSpy).toHaveBeenLastCalledWith(options)
+      }
       expect(redux.createStore).toHaveBeenCalledWith(
         reducer,
         undefined,
@@ -209,7 +235,11 @@ describe('configureStore', async () => {
     it('calls createStore with preloadedState', () => {
       expect(configureStore({ reducer })).toBeInstanceOf(Object)
       expect(redux.applyMiddleware).toHaveBeenCalled()
-      expect(composeWithDevToolsSpy).toHaveBeenCalled() // @remap-prod-remove-line
+      if (process.env.TEST_DIST) {
+        expect(composeWithDevToolsSpy).not.toHaveBeenCalled()
+      } else {
+        expect(composeWithDevToolsSpy).toHaveBeenCalledOnce()
+      }
       expect(redux.createStore).toHaveBeenCalledWith(
         reducer,
         undefined,
@@ -240,7 +270,11 @@ describe('configureStore', async () => {
         }),
       ).toBeInstanceOf(Object)
       expect(redux.applyMiddleware).toHaveBeenCalled()
-      expect(composeWithDevToolsSpy).toHaveBeenCalled() // @remap-prod-remove-line
+      if (process.env.TEST_DIST) {
+        expect(composeWithDevToolsSpy).not.toHaveBeenCalled()
+      } else {
+        expect(composeWithDevToolsSpy).toHaveBeenCalledOnce()
+      }
       expect(redux.createStore).toHaveBeenCalledWith(
         reducer,
         undefined,
