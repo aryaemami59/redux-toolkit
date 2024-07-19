@@ -21,8 +21,8 @@ export type AbortSignalWithReason<T> = AbortSignal & { reason?: T }
  */
 
 /** @internal */
-interface TypedActionCreatorWithMatchFunction<Type extends string>
-  extends TypedActionCreator<Type> {
+type TypedActionCreatorWithMatchFunction<Type extends string>
+  = TypedActionCreator<Type> & {
   match: MatchFunction<any>
 }
 
