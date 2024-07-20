@@ -17,16 +17,19 @@ import type {
   QuerySubState,
   RootState,
 } from './core'
+import type { CacheLifecycleQueryExtraOptions } from './core/buildMiddleware/cacheLifecycle'
 import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import type { NEVER } from './fakeBaseQuery'
 import type {
   CastAny,
   HasRequiredProps,
+  Id,
   MaybePromise,
   NonUndefined,
   OmitFromUnion,
   UnwrapPromise,
 } from './tsHelpers'
+import { QueryLifecycleQueryExtraOptions } from './core/buildMiddleware/queryLifecycle'
 
 const resultType = /* @__PURE__ */ Symbol()
 const baseQuery = /* @__PURE__ */ Symbol()
@@ -264,19 +267,19 @@ type QueryTypes<
   ReducerPath: ReducerPath
 }
 
-export interface QueryExtraOptions<
+export type QueryExtraOptions<
   TagTypes extends string,
   ResultType,
   QueryArg,
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
-> {
+> = {
   type: DefinitionType.query
 
-  onCacheEntryAdded?(
-    arg: QueryArg,
-    api: QueryCacheLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
-  ): Promise<void> | void
+  // onCacheEntryAdded?(
+  //   arg: QueryArg,
+  //   api: QueryCacheLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
+  // ): Promise<void> | void
 
   /**
    * Overrides the api-wide definition of `keepUnusedDataFor` for this endpoint only. _(This value is in seconds.)_
@@ -323,10 +326,10 @@ export interface QueryExtraOptions<
    * })
    * ```
    */
-  onQueryStarted?(
-    arg: QueryArg,
-    api: QueryLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
-  ): Promise<void> | void
+  // onQueryStarted?(
+  //   arg: QueryArg,
+  //   api: QueryLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
+  // ): Promise<void> | void
 
   /**
    * Used by `query` endpoints. Determines which 'tag' is attached to the cached data returned by the query.
@@ -558,7 +561,13 @@ export interface QueryExtraOptions<
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
   Types?: QueryTypes<QueryArg, BaseQuery, TagTypes, ResultType, ReducerPath>
-}
+} & CacheLifecycleQueryExtraOptions<
+  ResultType,
+  QueryArg,
+  BaseQuery,
+  ReducerPath
+> &
+  QueryLifecycleQueryExtraOptions<ResultType, QueryArg, BaseQuery, ReducerPath>
 
 export type QueryDefinition<
   QueryArg,
@@ -594,24 +603,24 @@ type MutationTypes<
   ReducerPath: ReducerPath
 }
 
-export interface MutationExtraOptions<
+export type MutationExtraOptions<
   TagTypes extends string,
   ResultType,
   QueryArg,
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
-> {
+> = {
   type: DefinitionType.mutation
 
-  onCacheEntryAdded?(
-    arg: QueryArg,
-    api: MutationCacheLifecycleApi<
-      QueryArg,
-      BaseQuery,
-      ResultType,
-      ReducerPath
-    >,
-  ): Promise<void> | void
+  // onCacheEntryAdded?(
+  //   arg: QueryArg,
+  //   api: MutationCacheLifecycleApi<
+  //     QueryArg,
+  //     BaseQuery,
+  //     ResultType,
+  //     ReducerPath
+  //   >,
+  // ): Promise<void> | void
 
   /**
    * A function that is called when the individual mutation is started. The function is called with a lifecycle api object containing properties such as `queryFulfilled`, allowing code to be run when a query is started, when it succeeds, and when it fails (i.e. throughout the lifecycle of an individual query/mutation call).
@@ -727,7 +736,12 @@ export interface MutationExtraOptions<
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
   Types?: MutationTypes<QueryArg, BaseQuery, TagTypes, ResultType, ReducerPath>
-}
+} & CacheLifecycleQueryExtraOptions<
+  ResultType,
+  QueryArg,
+  BaseQuery,
+  ReducerPath
+>
 
 export type MutationDefinition<
   QueryArg,
@@ -735,8 +749,10 @@ export type MutationDefinition<
   TagTypes extends string,
   ResultType,
   ReducerPath extends string = string,
-> = BaseEndpointDefinition<QueryArg, BaseQuery, ResultType> &
-  MutationExtraOptions<TagTypes, ResultType, QueryArg, BaseQuery, ReducerPath>
+> = Id<
+  BaseEndpointDefinition<QueryArg, BaseQuery, ResultType> &
+    MutationExtraOptions<TagTypes, ResultType, QueryArg, BaseQuery, ReducerPath>
+>
 
 export type EndpointDefinition<
   QueryArg,
