@@ -6372,7 +6372,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@reduxjs/prettier-config@workspace:packages/configs/prettier":
+"@reduxjs/prettier-config@workspace:^, @reduxjs/prettier-config@workspace:packages/configs/prettier":
   version: 0.0.0-use.local
   resolution: "@reduxjs/prettier-config@workspace:packages/configs/prettier"
   dependencies:
@@ -24075,6 +24075,7 @@ __metadata:
     "@babel/helper-compilation-targets": "npm:^7.23.6"
     "@babel/traverse": "npm:^7.24.1"
     "@babel/types": "npm:^7.24.0"
+    "@reduxjs/prettier-config": "workspace:^"
     "@types/react": "npm:^18.2.77"
     "@types/react-dom": "npm:^18.2.25"
     eslint: "npm:^9.9.1"
