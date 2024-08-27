@@ -1,11 +1,7 @@
-import js from '@eslint/js'
-import { Linter } from 'eslint'
-import prettierConfig from 'eslint-config-prettier'
+import { createESLintConfig } from '@reduxjs/eslint-config'
+import { configs } from 'typescript-eslint'
 
-const ESLintConfig = [
+export default createESLintConfig([
   { name: 'ignores', ignores: ['**/'] },
-  { name: 'javascript', ...js.configs.recommended },
-  { name: 'prettier-config', ...prettierConfig },
-] satisfies Linter.Config[]
-
-export default ESLintConfig
+  configs.disableTypeChecked,
+])
