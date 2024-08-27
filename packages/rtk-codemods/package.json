@@ -2,7 +2,8 @@
   "name": "@reduxjs/rtk-codemods",
   "version": "0.1.2",
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint --flag unstable_ts_config -c eslint.config.mts",
+    "lint-fix": "eslint --flag unstable_ts_config -c eslint.config.mts --fix",
     "test": "vitest --run",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage"
