@@ -6648,7 +6648,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reduxjs/eslint-config@workspace:packages/configs/eslint":
+"@reduxjs/eslint-config@workspace:^, @reduxjs/eslint-config@workspace:packages/configs/eslint":
   version: 0.0.0-use.local
   resolution: "@reduxjs/eslint-config@workspace:packages/configs/eslint"
   dependencies:
@@ -6699,6 +6699,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@reduxjs/rtk-codemods@workspace:packages/rtk-codemods"
   dependencies:
+    "@reduxjs/eslint-config": "workspace:^"
     "@reduxjs/prettier-config": "workspace:^"
     "@types/jscodeshift": "npm:^0.11.11"
     "@typescript-eslint/parser": "npm:^6.19.1"
@@ -6787,6 +6788,7 @@ __metadata:
     "@babel/helper-module-imports": "npm:^7.24.7"
     "@microsoft/api-extractor": "npm:^7.13.2"
     "@phryneas/ts-version": "npm:^1.0.2"
+    "@reduxjs/eslint-config": "workspace:^"
     "@reduxjs/prettier-config": "workspace:^"
     "@size-limit/file": "npm:^11.0.1"
     "@size-limit/webpack": "npm:^11.0.1"
@@ -24811,6 +24813,7 @@ __metadata:
     "@babel/helper-compilation-targets": "npm:^7.23.6"
     "@babel/traverse": "npm:^7.24.1"
     "@babel/types": "npm:^7.24.0"
+    "@reduxjs/eslint-config": "workspace:^"
     "@reduxjs/prettier-config": "workspace:^"
     "@types/react": "npm:^18.2.77"
     "@types/react-dom": "npm:^18.2.25"
