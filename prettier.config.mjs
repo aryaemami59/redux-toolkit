@@ -1,4 +1,3 @@
-{
-  "semi": false,
-  "singleQuote": true
-}
+import { createPrettierConfig } from '@reduxjs/prettier-config'
+
+export default createPrettierConfig()
