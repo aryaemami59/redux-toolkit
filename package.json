@@ -36,6 +36,7 @@
     "@types/react": "^18.2.77",
     "@types/react-dom": "^18.2.25",
     "eslint": "^9.9.1",
+    "jiti": "^2.0.0-beta.3",
     "netlify-plugin-cache": "^1.0.3",
     "prettier": "^3.2.5",
     "react": "^18.2.0",
