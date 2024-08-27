@@ -1,7 +1,7 @@
-{
-  "endOfLine": "auto",
-  "printWidth": 120,
-  "semi": true,
-  "singleQuote": true,
-  "trailingComma": "es5"
-}
+import { createPrettierConfig } from '@reduxjs/prettier-config';
+
+export default createPrettierConfig({
+  printWidth: 120,
+  semi: true,
+  trailingComma: 'es5',
+});
