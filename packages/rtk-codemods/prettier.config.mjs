@@ -1,6 +1,5 @@
-{
-  "singleQuote": true,
-  "trailingComma": "none",
-  "printWidth": 80,
-  "semi": false
-}
+import { createPrettierConfig } from '@reduxjs/prettier-config'
+
+export default createPrettierConfig({
+  trailingComma: 'none'
+})
