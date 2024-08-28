@@ -54,6 +54,8 @@
   "scripts": {
     "build": "yarn build:packages",
     "test": "yarn test:packages",
+    "format": "prettier --config prettier.config.mjs --write .",
+    "format-check": "prettier --config prettier.config.mjs --check .",
     "lint": "eslint --flag unstable_ts_config -c eslint.config.mts",
     "lint-fix": "eslint --flag unstable_ts_config -c eslint.config.mts --fix",
     "install": "yarn build-configs",
