@@ -10,7 +10,7 @@
     "isolatedModules": true,
     "jsx": "react",
     "lib": ["DOM", "ESNext"],
-    "module": "ESnext",
+    "module": "ESNext",
     "moduleResolution": "Node",
     "noErrorTruncation": true,
     "noFallthroughCasesInSwitch": true,
@@ -21,7 +21,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "ESnext",
+    "target": "ESNext",
     "types": ["vitest/globals", "vitest/importMeta"],
     "useDefineForClassFields": true,
     "useUnknownInCatchVariables": true
