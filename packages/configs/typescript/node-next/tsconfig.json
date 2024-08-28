@@ -7,5 +7,5 @@
     "resolvePackageJsonExports": true,
     "resolvePackageJsonImports": true
   },
-  "display": "Redux NodeNext TSConfig"
+  "display": "Redux TSConfig with NodeNext Module and Resolution"
 }
