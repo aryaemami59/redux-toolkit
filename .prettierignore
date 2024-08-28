@@ -1,8 +1,9 @@
 dist/
-etc/
 temp/
+tmp/
 __testfixtures__/
 build/
+lib/
 
 .yalc
 yalc.lock
@@ -10,8 +11,6 @@ yalc.sig
 
 .idea/
 .vscode/
-temp/
-tmp/
 .tmp-projections
 coverage/
 
@@ -19,7 +18,7 @@ typesversions
 .cache
 .yarnrc
 .yarn/*
-!.yarn/releases
+.yarn/releases
 **/.yarn/cache
 .pnp.*
 *.tgz
@@ -27,4 +26,5 @@ typesversions
 tsconfig.vitest-temp.json
 .eslintcache
 
-**/*/**
+.docusaurus/
+.next/
