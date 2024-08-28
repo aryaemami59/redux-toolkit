@@ -6652,6 +6652,7 @@ __metadata:
   dependencies:
     "@reduxjs/eslint-config": "workspace:^"
     "@reduxjs/prettier-config": "workspace:^"
+    "@reduxjs/vitest-config": "workspace:^"
     "@types/jscodeshift": "npm:^0.11.11"
     eslint: "npm:^9.9.1"
     execa: "npm:^8.0.1"
@@ -6738,6 +6739,7 @@ __metadata:
     "@phryneas/ts-version": "npm:^1.0.2"
     "@reduxjs/eslint-config": "workspace:^"
     "@reduxjs/prettier-config": "workspace:^"
+    "@reduxjs/vitest-config": "workspace:^"
     "@size-limit/file": "npm:^11.0.1"
     "@size-limit/webpack": "npm:^11.0.1"
     "@testing-library/react": "npm:^13.3.0"
@@ -6798,7 +6800,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@reduxjs/vitest-config@workspace:packages/configs/vitest":
+"@reduxjs/vitest-config@workspace:^, @reduxjs/vitest-config@workspace:packages/configs/vitest":
   version: 0.0.0-use.local
   resolution: "@reduxjs/vitest-config@workspace:packages/configs/vitest"
   dependencies:
@@ -7045,6 +7047,7 @@ __metadata:
     "@oazapfts/runtime": "npm:^1.0.3"
     "@reduxjs/prettier-config": "workspace:^"
     "@reduxjs/toolkit": "npm:^1.6.0"
+    "@reduxjs/vitest-config": "workspace:^"
     "@types/commander": "npm:^2.12.2"
     "@types/glob-to-regexp": "npm:^0.4.0"
     "@types/lodash.camelcase": "npm:^4.3.9"
