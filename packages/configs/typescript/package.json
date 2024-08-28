@@ -7,7 +7,9 @@
     "./package.json": "./package.json",
     ".": "./base/tsconfig.json",
     "./node-next": "./node-next/tsconfig.json",
-    "./base": "./base/tsconfig.json"
+    "./base": "./base/tsconfig.json",
+    "./cra": "./create-react-app/tsconfig.json",
+    "./create-react-app": "./create-react-app/tsconfig.json"
   },
   "keywords": [
     "config",
