@@ -1,0 +1,11 @@
+{
+  "extends": "@reduxjs/tsconfig/bundler/esnext",
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "resolvePackageJsonExports": true,
+    "resolvePackageJsonImports": true
+  },
+  "display": "Redux TSConfig with Bundler Resolution and Preserve Modules"
+}
