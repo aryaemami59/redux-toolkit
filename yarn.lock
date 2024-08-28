@@ -6673,6 +6673,7 @@ __metadata:
   dependencies:
     "@reduxjs/eslint-config": "workspace:^"
     "@reduxjs/prettier-config": "workspace:^"
+    "@reduxjs/toolkit": "workspace:^"
     "@reduxjs/tsconfig": "workspace:^"
     "@reduxjs/vitest-config": "workspace:^"
     "@types/jscodeshift": "npm:^0.11.11"
