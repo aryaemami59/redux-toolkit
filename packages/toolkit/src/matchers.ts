@@ -139,7 +139,7 @@ export function isPending<
   return isAnyOf(...asyncThunks.map((asyncThunk) => asyncThunk.pending))
 }
 
-export type UnknownAsyncThunkRejectedAction = ReturnType<
+type UnknownAsyncThunkRejectedAction = ReturnType<
   AsyncThunkRejectedActionCreator<unknown, unknown>
 >
 

@@ -3,6 +3,7 @@ import { coreModule } from './module'
 
 export const createApi = /* @__PURE__ */ buildCreateApi(coreModule())
 
+export { buildCreateApi } from '../createApi'
 export { QueryStatus } from './apiState'
 export type {
   CombinedState,
@@ -37,7 +38,7 @@ export type {
   UpdateQueryDataThunk,
   UpsertQueryDataThunk,
 } from './buildThunks'
-export { coreModuleName } from './module'
+export { coreModule, coreModuleName } from './module'
 export type {
   ApiEndpointMutation,
   ApiEndpointQuery,
@@ -47,4 +48,3 @@ export type {
   ThunkWithReturnValue,
 } from './module'
 export { setupListeners } from './setupListeners'
-export { buildCreateApi, coreModule }

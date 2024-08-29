@@ -72,12 +72,12 @@ type EndpointThunk<
       : never
     : never
 
-export type PendingAction<
+type PendingAction<
   Thunk extends QueryThunk | MutationThunk,
   Definition extends EndpointDefinition<any, any, any, any>,
 > = ReturnType<EndpointThunk<Thunk, Definition>['pending']>
 
-export type FulfilledAction<
+type FulfilledAction<
   Thunk extends QueryThunk | MutationThunk,
   Definition extends EndpointDefinition<any, any, any, any>,
 > = ReturnType<EndpointThunk<Thunk, Definition>['fulfilled']>
@@ -87,7 +87,7 @@ export type RejectedAction<
   Definition extends EndpointDefinition<any, any, any, any>,
 > = ReturnType<EndpointThunk<Thunk, Definition>['rejected']>
 
-export type Matcher<M> = (value: any) => value is M
+type Matcher<M> = (value: any) => value is M
 
 export interface Matchers<
   Thunk extends QueryThunk | MutationThunk,
@@ -115,7 +115,7 @@ type MutationThunkArg = {
 
 export type ThunkResult = unknown
 
-export type ThunkApiMetaConfig = {
+type ThunkApiMetaConfig = {
   pendingMeta: {
     startedTimeStamp: number
     [SHOULD_AUTOBATCH]: true
@@ -145,9 +145,9 @@ function defaultTransformResponse(baseQueryReturnValue: unknown) {
   return baseQueryReturnValue
 }
 
-export type MaybeDrafted<T> = T | Draft<T>
+type MaybeDrafted<T> = T | Draft<T>
 export type Recipe<T> = (data: MaybeDrafted<T>) => void | MaybeDrafted<T>
-export type UpsertRecipe<T> = (
+type UpsertRecipe<T> = (
   data: MaybeDrafted<T> | undefined,
 ) => void | MaybeDrafted<T>
 
