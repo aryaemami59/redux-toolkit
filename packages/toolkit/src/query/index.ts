@@ -7,35 +7,33 @@ export type {
   BaseQueryEnhancer,
   BaseQueryFn,
 } from './baseQueryTypes'
-export { QueryStatus } from './core/apiState'
-export type {
-  CombinedState,
-  QueryCacheKey,
-  QueryKeys,
-  QuerySubState,
-  RootState,
-  SubscriptionOptions,
-} from './core/apiState'
-export type {
-  MutationActionCreatorResult,
-  QueryActionCreatorResult,
-  StartQueryActionCreatorOptions,
-} from './core/buildInitiate'
-export { skipToken } from './core/buildSelectors'
-export type {
-  MutationResultSelectorResult,
-  QueryResultSelectorResult,
-  SkipToken,
-} from './core/buildSelectors'
-export { coreModule, coreModuleName, createApi } from './core/index'
+export {
+  QueryStatus,
+  coreModule,
+  coreModuleName,
+  createApi,
+  setupListeners,
+  skipToken,
+} from './core/index'
 export type {
   ApiEndpointMutation,
   ApiEndpointQuery,
   ApiModules,
+  CombinedState,
   CoreModule,
+  MutationActionCreatorResult,
+  MutationResultSelectorResult,
   PrefetchOptions,
-} from './core/module'
-export { setupListeners } from './core/setupListeners'
+  QueryActionCreatorResult,
+  QueryCacheKey,
+  QueryKeys,
+  QueryResultSelectorResult,
+  QuerySubState,
+  RootState,
+  SkipToken,
+  StartQueryActionCreatorOptions,
+  SubscriptionOptions,
+} from './core/index'
 export { buildCreateApi } from './createApi'
 export type { CreateApi, CreateApiOptions } from './createApi'
 export { defaultSerializeQueryArgs } from './defaultSerializeQueryArgs'
@@ -73,4 +71,4 @@ export type {
   NoInfer as TSHelpersNoInfer,
   Override as TSHelpersOverride,
 } from './tsHelpers'
-export { copyWithStructuralSharing } from './utils/copyWithStructuralSharing'
+export { copyWithStructuralSharing } from './utils/index'

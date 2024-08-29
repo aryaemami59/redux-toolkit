@@ -42,6 +42,7 @@ export { coreModule, coreModuleName } from './module'
 export type {
   ApiEndpointMutation,
   ApiEndpointQuery,
+  ApiModules,
   CoreModule,
   InternalActions,
   PrefetchOptions,
