@@ -48,7 +48,12 @@ export const {
   middleware,
   reducer,
   reducerPath,
+  useAddPostMutation,
+  useDeletePostMutation,
+  useGetPostQuery,
+  useLazyGetPostQuery,
   usePrefetch,
+  useUpdatePostMutation,
   util,
 } = postApi
 
@@ -92,6 +97,7 @@ export const {
 export const { fetched_at, id, name: _name } = QueryArg
 
 export const {
+  cacheEntriesUpserted,
   internal_getRTKQSubscriptions,
   middlewareRegistered,
   onFocus,
@@ -123,6 +129,7 @@ export const {
   selectInvalidatedBy,
   updateQueryData,
   upsertQueryData,
+  upsertQueryEntries,
 } = util
 
 export const { match: _match, type: _type } = invalidateTags

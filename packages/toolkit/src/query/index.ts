@@ -4,11 +4,18 @@
 export type { Api, ApiContext, Module } from './apiTypes'
 export type {
   BaseQueryApi,
+  BaseQueryArg,
   BaseQueryEnhancer,
+  BaseQueryError,
+  BaseQueryExtraOptions,
   BaseQueryFn,
+  BaseQueryMeta,
+  BaseQueryResult,
+  QueryReturnValue,
 } from './baseQueryTypes'
 export {
   QueryStatus,
+  buildCreateApi,
   coreModule,
   coreModuleName,
   createApi,
@@ -21,12 +28,19 @@ export type {
   ApiModules,
   CombinedState,
   CoreModule,
+  CreateApi,
+  CreateApiOptions,
+  InternalActions,
   MutationActionCreatorResult,
+  MutationCacheLifecycleApi,
   MutationKeys,
+  MutationLifecycleApi,
   MutationResultSelectorResult,
   MutationSubstateIdentifier,
+  NormalizedQueryUpsertEntryPayload,
   PatchQueryDataThunk,
   PrefetchOptions,
+  ProcessedQueryUpsertEntry,
   QueryActionCreatorResult,
   QueryCacheKey,
   QueryKeys,
@@ -37,11 +51,11 @@ export type {
   SkipToken,
   StartQueryActionCreatorOptions,
   SubscriptionOptions,
+  ThunkWithReturnValue,
   UpdateQueryDataThunk,
+  UpsertEntries,
   UpsertQueryDataThunk,
 } from './core/index'
-export { buildCreateApi } from './createApi'
-export type { CreateApi, CreateApiOptions } from './createApi'
 export { defaultSerializeQueryArgs } from './defaultSerializeQueryArgs'
 export type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 export type {
@@ -58,6 +72,7 @@ export type {
   QueryArgFrom,
   QueryDefinition,
   QueryExtraOptions,
+  ResultDescription,
   ResultTypeFrom,
   TagDescription,
   TagTypesFromApi,
@@ -74,8 +89,6 @@ export type {
 export { retry } from './retry'
 export type { RetryOptions } from './retry'
 export type {
-  // CastAny,
-  // HasRequiredProps,
   MaybePromise,
   NonUndefined,
   OmitFromUnion,

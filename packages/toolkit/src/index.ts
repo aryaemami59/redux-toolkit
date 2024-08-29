@@ -57,6 +57,7 @@ export {
 export type {
   AsyncThunk,
   AsyncThunkAction,
+  AsyncThunkConfig,
   AsyncThunkOptions,
   AsyncThunkPayloadCreator,
   AsyncThunkPayloadCreatorReturnValue,
@@ -91,9 +92,11 @@ export { createDynamicMiddleware } from './dynamicMiddleware/index'
 export type {
   AddMiddleware,
   DynamicDispatch,
+  DynamicMiddleware,
   DynamicMiddlewareInstance,
   GetDispatch,
   MiddlewareApiConfig,
+  WithMiddleware,
 } from './dynamicMiddleware/index'
 export { createEntityAdapter } from './entities/index'
 export type {
@@ -105,7 +108,7 @@ export type {
   EntityStateAdapter,
   IdSelector,
   Update,
-} from './entities/index'
+} from './entities/models'
 export { formatProdErrorMessage } from './formatProdErrorMessage'
 export {
   createImmutableStateInvariantMiddleware,
@@ -120,6 +123,7 @@ export {
   removeListener,
 } from './listenerMiddleware/index'
 export type {
+  AddListenerOverloads,
   AnyListenerPredicate,
   AsyncTaskExecutor,
   CreateListenerMiddlewareOptions,
@@ -131,6 +135,7 @@ export type {
   ListenerErrorHandler,
   ListenerMiddleware,
   ListenerMiddlewareInstance,
+  RemoveListenerOverloads,
   SyncTaskExecutor,
   TaskCancelled,
   TaskRejected,
@@ -162,10 +167,9 @@ export {
 } from './serializableStateInvariantMiddleware'
 export type { SerializableStateInvariantMiddlewareOptions } from './serializableStateInvariantMiddleware'
 export type {
-  Tail,
-  WithOptionalProp,
-  // UnionToIntersection,
   SafePromise,
   ExtractDispatchExtensions as TSHelpersExtractDispatchExtensions,
+  Tail,
+  WithOptionalProp,
 } from './tsHelpers'
 export { Tuple } from './utils'

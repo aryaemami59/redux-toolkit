@@ -4,6 +4,7 @@ import { coreModule } from './module'
 export const createApi = /* @__PURE__ */ buildCreateApi(coreModule())
 
 export { buildCreateApi } from '../createApi'
+export type { CreateApi, CreateApiOptions } from '../createApi'
 export { QueryStatus } from './apiState'
 export type {
   CombinedState,
@@ -24,9 +25,6 @@ export type {
 export type {
   MutationCacheLifecycleApi,
   MutationLifecycleApi,
-  QueryCacheLifecycleApi,
-  QueryLifecycleApi,
-  SubscriptionSelectors,
 } from './buildMiddleware/index'
 export { skipToken } from './buildSelectors'
 export type {
@@ -34,7 +32,11 @@ export type {
   QueryResultSelectorResult,
   SkipToken,
 } from './buildSelectors'
-export type { SliceActions } from './buildSlice'
+export type {
+  NormalizedQueryUpsertEntryPayload,
+  ProcessedQueryUpsertEntry,
+  UpsertEntries,
+} from './buildSlice'
 export type {
   PatchQueryDataThunk,
   UpdateQueryDataThunk,
@@ -46,6 +48,8 @@ export type {
   ApiEndpointQuery,
   ApiModules,
   CoreModule,
+  InternalActions,
   PrefetchOptions,
+  ThunkWithReturnValue,
 } from './module'
 export { setupListeners } from './setupListeners'

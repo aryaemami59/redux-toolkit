@@ -31,6 +31,7 @@ export type {
   UseLazyQuery,
   UseMutation,
   UseQuery,
+  UseQueryState,
 } from './buildHooks'
 export { UNINITIALIZED_VALUE } from './constants'
 export { reactHooksModule, reactHooksModuleName } from './module'

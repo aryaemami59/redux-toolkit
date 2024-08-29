@@ -45,6 +45,7 @@ export const {
 } = getTime
 
 export const {
+  cacheEntriesUpserted,
   internal_getRTKQSubscriptions,
   middlewareRegistered,
   onFocus,
@@ -74,4 +75,5 @@ export const {
   selectInvalidatedBy,
   updateQueryData,
   upsertQueryData,
+  upsertQueryEntries,
 } = util

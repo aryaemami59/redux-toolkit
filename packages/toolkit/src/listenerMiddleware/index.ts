@@ -62,6 +62,7 @@ export type {
   ListenerErrorHandler,
   ListenerMiddleware,
   ListenerMiddlewareInstance,
+  RemoveListenerOverloads,
   SyncTaskExecutor,
   TaskCancelled,
   TaskRejected,

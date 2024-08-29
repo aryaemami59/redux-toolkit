@@ -2,14 +2,17 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import { defineConfig } from 'vitest/config'
+import packageJson from './package.json' with { type: 'json' }
 
 // No __dirname under Node ESM
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 export default defineConfig({
-  plugins: [tsconfigPaths({ root: __dirname })],
+  plugins: [tsconfigPaths({ root: __dirname, projects: ['tsconfig.json'] })],
   test: {
+    name: packageJson.name,
+    root: import.meta.dirname,
     alias: process.env.TEST_DIST
       ? {
           '@reduxjs/toolkit': new URL(

@@ -23,21 +23,26 @@
     "access": "public"
   },
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "default": "./dist/index.js"
     },
     "./react": {
+      "types": "./dist/react/index.d.ts",
       "import": "./dist/react/index.mjs",
       "default": "./dist/react/index.js"
     },
     "./query": {
+      "types": "./dist/query/index.d.ts",
       "import": "./dist/query/index.mjs",
       "default": "./dist/query/index.js"
     },
     "./query/react": {
+      "types": "./dist/query/react/index.d.ts",
       "import": "./dist/query/react/index.mjs",
       "default": "./dist/query/react/index.js"
     }
@@ -80,7 +85,7 @@
     "invariant": "^2.2.4",
     "jsdom": "^21.0.0",
     "json-stringify-safe": "^5.0.1",
-    "knip": "^5.27.4",
+    "knip": "^5.36.7",
     "msw": "^2.1.4",
     "node-fetch": "^3.3.2",
     "prettier": "^3.2.5",
@@ -88,7 +93,7 @@
     "rimraf": "^3.0.2",
     "size-limit": "^11.0.1",
     "tslib": "^1.10.0",
-    "tsup": "^8.2.3",
+    "tsup": "^8.3.5",
     "tsx": "^4.19.0",
     "typescript": "^5.5.4",
     "vite-tsconfig-paths": "^4.3.1",
@@ -98,12 +103,12 @@
   "scripts": {
     "clean": "rimraf dist",
     "run-build": "tsup",
-    "build": "yarn clean && tsc -p tsconfig.build.json --emitDeclarationOnly false --declarationMap --sourceMap",
+    "build": "yarn clean && tsup --config tsup.config.mts && tsc -p tsconfig.build.json --emitDeclarationOnly --declarationMap",
     "build-only": "yarn clean && yarn run-build",
     "format": "prettier --write \"(src|examples)/**/*.{ts,tsx}\" \"**/*.md\"",
     "format:check": "prettier --list-different \"(src|examples)/**/*.{ts,tsx}\" \"docs/*/**.md\"",
     "lint": "eslint src examples",
-    "test": "yarn workspace @examples-type-portability/nodenext-esm run test",
+    "test": "vitest --run --typecheck",
     "test:watch": "vitest --watch",
     "type-tests": "yarn tsc -p tsconfig.test.json --noEmit",
     "prepack": "yarn build",

@@ -31,6 +31,7 @@
     "downlevelIteration": false,
     "allowSyntheticDefaultImports": true,
     "emitDeclarationOnly": true,
+    "resolveJsonModule": true,
     "types": ["vitest/globals", "vitest/importMeta"],
     "paths": {
       "@reduxjs/toolkit": ["./src/index.ts"], // @remap-prod-remove-line

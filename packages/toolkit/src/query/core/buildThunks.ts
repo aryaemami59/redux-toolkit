@@ -82,7 +82,7 @@ type FulfilledAction<
   Definition extends EndpointDefinition<any, any, any, any>,
 > = ReturnType<EndpointThunk<Thunk, Definition>['fulfilled']>
 
-export type RejectedAction<
+type RejectedAction<
   Thunk extends QueryThunk | MutationThunk,
   Definition extends EndpointDefinition<any, any, any, any>,
 > = ReturnType<EndpointThunk<Thunk, Definition>['rejected']>

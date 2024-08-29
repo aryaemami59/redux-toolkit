@@ -52,6 +52,7 @@ export const {
 export const { decrementCount, getCount, incrementCount } = endpoints
 
 export const {
+  cacheEntriesUpserted,
   internal_getRTKQSubscriptions,
   middlewareRegistered,
   onFocus,

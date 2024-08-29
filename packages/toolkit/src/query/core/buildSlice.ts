@@ -42,14 +42,16 @@ import {
   isAnyOf,
   isFulfilled,
   isRejectedWithValue,
+  nanoid,
   prepareAutoBatched,
+  SHOULD_AUTOBATCH,
 } from './rtkImports'
 import { onFocus, onFocusLost, onOffline, onOnline } from './setupListeners'
 
 /**
  * A typesafe single entry to be upserted into the cache
  */
-export type NormalizedQueryUpsertEntry<
+type NormalizedQueryUpsertEntry<
   Definitions extends EndpointDefinitions,
   EndpointName extends QueryKeys<Definitions>,
 > = {
@@ -61,7 +63,7 @@ export type NormalizedQueryUpsertEntry<
 /**
  * The internal version that is not typesafe since we can't carry the generics through `createSlice`
  */
-type NormalizedQueryUpsertEntryPayload = {
+export type NormalizedQueryUpsertEntryPayload = {
   endpointName: string
   arg: unknown
   value: unknown

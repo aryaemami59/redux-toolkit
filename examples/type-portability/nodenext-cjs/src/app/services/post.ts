@@ -52,7 +52,12 @@ namespace postModule {
     middleware,
     reducer,
     reducerPath,
+    useAddPostMutation,
+    useDeletePostMutation,
+    useGetPostQuery,
+    useLazyGetPostQuery,
     usePrefetch,
+    useUpdatePostMutation,
     util,
   } = postApi
 
@@ -96,6 +101,7 @@ namespace postModule {
   export const { fetched_at, id, name: _name } = QueryArg
 
   export const {
+    cacheEntriesUpserted,
     internal_getRTKQSubscriptions,
     middlewareRegistered,
     onFocus,
@@ -127,6 +133,7 @@ namespace postModule {
     selectInvalidatedBy,
     updateQueryData,
     upsertQueryData,
+    upsertQueryEntries,
   } = util
 
   export const { match: _match, type: _type } = invalidateTags

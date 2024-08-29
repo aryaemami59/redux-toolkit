@@ -48,6 +48,7 @@ namespace timesModule {
   } = getTime
 
   export const {
+    cacheEntriesUpserted,
     internal_getRTKQSubscriptions,
     middlewareRegistered,
     onFocus,
@@ -77,6 +78,7 @@ namespace timesModule {
     selectInvalidatedBy,
     updateQueryData,
     upsertQueryData,
+    upsertQueryEntries,
   } = util
 }
 

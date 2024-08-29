@@ -64,6 +64,7 @@ export const {
 } = enhancedApi
 
 export const {
+  cacheEntriesUpserted,
   internal_getRTKQSubscriptions,
   middlewareRegistered,
   onFocus,
@@ -95,6 +96,7 @@ export const {
   selectInvalidatedBy,
   updateQueryData,
   upsertQueryData,
+  upsertQueryEntries,
 } = util
 
 export const { match: _match, type: _type } = invalidateTags

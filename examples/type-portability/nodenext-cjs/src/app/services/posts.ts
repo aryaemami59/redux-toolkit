@@ -186,6 +186,7 @@ namespace postsModule {
   } = updatePost
 
   export const {
+    cacheEntriesUpserted,
     internal_getRTKQSubscriptions,
     middlewareRegistered,
     onFocus,
@@ -215,6 +216,7 @@ namespace postsModule {
     selectInvalidatedBy,
     updateQueryData,
     upsertQueryData,
+    upsertQueryEntries,
   } = util
 }
 

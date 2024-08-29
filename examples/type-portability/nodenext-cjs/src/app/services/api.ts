@@ -66,6 +66,7 @@ namespace apiModule {
   } = enhancedApi
 
   export const {
+    cacheEntriesUpserted,
     internal_getRTKQSubscriptions,
     middlewareRegistered,
     onFocus,
@@ -97,6 +98,7 @@ namespace apiModule {
     selectInvalidatedBy,
     updateQueryData,
     upsertQueryData,
+    upsertQueryEntries,
   } = util
 
   export const { match: _match, type: _type } = invalidateTags

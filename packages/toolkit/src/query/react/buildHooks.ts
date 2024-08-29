@@ -43,7 +43,7 @@ import {
   useState,
 } from 'react'
 import { shallowEqual } from 'react-redux'
-import type { SubscriptionSelectors } from '../core/index'
+import type { SubscriptionSelectors } from '../core/buildMiddleware/index'
 import { defaultSerializeQueryArgs } from '../defaultSerializeQueryArgs'
 import type { UninitializedValue } from './constants'
 import { UNINITIALIZED_VALUE } from './constants'
@@ -71,8 +71,7 @@ const isReactNative = /* @__PURE__ */ isRunningInReactNative()
 const getUseIsomorphicLayoutEffect = () =>
   isDOM || isReactNative ? useLayoutEffect : useEffect
 
-const useIsomorphicLayoutEffect =
-  /* @__PURE__ */ getUseIsomorphicLayoutEffect()
+const useIsomorphicLayoutEffect = /* @__PURE__ */ getUseIsomorphicLayoutEffect()
 
 export type QueryHooks<
   Definition extends QueryDefinition<any, any, any, any, any>,
@@ -195,9 +194,7 @@ type UseQuerySubscriptionOptions = SubscriptionOptions & {
  * - 'Subscribes' the component to keep cached data in the store, and 'unsubscribes' when the component unmounts
  * - Accepts polling/re-fetching options to trigger automatic re-fetches when the corresponding criteria is met
  */
-type UseQuerySubscription<
-  D extends QueryDefinition<any, any, any, any>,
-> = (
+type UseQuerySubscription<D extends QueryDefinition<any, any, any, any>> = (
   arg: QueryArgFrom<D> | SkipToken,
   options?: UseQuerySubscriptionOptions,
 ) => UseQuerySubscriptionResult<D>
@@ -210,9 +207,8 @@ export type TypedUseQuerySubscription<
   QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
-type UseQuerySubscriptionResult<
-  D extends QueryDefinition<any, any, any, any>,
-> = Pick<QueryActionCreatorResult<D>, 'refetch'>
+type UseQuerySubscriptionResult<D extends QueryDefinition<any, any, any, any>> =
+  Pick<QueryActionCreatorResult<D>, 'refetch'>
 
 /**
  * Helper type to manually type the result
@@ -313,9 +309,7 @@ export type TypedLazyQueryTrigger<
  * - 'Subscribes' the component to keep cached data in the store, and 'unsubscribes' when the component unmounts
  * - Accepts polling/re-fetching options to trigger automatic re-fetches when the corresponding criteria is met and the fetch has been manually called at least once
  */
-type UseLazyQuerySubscription<
-  D extends QueryDefinition<any, any, any, any>,
-> = (
+type UseLazyQuerySubscription<D extends QueryDefinition<any, any, any, any>> = (
   options?: SubscriptionOptions,
 ) => readonly [LazyQueryTrigger<D>, QueryArgFrom<D> | UninitializedValue]
 
@@ -458,7 +452,7 @@ export type TypedQueryStateSelector<
  * - Returns the latest request status and cached data from the Redux store
  * - Re-renders as the request status changes and data becomes available
  */
-type UseQueryState<D extends QueryDefinition<any, any, any, any>> = <
+export type UseQueryState<D extends QueryDefinition<any, any, any, any>> = <
   R extends Record<string, any> = UseQueryStateDefaultResult<D>,
 >(
   arg: QueryArgFrom<D> | SkipToken,
@@ -774,26 +768,25 @@ export type TypedUseMutation<
   MutationDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
-type MutationTrigger<D extends MutationDefinition<any, any, any, any>> =
-  {
-    /**
-     * Triggers the mutation and returns a Promise.
-     * @remarks
-     * If you need to access the error or success payload immediately after a mutation, you can chain .unwrap().
-     *
-     * @example
-     * ```ts
-     * // codeblock-meta title="Using .unwrap with async await"
-     * try {
-     *   const payload = await addPost({ id: 1, name: 'Example' }).unwrap();
-     *   console.log('fulfilled', payload)
-     * } catch (error) {
-     *   console.error('rejected', error);
-     * }
-     * ```
-     */
-    (arg: QueryArgFrom<D>): MutationActionCreatorResult<D>
-  }
+type MutationTrigger<D extends MutationDefinition<any, any, any, any>> = {
+  /**
+   * Triggers the mutation and returns a Promise.
+   * @remarks
+   * If you need to access the error or success payload immediately after a mutation, you can chain .unwrap().
+   *
+   * @example
+   * ```ts
+   * // codeblock-meta title="Using .unwrap with async await"
+   * try {
+   *   const payload = await addPost({ id: 1, name: 'Example' }).unwrap();
+   *   console.log('fulfilled', payload)
+   * } catch (error) {
+   *   console.error('rejected', error);
+   * }
+   * ```
+   */
+  (arg: QueryArgFrom<D>): MutationActionCreatorResult<D>
+}
 
 export type TypedMutationTrigger<
   ResultType,
