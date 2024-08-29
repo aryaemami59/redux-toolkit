@@ -89,7 +89,7 @@ export type RejectedAction<
 
 type Matcher<M> = (value: any) => value is M
 
-export interface Matchers<
+interface Matchers<
   Thunk extends QueryThunk | MutationThunk,
   Definition extends EndpointDefinition<any, any, any, any>,
 > {

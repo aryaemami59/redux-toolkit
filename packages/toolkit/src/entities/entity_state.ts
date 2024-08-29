@@ -5,7 +5,7 @@ import type {
   EntityStateFactory,
 } from './models'
 
-export function getInitialEntityState<T, Id extends EntityId>(): EntityState<
+function getInitialEntityState<T, Id extends EntityId>(): EntityState<
   T,
   Id
 > {

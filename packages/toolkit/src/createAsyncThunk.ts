@@ -12,7 +12,7 @@ import type {
   SafePromise,
 } from './tsHelpers'
 
-export type BaseThunkAPI<
+type BaseThunkAPI<
   S,
   E,
   D extends Dispatch = Dispatch,

@@ -3,7 +3,7 @@ import type { BaseActionCreator, PayloadAction } from '../createAction'
 import type { GetState } from '../createAsyncThunk'
 import type { ExtractDispatchExtensions, FallbackIfUnknown } from '../tsHelpers'
 
-export type GetMiddlewareApi<MiddlewareApiConfig> = MiddlewareAPI<
+type GetMiddlewareApi<MiddlewareApiConfig> = MiddlewareAPI<
   GetDispatchType<MiddlewareApiConfig>,
   GetState<MiddlewareApiConfig>
 >

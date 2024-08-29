@@ -16,12 +16,12 @@ import { freezeDraftable } from './utils'
  */
 export type Actions<T extends keyof any = string> = Record<T, Action>
 
-export type ActionMatcherDescription<S, A extends Action> = {
+type ActionMatcherDescription<S, A extends Action> = {
   matcher: TypeGuard<A>
   reducer: CaseReducer<S, NoInfer<A>>
 }
 
-export type ReadonlyActionMatcherDescriptionCollection<S> = ReadonlyArray<
+type ReadonlyActionMatcherDescriptionCollection<S> = ReadonlyArray<
   ActionMatcherDescription<S, any>
 >
 
@@ -63,7 +63,7 @@ export type CaseReducers<S, AS extends Actions> = {
   [T in keyof AS]: AS[T] extends Action ? CaseReducer<S, AS[T]> : void
 }
 
-export type NotFunction<T> = T extends Function ? never : T
+type NotFunction<T> = T extends Function ? never : T
 
 function isStateFunction<S>(x: unknown): x is () => S {
   return typeof x === 'function'

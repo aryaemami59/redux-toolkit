@@ -48,7 +48,7 @@ export interface ConditionFunction<State> {
 }
 
 /** @internal */
-export type MatchFunction<T> = (v: any) => v is T
+type MatchFunction<T> = (v: any) => v is T
 
 /** @public */
 export interface ForkedTaskAPI {

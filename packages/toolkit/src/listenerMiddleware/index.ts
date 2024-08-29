@@ -216,7 +216,7 @@ const getListenerEntryPropsFrom = (options: FallbackAddListenerOptions) => {
 }
 
 /** Accepts the possible options for creating a listener, and returns a formatted listener entry */
-export const createListenerEntry: TypedCreateListenerEntry<unknown> =
+const createListenerEntry: TypedCreateListenerEntry<unknown> =
   /* @__PURE__ */ assign(
     (options: FallbackAddListenerOptions) => {
       const { type, predicate, effect } = getListenerEntryPropsFrom(options)

@@ -16,7 +16,7 @@ import {
 } from './utils'
 
 // Borrowed from Replay
-export function findInsertIndex<T>(
+function findInsertIndex<T>(
   sortedItems: T[],
   item: T,
   comparisonFunction: Comparer<T>,
@@ -37,7 +37,7 @@ export function findInsertIndex<T>(
   return lowIndex
 }
 
-export function insert<T>(
+function insert<T>(
   sortedItems: T[],
   item: T,
   comparisonFunction: Comparer<T>,

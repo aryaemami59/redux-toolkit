@@ -263,7 +263,7 @@ export type ConfigState<ReducerPath> = RefetchConfigOptions & {
   middlewareRegistered: boolean | 'conflict'
 } & ModifiableConfigState
 
-export type ModifiableConfigState = {
+type ModifiableConfigState = {
   keepUnusedDataFor: number
   invalidationBehavior: 'delayed' | 'immediately'
 } & RefetchConfigOptions

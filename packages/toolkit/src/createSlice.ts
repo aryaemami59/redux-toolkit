@@ -274,7 +274,7 @@ type ReducerDefinition<T extends ReducerType = ReducerType> = {
   _reducerDefinitionType: T
 }
 
-export type CaseReducerDefinition<
+type CaseReducerDefinition<
   S = any,
   A extends Action = UnknownAction,
 > = CaseReducer<S, A> & ReducerDefinition<ReducerType.reducer>
@@ -289,7 +289,7 @@ export type CaseReducerWithPrepare<State, Action extends PayloadAction> = {
   prepare: PrepareAction<Action['payload']>
 }
 
-export interface CaseReducerWithPrepareDefinition<
+interface CaseReducerWithPrepareDefinition<
   State,
   Action extends PayloadAction,
 > extends CaseReducerWithPrepare<State, Action>,

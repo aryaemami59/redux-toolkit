@@ -15,7 +15,7 @@ import {
 } from 'react-redux'
 import type { Action, Dispatch, Middleware, UnknownAction } from 'redux'
 
-export type UseDispatchWithMiddlewareHook<
+type UseDispatchWithMiddlewareHook<
   Middlewares extends Middleware<any, State, DispatchType>[] = [],
   State = any,
   DispatchType extends Dispatch<UnknownAction> = Dispatch<UnknownAction>,

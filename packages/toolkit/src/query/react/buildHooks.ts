@@ -71,7 +71,7 @@ const isReactNative = /* @__PURE__ */ isRunningInReactNative()
 const getUseIsomorphicLayoutEffect = () =>
   isDOM || isReactNative ? useLayoutEffect : useEffect
 
-export const useIsomorphicLayoutEffect =
+const useIsomorphicLayoutEffect =
   /* @__PURE__ */ getUseIsomorphicLayoutEffect()
 
 export type QueryHooks<

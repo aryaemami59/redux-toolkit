@@ -24,7 +24,7 @@ import { buildHooks } from './buildHooks'
 import type { HooksWithUniqueNames } from './namedHooks'
 
 export const reactHooksModuleName = /* @__PURE__ */ Symbol()
-export type ReactHooksModule = typeof reactHooksModuleName
+type ReactHooksModule = typeof reactHooksModuleName
 
 declare module '@reduxjs/toolkit/query' {
   export interface ApiModules<

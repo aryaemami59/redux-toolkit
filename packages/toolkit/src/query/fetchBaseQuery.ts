@@ -3,7 +3,7 @@ import { isPlainObject } from './core/rtkImports'
 import type { BaseQueryApi, BaseQueryFn } from './baseQueryTypes'
 import type { MaybePromise, Override } from './tsHelpers'
 
-export type ResponseHandler =
+type ResponseHandler =
   | 'content-type'
   | 'json'
   | 'text'
