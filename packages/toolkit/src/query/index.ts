@@ -22,17 +22,23 @@ export type {
   CombinedState,
   CoreModule,
   MutationActionCreatorResult,
+  MutationKeys,
   MutationResultSelectorResult,
+  MutationSubstateIdentifier,
+  PatchQueryDataThunk,
   PrefetchOptions,
   QueryActionCreatorResult,
   QueryCacheKey,
   QueryKeys,
   QueryResultSelectorResult,
   QuerySubState,
+  QuerySubstateIdentifier,
   RootState,
   SkipToken,
   StartQueryActionCreatorOptions,
   SubscriptionOptions,
+  UpdateQueryDataThunk,
+  UpsertQueryDataThunk,
 } from './core/index'
 export { buildCreateApi } from './createApi'
 export type { CreateApi, CreateApiOptions } from './createApi'
@@ -45,6 +51,7 @@ export type {
   EndpointBuilder,
   EndpointDefinition,
   EndpointDefinitions,
+  FullTagDescription,
   MutationDefinition,
   MutationExtraOptions,
   OverrideResultType,
@@ -67,8 +74,16 @@ export type {
 export { retry } from './retry'
 export type { RetryOptions } from './retry'
 export type {
+  // CastAny,
+  // HasRequiredProps,
+  MaybePromise,
+  NonUndefined,
+  OmitFromUnion,
   Id as TSHelpersId,
   NoInfer as TSHelpersNoInfer,
   Override as TSHelpersOverride,
+  UnionToIntersection,
+  UnwrapPromise,
+  WithRequiredProp,
 } from './tsHelpers'
 export { copyWithStructuralSharing } from './utils/index'

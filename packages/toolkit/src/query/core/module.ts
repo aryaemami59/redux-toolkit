@@ -81,7 +81,7 @@ export type CoreModule =
   | ReferenceQueryLifecycle
   | ReferenceCacheCollection
 
-export type ThunkWithReturnValue<T> = ThunkAction<T, any, any, UnknownAction>
+type ThunkWithReturnValue<T> = ThunkAction<T, any, any, UnknownAction>
 
 export interface ApiModules<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -443,7 +443,7 @@ type ListenerActions = {
   onFocusLost: typeof onFocusLost
 }
 
-export type InternalActions = SliceActions & ListenerActions
+type InternalActions = SliceActions & ListenerActions
 
 interface CoreModuleOptions {
   /**

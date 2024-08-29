@@ -162,6 +162,9 @@ export {
 } from './serializableStateInvariantMiddleware'
 export type { SerializableStateInvariantMiddlewareOptions } from './serializableStateInvariantMiddleware'
 export type {
+  Tail,
+  WithOptionalProp,
+  // UnionToIntersection,
   SafePromise,
   ExtractDispatchExtensions as TSHelpersExtractDispatchExtensions,
 } from './tsHelpers'
