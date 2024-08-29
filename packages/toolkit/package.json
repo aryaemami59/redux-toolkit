@@ -22,30 +22,24 @@
   "publishConfig": {
     "access": "public"
   },
-  "module": "dist/redux-toolkit.legacy-esm.js",
-  "main": "dist/cjs/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/redux-toolkit.modern.mjs",
-      "default": "./dist/cjs/index.js"
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.js"
     },
     "./react": {
-      "types": "./dist/react/index.d.ts",
-      "import": "./dist/react/redux-toolkit-react.modern.mjs",
-      "default": "./dist/react/cjs/index.js"
+      "import": "./dist/react/index.mjs",
+      "default": "./dist/react/index.js"
     },
     "./query": {
-      "types": "./dist/query/index.d.ts",
-      "import": "./dist/query/rtk-query.modern.mjs",
-      "default": "./dist/query/cjs/index.js"
+      "import": "./dist/query/index.mjs",
+      "default": "./dist/query/index.js"
     },
     "./query/react": {
-      "types": "./dist/query/react/index.d.ts",
-      "import": "./dist/query/react/rtk-query-react.modern.mjs",
-      "default": "./dist/query/react/cjs/index.js"
+      "import": "./dist/query/react/index.mjs",
+      "default": "./dist/query/react/index.js"
     }
   },
   "devDependencies": {
@@ -86,6 +80,7 @@
     "invariant": "^2.2.4",
     "jsdom": "^21.0.0",
     "json-stringify-safe": "^5.0.1",
+    "knip": "^5.27.4",
     "msw": "^2.1.4",
     "node-fetch": "^3.3.2",
     "prettier": "^3.2.5",
@@ -103,16 +98,17 @@
   "scripts": {
     "clean": "rimraf dist",
     "run-build": "tsup",
-    "build": "yarn clean && yarn run-build && tsx scripts/fixUniqueSymbolExports.mts",
+    "build": "yarn clean && tsc -p tsconfig.build.json --emitDeclarationOnly false --declarationMap --sourceMap",
     "build-only": "yarn clean && yarn run-build",
     "format": "prettier --write \"(src|examples)/**/*.{ts,tsx}\" \"**/*.md\"",
     "format:check": "prettier --list-different \"(src|examples)/**/*.{ts,tsx}\" \"docs/*/**.md\"",
     "lint": "eslint src examples",
-    "test": "vitest --typecheck --run ",
+    "test": "yarn workspace @examples-type-portability/nodenext-esm run test",
     "test:watch": "vitest --watch",
     "type-tests": "yarn tsc -p tsconfig.test.json --noEmit",
     "prepack": "yarn build",
-    "size": "size-limit"
+    "size": "size-limit",
+    "knip": "knip -c knip.config.ts --exports --files --dependencies"
   },
   "files": [
     "dist/",
