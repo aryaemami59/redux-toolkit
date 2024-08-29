@@ -6,6 +6,7 @@ export type {
   BaseQueryApi,
   BaseQueryEnhancer,
   BaseQueryFn,
+  QueryReturnValue,
 } from './baseQueryTypes'
 export {
   QueryStatus,
@@ -22,7 +23,9 @@ export type {
   CombinedState,
   CoreModule,
   MutationActionCreatorResult,
+  MutationCacheLifecycleApi,
   MutationKeys,
+  MutationLifecycleApi,
   MutationResultSelectorResult,
   MutationSubstateIdentifier,
   PatchQueryDataThunk,

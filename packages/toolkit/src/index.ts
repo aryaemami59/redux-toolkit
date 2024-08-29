@@ -6,7 +6,7 @@ export {
   current,
   freeze,
   isDraft,
-  original,
+  original
 } from 'immer'
 export type { Draft } from 'immer'
 export * from 'redux'
@@ -15,7 +15,7 @@ export {
   createSelector,
   createSelectorCreator,
   lruMemoize,
-  weakMapMemoize,
+  weakMapMemoize
 } from 'reselect'
 export type { OutputSelector, Selector } from 'reselect'
 export { createActionCreatorInvariantMiddleware } from './actionCreatorInvariantMiddleware'
@@ -23,21 +23,21 @@ export type { ActionCreatorInvariantMiddlewareOptions } from './actionCreatorInv
 export {
   SHOULD_AUTOBATCH,
   autoBatchEnhancer,
-  prepareAutoBatched,
+  prepareAutoBatched
 } from './autoBatchEnhancer'
 export type { AutoBatchOptions } from './autoBatchEnhancer'
 export { combineSlices } from './combineSlices'
 export type {
   CombinedSliceReducer,
   InjectConfig,
-  WithSlice,
+  WithSlice
 } from './combineSlices'
 export { configureStore } from './configureStore'
 export type { ConfigureStoreOptions, EnhancedStore } from './configureStore'
 export {
   createAction,
   isActionCreator,
-  isFSA as isFluxStandardAction,
+  isFSA as isFluxStandardAction
 } from './createAction'
 export type {
   ActionCreatorWithNonInferrablePayload,
@@ -47,12 +47,12 @@ export type {
   ActionCreatorWithoutPayload,
   PayloadAction,
   PayloadActionCreator,
-  PrepareAction,
+  PrepareAction
 } from './createAction'
 export {
   createAsyncThunk,
   miniSerializeError,
-  unwrapResult,
+  unwrapResult
 } from './createAsyncThunk'
 export type {
   AsyncThunk,
@@ -62,11 +62,11 @@ export type {
   AsyncThunkPayloadCreatorReturnValue,
   GetState,
   GetThunkAPI,
-  SerializedError,
+  SerializedError
 } from './createAsyncThunk'
 export {
   createDraftSafeSelector,
-  createDraftSafeSelectorCreator,
+  createDraftSafeSelectorCreator
 } from './createDraftSafeSelector'
 export { createReducer } from './createReducer'
 export type { Actions, CaseReducer, CaseReducers } from './createReducer'
@@ -74,7 +74,7 @@ export {
   ReducerType,
   asyncThunkCreator,
   buildCreateSlice,
-  createSlice,
+  createSlice
 } from './createSlice'
 export type {
   CaseReducerActions,
@@ -84,16 +84,18 @@ export type {
   Slice,
   SliceCaseReducers,
   SliceSelectors,
-  ValidateSliceCaseReducers,
+  ValidateSliceCaseReducers
 } from './createSlice'
 export type { DevToolsEnhancerOptions } from './devtoolsExtension'
 export { createDynamicMiddleware } from './dynamicMiddleware/index'
 export type {
   AddMiddleware,
   DynamicDispatch,
+  DynamicMiddleware,
   DynamicMiddlewareInstance,
   GetDispatch,
   MiddlewareApiConfig,
+  WithMiddleware
 } from './dynamicMiddleware/index'
 export { createEntityAdapter } from './entities/index'
 export type {
@@ -104,12 +106,12 @@ export type {
   EntityState,
   EntityStateAdapter,
   IdSelector,
-  Update,
+  Update
 } from './entities/index'
 export { formatProdErrorMessage } from './formatProdErrorMessage'
 export {
   createImmutableStateInvariantMiddleware,
-  isImmutableDefault,
+  isImmutableDefault
 } from './immutableStateInvariantMiddleware'
 export type { ImmutableStateInvariantMiddlewareOptions } from './immutableStateInvariantMiddleware'
 export {
@@ -117,9 +119,10 @@ export {
   addListener,
   clearAllListeners,
   createListenerMiddleware,
-  removeListener,
+  removeListener
 } from './listenerMiddleware/index'
 export type {
+  AddListenerOverloads,
   AnyListenerPredicate,
   AsyncTaskExecutor,
   CreateListenerMiddlewareOptions,
@@ -131,6 +134,7 @@ export type {
   ListenerErrorHandler,
   ListenerMiddleware,
   ListenerMiddlewareInstance,
+  RemoveListenerOverloads,
   SyncTaskExecutor,
   TaskCancelled,
   TaskRejected,
@@ -141,7 +145,7 @@ export type {
   TypedStartListening,
   TypedStopListening,
   UnsubscribeListener,
-  UnsubscribeListenerOptions,
+  UnsubscribeListenerOptions
 } from './listenerMiddleware/index'
 export type { ActionReducerMapBuilder } from './mapBuilders'
 export {
@@ -151,21 +155,21 @@ export {
   isFulfilled,
   isPending,
   isRejected,
-  isRejectedWithValue,
+  isRejectedWithValue
 } from './matchers'
 export type { ActionMatchingAllOf, ActionMatchingAnyOf } from './matchers'
 export { nanoid } from './nanoid'
 export {
   createSerializableStateInvariantMiddleware,
   findNonSerializableValue,
-  isPlain,
+  isPlain
 } from './serializableStateInvariantMiddleware'
 export type { SerializableStateInvariantMiddlewareOptions } from './serializableStateInvariantMiddleware'
 export type {
-  Tail,
-  WithOptionalProp,
-  // UnionToIntersection,
   SafePromise,
   ExtractDispatchExtensions as TSHelpersExtractDispatchExtensions,
+  Tail,
+  WithOptionalProp
 } from './tsHelpers'
 export { Tuple } from './utils'
+

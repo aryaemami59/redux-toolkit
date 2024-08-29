@@ -14,9 +14,11 @@ import type {
 export type {
   AddMiddleware,
   DynamicDispatch,
+  DynamicMiddleware,
   DynamicMiddlewareInstance,
   GetDispatchType as GetDispatch,
   MiddlewareApiConfig,
+  WithMiddleware,
 } from './types'
 
 const createMiddlewareEntry = <
