@@ -9,7 +9,7 @@ import type {
   BaseQueryResult,
   QueryReturnValue,
 } from './baseQueryTypes'
-import type { QuerySubState, RootState } from './core'
+import type { QuerySubState, RootState } from './core/index'
 import type { CacheCollectionQueryExtraOptions } from './core/buildMiddleware/cacheCollection'
 import type {
   CacheLifecycleMutationExtraOptions,

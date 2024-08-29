@@ -39,7 +39,7 @@ import {
   isDocumentVisible,
   isOnline,
   copyWithStructuralSharing,
-} from '../utils'
+} from '../utils/index'
 import type { ApiContext } from '../apiTypes'
 import { isUpsertQuery } from './buildInitiate'
 

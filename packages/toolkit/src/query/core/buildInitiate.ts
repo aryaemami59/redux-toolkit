@@ -16,7 +16,7 @@ import type {
   QueryDefinition,
   ResultTypeFrom,
 } from '../endpointDefinitions'
-import { countObjectKeys, isNotNullish } from '../utils'
+import { countObjectKeys, isNotNullish } from '../utils/index'
 import type { SubscriptionOptions } from './apiState'
 import type { QueryResultSelectorResult } from './buildSelectors'
 import type { MutationThunk, QueryThunk, QueryThunkArg } from './buildThunks'

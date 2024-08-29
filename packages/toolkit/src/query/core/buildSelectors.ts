@@ -9,7 +9,7 @@ import type {
   TagTypesFrom,
 } from '../endpointDefinitions'
 import { expandTagDescription } from '../endpointDefinitions'
-import { flatten } from '../utils'
+import { flatten } from '../utils/index'
 import type {
   MutationSubState,
   QueryCacheKey,

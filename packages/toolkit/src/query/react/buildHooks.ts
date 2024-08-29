@@ -43,7 +43,7 @@ import {
   useState,
 } from 'react'
 import { shallowEqual } from 'react-redux'
-import type { SubscriptionSelectors } from '../core'
+import type { SubscriptionSelectors } from '../core/index'
 import { defaultSerializeQueryArgs } from '../defaultSerializeQueryArgs'
 import type { UninitializedValue } from './constants'
 import { UNINITIALIZED_VALUE } from './constants'
