@@ -108,7 +108,7 @@
     "type-tests": "yarn tsc -p tsconfig.test.json --noEmit",
     "prepack": "yarn build",
     "size": "size-limit",
-    "knip": "knip -c knip.config.ts --exports --files --dependencies"
+    "knip": "knip -c knip.config.ts --exports --tags=-public --include-entry-exports"
   },
   "files": [
     "dist/",
