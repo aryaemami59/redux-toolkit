@@ -12,6 +12,7 @@ export const createApi = /* @__PURE__ */ buildCreateApi(
 export * from '@reduxjs/toolkit/query'
 export { ApiProvider } from './ApiProvider'
 export type {
+  QueryHooks,
   TypedLazyQueryTrigger,
   TypedMutationTrigger,
   TypedUseLazyQuery,
@@ -24,6 +25,8 @@ export type {
   TypedUseQueryStateResult,
   TypedUseQuerySubscription,
   TypedUseQuerySubscriptionResult,
+  UseLazyQuery,
+  UseQuery,
   TypedUseQueryStateOptions,
 } from './buildHooks'
 export { UNINITIALIZED_VALUE } from './constants'

@@ -8,9 +8,11 @@ export { QueryStatus } from './apiState'
 export type {
   CombinedState,
   MutationKeys,
+  MutationSubstateIdentifier,
   QueryCacheKey,
   QueryKeys,
   QuerySubState,
+  QuerySubstateIdentifier,
   RootState,
   SubscriptionOptions,
 } from './apiState'
@@ -44,8 +46,6 @@ export type {
   ApiEndpointQuery,
   ApiModules,
   CoreModule,
-  InternalActions,
   PrefetchOptions,
-  ThunkWithReturnValue,
 } from './module'
 export { setupListeners } from './setupListeners'
