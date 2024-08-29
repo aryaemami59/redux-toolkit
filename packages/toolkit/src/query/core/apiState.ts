@@ -22,7 +22,7 @@ export type MutationSubstateIdentifier =
       fixedCacheKey: string
     }
 
-export type RefetchConfigOptions = {
+type RefetchConfigOptions = {
   refetchOnMountOrArgChange: boolean | number
   refetchOnReconnect: boolean
   refetchOnFocus: boolean

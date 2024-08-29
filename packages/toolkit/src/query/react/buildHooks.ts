@@ -118,7 +118,7 @@ export type TypedUseQuery<
   BaseQuery extends BaseQueryFn,
 > = UseQuery<QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>>
 
-export type UseQueryHookResult<
+type UseQueryHookResult<
   D extends QueryDefinition<any, any, any, any>,
   R = UseQueryStateDefaultResult<D>,
 > = UseQueryStateResult<D, R> & UseQuerySubscriptionResult<D>
@@ -195,7 +195,7 @@ type UseQuerySubscriptionOptions = SubscriptionOptions & {
  * - 'Subscribes' the component to keep cached data in the store, and 'unsubscribes' when the component unmounts
  * - Accepts polling/re-fetching options to trigger automatic re-fetches when the corresponding criteria is met
  */
-export type UseQuerySubscription<
+type UseQuerySubscription<
   D extends QueryDefinition<any, any, any, any>,
 > = (
   arg: QueryArgFrom<D> | SkipToken,
@@ -210,7 +210,7 @@ export type TypedUseQuerySubscription<
   QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
-export type UseQuerySubscriptionResult<
+type UseQuerySubscriptionResult<
   D extends QueryDefinition<any, any, any, any>,
 > = Pick<QueryActionCreatorResult<D>, 'refetch'>
 
@@ -226,7 +226,7 @@ export type TypedUseQuerySubscriptionResult<
   QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
-export type UseLazyQueryLastPromiseInfo<
+type UseLazyQueryLastPromiseInfo<
   D extends QueryDefinition<any, any, any, any>,
 > = {
   lastArg: QueryArgFrom<D>
@@ -267,7 +267,7 @@ export type TypedUseLazyQuery<
   QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
-export type LazyQueryTrigger<D extends QueryDefinition<any, any, any, any>> = {
+type LazyQueryTrigger<D extends QueryDefinition<any, any, any, any>> = {
   /**
    * Triggers a lazy query.
    *
@@ -313,7 +313,7 @@ export type TypedLazyQueryTrigger<
  * - 'Subscribes' the component to keep cached data in the store, and 'unsubscribes' when the component unmounts
  * - Accepts polling/re-fetching options to trigger automatic re-fetches when the corresponding criteria is met and the fetch has been manually called at least once
  */
-export type UseLazyQuerySubscription<
+type UseLazyQuerySubscription<
   D extends QueryDefinition<any, any, any, any>,
 > = (
   options?: SubscriptionOptions,
@@ -458,7 +458,7 @@ export type TypedQueryStateSelector<
  * - Returns the latest request status and cached data from the Redux store
  * - Re-renders as the request status changes and data becomes available
  */
-export type UseQueryState<D extends QueryDefinition<any, any, any, any>> = <
+type UseQueryState<D extends QueryDefinition<any, any, any, any>> = <
   R extends Record<string, any> = UseQueryStateDefaultResult<D>,
 >(
   arg: QueryArgFrom<D> | SkipToken,
@@ -619,7 +619,7 @@ export type TypedUseQueryStateOptions<
   SelectedResult
 >
 
-export type UseQueryStateResult<
+type UseQueryStateResult<
   _ extends QueryDefinition<any, any, any, any>,
   R,
 > = TSHelpersNoInfer<R>
@@ -709,12 +709,12 @@ type UseQueryStateDefaultResult<D extends QueryDefinition<any, any, any, any>> =
     status: QueryStatus
   }
 
-export type MutationStateSelector<
+type MutationStateSelector<
   R extends Record<string, any>,
   D extends MutationDefinition<any, any, any, any>,
 > = (state: MutationResultSelectorResult<D>) => R
 
-export type UseMutationStateOptions<
+type UseMutationStateOptions<
   D extends MutationDefinition<any, any, any, any>,
   R extends Record<string, any>,
 > = {
@@ -722,7 +722,7 @@ export type UseMutationStateOptions<
   fixedCacheKey?: string
 }
 
-export type UseMutationStateResult<
+type UseMutationStateResult<
   D extends MutationDefinition<any, any, any, any>,
   R,
 > = TSHelpersNoInfer<R> & {
@@ -774,7 +774,7 @@ export type TypedUseMutation<
   MutationDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
-export type MutationTrigger<D extends MutationDefinition<any, any, any, any>> =
+type MutationTrigger<D extends MutationDefinition<any, any, any, any>> =
   {
     /**
      * Triggers the mutation and returns a Promise.
