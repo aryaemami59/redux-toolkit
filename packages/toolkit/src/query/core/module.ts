@@ -445,7 +445,7 @@ type ListenerActions = {
 
 export type InternalActions = SliceActions & ListenerActions
 
-export interface CoreModuleOptions {
+interface CoreModuleOptions {
   /**
    * A selector creator (usually from `reselect`, or matching the same signature)
    */

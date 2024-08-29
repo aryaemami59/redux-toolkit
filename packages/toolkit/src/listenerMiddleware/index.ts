@@ -50,6 +50,9 @@ import {
 } from './utils'
 export { TaskAbortError } from './exceptions'
 export type {
+
+  AddListenerOverloads,
+  AnyListenerPredicate,
   AsyncTaskExecutor,
   CreateListenerMiddlewareOptions,
   ForkedTask,

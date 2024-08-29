@@ -57,7 +57,7 @@ export type SubMiddlewareApi = MiddlewareAPI<
   RootState<EndpointDefinitions, string, string>
 >
 
-export interface BuildSubMiddlewareInput
+interface BuildSubMiddlewareInput
   extends BuildMiddlewareInput<EndpointDefinitions, string, string> {
   internalState: InternalMiddlewareState
   refetchQuery(
@@ -69,7 +69,7 @@ export interface BuildSubMiddlewareInput
   isThisApiSliceAction: (action: Action) => boolean
 }
 
-export type SubMiddlewareBuilder = (
+type SubMiddlewareBuilder = (
   input: BuildSubMiddlewareInput,
 ) => Middleware<
   {},

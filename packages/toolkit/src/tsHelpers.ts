@@ -1,7 +1,7 @@
 import type { Middleware, StoreEnhancer } from 'redux'
 import type { Tuple } from './utils'
 
-export function safeAssign<T extends object>(
+function safeAssign<T extends object>(
   target: T,
   ...args: Array<Partial<NoInfer<T>>>
 ) {
@@ -47,7 +47,7 @@ export type IfVoid<P, True, False> = [void] extends [P] ? True : False
 /**
  * @internal
  */
-export type IsEmptyObj<T, True, False = never> = T extends any
+type IsEmptyObj<T, True, False = never> = T extends any
   ? keyof T extends never
     ? IsUnknown<T, False, IfMaybeUndefined<T, False, IfVoid<T, False, True>>>
     : False
@@ -61,7 +61,7 @@ export type IsEmptyObj<T, True, False = never> = T extends any
  *
  * @internal
  */
-export type AtLeastTS35<True, False> = [True, False][IsUnknown<
+type AtLeastTS35<True, False> = [True, False][IsUnknown<
   ReturnType<<T>() => T>,
   0,
   1
@@ -179,7 +179,7 @@ export interface TypeGuard<T> {
   (value: any): value is T
 }
 
-export interface HasMatchFunction<T> {
+interface HasMatchFunction<T> {
   match: TypeGuard<T>
 }
 

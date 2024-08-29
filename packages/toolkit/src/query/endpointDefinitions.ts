@@ -213,7 +213,7 @@ export enum DefinitionType {
   mutation = 'mutation',
 }
 
-export type GetResultDescriptionFn<
+type GetResultDescriptionFn<
   TagTypes extends string,
   ResultType,
   QueryArg,
@@ -815,7 +815,7 @@ export type TagTypesFromApi<T> =
 export type DefinitionsFromApi<T> =
   T extends Api<any, infer Definitions, any, any> ? Definitions : never
 
-export type TransformedResponse<
+type TransformedResponse<
   NewDefinitions extends EndpointDefinitions,
   K,
   ResultType,

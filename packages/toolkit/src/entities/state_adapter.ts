@@ -4,7 +4,7 @@ import type { EntityId, DraftableEntityState, PreventAny } from './models'
 import type { PayloadAction } from '../createAction'
 import { isFSA } from '../createAction'
 
-export const isDraftTyped = isDraft as <T>(
+const isDraftTyped = isDraft as <T>(
   value: T | Draft<T>,
 ) => value is Draft<T>
 

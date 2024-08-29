@@ -20,14 +20,14 @@ export type UnionToIntersection<U> = (
   ? I
   : never
 
-export type NonOptionalKeys<T> = {
+type NonOptionalKeys<T> = {
   [K in keyof T]-?: undefined extends T[K] ? never : K
 }[keyof T]
 
 export type HasRequiredProps<T, True, False> =
   NonOptionalKeys<T> extends never ? False : True
 
-export type OptionalIfAllPropsOptional<T> = HasRequiredProps<T, T, T | never>
+type OptionalIfAllPropsOptional<T> = HasRequiredProps<T, T, T | never>
 
 export type NoInfer<T> = [T][T extends any ? 0 : never]
 
@@ -41,7 +41,7 @@ export type OmitFromUnion<T, K extends keyof T> = T extends any
   ? Omit<T, K>
   : never
 
-export type IsAny<T, True, False = never> = true | false extends (
+type IsAny<T, True, False = never> = true | false extends (
   T extends never ? true : false
 )
   ? True
