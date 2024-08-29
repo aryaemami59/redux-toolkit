@@ -12,6 +12,8 @@ import type {
   WithMiddleware,
 } from './types'
 export type {
+  AddMiddleware,
+  DynamicDispatch,
   DynamicMiddlewareInstance,
   GetDispatchType as GetDispatch,
   MiddlewareApiConfig,

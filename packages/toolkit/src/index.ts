@@ -92,10 +92,10 @@ export type {
   AddMiddleware,
   DynamicDispatch,
   DynamicMiddlewareInstance,
-  GetDispatchType as GetDispatch,
+  GetDispatch,
   MiddlewareApiConfig,
-} from './dynamicMiddleware/types'
-export { createEntityAdapter } from './entities/create_adapter'
+} from './dynamicMiddleware/index'
+export { createEntityAdapter } from './entities/index'
 export type {
   Comparer,
   EntityAdapter,
@@ -105,7 +105,7 @@ export type {
   EntityStateAdapter,
   IdSelector,
   Update,
-} from './entities/models'
+} from './entities/index'
 export { formatProdErrorMessage } from './formatProdErrorMessage'
 export {
   createImmutableStateInvariantMiddleware,
@@ -120,6 +120,7 @@ export {
   removeListener,
 } from './listenerMiddleware/index'
 export type {
+  AnyListenerPredicate,
   AsyncTaskExecutor,
   CreateListenerMiddlewareOptions,
   ForkedTask,
@@ -142,7 +143,6 @@ export type {
   UnsubscribeListener,
   UnsubscribeListenerOptions,
 } from './listenerMiddleware/index'
-export type { AnyListenerPredicate } from './listenerMiddleware/types'
 export type { ActionReducerMapBuilder } from './mapBuilders'
 export {
   isAllOf,

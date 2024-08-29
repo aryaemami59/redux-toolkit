@@ -3,7 +3,6 @@ import { isAction } from 'redux'
 import type { ThunkDispatch } from 'redux-thunk'
 import { createAction } from '../createAction'
 import { nanoid } from '../nanoid'
-
 import { find } from '../utils'
 import {
   TaskAbortError,
@@ -50,6 +49,7 @@ import {
 } from './utils'
 export { TaskAbortError } from './exceptions'
 export type {
+  AnyListenerPredicate,
   AsyncTaskExecutor,
   CreateListenerMiddlewareOptions,
   ForkedTask,
