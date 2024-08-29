@@ -3,15 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "module": "../dist/react/redux-toolkit-react.legacy-esm.js",
-  "main": "../dist/react/cjs/index.js",
-  "types": "./../dist/react/index.d.ts",
+  "main": "../dist/react/index.js",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./../dist/react/index.d.ts",
-      "import": "./../dist/react/redux-toolkit-react.modern.mjs",
-      "default": "./../dist/react/cjs/index.js"
+      "import": "./../dist/react/index.mjs",
+      "default": "./../dist/react/index.js"
     }
   },
   "author": "Mark Erikson <mark@isquaredsoftware.com>",

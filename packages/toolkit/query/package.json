@@ -3,15 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "module": "../dist/query/rtk-query.legacy-esm.js",
-  "main": "../dist/query/cjs/index.js",
-  "types": "./../dist/query/index.d.ts",
+  "main": "../dist/query/index.js",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./../dist/query/index.d.ts",
-      "import": "./../dist/query/rtk-query.modern.mjs",
-      "default": "./../dist/query/cjs/index.js"
+      "import": "./../dist/query/index.mjs",
+      "default": "./../dist/query/index.js"
     }
   },
   "author": "Mark Erikson <mark@isquaredsoftware.com>",
