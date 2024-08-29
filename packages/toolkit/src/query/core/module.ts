@@ -40,8 +40,8 @@ import type {
   ReferenceCacheCollection,
   ReferenceCacheLifecycle,
   ReferenceQueryLifecycle,
-} from './buildMiddleware'
-import { buildMiddleware } from './buildMiddleware'
+} from './buildMiddleware/index'
+import { buildMiddleware } from './buildMiddleware/index'
 import type {
   BuildSelectorsApiEndpointMutation,
   BuildSelectorsApiEndpointQuery,

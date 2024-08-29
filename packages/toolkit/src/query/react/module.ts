@@ -18,7 +18,7 @@ import {
 import { createSelector as _createSelector } from 'reselect'
 import { isMutationDefinition, isQueryDefinition } from '../endpointDefinitions'
 import { safeAssign } from '../tsHelpers'
-import { capitalize, countObjectKeys } from '../utils'
+import { capitalize, countObjectKeys } from '../utils/index'
 import type { MutationHooks, QueryHooks } from './buildHooks'
 import { buildHooks } from './buildHooks'
 import type { HooksWithUniqueNames } from './namedHooks'

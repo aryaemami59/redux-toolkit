@@ -1,4 +1,4 @@
-import { joinUrls } from './utils'
+import { joinUrls } from './utils/index'
 import { isPlainObject } from './core/rtkImports'
 import type { BaseQueryApi, BaseQueryFn } from './baseQueryTypes'
 import type { MaybePromise, Override } from './tsHelpers'
