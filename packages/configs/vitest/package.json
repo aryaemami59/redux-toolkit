@@ -2,16 +2,21 @@
   "name": "@reduxjs/vitest-config",
   "version": "0.0.1",
   "description": "Vitest configuration for Redux projects",
-  "source": "./src/vitest.config.mts",
-  "main": "./dist/vitest.config.mjs",
-  "types": "./dist/vitest.config.d.mts",
-  "module": "./dist/vitest.config.mjs",
+  "source": "./src/index.mts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "module": "./dist/index.mjs",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./dist/vitest.config.d.mts",
-      "import": "./dist/vitest.config.mjs",
-      "default": "./dist/vitest.config.mjs"
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "default": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
     }
   },
   "files": [
@@ -19,7 +24,7 @@
     "src"
   ],
   "scripts": {
-    "build": "yarn clean && tsc",
+    "build": "yarn clean && tsup --config tsup.config.mts",
     "clean": "rimraf dist",
     "prepack": "yarn build"
   },
@@ -56,6 +61,7 @@
     "@reduxjs/tsconfig": "workspace:^",
     "rimraf": "^6.0.1",
     "tslib": "^2.7.0",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5"
   },
