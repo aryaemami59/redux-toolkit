@@ -140,7 +140,7 @@ describe('missing reducer', () => {
       expect(process.env.NODE_ENV).toBe(env)
     })
 
-    test(`warning behaviour`, () => {
+    test(`warning behavior`, () => {
       const store = configureStore({
         reducer: { x: () => 0 },
         // @ts-expect-error

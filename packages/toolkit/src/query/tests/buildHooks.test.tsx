@@ -2702,7 +2702,7 @@ describe('hooks with createApi defaults set', () => {
   })
 })
 
-describe('skip behaviour', () => {
+describe('skip behavior', () => {
   const uninitialized = {
     status: QueryStatus.uninitialized,
     refetch: expect.any(Function),

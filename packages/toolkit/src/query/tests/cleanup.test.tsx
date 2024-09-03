@@ -1,4 +1,4 @@
-// tests for "cleanup-after-unsubscribe" behaviour
+// tests for "cleanup-after-unsubscribe" behavior
 
 import { createListenerMiddleware } from '@reduxjs/toolkit'
 import { createApi, QueryStatus } from '@reduxjs/toolkit/query/react'

@@ -333,7 +333,7 @@ describe('endpoint definition typings', () => {
       api = getNewApi()
     })
 
-    test('pre-modification behaviour', async () => {
+    test('pre-modification behavior', async () => {
       const storeRef = setupApiStore(api, undefined, {
         withoutTestLifecycles: true,
       })
