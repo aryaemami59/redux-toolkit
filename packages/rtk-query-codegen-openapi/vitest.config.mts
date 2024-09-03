@@ -1,14 +1,13 @@
 import { createVitestConfig } from '@reduxjs/vitest-config';
-import path from 'node:path';
 
 export default createVitestConfig({
   test: {
     alias: process.env.TEST_DIST
       ? {
-          '@rtk-query/codegen-openapi': path.join(__dirname, '../..', 'node_modules/@rtk-query/codegen-openapi'),
+          '@rtk-query/codegen-openapi': new URL('../../node_modules/@rtk-query/codegen-openapi', import.meta.url)
+            .pathname,
         }
       : undefined,
-    pool: 'forks',
     setupFiles: ['./test/vitest.setup.ts'],
   },
 });
