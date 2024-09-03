@@ -6,7 +6,7 @@ const tsconfig = 'tsconfig.build.json' satisfies Options['tsconfig']
 const tsupConfig = defineConfig((overrideOptions): Options[] => {
   const commonOptions = {
     clean: true,
-    entryPoints: ['src/index.mts'],
+    entry: ['src/index.mts'],
     removeNodeProtocol: false,
     shims: true,
     sourcemap: true,
