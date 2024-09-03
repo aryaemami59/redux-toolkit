@@ -69,5 +69,3 @@ export const reduxVitestConfig: UserConfig = defineConfig({
 export const createVitestConfig = (
   additionalOverrides: UserConfig = {},
 ): UserConfig => mergeConfig(reduxVitestConfig, additionalOverrides)
-
-export default reduxVitestConfig
