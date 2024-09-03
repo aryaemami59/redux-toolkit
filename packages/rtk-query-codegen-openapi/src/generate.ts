@@ -1,4 +1,4 @@
-import { camelCase } from 'lodash';
+import camelCase from 'lodash.camelcase';
 import path from 'node:path';
 import ApiGenerator, {
   getOperationName as _getOperationName,
@@ -15,13 +15,25 @@ import ts from 'typescript';
 import type { ObjectPropertyDefinitions } from './codegen';
 import { generateCreateApiCall, generateEndpointDefinition, generateImportNode, generateTagTypes } from './codegen';
 import { generateReactHooks } from './generators/react-hooks';
-import type { EndpointMatcher, EndpointOverrides, GenerationOptions, OperationDefinition, TextMatcher } from './types';
+import type {
+  EndpointMatcher,
+  EndpointOverrides,
+  GenerationOptions,
+  OperationDefinition,
+  ParameterDefinition,
+  ParameterMatcher,
+  TextMatcher,
+} from './types';
 import { capitalize, getOperationDefinitions, getV3Doc, removeUndefined, isQuery as testIsQuery } from './utils';
 import { factory } from './utils/factory';
 
 const generatedApiName = 'injectedRtkApi';
+const v3DocCache: Record<string, OpenAPIV3.Document> = {};
 
-function defaultIsDataResponse(code: string) {
+function defaultIsDataResponse(code: string, includeDefault: boolean) {
+  if (includeDefault && code === 'default') {
+    return true;
+  }
   const parsedCode = Number(code);
   return !Number.isNaN(parsedCode) && parsedCode >= 200 && parsedCode < 300;
 }
@@ -53,6 +65,15 @@ function operationMatches(pattern?: EndpointMatcher) {
   };
 }
 
+function argumentMatches(pattern?: ParameterMatcher) {
+  const checkMatch = typeof pattern === 'function' ? pattern : patternMatches(pattern);
+  return function matcher(argumentDefinition: ParameterDefinition) {
+    if (!pattern || argumentDefinition.in === 'path') return true;
+    const argumentName = argumentDefinition.name;
+    return checkMatch(argumentName, argumentDefinition);
+  };
+}
+
 function withQueryComment<T extends ts.Node>(node: T, def: QueryArgDefinition, hasTrailingNewLine: boolean): T {
   const comment = def.origin === 'param' ? def.param.description : def.body.description;
   if (comment) {
@@ -81,6 +102,7 @@ export async function generateApi(
     exportName = 'enhancedApi',
     argSuffix = 'ApiArg',
     responseSuffix = 'ApiResponse',
+    operationNameSuffix = '',
     hooks = false,
     tag = false,
     outputFile,
@@ -88,12 +110,16 @@ export async function generateApi(
     filterEndpoints,
     endpointOverrides,
     unionUndefined,
+    encodePathParams = false,
+    encodeQueryParams = false,
     flattenArg = false,
+    includeDefault = false,
     useEnumType = false,
     mergeReadWriteOnly = false,
+    httpResolverOptions,
   }: GenerationOptions
 ) {
-  const v3Doc = await getV3Doc(spec);
+  const v3Doc = (v3DocCache[spec] ??= await getV3Doc(spec, httpResolverOptions));
 
   const apiGen = new ApiGenerator(v3Doc, {
     unionUndefined,
@@ -229,7 +255,10 @@ export async function generateApi(
                 factory.createKeywordTypeNode(ts.SyntaxKind.UndefinedKeyword),
             ] as const
         )
-        .filter(([status, response]) => isDataResponse(status, apiGen.resolve(response), responses || {}))
+        .filter(([status, response]) =>
+          isDataResponse(status, includeDefault, apiGen.resolve(response), responses || {})
+        )
+        .filter(([_1, _2, type]) => type !== keywordType.void)
         .map(([code, response, type]) =>
           ts.addSyntheticLeadingComment(
             { ...type },
@@ -237,8 +266,7 @@ export async function generateApi(
             `* status ${code} ${response.description} `,
             false
           )
-        )
-        .filter((type) => type !== keywordType.void);
+        );
       if (returnTypes.length > 0) {
         ResponseType = factory.createUnionTypeNode(returnTypes);
       }
@@ -248,17 +276,21 @@ export async function generateApi(
       registerInterface(
         factory.createTypeAliasDeclaration(
           [factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-          capitalize(operationName + responseSuffix),
+          capitalize(operationName + operationNameSuffix + responseSuffix),
           undefined,
           ResponseType
         )
       ).name
     );
 
-    const parameters = supportDeepObjects([
-      ...apiGen.resolveArray(pathItem.parameters),
-      ...apiGen.resolveArray(operation.parameters),
-    ]);
+    const operationParameters = apiGen.resolveArray(operation.parameters);
+    const pathItemParameters = apiGen
+      .resolveArray(pathItem.parameters)
+      .filter((pp) => !operationParameters.some((op) => op.name === pp.name && op.in === pp.in));
+
+    const parameters = supportDeepObjects([...pathItemParameters, ...operationParameters]).filter(
+      argumentMatches(overrides?.parameterFilter)
+    );
 
     const allNames = parameters.map((p) => p.name);
     const queryArg: QueryArgDefinitions = {};
@@ -298,7 +330,10 @@ export async function generateApi(
       const schema = apiGen.getSchemaFromContent(body.content);
       const type = apiGen.getTypeFromSchema(schema);
       const schemaName = camelCase(
-        (type as any).name || getReferenceName(schema) || ('title' in schema && schema.title) || 'body'
+        (type as any).name ||
+          getReferenceName(schema) ||
+          (typeof schema === 'object' && 'title' in schema && schema.title) ||
+          'body'
       );
       const name = generateName(schemaName in queryArg ? 'body' : schemaName, 'body');
 
@@ -322,16 +357,24 @@ export async function generateApi(
     const queryArgValues = Object.values(queryArg);
 
     const isFlatArg = flattenArg && queryArgValues.length === 1;
-
     const QueryArg = factory.createTypeReferenceNode(
       registerInterface(
         factory.createTypeAliasDeclaration(
           [factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-          capitalize(operationName + argSuffix),
+          capitalize(operationName + operationNameSuffix + argSuffix),
           undefined,
           queryArgValues.length > 0
             ? isFlatArg
-              ? withQueryComment({ ...queryArgValues[0].type }, queryArgValues[0], false)
+              ? withQueryComment(
+                  factory.createUnionTypeNode([
+                    queryArgValues[0].type,
+                    ...(!queryArgValues[0].required
+                      ? [factory.createKeywordTypeNode(ts.SyntaxKind.UndefinedKeyword)]
+                      : []),
+                  ]),
+                  queryArgValues[0],
+                  false
+                )
               : factory.createTypeLiteralNode(
                   queryArgValues.map((def) =>
                     withQueryComment(
@@ -352,11 +395,18 @@ export async function generateApi(
     );
 
     return generateEndpointDefinition({
-      operationName,
+      operationName: operationNameSuffix ? capitalize(operationName + operationNameSuffix) : operationName,
       type: isQuery ? 'query' : 'mutation',
       Response: ResponseTypeName,
       QueryArg,
-      queryFn: generateQueryFn({ operationDefinition, queryArg, isQuery, isFlatArg }),
+      queryFn: generateQueryFn({
+        operationDefinition,
+        queryArg,
+        isQuery,
+        isFlatArg,
+        encodePathParams,
+        encodeQueryParams,
+      }),
       extraEndpointsProps: isQuery
         ? generateQueryEndpointProps({ operationDefinition })
         : generateMutationEndpointProps({ operationDefinition }),
@@ -369,11 +419,15 @@ export async function generateApi(
     queryArg,
     isFlatArg,
     isQuery,
+    encodePathParams,
+    encodeQueryParams,
   }: {
     operationDefinition: OperationDefinition;
     queryArg: QueryArgDefinitions;
     isFlatArg: boolean;
     isQuery: boolean;
+    encodePathParams: boolean;
+    encodeQueryParams: boolean;
   }) {
     const { path, verb } = operationDefinition;
 
@@ -386,21 +440,31 @@ export async function generateApi(
     }
 
     function createObjectLiteralProperty(parameters: QueryArgDefinition[], propertyName: string) {
-      return parameters.length === 0
-        ? undefined
-        : factory.createPropertyAssignment(
-            factory.createIdentifier(propertyName),
-            factory.createObjectLiteralExpression(
-              parameters.map(
-                (param) =>
-                  createPropertyAssignment(
-                    param.originalName,
-                    isFlatArg ? rootObject : accessProperty(rootObject, param.name)
-                  ),
-                true
+      if (parameters.length === 0) return undefined;
+
+      const properties = parameters.map((param) => {
+        const value = isFlatArg ? rootObject : accessProperty(rootObject, param.name);
+
+        const encodedValue =
+          encodeQueryParams && param.param?.in === 'query'
+            ? factory.createConditionalExpression(
+                value,
+                undefined,
+                factory.createCallExpression(factory.createIdentifier('encodeURIComponent'), undefined, [
+                  factory.createCallExpression(factory.createIdentifier('String'), undefined, [value]),
+                ]),
+                undefined,
+                factory.createIdentifier('undefined')
               )
-            )
-          );
+            : value;
+
+        return createPropertyAssignment(param.originalName, encodedValue);
+      });
+
+      return factory.createPropertyAssignment(
+        factory.createIdentifier(propertyName),
+        factory.createObjectLiteralExpression(properties, true)
+      );
     }
 
     return factory.createArrowFunction(
@@ -416,7 +480,7 @@ export async function generateApi(
           [
             factory.createPropertyAssignment(
               factory.createIdentifier('url'),
-              generatePathExpression(path, pickParams('path'), rootObject, isFlatArg)
+              generatePathExpression(path, pickParams('path'), rootObject, isFlatArg, encodePathParams)
             ),
             isQuery && verb.toUpperCase() === 'GET'
               ? undefined
@@ -463,7 +527,8 @@ function generatePathExpression(
   path: string,
   pathParameters: QueryArgDefinition[],
   rootObject: ts.Identifier,
-  isFlatArg: boolean
+  isFlatArg: boolean,
+  encodePathParams: boolean
 ) {
   const expressions: Array<[string, string]> = [];
 
@@ -479,14 +544,20 @@ function generatePathExpression(
   return expressions.length
     ? factory.createTemplateExpression(
         factory.createTemplateHead(head),
-        expressions.map(([prop, literal], index) =>
-          factory.createTemplateSpan(
-            isFlatArg ? rootObject : accessProperty(rootObject, prop),
+        expressions.map(([prop, literal], index) => {
+          const value = isFlatArg ? rootObject : accessProperty(rootObject, prop);
+          const encodedValue = encodePathParams
+            ? factory.createCallExpression(factory.createIdentifier('encodeURIComponent'), undefined, [
+                factory.createCallExpression(factory.createIdentifier('String'), undefined, [value]),
+              ])
+            : value;
+          return factory.createTemplateSpan(
+            encodedValue,
             index === expressions.length - 1
               ? factory.createTemplateTail(literal)
               : factory.createTemplateMiddle(literal)
-          )
-        )
+          );
+        })
       )
     : factory.createNoSubstitutionTemplateLiteral(head);
 }
