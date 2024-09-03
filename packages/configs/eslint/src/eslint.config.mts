@@ -189,5 +189,3 @@ export const reduxESLintConfig: TSESLint.FlatConfig.Config[] = config(
 export const createESLintConfig = (
   additionalOverrides: ConfigWithExtends[] = [],
 ): TSESLint.FlatConfig.Config[] => reduxESLintConfig.concat(additionalOverrides)
-
-export default reduxESLintConfig

@@ -58,5 +58,3 @@ export const reduxPrettierConfig: Config = {
 export const createPrettierConfig = (
   additionalOverrides: Config = {},
 ): Config => ({ ...reduxPrettierConfig, ...additionalOverrides })
-
-export default reduxPrettierConfig
