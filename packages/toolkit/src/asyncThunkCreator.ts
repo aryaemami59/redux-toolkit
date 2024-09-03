@@ -7,54 +7,8 @@ import type {
 } from './createAsyncThunk'
 import { createAsyncThunk } from './createAsyncThunk'
 import type { CaseReducer } from './createReducer'
-import type {
-  CreatorCaseReducers,
-  ReducerCreator,
-  ReducerCreatorEntry,
-  ReducerDefinition,
-} from './createSlice'
+import type { ReducerCreator, ReducerDefinition } from './createSlice'
 import { ReducerType } from './createSlice'
-import type { Id } from './tsHelpers'
-
-declare module './createSlice' {
-  export interface SliceReducerCreators<
-    State,
-    CaseReducers extends CreatorCaseReducers<State>,
-    Name extends string,
-    ReducerPath extends string,
-  > {
-    [ReducerType.asyncThunk]: ReducerCreatorEntry<
-      AsyncThunkCreator<State>,
-      {
-        actions: {
-          [ReducerName in keyof CaseReducers]: CaseReducers[ReducerName] extends AsyncThunkSliceReducerDefinition<
-            State,
-            infer ThunkArg,
-            infer Returned,
-            infer ThunkApiConfig
-          >
-            ? AsyncThunk<Returned, ThunkArg, ThunkApiConfig>
-            : never
-        }
-        caseReducers: {
-          [ReducerName in keyof CaseReducers]: CaseReducers[ReducerName] extends AsyncThunkSliceReducerDefinition<
-            State,
-            any,
-            any,
-            any
-          >
-            ? Id<
-                Pick<
-                  Required<CaseReducers[ReducerName]>,
-                  'fulfilled' | 'rejected' | 'pending' | 'settled'
-                >
-              >
-            : never
-        }
-      }
-    >
-  }
-}
 
 export type AsyncThunkSliceReducerConfig<
   State,

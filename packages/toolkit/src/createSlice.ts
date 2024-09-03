@@ -1,5 +1,9 @@
 import type { Action, Reducer, UnknownAction } from 'redux'
 import type { Selector } from 'reselect'
+import type {
+  AsyncThunkCreator,
+  AsyncThunkSliceReducerDefinition,
+} from './asyncThunkCreator'
 import type { InjectConfig } from './combineSlices'
 import type {
   ActionCreatorWithoutPayload,
@@ -9,14 +13,7 @@ import type {
   _ActionCreatorWithPreparedPayload,
 } from './createAction'
 import { createAction } from './createAction'
-import type {
-  AsyncThunk,
-  AsyncThunkConfig,
-  AsyncThunkOptions,
-  AsyncThunkPayloadCreator,
-  OverrideThunkApiConfigs,
-} from './createAsyncThunk'
-import { createAsyncThunk as _createAsyncThunk } from './createAsyncThunk'
+import type { AsyncThunk } from './createAsyncThunk'
 import type {
   ActionMatcherDescriptionCollection,
   CaseReducer,
@@ -80,6 +77,37 @@ export interface SliceReducerCreators<
   Name extends string,
   ReducerPath extends string,
 > {
+  [ReducerType.asyncThunk]: ReducerCreatorEntry<
+    AsyncThunkCreator<State>,
+    {
+      actions: {
+        [ReducerName in keyof CaseReducers]: CaseReducers[ReducerName] extends AsyncThunkSliceReducerDefinition<
+          State,
+          infer ThunkArg,
+          infer Returned,
+          infer ThunkApiConfig
+        >
+          ? AsyncThunk<Returned, ThunkArg, ThunkApiConfig>
+          : never
+      }
+      caseReducers: {
+        [ReducerName in keyof CaseReducers]: CaseReducers[ReducerName] extends AsyncThunkSliceReducerDefinition<
+          State,
+          any,
+          any,
+          any
+        >
+          ? Id<
+              Pick<
+                Required<CaseReducers[ReducerName]>,
+                'fulfilled' | 'rejected' | 'pending' | 'settled'
+              >
+            >
+          : never
+      }
+    }
+  >
+
   [ReducerType.reducer]: ReducerCreatorEntry<
     {
       (
