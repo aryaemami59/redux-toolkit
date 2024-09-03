@@ -2,16 +2,21 @@
   "name": "@reduxjs/prettier-config",
   "version": "0.0.1",
   "description": "Prettier configuration for Redux projects",
-  "source": "./src/prettier.config.mts",
-  "types": "./dist/prettier.config.d.mts",
-  "module": "./dist/prettier.config.mjs",
-  "main": "./dist/prettier.config.mjs",
+  "source": "./src/index.mts",
+  "types": "./dist/index.d.ts",
+  "module": "./dist/index.mjs",
+  "main": "./dist/index.js",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./dist/prettier.config.d.mts",
-      "import": "./dist/prettier.config.mjs",
-      "default": "./dist/prettier.config.mjs"
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "default": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
     }
   },
   "files": [
@@ -19,7 +24,7 @@
     "src"
   ],
   "scripts": {
-    "build": "yarn clean && tsc",
+    "build": "yarn clean && tsup --config tsup.config.mts",
     "clean": "rimraf dist",
     "prepack": "yarn build"
   },
@@ -55,6 +60,7 @@
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
     "tslib": "^2.7.0",
+    "tsup": "^8.2.4",
     "typescript": "^5.5.4"
   },
   "sideEffects": false
