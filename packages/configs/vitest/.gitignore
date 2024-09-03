@@ -1,5 +1,17 @@
+.DS_Store
+*.log
+
 # Dependencies
 node_modules
 
 # IDE
 .vscode
+
+dist
+
+.yalc
+yalc.lock
+
+tsconfig.vitest-temp.json
+
+.eslintcache
