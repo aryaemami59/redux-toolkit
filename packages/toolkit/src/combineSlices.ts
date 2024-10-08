@@ -1,4 +1,8 @@
-import type { Reducer, StateFromReducersMapObject, UnknownAction } from 'redux'
+import type {
+  Reducer,
+  StateFromReducersMapObject,
+  UnknownAction,
+} from './externalImports'
 import { combineReducers } from 'redux'
 import { nanoid } from './nanoid'
 import type {
@@ -352,7 +356,7 @@ const createStateProxy = <State extends object>(
       }),
   }) as State
 
-const original = (state: any) => {
+const originalSelector = (state: any) => {
   if (!isStateProxy(state)) {
     throw new Error('original must be used on state Proxy')
   }
@@ -426,7 +430,7 @@ export function combineSlices<Slices extends Array<AnySliceLike | ReducerMap>>(
         )
       }
     },
-    { original },
+    { originalSelector },
   )
 
   return Object.assign(combinedReducer, { inject, selector }) as any

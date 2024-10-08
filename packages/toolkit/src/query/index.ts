@@ -67,7 +67,7 @@ export type {
 export type { CreateApi, CreateApiOptions } from './createApi'
 export { buildCreateApi } from './createApi'
 export { _NEVER, fakeBaseQuery } from './fakeBaseQuery'
-export { copyWithStructuralSharing } from './utils/copyWithStructuralSharing'
+export { copyWithStructuralSharing } from '../utils'
 export { createApi, coreModule, coreModuleName } from './core'
 export type {
   ApiEndpointMutation,

@@ -6,7 +6,7 @@ import {
   THIRTY_TWO_BIT_MAX_INT,
   THIRTY_TWO_BIT_MAX_TIMER_SECONDS,
 } from '../core/buildMiddleware/cacheCollection'
-import { countObjectKeys } from '../utils/countObjectKeys'
+import { countObjectKeys } from '../../utils'
 
 beforeAll(() => {
   vi.useFakeTimers()

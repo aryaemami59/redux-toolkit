@@ -1,7 +1,7 @@
 import type { SubscriptionOptions } from '@internal/query/core/apiState'
 import type { SubscriptionSelectors } from '@internal/query/core/buildMiddleware/types'
 import { server } from '@internal/query/tests/mocks/server'
-import { countObjectKeys } from '@internal/query/utils/countObjectKeys'
+import { countObjectKeys } from '@internal/utils'
 import {
   actionsReducer,
   setupApiStore,

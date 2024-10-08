@@ -1,5 +1,11 @@
-import { current, isDraft } from 'immer'
-import { createSelectorCreator, weakMapMemoize } from 'reselect'
+// import { current } from 'immer'
+import {
+  // createSelectorCreator,
+  // current,
+  // isDraft,
+  weakMapMemoize,
+} from './externalImports'
+import { createSelectorCreator, isDraft, current } from '@reduxjs/toolkit'
 
 export const createDraftSafeSelectorCreator: typeof createSelectorCreator = (
   ...args: unknown[]

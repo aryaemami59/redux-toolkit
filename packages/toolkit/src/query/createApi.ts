@@ -11,7 +11,7 @@ import { DefinitionType, isQueryDefinition } from './endpointDefinitions'
 import { nanoid } from './core/rtkImports'
 import type { UnknownAction } from '@reduxjs/toolkit'
 import type { NoInfer } from './tsHelpers'
-import { weakMapMemoize } from 'reselect'
+import { weakMapMemoize } from '../externalImports'
 
 export interface CreateApiOptions<
   BaseQuery extends BaseQueryFn,

@@ -1,12 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
-import type { Context } from 'react'
-import { useContext } from 'react'
-import { useEffect } from 'react'
-import * as React from 'react'
-import type { ReactReduxContextValue } from 'react-redux'
-import { Provider, ReactReduxContext } from 'react-redux'
-import { setupListeners } from '@reduxjs/toolkit/query'
 import type { Api } from '@reduxjs/toolkit/query'
+import { setupListeners } from '@reduxjs/toolkit/query'
+import * as React from 'react'
+import { useContext, useEffect } from 'react'
+import { Provider, ReactReduxContext } from 'react-redux'
+import type { Context, ReactReduxContextValue } from '../../externalImports'
 
 /**
  * Can be used as a `Provider` if you **do not already have a Redux store**.

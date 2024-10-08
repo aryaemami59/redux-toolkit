@@ -6,14 +6,19 @@ import type {
   TSHelpersExtractDispatchExtensions,
 } from '@reduxjs/toolkit'
 import { createDynamicMiddleware as cDM } from '@reduxjs/toolkit'
-import type { Context } from 'react'
-import type { ReactReduxContextValue } from 'react-redux'
 import {
   createDispatchHook,
   ReactReduxContext,
   useDispatch as useDefaultDispatch,
 } from 'react-redux'
-import type { Action, Dispatch, Middleware, UnknownAction } from 'redux'
+import type {
+  Action,
+  Context,
+  Dispatch,
+  Middleware,
+  ReactReduxContextValue,
+  UnknownAction,
+} from '../../externalImports'
 
 export type UseDispatchWithMiddlewareHook<
   Middlewares extends Middleware<any, State, DispatchType>[] = [],

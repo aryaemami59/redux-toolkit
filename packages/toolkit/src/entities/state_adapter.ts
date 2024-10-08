@@ -1,8 +1,9 @@
-import { produce as createNextState, isDraft } from 'immer'
 import type { Draft } from 'immer'
-import type { EntityId, DraftableEntityState, PreventAny } from './models'
+import { isDraft } from 'immer'
 import type { PayloadAction } from '../createAction'
 import { isFSA } from '../createAction'
+import { createNextState } from '@reduxjs/toolkit'
+import type { DraftableEntityState, EntityId, PreventAny } from './models'
 
 export const isDraftTyped = isDraft as <T>(
   value: T | Draft<T>,

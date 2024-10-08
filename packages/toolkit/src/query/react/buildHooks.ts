@@ -32,7 +32,6 @@ import type {
   TSHelpersOverride,
 } from '@reduxjs/toolkit/query'
 import { QueryStatus, skipToken } from '@reduxjs/toolkit/query'
-import type { DependencyList } from 'react'
 import {
   useCallback,
   useDebugValue,
@@ -43,6 +42,7 @@ import {
   useState,
 } from 'react'
 import { shallowEqual } from 'react-redux'
+import type { DependencyList } from '../../externalImports'
 import type { SubscriptionSelectors } from '../core'
 import { defaultSerializeQueryArgs } from '../defaultSerializeQueryArgs'
 import type { UninitializedValue } from './constants'
@@ -1273,7 +1273,14 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
 
         const { data, status, isLoading, isSuccess, isError, error } =
           queryStateResults
-        useDebugValue({ data, status, isLoading, isSuccess, isError, error })
+        useDebugValue({
+          data,
+          status,
+          isLoading,
+          isSuccess,
+          isError,
+          error,
+        })
 
         return useMemo(
           () => ({ ...queryStateResults, ...querySubscriptionResults }),

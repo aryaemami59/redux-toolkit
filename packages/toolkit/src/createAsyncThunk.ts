@@ -1,7 +1,6 @@
-import type { Dispatch, UnknownAction } from 'redux'
-import type { ThunkDispatch } from 'redux-thunk'
 import type { ActionCreatorWithPreparedPayload } from './createAction'
 import { createAction } from './createAction'
+import type { Dispatch, ThunkDispatch, UnknownAction } from './externalImports'
 import { isAnyOf } from './matchers'
 import { nanoid } from './nanoid'
 import type {

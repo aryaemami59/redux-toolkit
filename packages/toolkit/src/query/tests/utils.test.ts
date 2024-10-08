@@ -4,7 +4,7 @@ import {
   isDocumentVisible,
   flatten,
   joinUrls,
-} from '@internal/query/utils'
+} from '@internal/utils'
 
 afterAll(() => {
   vi.restoreAllMocks()

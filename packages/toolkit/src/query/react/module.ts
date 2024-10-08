@@ -1,3 +1,4 @@
+import { createSelector as _createSelector } from '@reduxjs/toolkit'
 import type {
   Api,
   BaseQueryFn,
@@ -15,10 +16,9 @@ import {
   useSelector as rrUseSelector,
   useStore as rrUseStore,
 } from 'react-redux'
-import { createSelector as _createSelector } from 'reselect'
+import { capitalize, countObjectKeys } from '../../utils'
 import { isMutationDefinition, isQueryDefinition } from '../endpointDefinitions'
 import { safeAssign } from '../tsHelpers'
-import { capitalize, countObjectKeys } from '../utils'
 import type { MutationHooks, QueryHooks } from './buildHooks'
 import { buildHooks } from './buildHooks'
 import type { HooksWithUniqueNames } from './namedHooks'
@@ -152,7 +152,7 @@ export const reactHooksModule = ({
     let warned = false
     for (const hookName of hookNames) {
       // warn for old hook options
-      if (countObjectKeys(rest) > 0) {
+      if (/* @__PURE__ */ countObjectKeys(rest) > 0) {
         if ((rest as Partial<typeof hooks>)[hookName]) {
           if (!warned) {
             console.warn(

@@ -9,7 +9,7 @@ import type {
   TagTypesFrom,
 } from '../endpointDefinitions'
 import { expandTagDescription } from '../endpointDefinitions'
-import { flatten } from '../utils'
+import { flatten } from '../../utils'
 import type {
   MutationSubState,
   QueryCacheKey,
@@ -21,7 +21,7 @@ import type {
 } from './apiState'
 import { QueryStatus, getRequestStatusFlags } from './apiState'
 import { getMutationCacheKey } from './buildSlice'
-import type { createSelector as _createSelector } from './rtkImports'
+import type { createSelector as _createSelector } from '@reduxjs/toolkit'
 import { createNextState } from './rtkImports'
 
 export type SkipToken = typeof skipToken

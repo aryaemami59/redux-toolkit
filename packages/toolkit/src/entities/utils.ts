@@ -1,5 +1,6 @@
 import type { Draft } from 'immer'
-import { current, isDraft } from 'immer'
+import { isDraft } from 'immer'
+import { current } from '@reduxjs/toolkit'
 import type {
   DraftableEntityState,
   EntityId,

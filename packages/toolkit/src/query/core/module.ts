@@ -57,7 +57,7 @@ import type {
   UpsertQueryDataThunk,
 } from './buildThunks'
 import { buildThunks } from './buildThunks'
-import { createSelector as _createSelector } from './rtkImports'
+import { createSelector as _createSelector } from '@reduxjs/toolkit'
 import { onFocus, onFocusLost, onOffline, onOnline } from './setupListeners'
 
 /**

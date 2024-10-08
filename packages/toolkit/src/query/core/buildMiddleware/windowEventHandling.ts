@@ -6,7 +6,7 @@ import type {
   InternalHandlerBuilder,
   SubMiddlewareApi,
 } from './types'
-import { countObjectKeys } from '../../utils/countObjectKeys'
+import { countObjectKeys } from '../../../utils'
 
 export const buildWindowEventHandler: InternalHandlerBuilder = ({
   reducerPath,

@@ -19,7 +19,7 @@ import type {
   ApiMiddlewareInternalHandler,
   InternalMiddlewareState,
 } from './types'
-import { countObjectKeys } from '../../utils/countObjectKeys'
+import { countObjectKeys } from '../../../utils'
 
 export const buildInvalidationByTagsHandler: InternalHandlerBuilder = ({
   reducerPath,

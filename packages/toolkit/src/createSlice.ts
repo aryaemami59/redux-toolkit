@@ -1,5 +1,3 @@
-import type { Action, Reducer, UnknownAction } from 'redux'
-import type { Selector } from 'reselect'
 import type { InjectConfig } from './combineSlices'
 import type {
   ActionCreatorWithoutPayload,
@@ -23,6 +21,12 @@ import type {
   ReducerWithInitialState,
 } from './createReducer'
 import { createReducer } from './createReducer'
+import type {
+  Action,
+  Reducer,
+  Selector,
+  UnknownAction,
+} from './externalImports'
 import type { ActionReducerMapBuilder, TypedActionCreator } from './mapBuilders'
 import { executeReducerBuilderCallback } from './mapBuilders'
 import type { Id, TypeGuard } from './tsHelpers'

@@ -1,6 +1,6 @@
-import type { Dispatch, Middleware, UnknownAction } from 'redux'
 import { compose } from 'redux'
 import { createAction } from '../createAction'
+import type { Dispatch, Middleware, UnknownAction } from '../externalImports'
 import { isAllOf } from '../matchers'
 import { nanoid } from '../nanoid'
 import { emplace, find } from '../utils'

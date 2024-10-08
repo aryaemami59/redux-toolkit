@@ -3,9 +3,10 @@ import type {
   ThunkAction,
   UnknownAction,
 } from '@reduxjs/toolkit'
-import type { Dispatch } from 'redux'
+import type { Dispatch } from '../../externalImports'
 import type { SafePromise } from '../../tsHelpers'
 import { asSafePromise } from '../../tsHelpers'
+import { countObjectKeys, isNotNullish } from '../../utils'
 import type { Api, ApiContext } from '../apiTypes'
 import type { BaseQueryError, QueryReturnValue } from '../baseQueryTypes'
 import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
@@ -16,7 +17,6 @@ import type {
   QueryDefinition,
   ResultTypeFrom,
 } from '../endpointDefinitions'
-import { countObjectKeys, isNotNullish } from '../utils'
 import type { SubscriptionOptions } from './apiState'
 import type { QueryResultSelectorResult } from './buildSelectors'
 import type { MutationThunk, QueryThunk, QueryThunkArg } from './buildThunks'
