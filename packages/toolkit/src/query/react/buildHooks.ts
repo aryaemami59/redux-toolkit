@@ -810,11 +810,11 @@ export type TypedUseInfiniteQuerySubscription<
 > = UseInfiniteQuerySubscription<
   InfiniteQueryDefinition<
     QueryArg,
-    PageParam,
     BaseQuery,
     string,
     ResultType,
-    string
+    string,
+    PageParam
   >
 >
 
@@ -834,11 +834,11 @@ export type TypedUseInfiniteQuerySubscriptionResult<
 > = UseInfiniteQuerySubscriptionResult<
   InfiniteQueryDefinition<
     QueryArg,
-    PageParam,
     BaseQuery,
     string,
     ResultType,
-    string
+    string,
+    PageParam
   >
 >
 
@@ -875,11 +875,11 @@ export type TypedUseInfiniteQueryState<
 > = UseInfiniteQueryState<
   InfiniteQueryDefinition<
     QueryArg,
-    PageParam,
     BaseQuery,
     string,
     ResultType,
-    string
+    string,
+    PageParam
   >
 >
 
