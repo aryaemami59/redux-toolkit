@@ -73,7 +73,6 @@ export type StartInfiniteQueryActionCreatorOptions = {
   infiniteQueryOptions?: InfiniteQueryConfigOptions
   direction?: 'forward' | 'backwards'
   [forceQueryFnSymbol]?: () => QueryReturnValue
-  data?: InfiniteData<unknown>
   param?: unknown
   previous?: boolean
 }
@@ -493,7 +492,6 @@ You must add the middleware for RTK-Query to function correctly!`,
           infiniteQueryOptions,
           [forceQueryFnSymbol]: forceQueryFn,
           direction,
-          data = { pages: [], pageParams: [] },
           param = arg,
           previous,
         } = {},
@@ -514,7 +512,6 @@ You must add the middleware for RTK-Query to function correctly!`,
           originalArgs: arg,
           queryCacheKey,
           [forceQueryFnSymbol]: forceQueryFn,
-          data,
           param,
           previous,
           direction,
