@@ -1943,6 +1943,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
         const queryStateResults = useInfiniteQueryState(
           arg,
           {
+            initialPageParam: options?.initialPageParam!,
             getNextPageParam: options?.getNextPageParam!,
             getPreviousPageParam: options?.getPreviousPageParam,
           },

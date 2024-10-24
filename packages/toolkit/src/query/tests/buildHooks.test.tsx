@@ -783,6 +783,7 @@ describe('hooks tests', () => {
         endpoints: (builder) => ({
           getInfinitePokemon: builder.infiniteQuery<any, string, number>({
             infiniteQueryOptions: {
+              initialPageParam: 0,
               getNextPageParam: (
                 lastPage,
                 allPages,
@@ -813,6 +814,7 @@ describe('hooks tests', () => {
       function User() {
         const { data, isFetching, isUninitialized, fetchNextPage } =
           pokemonApi.endpoints.getInfinitePokemon.useInfiniteQuery('a', {
+            initialPageParam: 0,
             getNextPageParam: (lastPageParam) => lastPageParam + 1,
           })
 
