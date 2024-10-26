@@ -53,7 +53,7 @@ export type InfiniteQueryConfigOptions<TQueryFnData, TPageParam> = {
   getNextPageParam: GetNextPageParamFunction<TPageParam, TQueryFnData>
 }
 
-export interface InfiniteData<TData, TPageParam> {
+export type InfiniteData<TData, TPageParam> = {
   pages: Array<TData>
   pageParams: Array<TPageParam>
 }
