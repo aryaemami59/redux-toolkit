@@ -35,7 +35,6 @@ import type {
   OmitFromUnion,
   UnwrapPromise,
 } from './tsHelpers'
-import { AnyARecord } from 'dns'
 
 const resultType = /* @__PURE__ */ Symbol()
 const baseQuery = /* @__PURE__ */ Symbol()
