@@ -148,12 +148,29 @@ export type CacheLifecycleInfiniteQueryExtraOptions<
   QueryArg,
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
-> = {
-  onCacheEntryAdded?(
-    arg: QueryArg,
-    api: QueryCacheLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
-  ): Promise<void> | void
-}
+> = CacheLifecycleQueryExtraOptions<
+  ResultType,
+  QueryArg,
+  BaseQuery,
+  ReducerPath
+>
+// {
+//   onCacheEntryAdded?(
+//     arg: QueryArg,
+//     api: QueryCacheLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
+//   ): Promise<void> | void
+// }
+// export type CacheLifecycleInfiniteQueryExtraOptions<
+//   ResultType,
+//   QueryArg,
+//   BaseQuery extends BaseQueryFn,
+//   ReducerPath extends string = string,
+// > = {
+//   onCacheEntryAdded?(
+//     arg: QueryArg,
+//     api: QueryCacheLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
+//   ): Promise<void> | void
+// }
 
 export type CacheLifecycleMutationExtraOptions<
   ResultType,

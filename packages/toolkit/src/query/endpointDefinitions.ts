@@ -1,10 +1,5 @@
 import type { Api } from '@reduxjs/toolkit/query'
 import type {
-  InfiniteQueryConfigOptions,
-  QuerySubState,
-  RootState,
-} from './core/apiState'
-import type {
   BaseQueryApi,
   BaseQueryArg,
   BaseQueryError,
@@ -23,6 +18,11 @@ import type {
   QueryLifecycleMutationExtraOptions,
   QueryLifecycleQueryExtraOptions,
 } from './core/buildMiddleware/queryLifecycle'
+import type {
+  InfiniteQueryConfigOptions,
+  QuerySubState,
+  RootState,
+} from './core/index'
 import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import type { NEVER } from './fakeBaseQuery'
 import type {
@@ -596,10 +596,7 @@ type InfiniteQueryTypes<
   ResultType,
   ReducerPath extends string = string,
   PageParam = QueryArg,
-> = Omit<
-  QueryTypes<QueryArg, BaseQuery, TagTypes, ResultType, ReducerPath>,
-  'QueryDefinition'
-> & {
+> = BaseEndpointTypes<QueryArg, BaseQuery, ResultType> & {
   /**
    * The endpoint definition type. To be used with some internal generic types.
    * @example
