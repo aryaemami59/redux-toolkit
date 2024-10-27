@@ -23,7 +23,7 @@ import type {
   MutationThunk,
   QueryThunk,
   QueryThunkArg,
-  ThunkResult
+  ThunkResult,
 } from '../buildThunks'
 import type { QueryActionCreatorResult } from '../buildInitiate'
 

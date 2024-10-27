@@ -4,6 +4,8 @@ import { formatProdErrorMessage } from '@reduxjs/toolkit'
 
 export type {
   CombinedState,
+  InfiniteData,
+  InfiniteQueryConfigOptions,
   QueryCacheKey,
   QueryKeys,
   QuerySubState,
@@ -62,6 +64,7 @@ export type {
   SkipToken,
 } from './core/buildSelectors'
 export type {
+  InfiniteQueryActionCreatorResult,
   QueryActionCreatorResult,
   MutationActionCreatorResult,
   StartQueryActionCreatorOptions,
