@@ -796,7 +796,7 @@ describe('hooks tests', () => {
                 allPageParams,
               ) => lastPageParam + 1,
             },
-            query(pageParam = 0) {
+            query(pageParam) {
               return `https://example.com/listItems?page=${pageParam}`
             },
           }),
@@ -810,13 +810,12 @@ describe('hooks tests', () => {
       const checkNumQueries = (count: number) => {
         const cacheEntries = Object.keys(storeRef.store.getState().api.queries)
         const queries = cacheEntries.length
-        console.log('queries', queries)
-        console.log(storeRef.store.getState().api.queries)
+        console.log('queries', queries, storeRef.store.getState().api.queries)
 
         expect(queries).toBe(count)
       }
 
-      function User() {
+      function PokemonList() {
         const { data, isFetching, isUninitialized, fetchNextPage } =
           pokemonApi.endpoints.getInfinitePokemon.useInfiniteQuery('a', {
             initialPageParam: 0,
@@ -829,6 +828,11 @@ describe('hooks tests', () => {
             ) => lastPageParam + 1,
           })
 
+        const handleClick = async () => {
+          const promise = fetchNextPage()
+          const res = await promise
+        }
+
         return (
           <div>
             <div data-testid="isUninitialized">{String(isUninitialized)}</div>
@@ -838,14 +842,14 @@ describe('hooks tests', () => {
                 <div key={i}>{JSON.stringify(page)}</div>
               ))}
             </div>
-            <button data-testid="nextPage" onClick={() => fetchNextPage()}>
+            <button data-testid="nextPage" onClick={() => handleClick()}>
               nextPage
             </button>
           </div>
         )
       }
 
-      render(<User />, { wrapper: storeRef.wrapper })
+      render(<PokemonList />, { wrapper: storeRef.wrapper })
       expect(screen.getByTestId('data').textContent).toBe('')
       checkNumQueries(1)
 
@@ -855,7 +859,12 @@ describe('hooks tests', () => {
       await waitFor(() =>
         expect(screen.getByTestId('isFetching').textContent).toBe('false'),
       )
-      fireEvent.click(screen.getByTestId('nextPage'))
+      act(() => {
+        fireEvent.click(screen.getByTestId('nextPage'))
+      })
+      await waitFor(() =>
+        expect(screen.getByTestId('isFetching').textContent).toBe('false'),
+      )
       checkNumQueries(1)
       await waitFor(() =>
         expect(screen.getByTestId('isFetching').textContent).toBe('false'),
@@ -1505,7 +1514,7 @@ describe('hooks tests', () => {
 
             setDataFromTrigger(res) // adding client side state here will cause stale data
           } catch (error) {
-            console.error(error)
+            console.error('Error handling increment trigger', error)
           }
         }
 
@@ -1515,7 +1524,7 @@ describe('hooks tests', () => {
             // Force the lazy trigger to refetch
             await handleLoad()
           } catch (error) {
-            console.error(error)
+            console.error('Error handling mutate trigger', error)
           }
         }
 
