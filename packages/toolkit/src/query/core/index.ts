@@ -6,6 +6,9 @@ export const createApi = /* @__PURE__ */ buildCreateApi(coreModule())
 export { QueryStatus } from './apiState'
 export type {
   CombinedState,
+  InfiniteData,
+  InfiniteQueryConfigOptions,
+  InfiniteQuerySubState,
   MutationKeys,
   QueryCacheKey,
   QueryKeys,
@@ -14,6 +17,7 @@ export type {
   SubscriptionOptions,
 } from './apiState'
 export type {
+  InfiniteQueryActionCreatorResult,
   MutationActionCreatorResult,
   QueryActionCreatorResult,
   StartQueryActionCreatorOptions,
@@ -24,7 +28,7 @@ export type {
   QueryCacheLifecycleApi,
   QueryLifecycleApi,
   SubscriptionSelectors,
-} from './buildMiddleware'
+} from './buildMiddleware/index'
 export { skipToken } from './buildSelectors'
 export type {
   InfiniteQueryResultSelectorResult,
@@ -40,6 +44,7 @@ export type {
 } from './buildThunks'
 export { coreModuleName } from './module'
 export type {
+  ApiEndpointInfiniteQuery,
   ApiEndpointMutation,
   ApiEndpointQuery,
   CoreModule,
