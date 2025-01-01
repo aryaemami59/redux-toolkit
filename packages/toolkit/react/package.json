@@ -6,6 +6,8 @@
   "module": "../dist/react/redux-toolkit-react.legacy-esm.js",
   "main": "../dist/react/cjs/index.js",
   "types": "./../dist/react/index.d.ts",
+  "react-native": "./../dist/react/redux-toolkit-react.modern.mjs",
+  "browser": "./../dist/react/redux-toolkit-react.browser.mjs",
   "author": "Mark Erikson <mark@isquaredsoftware.com>",
   "license": "MIT",
   "sideEffects": false
