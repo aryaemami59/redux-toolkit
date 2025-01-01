@@ -25,56 +25,115 @@
   "module": "dist/redux-toolkit.legacy-esm.js",
   "main": "dist/cjs/index.js",
   "types": "dist/index.d.ts",
-  "react-native": "dist/redux-toolkit.modern.mjs",
+  "react-native": "dist/redux-toolkit.legacy-esm.js",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./dist/index.d.ts",
-      "module-sync": "./dist/redux-toolkit.modern.mjs",
-      "module": "./dist/redux-toolkit.modern.mjs",
+      "module-sync": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/redux-toolkit.modern.mjs"
+      },
+      "module": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/redux-toolkit.modern.mjs"
+      },
       "react-native": {
+        "types": "./dist/index.d.ts",
         "import": "./dist/redux-toolkit.modern.mjs",
         "default": "./dist/cjs/index.js"
       },
-      "browser": "./dist/redux-toolkit.browser.mjs",
-      "import": "./dist/redux-toolkit.modern.mjs",
-      "default": "./dist/cjs/index.js"
+      "browser": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/redux-toolkit.browser.mjs"
+      },
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/redux-toolkit.modern.mjs"
+      },
+      "default": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
     },
     "./react": {
-      "types": "./dist/react/index.d.ts",
-      "module-sync": "./dist/react/redux-toolkit-react.modern.mjs",
-      "module": "./dist/react/redux-toolkit-react.modern.mjs",
-      "react-native": {
-        "import": "./dist/react/redux-toolkit-react.modern.mjs",
-        "default": "./dist/react/cjs/index.js"
+      "module-sync": {
+        "types": "./dist/react/index.d.ts",
+        "default": "./dist/react/redux-toolkit-react.modern.mjs"
       },
-      "browser": "./dist/react/redux-toolkit-react.browser.mjs",
-      "import": "./dist/react/redux-toolkit-react.modern.mjs",
-      "default": "./dist/react/cjs/index.js"
+      "module": {
+        "types": "./dist/react/index.d.ts",
+        "default": "./dist/react/redux-toolkit-react.modern.mjs"
+      },
+      "react-native": {
+        "types": "./dist/react/index.d.ts",
+        "default": "./dist/react/redux-toolkit-react.modern.mjs"
+      },
+      "browser": {
+        "types": "./dist/react/index.d.ts",
+        "default": "./dist/react/redux-toolkit-react.browser.mjs"
+      },
+      "import": {
+        "types": "./dist/react/index.d.ts",
+        "default": "./dist/react/redux-toolkit-react.modern.mjs"
+      },
+      "default": {
+        "types": "./dist/react/index.d.ts",
+        "default": "./dist/react/cjs/index.js"
+      }
     },
     "./query": {
-      "types": "./dist/query/index.d.ts",
-      "module-sync": "./dist/query/rtk-query.modern.mjs",
-      "module": "./dist/query/rtk-query.modern.mjs",
+      "module-sync": {
+        "types": "./dist/query/index.d.ts",
+        "default": "./dist/query/rtk-query.modern.mjs"
+      },
+      "module": {
+        "types": "./dist/query/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      },
       "react-native": {
+        "types": "./dist/query/index.d.ts",
         "import": "./dist/query/rtk-query.modern.mjs",
         "default": "./dist/query/cjs/index.js"
       },
-      "browser": "./dist/query/rtk-query.browser.mjs",
-      "import": "./dist/query/rtk-query.modern.mjs",
-      "default": "./dist/query/cjs/index.js"
+      "browser": {
+        "types": "./dist/query/index.d.ts",
+        "default": "./dist/query/rtk-query.browser.mjs"
+      },
+      "import": {
+        "types": "./dist/query/index.d.ts",
+        "default": "./dist/query/rtk-query.modern.mjs"
+      },
+      "default": {
+        "types": "./dist/query/index.d.ts",
+        "default": "./dist/query/cjs/index.js"
+      }
     },
     "./query/react": {
-      "types": "./dist/query/react/index.d.ts",
-      "module-sync": "./dist/query/react/rtk-query-react.modern.mjs",
-      "module": "./dist/query/react/rtk-query-react.modern.mjs",
+      "module-sync": {
+        "types": "./dist/query/react/index.d.ts",
+        "default": "./dist/query/react/rtk-query-react.modern.mjs"
+      },
+      "module": {
+        "types": "./dist/query/react/index.d.ts",
+        "default": "./dist/query/react/rtk-query-react.modern.mjs"
+      },
       "react-native": {
+        "types": "./dist/query/react/index.d.ts",
         "import": "./dist/query/react/rtk-query-react.modern.mjs",
         "default": "./dist/query/react/cjs/index.js"
       },
-      "browser": "./dist/query/react/rtk-query-react.browser.mjs",
-      "import": "./dist/query/react/rtk-query-react.modern.mjs",
-      "default": "./dist/query/react/cjs/index.js"
+      "browser": {
+        "types": "./dist/query/react/index.d.ts",
+        "default": "./dist/query/react/rtk-query-react.browser.mjs"
+      },
+      "import": {
+        "types": "./dist/query/react/index.d.ts",
+        "default": "./dist/query/react/rtk-query-react.modern.mjs"
+      },
+      "default": {
+        "types": "./dist/query/react/index.d.ts",
+        "default": "./dist/query/react/cjs/index.js"
+      }
     }
   },
   "devDependencies": {
