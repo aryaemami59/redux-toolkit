@@ -7,7 +7,6 @@
   "main": "../../dist/query/react/cjs/index.js",
   "types": "./../../dist/query/react/index.d.ts",
   "react-native": "./../../dist/query/react/rtk-query-react.modern.mjs",
-  "browser": "./../../dist/query/react/rtk-query-react.browser.mjs",
   "author": "Mark Erikson <mark@isquaredsoftware.com>",
   "license": "MIT",
   "sideEffects": false

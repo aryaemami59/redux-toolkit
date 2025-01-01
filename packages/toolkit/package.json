@@ -26,14 +26,16 @@
   "main": "dist/cjs/index.js",
   "types": "dist/index.d.ts",
   "react-native": "dist/redux-toolkit.modern.mjs",
-  "browser": "dist/redux-toolkit.browser.mjs",
   "exports": {
     "./package.json": "./package.json",
     ".": {
       "types": "./dist/index.d.ts",
       "module-sync": "./dist/redux-toolkit.modern.mjs",
       "module": "./dist/redux-toolkit.modern.mjs",
-      "react-native": "./dist/redux-toolkit.modern.mjs",
+      "react-native": {
+        "import": "./dist/redux-toolkit.modern.mjs",
+        "default": "./dist/cjs/index.js"
+      },
       "browser": "./dist/redux-toolkit.browser.mjs",
       "import": "./dist/redux-toolkit.modern.mjs",
       "default": "./dist/cjs/index.js"
@@ -42,7 +44,10 @@
       "types": "./dist/react/index.d.ts",
       "module-sync": "./dist/react/redux-toolkit-react.modern.mjs",
       "module": "./dist/react/redux-toolkit-react.modern.mjs",
-      "react-native": "./dist/react/redux-toolkit-react.modern.mjs",
+      "react-native": {
+        "import": "./dist/react/redux-toolkit-react.modern.mjs",
+        "default": "./dist/react/cjs/index.js"
+      },
       "browser": "./dist/react/redux-toolkit-react.browser.mjs",
       "import": "./dist/react/redux-toolkit-react.modern.mjs",
       "default": "./dist/react/cjs/index.js"
@@ -51,7 +56,10 @@
       "types": "./dist/query/index.d.ts",
       "module-sync": "./dist/query/rtk-query.modern.mjs",
       "module": "./dist/query/rtk-query.modern.mjs",
-      "react-native": "./dist/query/rtk-query.modern.mjs",
+      "react-native": {
+        "import": "./dist/query/rtk-query.modern.mjs",
+        "default": "./dist/query/cjs/index.js"
+      },
       "browser": "./dist/query/rtk-query.browser.mjs",
       "import": "./dist/query/rtk-query.modern.mjs",
       "default": "./dist/query/cjs/index.js"
@@ -60,7 +68,10 @@
       "types": "./dist/query/react/index.d.ts",
       "module-sync": "./dist/query/react/rtk-query-react.modern.mjs",
       "module": "./dist/query/react/rtk-query-react.modern.mjs",
-      "react-native": "./dist/query/react/rtk-query-react.modern.mjs",
+      "react-native": {
+        "import": "./dist/query/react/rtk-query-react.modern.mjs",
+        "default": "./dist/query/react/cjs/index.js"
+      },
       "browser": "./dist/query/react/rtk-query-react.browser.mjs",
       "import": "./dist/query/react/rtk-query-react.modern.mjs",
       "default": "./dist/query/react/cjs/index.js"
