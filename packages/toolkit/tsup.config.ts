@@ -74,6 +74,15 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
     splitting: false,
     sourcemap: true,
     tsconfig,
+    external: [
+      'redux',
+      'react',
+      'react-redux',
+      'immer',
+      'redux-thunk',
+      'reselect',
+      '@reduxjs/toolkit',
+    ],
     esbuildPlugins: [mangleErrorsTransform],
     ...overrideOptions,
   } satisfies TsupOptions
