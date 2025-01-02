@@ -8,7 +8,6 @@
   "types": "./../dist/query/index.d.ts",
   "react-native": "./../dist/query/rtk-query.modern.mjs",
   "jsnext:main": "./../dist/query/rtk-query.modern.mjs",
-  "browser": "./../dist/query/rtk-query.browser.mjs",
   "author": "Mark Erikson <mark@isquaredsoftware.com>",
   "license": "MIT",
   "sideEffects": false
