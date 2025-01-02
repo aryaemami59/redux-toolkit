@@ -103,28 +103,6 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
     },
     {
       ...commonOptions,
-      name: 'Redux-Toolkit-Browser',
-      entry: {
-        'redux-toolkit.browser': 'src/index.ts',
-        'react/redux-toolkit-react.browser': 'src/react/index.ts',
-        'query/rtk-query.browser': 'src/query/index.ts',
-        'query/react/rtk-query-react.browser': 'src/query/react/index.ts',
-      },
-      outExtension: () => ({ js: '.mjs' }),
-      platform: 'browser',
-      env: {
-        NODE_ENV: 'production',
-      },
-      minify: true,
-      define: {
-        process: 'undefined',
-      },
-      replaceNodeEnv: true,
-      format: ['esm'],
-      target: ['es2017'],
-    },
-    {
-      ...commonOptions,
       name: 'Redux-Toolkit-CJS-Development',
       entry: {
         'cjs/redux-toolkit.development': 'src/index.ts',
@@ -157,6 +135,28 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
       minify: true,
       replaceNodeEnv: true,
       format: ['cjs'],
+      target: ['esnext'],
+    },
+    {
+      ...commonOptions,
+      name: 'Redux-Toolkit-Browser',
+      entry: {
+        'redux-toolkit.browser': 'src/index.ts',
+        'react/redux-toolkit-react.browser': 'src/react/index.ts',
+        'query/rtk-query.browser': 'src/query/index.ts',
+        'query/react/rtk-query-react.browser': 'src/query/react/index.ts',
+      },
+      outExtension: () => ({ js: '.mjs' }),
+      platform: 'browser',
+      env: {
+        NODE_ENV: 'production',
+      },
+      minify: true,
+      define: {
+        process: 'undefined',
+      },
+      replaceNodeEnv: true,
+      format: ['esm'],
       target: ['esnext'],
     },
     {
