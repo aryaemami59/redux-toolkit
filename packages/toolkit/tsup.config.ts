@@ -200,7 +200,7 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
         only: true,
       },
       external: [/uncheckedindexed/],
-      format: ['cjs'],
+      format: ['cjs', 'esm'],
       target: ['esnext'],
     },
     {
@@ -213,7 +213,7 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
         only: true,
       },
       external: ['@reduxjs/toolkit', /uncheckedindexed/],
-      format: ['cjs'],
+      format: ['cjs', 'esm'],
       target: ['esnext'],
     },
     {
@@ -230,7 +230,7 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
         '@reduxjs/toolkit/react',
         /uncheckedindexed/,
       ],
-      format: ['cjs'],
+      format: ['cjs', 'esm'],
       target: ['esnext'],
     },
     {
@@ -248,7 +248,7 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
         '@reduxjs/toolkit/query',
         /uncheckedindexed/,
       ],
-      format: ['cjs'],
+      format: ['cjs', 'esm'],
       target: ['esnext'],
     },
   ]
