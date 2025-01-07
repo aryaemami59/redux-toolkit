@@ -8,9 +8,10 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 const entryPointDirectories = ['', 'react', 'query', 'query/react']
 
-const typeDefinitionEntryFiles = entryPointDirectories.map((filePath) =>
+const typeDefinitionEntryFiles = entryPointDirectories.flatMap((filePath) => [
   path.resolve(__dirname, '..', 'dist', filePath, 'index.d.ts'),
-)
+  path.resolve(__dirname, '..', 'dist', filePath, 'index.d.mts'),
+])
 
 const filePathsToContentMap = new Map<string, string>(
   await Promise.all(
