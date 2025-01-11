@@ -172,20 +172,28 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
       format: ['esm'],
       target: ['es2017'],
       onSuccess: async () => {
-        await Promise.all(
-          Object.entries({
-            'dist/cjs': 'redux-toolkit',
-            'dist/react/cjs': 'redux-toolkit-react',
-            'dist/query/cjs': 'rtk-query',
-            'dist/query/react/cjs': 'rtk-query-react',
-          } as const).map(
-            async ([outDir, outputPrefix]) =>
-              await writeCommonJSEntry(outDir, outputPrefix),
-          ),
+        await writeCommonJSEntry(
+          path.join(__dirname, 'dist', 'cjs'),
+          'redux-toolkit',
+        )
+
+        await writeCommonJSEntry(
+          path.join(__dirname, 'dist', 'react', 'cjs'),
+          'redux-toolkit-react',
+        )
+
+        await writeCommonJSEntry(
+          path.join(__dirname, 'dist', 'query', 'cjs'),
+          'rtk-query',
+        )
+
+        await writeCommonJSEntry(
+          path.join(__dirname, 'dist', 'query', 'react', 'cjs'),
+          'rtk-query-react',
         )
 
         await fs.copyFile(
-          'src/uncheckedindexed.ts',
+          path.join(__dirname, 'src', 'uncheckedindexed.ts'),
           path.join(outputDir, 'uncheckedindexed.ts'),
         )
       },
