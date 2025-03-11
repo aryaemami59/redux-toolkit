@@ -2,7 +2,6 @@
 
 # dependencies
 node_modules/
-.yarn/
 
 # Expo
 .expo/
@@ -18,8 +17,8 @@ build/
 *.p12
 *.key
 *.mobileprovision
-android
-ios
+android/
+ios/
 
 # Metro
 .metro-health-check*
@@ -38,6 +37,17 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# testing
+/coverage
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
 # IDE
 .vscode
