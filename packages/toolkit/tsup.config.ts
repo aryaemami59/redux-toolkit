@@ -16,7 +16,7 @@ const __dirname = path.dirname(__filename)
 const outputDir = path.join(__dirname, 'dist')
 
 async function writeCommonJSEntry(folder: string, prefix: string) {
-  fs.writeFile(
+  await fs.writeFile(
     path.join(folder, 'index.js'),
     `'use strict'
 if (process.env.NODE_ENV === 'production') {
