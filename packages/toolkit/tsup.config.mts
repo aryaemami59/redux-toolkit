@@ -3,17 +3,12 @@ import type { Plugin } from 'esbuild'
 import { getBuildExtensions } from 'esbuild-extra'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import type { Options as TsupOptions } from 'tsup'
 import { defineConfig } from 'tsup'
 import type { MangleErrorsPluginOptions } from './scripts/mangleErrors.mjs'
 import { mangleErrorsPlugin } from './scripts/mangleErrors.mjs'
 
-// No __dirname under Node ESM
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-const outputDir = path.join(__dirname, 'dist')
+const outputDir = path.join(import.meta.dirname, 'dist')
 
 async function writeCommonJSEntry(folder: string, prefix: string) {
   await fs.writeFile(
@@ -64,16 +59,11 @@ const mangleErrorsTransform: Plugin = {
   },
 }
 
-const tsconfig: NonNullable<TsupOptions['tsconfig']> = path.join(
-  __dirname,
-  './tsconfig.build.json',
-)
-
 export default defineConfig((overrideOptions): TsupOptions[] => {
   const commonOptions = {
     splitting: false,
     sourcemap: true,
-    tsconfig,
+    tsconfig: path.join(import.meta.dirname, 'tsconfig.build.json'),
     external: [
       'redux',
       'react',
@@ -84,6 +74,8 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
       '@reduxjs/toolkit',
     ],
     esbuildPlugins: [mangleErrorsTransform],
+    format: ['cjs', 'esm'],
+    target: ['esnext'],
     ...overrideOptions,
   } satisfies TsupOptions
 
@@ -99,8 +91,8 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
       },
       outExtension: () => ({ js: '.mjs' }),
       format: ['esm'],
-      target: ['esnext'],
     },
+
     {
       ...commonOptions,
       name: 'Redux-Toolkit-CJS-Development',
@@ -116,8 +108,8 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
         NODE_ENV: 'development',
       },
       format: ['cjs'],
-      target: ['esnext'],
     },
+
     {
       ...commonOptions,
       name: 'Redux-Toolkit-CJS-Production',
@@ -135,8 +127,29 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
       minify: true,
       replaceNodeEnv: true,
       format: ['cjs'],
-      target: ['esnext'],
+      onSuccess: async () => {
+        await writeCommonJSEntry(
+          path.join(import.meta.dirname, 'dist', 'cjs'),
+          'redux-toolkit',
+        )
+
+        await writeCommonJSEntry(
+          path.join(import.meta.dirname, 'dist', 'react', 'cjs'),
+          'redux-toolkit-react',
+        )
+
+        await writeCommonJSEntry(
+          path.join(import.meta.dirname, 'dist', 'query', 'cjs'),
+          'rtk-query',
+        )
+
+        await writeCommonJSEntry(
+          path.join(import.meta.dirname, 'dist', 'query', 'react', 'cjs'),
+          'rtk-query-react',
+        )
+      },
     },
+
     {
       ...commonOptions,
       name: 'Redux-Toolkit-Browser',
@@ -157,8 +170,8 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
       },
       replaceNodeEnv: true,
       format: ['esm'],
-      target: ['esnext'],
     },
+
     {
       ...commonOptions,
       name: 'Redux-Toolkit-Legacy-ESM',
@@ -172,32 +185,13 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
       format: ['esm'],
       target: ['es2017'],
       onSuccess: async () => {
-        await writeCommonJSEntry(
-          path.join(__dirname, 'dist', 'cjs'),
-          'redux-toolkit',
-        )
-
-        await writeCommonJSEntry(
-          path.join(__dirname, 'dist', 'react', 'cjs'),
-          'redux-toolkit-react',
-        )
-
-        await writeCommonJSEntry(
-          path.join(__dirname, 'dist', 'query', 'cjs'),
-          'rtk-query',
-        )
-
-        await writeCommonJSEntry(
-          path.join(__dirname, 'dist', 'query', 'react', 'cjs'),
-          'rtk-query-react',
-        )
-
         await fs.copyFile(
-          path.join(__dirname, 'src', 'uncheckedindexed.ts'),
+          path.join(import.meta.dirname, 'src', 'uncheckedindexed.ts'),
           path.join(outputDir, 'uncheckedindexed.ts'),
         )
       },
     },
+
     {
       ...commonOptions,
       name: 'Redux-Toolkit-Type-Definitions',
@@ -208,9 +202,8 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
         only: true,
       },
       external: [/uncheckedindexed/],
-      format: ['cjs', 'esm'],
-      target: ['esnext'],
     },
+
     {
       ...commonOptions,
       name: 'RTK-React-Type-Definitions',
@@ -221,9 +214,8 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
         only: true,
       },
       external: ['@reduxjs/toolkit', /uncheckedindexed/],
-      format: ['cjs', 'esm'],
-      target: ['esnext'],
     },
+
     {
       ...commonOptions,
       name: 'RTK-Query-Type-Definitions',
@@ -238,9 +230,8 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
         '@reduxjs/toolkit/react',
         /uncheckedindexed/,
       ],
-      format: ['cjs', 'esm'],
-      target: ['esnext'],
     },
+
     {
       ...commonOptions,
       name: 'RTK-Query-React-Type-Definitions',
@@ -256,147 +247,6 @@ export default defineConfig((overrideOptions): TsupOptions[] => {
         '@reduxjs/toolkit/query',
         /uncheckedindexed/,
       ],
-      format: ['cjs', 'esm'],
-      target: ['esnext'],
     },
   ]
 })
-// export default defineConfig((options) => {
-//   const configs = entryPoints
-//     .map((entryPointConfig) => {
-//       const artifactOptions: TsupOptions[] = buildTargets.map((buildTarget) => {
-//         const { prefix, folder, entryPoint, externals } = entryPointConfig
-//         const { format, minify, env, name, target } = buildTarget
-//         const outputFilename = `${prefix}.${name}`
-
-//         const folderSegments = [outputDir, folder]
-//         if (format === 'cjs') {
-//           folderSegments.push('cjs')
-//         }
-
-//         const outputFolder = path.join(...folderSegments)
-
-//         const extension =
-//           name === 'legacy-esm' ? '.js' : format === 'esm' ? '.mjs' : '.cjs'
-
-//         const defineValues: Record<string, string> = {}
-
-//         if (env) {
-//           Object.assign(defineValues, {
-//             NODE_ENV: env,
-//           })
-//         }
-
-//         const generateTypedefs = name === 'modern' && format === 'esm'
-
-//         return {
-//           name: `${prefix}-${name}`,
-//           entry: {
-//             [outputFilename]: entryPoint,
-//           },
-//           format,
-//           tsconfig,
-//           outDir: outputFolder,
-//           target,
-//           outExtension: () => ({ js: extension }),
-//           // minify,
-//           sourcemap: true,
-//           external: externals,
-//           esbuildPlugins: [mangleErrorsTransform],
-
-//           env: defineValues,
-//           async onSuccess() {
-//             if (format === 'cjs' && name === 'production.min') {
-//               writeCommonJSEntry(outputFolder, prefix)
-//             } else if (generateTypedefs) {
-//               if (folder === '') {
-//                 // we need to delete the declaration file and replace it with the original source file
-//                 fs.rmSync(path.join(outputFolder, 'uncheckedindexed.d.ts'), {
-//                   force: true,
-//                 })
-
-//                 fs.copyFileSync(
-//                   'src/uncheckedindexed.ts',
-//                   path.join(outputFolder, 'uncheckedindexed.ts'),
-//                 )
-//               }
-//               // TODO Copy/generate `.d.mts` files?
-//               // const inputTypedefsFile = `${outputFilename}.d.ts`
-//               // const outputTypedefsFile = `${outputFilename}.d.mts`
-//               // const inputTypedefsPath = path.join(
-//               //   outputFolder,
-//               //   inputTypedefsFile
-//               // )
-//               // const outputTypedefsPath = path.join(
-//               //   outputFolder,
-//               //   outputTypedefsFile
-//               // )
-//               // while (!fs.existsSync(inputTypedefsPath)) {
-//               //   // console.log(
-//               //   //   'Waiting for typedefs to be generated: ' + inputTypedefsFile
-//               //   // )
-//               //   await delay(100)
-//               // }
-//               // fs.copyFileSync(inputTypedefsPath, outputTypedefsPath)
-//             }
-//           },
-//         } satisfies TsupOptions
-//       })
-
-//       return artifactOptions satisfies TsupOptions[]
-//     })
-//     .flat()
-//     .concat([
-//       {
-//         name: 'Redux-Toolkit-Type-Definitions',
-//         format: ['cjs'],
-//         tsconfig,
-//         entry: { index: './src/index.ts' },
-//         external: [/uncheckedindexed/],
-//         dts: {
-//           only: true,
-//         },
-//       },
-//       {
-//         name: 'RTK-React-Type-Definitions',
-//         format: ['cjs'],
-//         tsconfig,
-//         entry: { 'react/index': './src/react/index.ts' },
-//         external: ['@reduxjs/toolkit', /uncheckedindexed/],
-//         dts: {
-//           only: true,
-//         },
-//       },
-//       {
-//         name: 'RTK-Query-Type-Definitions',
-//         format: ['cjs'],
-//         tsconfig,
-//         entry: { 'query/index': './src/query/index.ts' },
-//         external: [
-//           '@reduxjs/toolkit',
-//           '@reduxjs/toolkit/react',
-//           /uncheckedindexed/,
-//         ],
-//         dts: {
-//           only: true,
-//         },
-//       },
-//       {
-//         name: 'RTK-Query-React-Type-Definitions',
-//         format: ['cjs'],
-//         tsconfig,
-//         entry: { 'query/react/index': './src/query/react/index.ts' },
-//         external: [
-//           '@reduxjs/toolkit',
-//           '@reduxjs/toolkit/react',
-//           '@reduxjs/toolkit/query',
-//           /uncheckedindexed/,
-//         ],
-//         dts: {
-//           only: true,
-//         },
-//       },
-//     ])
-
-//   return configs
-// })
