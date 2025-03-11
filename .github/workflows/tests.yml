@@ -250,8 +250,6 @@ jobs:
           cache: 'gradle'
 
       - name: Build example
-        env:
-          NODE_OPTIONS: --openssl-legacy-provider
         run: yarn build
 
       - name: Run test step
