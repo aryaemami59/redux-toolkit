@@ -409,7 +409,7 @@ describe('fork', () => {
       let deferredCompletedEvt = deferred()
       let deferredCancelledEvt = deferred()
 
-      // Unfortunately we cannot test declaratively unhandleRejections in jest: https://github.com/facebook/jest/issues/5620
+      // Unfortunately we cannot test declaratively unhandledRejections in jest: https://github.com/facebook/jest/issues/5620
       // This test just fails if an `unhandledRejection` occurs.
       startListening({
         actionCreator: increment,

@@ -192,7 +192,7 @@ describe('updateQueryData', () => {
     expect(result.current.data).toEqual(dataBefore)
   })
 
-  test('updates (list) cache values including provided tags, undos that', async () => {
+  test('updates (list) cache values including provided tags, undoes that', async () => {
     baseQuery
       .mockResolvedValueOnce([
         { id: '3', title: 'All about cheese.', contents: 'TODO' },

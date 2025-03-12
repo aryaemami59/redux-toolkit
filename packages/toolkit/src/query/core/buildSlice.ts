@@ -59,7 +59,7 @@ import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
 import type { UnwrapPromise } from '../tsHelpers'
 
 /**
- * A typesafe single entry to be upserted into the cache
+ * A type-safe single entry to be upserted into the cache
  */
 export type NormalizedQueryUpsertEntry<
   Definitions extends EndpointDefinitions,

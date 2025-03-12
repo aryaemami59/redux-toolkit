@@ -19,7 +19,7 @@ describe('type tests', () => {
       retryCondition: () => false,
     }).not.toMatchTypeOf<RetryOptions>()
   })
-  test('fail can be pretyped to only accept correct error and meta', () => {
+  test('fail can be pre-typed to only accept correct error and meta', () => {
     expectTypeOf(retry.fail).parameter(0).toEqualTypeOf<unknown>()
     expectTypeOf(retry.fail).parameter(1).toEqualTypeOf<{} | undefined>()
     expectTypeOf(retry.fail).toBeCallableWith('Literally anything', {})
