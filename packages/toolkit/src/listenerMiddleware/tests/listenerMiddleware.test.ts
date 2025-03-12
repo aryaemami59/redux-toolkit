@@ -962,12 +962,12 @@ describe('createListenerMiddleware', () => {
       expect(reducer.mock.calls).toEqual([[{}, testAction1('a')]])
     })
 
-    test('listenerApi.delay does not trigger unhandledRejections for completed or cancelled listners', async () => {
+    test('listenerApi.delay does not trigger unhandledRejections for completed or cancelled listeners', async () => {
       const deferredCompletedEvt = deferred()
       const deferredCancelledEvt = deferred()
       const godotPauseTrigger = deferred()
 
-      // Unfortunately we cannot test declaratively unhandleRejections in jest: https://github.com/facebook/jest/issues/5620
+      // Unfortunately we cannot test declaratively unhandledRejections in jest: https://github.com/facebook/jest/issues/5620
       // This test just fails if an `unhandledRejection` occurs.
       startListening({
         actionCreator: increment,
@@ -1347,7 +1347,7 @@ describe('createListenerMiddleware', () => {
           if (jobsStarted < 3) {
             try {
               await listenerApi.condition(decrement.match)
-              // Cancelation _should_ cause `condition()` to throw so we never
+              // Cancellation _should_ cause `condition()` to throw so we never
               // end up hitting this next line
               jobsContinued++
             } catch (err) {
