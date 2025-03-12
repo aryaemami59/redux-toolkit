@@ -51,7 +51,7 @@ You can also create a new Next+Redux project with `npx create-next-app --example
 
 The primary new feature of the Next.js App Router is the addition of support for React Server Components (RSCs). RSCs are a special type of React component that only renders on the server, as opposed to "client" components that render on **both** the client and the server. RSCs can be defined as `async` functions and return promises during rendering as they make async requests for data to render.
 
-RSCs ability to block for data requests means that with the App Router you no longer have `getServerSideProps` to fetch data for rendering. Any component in the tree can make asychronous requests for data. While this is very convenient it also means thats if you define global variables (like the Redux store) they will be shared across requests. This is a problem because the Redux store could be contaminated with data from other requests.
+RSCs ability to block for data requests means that with the App Router you no longer have `getServerSideProps` to fetch data for rendering. Any component in the tree can make asynchronous requests for data. While this is very convenient it also means thats if you define global variables (like the Redux store) they will be shared across requests. This is a problem because the Redux store could be contaminated with data from other requests.
 
 Based on the architecture of the App Router we have these general recommendations for appropriate use of Redux:
 
@@ -408,7 +408,7 @@ There are three key areas that you should check to ensure that you have set up R
 
 ## Overall Recommendations
 
-The App Router presents a dramatically different archtecture for React applications from either the Pages Router or a SPA application. We recommend rethinking your approach to state management in the light of this new architecture. In SPA applications it's not unusual to have a large store that contains all the data, both mutable and immutable, required to drive the application. For App Router applications we recommend that you should:
+The App Router presents a dramatically different architecture for React applications from either the Pages Router or a SPA application. We recommend rethinking your approach to state management in the light of this new architecture. In SPA applications it's not unusual to have a large store that contains all the data, both mutable and immutable, required to drive the application. For App Router applications we recommend that you should:
 
 - **only use Redux for globally shared, mutable data**
 - use a combination of Next.js state (search params, route parameters, form state, etc.), React context and React hooks for all other state management.
