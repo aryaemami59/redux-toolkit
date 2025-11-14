@@ -1,7 +1,8 @@
 export {
+  produce as createNextState,
   current,
   isDraft,
-  produce as createNextState,
   isDraftable,
   setUseStrictIteration,
 } from 'immer'
+export type { Draft } from 'immer'

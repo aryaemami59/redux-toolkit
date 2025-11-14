@@ -427,9 +427,7 @@ export interface ApiModules<
 }
 
 export interface ApiEndpointQuery<
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Definition extends QueryDefinition<any, any, any, any, any>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   DefinitionsType extends EndpointDefinitions,
 >
   extends
