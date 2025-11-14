@@ -25,11 +25,15 @@ export type RefetchConfigOptions = {
   refetchOnFocus: boolean
 }
 
-export type InfiniteQueryConfigOptions<DataType, PageParam, QueryArg> = {
+export type InfiniteQueryConfigOptions<
+  DataType,
+  PageParamType,
+  QueryArgumentType,
+> = {
   /**
    * The initial page parameter to use for the first page fetch.
    */
-  initialPageParam: PageParam
+  initialPageParam: PageParamType
   /**
    * This function is required to automatically get the next cursor for infinite queries.
    * The result will also be used to determine the value of `hasNextPage`.
@@ -37,10 +41,10 @@ export type InfiniteQueryConfigOptions<DataType, PageParam, QueryArg> = {
   getNextPageParam: (
     lastPage: DataType,
     allPages: Array<DataType>,
-    lastPageParam: PageParam,
-    allPageParams: Array<PageParam>,
-    queryArg: QueryArg,
-  ) => PageParam | undefined | null
+    lastPageParam: PageParamType,
+    allPageParams: Array<PageParamType>,
+    queryArg: QueryArgumentType,
+  ) => PageParamType | undefined | null
   /**
    * This function can be set to automatically get the previous cursor for infinite queries.
    * The result will also be used to determine the value of `hasPreviousPage`.
@@ -48,10 +52,10 @@ export type InfiniteQueryConfigOptions<DataType, PageParam, QueryArg> = {
   getPreviousPageParam?: (
     firstPage: DataType,
     allPages: Array<DataType>,
-    firstPageParam: PageParam,
-    allPageParams: Array<PageParam>,
-    queryArg: QueryArg,
-  ) => PageParam | undefined | null
+    firstPageParam: PageParamType,
+    allPageParams: Array<PageParamType>,
+    queryArg: QueryArgumentType,
+  ) => PageParamType | undefined | null
   /**
    * If specified, only keep this many pages in cache at once.
    * If additional pages are fetched, older pages in the other
@@ -67,9 +71,9 @@ export type InfiniteQueryConfigOptions<DataType, PageParam, QueryArg> = {
   refetchCachedPages?: boolean
 }
 
-export type InfiniteData<DataType, PageParam> = {
+export type InfiniteData<DataType, PageParamType> = {
   pages: Array<DataType>
-  pageParams: Array<PageParam>
+  pageParams: Array<PageParamType>
 }
 
 // NOTE: DO NOT import and use this for runtime comparisons internally,
@@ -322,13 +326,13 @@ export type MutationSubState<
 export type CombinedState<
   D extends EndpointDefinitions,
   E extends string,
-  ReducerPathType extends string,
+  ReducerPath extends string,
 > = {
   queries: QueryState<D>
   mutations: MutationState<D>
   provided: InvalidationState<E>
   subscriptions: SubscriptionState
-  config: ConfigState<ReducerPathType>
+  config: ConfigState<ReducerPath>
 }
 
 export type InvalidationState<TagTypes extends string> = {
@@ -354,8 +358,8 @@ export type SubscriptionState = {
   [queryCacheKey: string]: Subscribers | undefined
 }
 
-export type ConfigState<ReducerPathType> = RefetchConfigOptions & {
-  reducerPath: ReducerPathType
+export type ConfigState<ReducerPath> = RefetchConfigOptions & {
+  reducerPath: ReducerPath
   online: boolean
   focused: boolean
   middlewareRegistered: boolean | 'conflict'
@@ -373,5 +377,5 @@ export type MutationState<D extends EndpointDefinitions> = {
 export type RootState<
   DefinitionsType extends EndpointDefinitions,
   TagTypes extends string,
-  ReducerPathType extends string,
-> = { [P in ReducerPathType]: CombinedState<DefinitionsType, TagTypes, P> }
+  ReducerPath extends string,
+> = { [P in ReducerPath]: CombinedState<DefinitionsType, TagTypes, P> }

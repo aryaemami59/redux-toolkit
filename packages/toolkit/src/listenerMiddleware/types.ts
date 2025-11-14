@@ -5,9 +5,9 @@ import type {
   MiddlewareAPI,
   UnknownAction,
 } from 'redux'
-import type { ThunkDispatch } from 'redux-thunk'
 import type { BaseActionCreator, PayloadAction } from '../createAction'
 import type { TypedActionCreator } from '../mapBuilders'
+import type { ThunkDispatch } from '../reduxThunkImports'
 import type { TaskAbortError } from './exceptions'
 
 /**
