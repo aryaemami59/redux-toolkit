@@ -1,6 +1,6 @@
 import type { QueryCacheKey } from './core/apiState'
-import type { EndpointDefinition } from './endpointDefinitions'
 import { isPlainObject } from './core/rtkImports'
+import type { EndpointDefinition } from './endpointDefinitions'
 
 const cache: WeakMap<any, string> | undefined = WeakMap
   ? new WeakMap()
@@ -39,11 +39,14 @@ export const defaultSerializeQueryArgs: SerializeQueryArgs<any> = ({
   return `${endpointName}(${serialized})`
 }
 
-export type SerializeQueryArgs<QueryArgs, ReturnType = string> = (_: {
+export type SerializeQueryArgs<
+  QueryArgs,
+  SerializedQueryResult = string,
+> = (_: {
   queryArgs: QueryArgs
   endpointDefinition: EndpointDefinition<any, any, any, any>
   endpointName: string
-}) => ReturnType
+}) => SerializedQueryResult
 
 export type InternalSerializeQueryArgs = (_: {
   queryArgs: any
