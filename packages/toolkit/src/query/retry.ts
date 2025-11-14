@@ -90,9 +90,9 @@ export type RetryOptions = {
     }
 )
 
-function fail<BaseQuery extends BaseQueryFn = BaseQueryFn>(
-  error: BaseQueryError<BaseQuery>,
-  meta?: BaseQueryMeta<BaseQuery>,
+function fail<BaseQueryFunctionType extends BaseQueryFn = BaseQueryFn>(
+  error: BaseQueryError<BaseQueryFunctionType>,
+  meta?: BaseQueryMeta<BaseQueryFunctionType>,
 ): never {
   throw Object.assign(new HandledError({ error, meta }), {
     throwImmediately: true,

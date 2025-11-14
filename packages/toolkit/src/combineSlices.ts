@@ -15,15 +15,19 @@ import type {
 } from './tsHelpers'
 import { getOrInsertComputed } from './utils'
 
-type SliceLike<ReducerPath extends string, State, PreloadedState = State> = {
-  reducerPath: ReducerPath
+type SliceLike<
+  ReducerPathType extends string,
+  State,
+  PreloadedState = State,
+> = {
+  reducerPath: ReducerPathType
   reducer: Reducer<State, any, PreloadedState>
 }
 
 type AnySliceLike = SliceLike<string, any>
 
 type SliceLikeReducerPath<A extends AnySliceLike> =
-  A extends SliceLike<infer ReducerPath, any> ? ReducerPath : never
+  A extends SliceLike<infer ReducerPathType, any> ? ReducerPathType : never
 
 type SliceLikeState<A extends AnySliceLike> =
   A extends SliceLike<any, infer State, any> ? State : never
@@ -42,10 +46,10 @@ export type WithSlicePreloadedState<A extends AnySliceLike> = {
 type ReducerMap = Record<string, Reducer>
 
 type ExistingSliceLike<DeclaredState, PreloadedState> = {
-  [ReducerPath in keyof DeclaredState]: SliceLike<
-    ReducerPath & string,
-    NonUndefined<DeclaredState[ReducerPath]>,
-    NonUndefined<PreloadedState[ReducerPath & keyof PreloadedState]>
+  [ReducerPathType in keyof DeclaredState]: SliceLike<
+    ReducerPathType & string,
+    NonUndefined<DeclaredState[ReducerPathType]>,
+    NonUndefined<PreloadedState[ReducerPathType & keyof PreloadedState]>
   >
 }[keyof DeclaredState]
 
@@ -134,21 +138,15 @@ export interface CombinedSliceReducer<
    * ```
    *
    */
-  inject<ReducerPath extends string, State, PreloadedState = State>(
+  inject<ReducerPathType extends string, State, PreloadedState = State>(
     slice: SliceLike<
-      ReducerPath,
-      State & (ReducerPath extends keyof DeclaredState ? never : State),
-      PreloadedState &
-        (ReducerPath extends keyof PreloadedState ? never : PreloadedState)
+      ReducerPathType,
+      State & (ReducerPathType extends keyof DeclaredState ? never : State)
     >,
     config?: InjectConfig,
   ): CombinedSliceReducer<
     InitialState,
-    Id<DeclaredState & WithSlice<SliceLike<ReducerPath, State>>>,
-    Id<
-      PreloadedState &
-        WithSlicePreloadedState<SliceLike<ReducerPath, State, PreloadedState>>
-    >
+    Id<DeclaredState & WithSlice<SliceLike<ReducerPathType, State>>>
   >
 
   /**

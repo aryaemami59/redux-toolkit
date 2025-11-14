@@ -21,20 +21,17 @@ import type {
   MutationSubState,
   QueryCacheKey,
   QueryState,
+  QueryStatus,
   QuerySubState,
   RequestStatusFlags,
   RootState as _RootState,
-  QueryStatus,
 } from './apiState'
 import { STATUS_UNINITIALIZED, getRequestStatusFlags } from './apiState'
 import { getMutationCacheKey } from './buildSlice'
+import type { AllQueryKeys } from './buildThunks'
+import { getNextPageParam, getPreviousPageParam } from './buildThunks'
 import type { createSelector as _createSelector } from './rtkImports'
 import { createNextState } from './rtkImports'
-import {
-  type AllQueryKeys,
-  getNextPageParam,
-  getPreviousPageParam,
-} from './buildThunks'
 
 export type SkipToken = typeof skipToken
 /**
@@ -63,12 +60,12 @@ export const skipToken = /* @__PURE__ */ Symbol.for('RTKQ/skipToken')
 
 export type BuildSelectorsApiEndpointQuery<
   Definition extends QueryDefinition<any, any, any, any, any>,
-  Definitions extends EndpointDefinitions,
+  DefinitionsType extends EndpointDefinitions,
 > = {
   select: QueryResultSelectorFactory<
     Definition,
     _RootState<
-      Definitions,
+      DefinitionsType,
       TagTypesFrom<Definition>,
       ReducerPathFrom<Definition>
     >
@@ -77,12 +74,12 @@ export type BuildSelectorsApiEndpointQuery<
 
 export type BuildSelectorsApiEndpointInfiniteQuery<
   Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
-  Definitions extends EndpointDefinitions,
+  DefinitionsType extends EndpointDefinitions,
 > = {
   select: InfiniteQueryResultSelectorFactory<
     Definition,
     _RootState<
-      Definitions,
+      DefinitionsType,
       TagTypesFrom<Definition>,
       ReducerPathFrom<Definition>
     >
@@ -91,12 +88,12 @@ export type BuildSelectorsApiEndpointInfiniteQuery<
 
 export type BuildSelectorsApiEndpointMutation<
   Definition extends MutationDefinition<any, any, any, any, any>,
-  Definitions extends EndpointDefinitions,
+  DefinitionsType extends EndpointDefinitions,
 > = {
   select: MutationResultSelectorFactory<
     Definition,
     _RootState<
-      Definitions,
+      DefinitionsType,
       TagTypesFrom<Definition>,
       ReducerPathFrom<Definition>
     >
@@ -167,18 +164,18 @@ const defaultMutationSubState = /* @__PURE__ */ createNextState(
 export type AllSelectors = ReturnType<typeof buildSelectors>
 
 export function buildSelectors<
-  Definitions extends EndpointDefinitions,
-  ReducerPath extends string,
+  DefinitionsType extends EndpointDefinitions,
+  ReducerPathType extends string,
 >({
   serializeQueryArgs,
   reducerPath,
   createSelector,
 }: {
   serializeQueryArgs: InternalSerializeQueryArgs
-  reducerPath: ReducerPath
+  reducerPath: ReducerPathType
   createSelector: typeof _createSelector
 }) {
-  type RootState = _RootState<Definitions, string, string>
+  type RootState = _RootState<DefinitionsType, string, string>
 
   const selectSkippedQuery = (state: RootState) => defaultQuerySubState
   const selectSkippedMutation = (state: RootState) => defaultMutationSubState
@@ -374,17 +371,17 @@ export function buildSelectors<
   }
 
   function selectCachedArgsForQuery<
-    QueryName extends AllQueryKeys<Definitions>,
+    QueryName extends AllQueryKeys<DefinitionsType>,
   >(
     state: RootState,
     queryName: QueryName,
-  ): Array<QueryArgFromAnyQuery<Definitions[QueryName]>> {
+  ): Array<QueryArgFromAnyQuery<DefinitionsType[QueryName]>> {
     return filterMap(
       Object.values(selectQueries(state) as QueryState<any>),
       (
         entry,
       ): entry is Exclude<
-        QuerySubState<Definitions[QueryName]>,
+        QuerySubState<DefinitionsType[QueryName]>,
         { status: QueryStatus.uninitialized }
       > =>
         entry?.endpointName === queryName &&

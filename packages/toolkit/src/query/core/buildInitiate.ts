@@ -30,6 +30,7 @@ import type {
   InfiniteQueryDirection,
   SubscriptionOptions,
 } from './apiState'
+import type { InternalMiddlewareState } from './buildMiddleware/types'
 import type {
   InfiniteQueryResultSelectorResult,
   QueryResultSelectorResult,
@@ -43,7 +44,6 @@ import type {
   ThunkApiMetaConfig,
 } from './buildThunks'
 import type { ApiEndpointQuery } from './module'
-import type { InternalMiddlewareState } from './buildMiddleware/types'
 
 export type BuildInitiateApiEndpointQuery<
   Definition extends QueryDefinition<any, any, any, any, any>,
@@ -182,8 +182,13 @@ export type MutationActionCreatorResult<
       error:
         | Exclude<
             BaseQueryError<
-              D extends MutationDefinition<any, infer BaseQuery, any, any>
-                ? BaseQuery
+              D extends MutationDefinition<
+                any,
+                infer BaseQueryFunctionType,
+                any,
+                any
+              >
+                ? BaseQueryFunctionType
                 : never
             >,
             undefined

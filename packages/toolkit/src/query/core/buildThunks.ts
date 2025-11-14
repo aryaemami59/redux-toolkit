@@ -40,16 +40,20 @@ import {
   isQueryDefinition,
 } from '../endpointDefinitions'
 import { HandledError } from '../HandledError'
+import {
+  NamedSchemaError,
+  parseWithSchema,
+  shouldSkip,
+} from '../standardSchema'
 import type { UnwrapPromise } from '../tsHelpers'
 import type {
-  RootState,
-  QueryKeys,
-  QuerySubstateIdentifier,
   InfiniteData,
   InfiniteQueryConfigOptions,
-  QueryCacheKey,
   InfiniteQueryDirection,
   InfiniteQueryKeys,
+  QueryKeys,
+  QuerySubstateIdentifier,
+  RootState,
 } from './apiState'
 import { QueryStatus, STATUS_UNINITIALIZED } from './apiState'
 import type {
@@ -70,11 +74,6 @@ import {
   isRejectedWithValue,
   SHOULD_AUTOBATCH,
 } from './rtkImports'
-import {
-  parseWithSchema,
-  NamedSchemaError,
-  shouldSkip,
-} from '../standardSchema'
 
 export type BuildThunksApiEndpointQuery<
   Definition extends QueryDefinition<any, any, any, any, any>,
@@ -210,40 +209,40 @@ export type UpsertRecipe<T> = (
 ) => void | MaybeDrafted<T>
 
 export type PatchQueryDataThunk<
-  Definitions extends EndpointDefinitions,
+  DefinitionsType extends EndpointDefinitions,
   PartialState,
-> = <EndpointName extends QueryKeys<Definitions>>(
+> = <EndpointName extends QueryKeys<DefinitionsType>>(
   endpointName: EndpointName,
-  arg: QueryArgFrom<Definitions[EndpointName]>,
+  arg: QueryArgFrom<DefinitionsType[EndpointName]>,
   patches: readonly Patch[],
   updateProvided?: boolean,
 ) => ThunkAction<void, PartialState, any, UnknownAction>
 
-export type AllQueryKeys<Definitions extends EndpointDefinitions> =
-  | QueryKeys<Definitions>
-  | InfiniteQueryKeys<Definitions>
+export type AllQueryKeys<DefinitionsType extends EndpointDefinitions> =
+  | QueryKeys<DefinitionsType>
+  | InfiniteQueryKeys<DefinitionsType>
 
 export type QueryArgFromAnyQueryDefinition<
-  Definitions extends EndpointDefinitions,
-  EndpointName extends AllQueryKeys<Definitions>,
+  DefinitionsType extends EndpointDefinitions,
+  EndpointName extends AllQueryKeys<DefinitionsType>,
 > =
-  Definitions[EndpointName] extends InfiniteQueryDefinition<
+  DefinitionsType[EndpointName] extends InfiniteQueryDefinition<
     any,
     any,
     any,
     any,
     any
   >
-    ? InfiniteQueryArgFrom<Definitions[EndpointName]>
-    : Definitions[EndpointName] extends QueryDefinition<any, any, any, any>
-      ? QueryArgFrom<Definitions[EndpointName]>
+    ? InfiniteQueryArgFrom<DefinitionsType[EndpointName]>
+    : DefinitionsType[EndpointName] extends QueryDefinition<any, any, any, any>
+      ? QueryArgFrom<DefinitionsType[EndpointName]>
       : never
 
 export type DataFromAnyQueryDefinition<
-  Definitions extends EndpointDefinitions,
-  EndpointName extends AllQueryKeys<Definitions>,
+  DefinitionsType extends EndpointDefinitions,
+  EndpointName extends AllQueryKeys<DefinitionsType>,
 > =
-  Definitions[EndpointName] extends InfiniteQueryDefinition<
+  DefinitionsType[EndpointName] extends InfiniteQueryDefinition<
     any,
     any,
     any,
@@ -251,48 +250,50 @@ export type DataFromAnyQueryDefinition<
     any
   >
     ? InfiniteData<
-        ResultTypeFrom<Definitions[EndpointName]>,
-        PageParamFrom<Definitions[EndpointName]>
+        ResultTypeFrom<DefinitionsType[EndpointName]>,
+        PageParamFrom<DefinitionsType[EndpointName]>
       >
-    : Definitions[EndpointName] extends QueryDefinition<any, any, any, any>
-      ? ResultTypeFrom<Definitions[EndpointName]>
+    : DefinitionsType[EndpointName] extends QueryDefinition<any, any, any, any>
+      ? ResultTypeFrom<DefinitionsType[EndpointName]>
       : unknown
 
 export type UpsertThunkResult<
-  Definitions extends EndpointDefinitions,
-  EndpointName extends AllQueryKeys<Definitions>,
+  DefinitionsType extends EndpointDefinitions,
+  EndpointName extends AllQueryKeys<DefinitionsType>,
 > =
-  Definitions[EndpointName] extends InfiniteQueryDefinition<
+  DefinitionsType[EndpointName] extends InfiniteQueryDefinition<
     any,
     any,
     any,
     any,
     any
   >
-    ? InfiniteQueryActionCreatorResult<Definitions[EndpointName]>
-    : Definitions[EndpointName] extends QueryDefinition<any, any, any, any>
-      ? QueryActionCreatorResult<Definitions[EndpointName]>
+    ? InfiniteQueryActionCreatorResult<DefinitionsType[EndpointName]>
+    : DefinitionsType[EndpointName] extends QueryDefinition<any, any, any, any>
+      ? QueryActionCreatorResult<DefinitionsType[EndpointName]>
       : QueryActionCreatorResult<never>
 
 export type UpdateQueryDataThunk<
-  Definitions extends EndpointDefinitions,
+  DefinitionsType extends EndpointDefinitions,
   PartialState,
-> = <EndpointName extends AllQueryKeys<Definitions>>(
+> = <EndpointName extends AllQueryKeys<DefinitionsType>>(
   endpointName: EndpointName,
-  arg: QueryArgFromAnyQueryDefinition<Definitions, EndpointName>,
-  updateRecipe: Recipe<DataFromAnyQueryDefinition<Definitions, EndpointName>>,
+  arg: QueryArgFromAnyQueryDefinition<DefinitionsType, EndpointName>,
+  updateRecipe: Recipe<
+    DataFromAnyQueryDefinition<DefinitionsType, EndpointName>
+  >,
   updateProvided?: boolean,
 ) => ThunkAction<PatchCollection, PartialState, any, UnknownAction>
 
 export type UpsertQueryDataThunk<
-  Definitions extends EndpointDefinitions,
+  DefinitionsType extends EndpointDefinitions,
   PartialState,
-> = <EndpointName extends AllQueryKeys<Definitions>>(
+> = <EndpointName extends AllQueryKeys<DefinitionsType>>(
   endpointName: EndpointName,
-  arg: QueryArgFromAnyQueryDefinition<Definitions, EndpointName>,
-  value: DataFromAnyQueryDefinition<Definitions, EndpointName>,
+  arg: QueryArgFromAnyQueryDefinition<DefinitionsType, EndpointName>,
+  value: DataFromAnyQueryDefinition<DefinitionsType, EndpointName>,
 ) => ThunkAction<
-  UpsertThunkResult<Definitions, EndpointName>,
+  UpsertThunkResult<DefinitionsType, EndpointName>,
   PartialState,
   any,
   UnknownAction
@@ -329,9 +330,9 @@ export const addShouldAutoBatch = <T extends Record<string, any>>(
 }
 
 export function buildThunks<
-  BaseQuery extends BaseQueryFn,
-  ReducerPath extends string,
-  Definitions extends EndpointDefinitions,
+  BaseQueryFunctionType extends BaseQueryFn,
+  ReducerPathType extends string,
+  DefinitionsType extends EndpointDefinitions,
 >({
   reducerPath,
   baseQuery,
@@ -344,18 +345,18 @@ export function buildThunks<
   catchSchemaFailure: globalCatchSchemaFailure,
   skipSchemaValidation: globalSkipSchemaValidation,
 }: {
-  baseQuery: BaseQuery
-  reducerPath: ReducerPath
-  context: ApiContext<Definitions>
+  baseQuery: BaseQueryFunctionType
+  reducerPath: ReducerPathType
+  context: ApiContext<DefinitionsType>
   serializeQueryArgs: InternalSerializeQueryArgs
-  api: Api<BaseQuery, Definitions, ReducerPath, any>
+  api: Api<BaseQueryFunctionType, DefinitionsType, ReducerPathType, any>
   assertTagType: AssertTagTypes
   selectors: AllSelectors
   onSchemaFailure: SchemaFailureHandler | undefined
-  catchSchemaFailure: SchemaFailureConverter<BaseQuery> | undefined
+  catchSchemaFailure: SchemaFailureConverter<BaseQueryFunctionType> | undefined
   skipSchemaValidation: boolean | SchemaType[] | undefined
 }) {
-  type State = RootState<any, string, ReducerPath>
+  type State = RootState<any, string, ReducerPathType>
 
   const patchQueryData: PatchQueryDataThunk<EndpointDefinitions, State> =
     (endpointName, arg, patches, updateProvided) => (dispatch, getState) => {
@@ -462,21 +463,21 @@ export function buildThunks<
       return ret
     }
 
-  const upsertQueryData: UpsertQueryDataThunk<Definitions, State> =
+  const upsertQueryData: UpsertQueryDataThunk<DefinitionsType, State> =
     (endpointName, arg, value) => (dispatch) => {
       type EndpointName = typeof endpointName
       const res = dispatch(
         (
           api.endpoints[endpointName] as ApiEndpointQuery<
             QueryDefinition<any, any, any, any, any>,
-            Definitions
+            DefinitionsType
           >
         ).initiate(arg, {
           subscribe: false,
           forceRefetch: true,
           [forceQueryFnSymbol]: () => ({ data: value }),
         }),
-      ) as UpsertThunkResult<Definitions, EndpointName>
+      ) as UpsertThunkResult<DefinitionsType, EndpointName>
 
       return res
     }
@@ -494,7 +495,7 @@ export function buildThunks<
   const executeEndpoint: AsyncThunkPayloadCreator<
     ThunkResult,
     QueryThunkArg | MutationThunkArg | InfiniteQueryThunkArg<any>,
-    ThunkApiMetaConfig & { state: RootState<any, string, ReducerPath> }
+    ThunkApiMetaConfig & { state: RootState<any, string, ReducerPathType> }
   > = async (
     arg,
     {
@@ -884,7 +885,7 @@ In the case of an unhandled error, no tags will be "provided" or "invalidated".`
 
   function isForcedQuery(
     arg: QueryThunkArg,
-    state: RootState<any, string, ReducerPath>,
+    state: RootState<any, string, ReducerPathType>,
   ) {
     const requestState = selectors.selectQueryEntry(state, arg.queryCacheKey)
     const baseFetchOnMountOrArgChange =
@@ -910,7 +911,7 @@ In the case of an unhandled error, no tags will be "provided" or "invalidated".`
     const generatedQueryThunk = createAsyncThunk<
       ThunkResult,
       ThunkArgType,
-      ThunkApiMetaConfig & { state: RootState<any, string, ReducerPath> }
+      ThunkApiMetaConfig & { state: RootState<any, string, ReducerPathType> }
     >(`${reducerPath}/executeQuery`, executeEndpoint, {
       getPendingMeta({ arg }) {
         const endpointDefinition = endpointDefinitions[arg.endpointName]
@@ -984,7 +985,7 @@ In the case of an unhandled error, no tags will be "provided" or "invalidated".`
   const mutationThunk = createAsyncThunk<
     ThunkResult,
     MutationThunkArg,
-    ThunkApiMetaConfig & { state: RootState<any, string, ReducerPath> }
+    ThunkApiMetaConfig & { state: RootState<any, string, ReducerPathType> }
   >(`${reducerPath}/executeMutation`, executeEndpoint, {
     getPendingMeta() {
       return addShouldAutoBatch({ startedTimeStamp: Date.now() })
@@ -998,7 +999,7 @@ In the case of an unhandled error, no tags will be "provided" or "invalidated".`
   ): options is { ifOlderThan: false | number } => 'ifOlderThan' in options
 
   const prefetch =
-    <EndpointName extends QueryKeys<Definitions>>(
+    <EndpointName extends QueryKeys<DefinitionsType>>(
       endpointName: EndpointName,
       arg: any,
       options: PrefetchOptions = {},
