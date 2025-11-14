@@ -7,7 +7,6 @@ import type {
 import type {
   Api,
   ApiContext,
-  ApiEndpointInfiniteQuery,
   ApiEndpointMutation,
   ApiEndpointQuery,
   BaseQueryFn,
@@ -52,16 +51,16 @@ import {
 } from './reactImports'
 import { shallowEqual } from './reactReduxImports'
 
+import type { InfiniteQueryDirection } from '../core/apiState'
+import type { StartInfiniteQueryActionCreator } from '../core/buildInitiate'
 import type { SubscriptionSelectors } from '../core/buildMiddleware/index'
-import type { InfiniteData, InfiniteQueryConfigOptions } from '../core/index'
+import type { InfiniteData } from '../core/index'
+import { isInfiniteQueryDefinition } from '../endpointDefinitions'
 import type { UninitializedValue } from './constants'
 import { UNINITIALIZED_VALUE } from './constants'
 import type { ReactHooksModuleOptions } from './module'
 import { useStableQueryArgs } from './useSerializedStableValue'
 import { useShallowStableValue } from './useShallowStableValue'
-import type { InfiniteQueryDirection } from '../core/apiState'
-import { isInfiniteQueryDefinition } from '../endpointDefinitions'
-import type { StartInfiniteQueryActionCreator } from '../core/buildInitiate'
 
 // Copy-pasted from React-Redux
 const canUseDOM = () =>
@@ -1513,7 +1512,7 @@ type GenericPrefetchThunk = (
  * @param opts.moduleOptions.useSelector - The version of the `useSelector` hook to be used
  * @returns An object containing functions to generate hooks based on an endpoint
  */
-export function buildHooks<Definitions extends EndpointDefinitions>({
+export function buildHooks<DefinitionsType extends EndpointDefinitions>({
   api,
   moduleOptions: {
     batch,
@@ -1524,10 +1523,10 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
   serializeQueryArgs,
   context,
 }: {
-  api: Api<any, Definitions, any, any, CoreModule>
+  api: Api<any, DefinitionsType, any, any, CoreModule>
   moduleOptions: Required<ReactHooksModuleOptions>
   serializeQueryArgs: SerializeQueryArgs<any>
-  context: ApiContext<Definitions>
+  context: ApiContext<DefinitionsType>
 }) {
   const usePossiblyImmediateEffect: (
     effect: () => void | undefined,
@@ -1663,7 +1662,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
     } as UseInfiniteQueryStateDefaultResult<any>
   }
 
-  function usePrefetch<EndpointName extends QueryKeys<Definitions>>(
+  function usePrefetch<EndpointName extends QueryKeys<DefinitionsType>>(
     endpointName: EndpointName,
     defaultOptions?: PrefetchOptions,
   ) {
@@ -1701,7 +1700,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
   ) {
     const { initiate } = api.endpoints[endpointName] as ApiEndpointQuery<
       QueryDefinition<any, any, any, any, any>,
-      Definitions
+      DefinitionsType
     >
     const dispatch = useDispatch<ThunkDispatch<any, any, UnknownAction>>()
 
@@ -1843,7 +1842,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
     ) => {
       const { select } = api.endpoints[endpointName] as ApiEndpointQuery<
         QueryDefinition<any, any, any, any, any>,
-        Definitions
+        DefinitionsType
       >
       const stableArg = useStableQueryArgs(skip ? skipToken : arg)
 
@@ -1885,12 +1884,12 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
       )
 
       const currentState = useSelector(
-        (state: RootState<Definitions, any, any>) =>
+        (state: RootState<DefinitionsType, any, any>) =>
           querySelector(state, lastValue.current),
         shallowEqual,
       )
 
-      const store = useStore<RootState<Definitions, any, any>>()
+      const store = useStore<RootState<DefinitionsType, any, any>>()
       const newLastValue = selectDefaultResult(
         store.getState(),
         lastValue.current,
@@ -1957,7 +1956,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
     } = {}) => {
       const { initiate } = api.endpoints[endpointName] as ApiEndpointQuery<
         QueryDefinition<any, any, any, any, any>,
-        Definitions
+        DefinitionsType
       >
       const dispatch = useDispatch<ThunkDispatch<any, any, UnknownAction>>()
 
@@ -2223,7 +2222,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
     return ({ selectFromResult, fixedCacheKey } = {}) => {
       const { select, initiate } = api.endpoints[name] as ApiEndpointMutation<
         MutationDefinition<any, any, any, any, any>,
-        Definitions
+        DefinitionsType
       >
       const dispatch = useDispatch<ThunkDispatch<any, any, UnknownAction>>()
       const [promise, setPromise] = useState<MutationActionCreatorResult<any>>()
@@ -2252,7 +2251,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
         [fixedCacheKey, promise, select],
       )
       const mutationSelector = useMemo(
-        (): Selector<RootState<Definitions, any, any>, any> =>
+        (): Selector<RootState<DefinitionsType, any, any>, any> =>
           selectFromResult
             ? createSelector([selectDefaultResult], selectFromResult)
             : selectDefaultResult,
