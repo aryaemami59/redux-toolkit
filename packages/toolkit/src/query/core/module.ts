@@ -10,7 +10,6 @@ import type {
   ThunkDispatch,
   UnknownAction,
 } from '@reduxjs/toolkit'
-import { enablePatches } from '../utils/immerImports'
 import type { Api, Module } from '../apiTypes'
 import type { BaseQueryFn } from '../baseQueryTypes'
 import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
@@ -30,6 +29,7 @@ import {
   isQueryDefinition,
 } from '../endpointDefinitions'
 import { assertCast, safeAssign } from '../tsHelpers'
+import { enablePatches } from '../utils/immerImports'
 import { getOrInsertComputed } from '../utils/index'
 import type {
   CombinedState,
@@ -426,9 +426,7 @@ export interface ApiModules<
 }
 
 export interface ApiEndpointQuery<
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Definition extends QueryDefinition<any, any, any, any, any>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   DefinitionsType extends EndpointDefinitions,
 > extends BuildThunksApiEndpointQuery<Definition>,
     BuildInitiateApiEndpointQuery<Definition>,
@@ -492,7 +490,7 @@ export interface CoreModuleOptions {
   /**
    * A selector creator (usually from `reselect`, or matching the same signature)
    */
-  createSelector?: typeof _createSelector
+  createSelector?: typeof import('reselect').createSelector
 }
 
 /**
