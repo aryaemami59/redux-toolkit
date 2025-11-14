@@ -1,4 +1,5 @@
 import type { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit'
+import { getEndpointDefinition } from '../../apiTypes'
 import type {
   BaseQueryFn,
   BaseQueryMeta,
@@ -23,54 +24,53 @@ import type {
   PromiseWithKnownReason,
   SubMiddlewareApi,
 } from './types'
-import { getEndpointDefinition } from '@internal/query/apiTypes'
 
 export type ReferenceCacheLifecycle = never
 
 export interface QueryBaseLifecycleApi<
-  QueryArg,
-  BaseQueryFunctionType extends BaseQueryFn,
-  ResultType,
-  ReducerPathType extends string = string,
-> extends LifecycleApi<ReducerPathType> {
+  QueryArgumentType,
+  BaseQueryType extends BaseQueryFn,
+  QueryResultType,
+  ReducerPath extends string = string,
+> extends LifecycleApi<ReducerPath> {
   /**
    * Gets the current value of this cache entry.
    */
   getCacheEntry(): QueryResultSelectorResult<
     { type: DefinitionType.query } & BaseEndpointDefinition<
-      QueryArg,
-      BaseQueryFunctionType,
-      ResultType,
-      BaseQueryResult<BaseQueryFunctionType>
+      QueryArgumentType,
+      BaseQueryType,
+      QueryResultType,
+      BaseQueryResult<BaseQueryType>
     >
   >
   /**
    * Updates the current cache entry value.
    * For documentation see `api.util.updateQueryData`.
    */
-  updateCachedData(updateRecipe: Recipe<ResultType>): PatchCollection
+  updateCachedData(updateRecipe: Recipe<QueryResultType>): PatchCollection
 }
 
 export type MutationBaseLifecycleApi<
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  ResultType,
-  ReducerPathType extends string = string,
-> = LifecycleApi<ReducerPathType> & {
+  QueryResultType,
+  ReducerPath extends string = string,
+> = LifecycleApi<ReducerPath> & {
   /**
    * Gets the current value of this cache entry.
    */
   getCacheEntry(): MutationResultSelectorResult<
     { type: DefinitionType.mutation } & BaseEndpointDefinition<
-      QueryArg,
+      QueryArgumentType,
       BaseQuery,
-      ResultType,
+      QueryResultType,
       BaseQueryResult<BaseQuery>
     >
   >
 }
 
-type LifecycleApi<ReducerPathType extends string = string> = {
+type LifecycleApi<ReducerPath extends string = string> = {
   /**
    * The dispatch method for the store
    */
@@ -78,7 +78,7 @@ type LifecycleApi<ReducerPathType extends string = string> = {
   /**
    * A method to get the current state
    */
-  getState(): RootState<any, any, ReducerPathType>
+  getState(): RootState<any, any, ReducerPath>
   /**
    * `extra` as provided as `thunk.extraArgument` to the `configureStore` `getDefaultMiddleware` option.
    */
@@ -89,7 +89,7 @@ type LifecycleApi<ReducerPathType extends string = string> = {
   requestId: string
 }
 
-type CacheLifecyclePromises<ResultType = unknown, MetaType = unknown> = {
+type CacheLifecyclePromises<QueryResultType = unknown, MetaType = unknown> = {
   /**
    * Promise that will resolve with the first value for this cache key.
    * This allows you to `await` until an actual value is in cache.
@@ -108,7 +108,7 @@ type CacheLifecyclePromises<ResultType = unknown, MetaType = unknown> = {
       /**
        * The (transformed) query result.
        */
-      data: ResultType
+      data: QueryResultType
       /**
        * The `meta` returned by the `baseQuery`
        */
@@ -125,68 +125,73 @@ type CacheLifecyclePromises<ResultType = unknown, MetaType = unknown> = {
 }
 
 export interface QueryCacheLifecycleApi<
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  ResultType,
-  ReducerPathType extends string = string,
+  QueryResultType,
+  ReducerPath extends string = string,
 > extends QueryBaseLifecycleApi<
-      QueryArg,
+      QueryArgumentType,
       BaseQuery,
-      ResultType,
-      ReducerPathType
+      QueryResultType,
+      ReducerPath
     >,
-    CacheLifecyclePromises<ResultType, BaseQueryMeta<BaseQuery>> {}
+    CacheLifecyclePromises<QueryResultType, BaseQueryMeta<BaseQuery>> {}
 
 export type MutationCacheLifecycleApi<
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  ResultType,
-  ReducerPathType extends string = string,
-> = MutationBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPathType> &
-  CacheLifecyclePromises<ResultType, BaseQueryMeta<BaseQuery>>
+  QueryResultType,
+  ReducerPath extends string = string,
+> = MutationBaseLifecycleApi<
+  QueryArgumentType,
+  BaseQuery,
+  QueryResultType,
+  ReducerPath
+> &
+  CacheLifecyclePromises<QueryResultType, BaseQueryMeta<BaseQuery>>
 
 export type CacheLifecycleQueryExtraOptions<
-  ResultType,
-  QueryArg,
+  QueryResultType,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  ReducerPathType extends string = string,
+  ReducerPath extends string = string,
 > = {
   onCacheEntryAdded?(
-    arg: QueryArg,
+    arg: QueryArgumentType,
     api: QueryCacheLifecycleApi<
-      QueryArg,
+      QueryArgumentType,
       BaseQuery,
-      ResultType,
-      ReducerPathType
+      QueryResultType,
+      ReducerPath
     >,
   ): Promise<void> | void
 }
 
 export type CacheLifecycleInfiniteQueryExtraOptions<
-  ResultType,
-  QueryArg,
+  QueryResultType,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  ReducerPathType extends string = string,
+  ReducerPath extends string = string,
 > = CacheLifecycleQueryExtraOptions<
-  ResultType,
-  QueryArg,
+  QueryResultType,
+  QueryArgumentType,
   BaseQuery,
-  ReducerPathType
+  ReducerPath
 >
 
 export type CacheLifecycleMutationExtraOptions<
-  ResultType,
-  QueryArg,
+  QueryResultType,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  ReducerPathType extends string = string,
+  ReducerPath extends string = string,
 > = {
   onCacheEntryAdded?(
-    arg: QueryArg,
+    arg: QueryArgumentType,
     api: MutationCacheLifecycleApi<
-      QueryArg,
+      QueryArgumentType,
       BaseQuery,
-      ResultType,
-      ReducerPathType
+      QueryResultType,
+      ReducerPath
     >,
   ): Promise<void> | void
 }
