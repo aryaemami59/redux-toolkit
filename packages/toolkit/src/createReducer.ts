@@ -1,11 +1,11 @@
-import type { Draft } from 'immer'
+import type { Action, Reducer, UnknownAction } from 'redux'
+import type { Draft } from './immerImports'
 import {
   createNextState,
   isDraft,
   isDraftable,
   setUseStrictIteration,
 } from './immerImports'
-import type { Action, Reducer, UnknownAction } from 'redux'
 import type { ActionReducerMapBuilder } from './mapBuilders'
 import { executeReducerBuilderCallback } from './mapBuilders'
 import type { NoInfer, TypeGuard } from './tsHelpers'

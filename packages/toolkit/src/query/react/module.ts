@@ -1,3 +1,4 @@
+import { createSelector as _createSelector } from '@reduxjs/toolkit'
 import type {
   Api,
   BaseQueryFn,
@@ -17,7 +18,6 @@ import {
   useStore as rrUseStore,
 } from 'react-redux'
 import type { CreateSelectorFunction } from 'reselect'
-import { createSelector as _createSelector } from 'reselect'
 import {
   isInfiniteQueryDefinition,
   isMutationDefinition,

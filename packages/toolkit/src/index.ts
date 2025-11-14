@@ -5,15 +5,22 @@ import { formatProdErrorMessage } from './formatProdErrorMessage'
 export * from 'redux'
 export { freeze, original } from 'immer'
 export { createNextState, current, isDraft } from './immerImports'
-export type { Draft, WritableDraft } from 'immer'
-export { createSelector, lruMemoize } from 'reselect'
-export { createSelectorCreator, weakMapMemoize } from './reselectImports'
-export type { Selector, OutputSelector } from 'reselect'
+export type { Draft } from './immerImports'
+export type { WritableDraft } from 'immer'
+export { lruMemoize } from 'reselect'
+export {
+  createSelector,
+  createSelectorCreator,
+  weakMapMemoize,
+} from './reselectImports'
+export type { Selector } from './reselectImports'
+export type { OutputSelector } from 'reselect'
 export {
   createDraftSafeSelector,
   createDraftSafeSelectorCreator,
 } from './createDraftSafeSelector'
-export type { ThunkAction, ThunkDispatch, ThunkMiddleware } from 'redux-thunk'
+export type { ThunkDispatch, ThunkMiddleware } from './reduxThunkImports'
+export type { ThunkAction } from 'redux-thunk'
 
 export {
   // js

@@ -1,9 +1,8 @@
 import type { Action, Dispatch, MiddlewareAPI, UnknownAction } from 'redux'
-import { isAction } from '../reduxImports'
-import type { ThunkDispatch } from 'redux-thunk'
 import { createAction } from '../createAction'
 import { nanoid } from '../nanoid'
-
+import { isAction } from '../reduxImports'
+import type { ThunkDispatch } from '../reduxThunkImports'
 import {
   TaskAbortError,
   listenerCancelled,

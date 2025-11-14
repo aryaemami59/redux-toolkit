@@ -1,4 +1,4 @@
-import { getEndpointDefinition } from '@internal/query/apiTypes'
+import { getEndpointDefinition } from '../../apiTypes'
 import type {
   BaseQueryError,
   BaseQueryFn,
@@ -20,7 +20,7 @@ import type {
 
 export type ReferenceQueryLifecycle = never
 
-type QueryLifecyclePromises<ResultType, BaseQuery extends BaseQueryFn> = {
+type QueryLifecyclePromises<QueryResultType, BaseQuery extends BaseQueryFn> = {
   /**
    * Promise that will resolve with the (transformed) query result.
    *
@@ -35,7 +35,7 @@ type QueryLifecyclePromises<ResultType, BaseQuery extends BaseQueryFn> = {
       /**
        * The (transformed) query result.
        */
-      data: ResultType
+      data: QueryResultType
       /**
        * The `meta` returned by the `baseQuery`
        */
@@ -68,10 +68,10 @@ type QueryFulfilledRejectionReason<BaseQuery extends BaseQueryFn> =
     }
 
 export type QueryLifecycleQueryExtraOptions<
-  ResultType,
-  QueryArg,
+  QueryResultType,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  ReducerPathType extends string = string,
+  ReducerPath extends string = string,
 > = {
   /**
    * A function that is called when the individual query is started. The function is called with a lifecycle api object containing properties such as `queryFulfilled`, allowing code to be run when a query is started, when it succeeds, and when it fails (i.e. throughout the lifecycle of an individual query/mutation call).
@@ -113,33 +113,33 @@ export type QueryLifecycleQueryExtraOptions<
    * ```
    */
   onQueryStarted?(
-    queryArgument: QueryArg,
+    queryArgument: QueryArgumentType,
     queryLifeCycleApi: QueryLifecycleApi<
-      QueryArg,
+      QueryArgumentType,
       BaseQuery,
-      ResultType,
-      ReducerPathType
+      QueryResultType,
+      ReducerPath
     >,
   ): Promise<void> | void
 }
 
 export type QueryLifecycleInfiniteQueryExtraOptions<
-  ResultType,
-  QueryArg,
+  QueryResultType,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  ReducerPathType extends string = string,
+  ReducerPath extends string = string,
 > = QueryLifecycleQueryExtraOptions<
-  ResultType,
-  QueryArg,
+  QueryResultType,
+  QueryArgumentType,
   BaseQuery,
-  ReducerPathType
+  ReducerPath
 >
 
 export type QueryLifecycleMutationExtraOptions<
-  ResultType,
-  QueryArg,
+  QueryResultType,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  ReducerPathType extends string = string,
+  ReducerPath extends string = string,
 > = {
   /**
    * A function that is called when the individual mutation is started. The function is called with a lifecycle api object containing properties such as `queryFulfilled`, allowing code to be run when a query is started, when it succeeds, and when it fails (i.e. throughout the lifecycle of an individual query/mutation call).
@@ -190,36 +190,41 @@ export type QueryLifecycleMutationExtraOptions<
    * ```
    */
   onQueryStarted?(
-    queryArgument: QueryArg,
+    queryArgument: QueryArgumentType,
     mutationLifeCycleApi: MutationLifecycleApi<
-      QueryArg,
+      QueryArgumentType,
       BaseQuery,
-      ResultType,
-      ReducerPathType
+      QueryResultType,
+      ReducerPath
     >,
   ): Promise<void> | void
 }
 
 export interface QueryLifecycleApi<
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  ResultType,
-  ReducerPathType extends string = string,
+  QueryResultType,
+  ReducerPath extends string = string,
 > extends QueryBaseLifecycleApi<
-      QueryArg,
+      QueryArgumentType,
       BaseQuery,
-      ResultType,
-      ReducerPathType
+      QueryResultType,
+      ReducerPath
     >,
-    QueryLifecyclePromises<ResultType, BaseQuery> {}
+    QueryLifecyclePromises<QueryResultType, BaseQuery> {}
 
 export type MutationLifecycleApi<
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  ResultType,
-  ReducerPathType extends string = string,
-> = MutationBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPathType> &
-  QueryLifecyclePromises<ResultType, BaseQuery>
+  QueryResultType,
+  ReducerPath extends string = string,
+> = MutationBaseLifecycleApi<
+  QueryArgumentType,
+  BaseQuery,
+  QueryResultType,
+  ReducerPath
+> &
+  QueryLifecyclePromises<QueryResultType, BaseQuery>
 
 /**
  * Provides a way to define a strongly-typed version of
@@ -299,24 +304,24 @@ export type MutationLifecycleApi<
  * })
  * ```
  *
- * @template ResultType - The type of the result `data` returned by the query.
+ * @template QueryResultType - The type of the result `data` returned by the query.
  * @template QueryArgumentType - The type of the argument passed into the query.
- * @template BaseQueryFunctionType - The type of the base query function being used.
- * @template ReducerPathType - The type representing the `reducerPath` for the API slice.
+ * @template BaseQueryType - The type of the base query function being used.
+ * @template ReducerPath - The type representing the `reducerPath` for the API slice.
  *
  * @since 2.4.0
  * @public
  */
 export type TypedQueryOnQueryStarted<
-  ResultType,
+  QueryResultType,
   QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
-  ReducerPathType extends string = string,
+  BaseQueryType extends BaseQueryFn,
+  ReducerPath extends string = string,
 > = QueryLifecycleQueryExtraOptions<
-  ResultType,
+  QueryResultType,
   QueryArgumentType,
-  BaseQueryFunctionType,
-  ReducerPathType
+  BaseQueryType,
+  ReducerPath
 >['onQueryStarted']
 
 /**
@@ -407,24 +412,24 @@ export type TypedQueryOnQueryStarted<
  * })
  * ```
  *
- * @template ResultType - The type of the result `data` returned by the query.
+ * @template QueryResultType - The type of the result `data` returned by the query.
  * @template QueryArgumentType - The type of the argument passed into the query.
- * @template BaseQueryFunctionType - The type of the base query function being used.
- * @template ReducerPathType - The type representing the `reducerPath` for the API slice.
+ * @template BaseQueryType - The type of the base query function being used.
+ * @template ReducerPath - The type representing the `reducerPath` for the API slice.
  *
  * @since 2.4.0
  * @public
  */
 export type TypedMutationOnQueryStarted<
-  ResultType,
+  QueryResultType,
   QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
-  ReducerPathType extends string = string,
+  BaseQueryType extends BaseQueryFn,
+  ReducerPath extends string = string,
 > = QueryLifecycleMutationExtraOptions<
-  ResultType,
+  QueryResultType,
   QueryArgumentType,
-  BaseQueryFunctionType,
-  ReducerPathType
+  BaseQueryType,
+  ReducerPath
 >['onQueryStarted']
 
 export const buildQueryLifecycleHandler: InternalHandlerBuilder = ({

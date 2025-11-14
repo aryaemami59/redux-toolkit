@@ -4,8 +4,8 @@ import type {
   StateFromReducersMapObject,
   UnknownAction,
 } from 'redux'
-import { combineReducers } from 'redux'
 import { nanoid } from './nanoid'
+import { combineReducers } from './reduxImports'
 import type {
   Id,
   NonUndefined,
@@ -228,15 +228,20 @@ export interface CombinedSliceReducer<
      * })
      * ```
      */
-    <Selector extends (state: DeclaredState, ...args: any[]) => unknown>(
-      selectorFn: Selector,
+    <
+      SelectorFunctionType extends (
+        state: DeclaredState,
+        ...args: any[]
+      ) => unknown,
+    >(
+      selectorFn: SelectorFunctionType,
     ): (
       state: WithOptionalProp<
-        Parameters<Selector>[0],
+        Parameters<SelectorFunctionType>[0],
         Exclude<keyof DeclaredState, keyof InitialState>
       >,
-      ...args: Tail<Parameters<Selector>>
-    ) => ReturnType<Selector>
+      ...args: Tail<Parameters<SelectorFunctionType>>
+    ) => ReturnType<SelectorFunctionType>
 
     /**
      * Create a selector that guarantees that the slices injected will have a defined value when selector is run.
@@ -292,21 +297,24 @@ export interface CombinedSliceReducer<
      * ```
      */
     <
-      Selector extends (state: DeclaredState, ...args: any[]) => unknown,
+      SelectorFunctionType extends (
+        state: DeclaredState,
+        ...args: any[]
+      ) => unknown,
       RootState,
     >(
-      selectorFn: Selector,
+      selectorFn: SelectorFunctionType,
       selectState: (
         rootState: RootState,
-        ...args: Tail<Parameters<Selector>>
+        ...args: Tail<Parameters<SelectorFunctionType>>
       ) => WithOptionalProp<
-        Parameters<Selector>[0],
+        Parameters<SelectorFunctionType>[0],
         Exclude<keyof DeclaredState, keyof InitialState>
       >,
     ): (
       state: RootState,
-      ...args: Tail<Parameters<Selector>>
-    ) => ReturnType<Selector>
+      ...args: Tail<Parameters<SelectorFunctionType>>
+    ) => ReturnType<SelectorFunctionType>
     /**
      * Returns the unproxied state. Useful for debugging.
      * @param state state Proxy, that ensures injected reducers have value

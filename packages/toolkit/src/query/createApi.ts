@@ -24,7 +24,7 @@ import type { NoInfer } from './tsHelpers'
 
 export interface CreateApiOptions<
   BaseQuery extends BaseQueryFn,
-  DefinitionsType extends EndpointDefinitions,
+  Definitions extends EndpointDefinitions,
   ReducerPath extends string = 'api',
   TagTypes extends string = never,
 > {
@@ -107,7 +107,7 @@ export interface CreateApiOptions<
    */
   endpoints(
     build: EndpointBuilder<BaseQuery, TagTypes, ReducerPath>,
-  ): DefinitionsType
+  ): Definitions
   /**
    * Defaults to `60` _(this value is in seconds)_. This is how long RTK Query will keep your data cached for **after** the last component unsubscribes. For example, if you query an endpoint, then unmount the component, then mount another component that makes the same request within the given time frame, the most recent value will be served from the cache.
    *
@@ -213,7 +213,7 @@ export interface CreateApiOptions<
   ) =>
     | undefined
     | CombinedState<
-        NoInfer<DefinitionsType>,
+        NoInfer<Definitions>,
         NoInfer<TagTypes>,
         NoInfer<ReducerPath>
       >
