@@ -41,3 +41,6 @@ tsconfig.vitest-temp.json
 docs/dev-plans
 # Perf protobufs
 *.pb.gz
+
+.rolldown/
+.vitest-dump/
