@@ -39,36 +39,35 @@ export type QueryReturnValue<T = unknown, E = unknown, M = unknown> =
 export type BaseQueryFn<
   Args = any,
   Result = unknown,
-  Error = unknown,
+  ErrorType = unknown,
   DefinitionExtraOptions = {},
   Meta = {},
 > = (
   args: Args,
   api: BaseQueryApi,
   extraOptions: DefinitionExtraOptions,
-) => MaybePromise<QueryReturnValue<Result, Error, Meta>>
+) => MaybePromise<QueryReturnValue<Result, ErrorType, Meta>>
 
 export type BaseQueryEnhancer<
   AdditionalArgs = unknown,
   AdditionalDefinitionExtraOptions = unknown,
   Config = void,
-> = <BaseQueryFunctionType extends BaseQueryFn>(
-  baseQuery: BaseQueryFunctionType,
+> = <BaseQueryType extends BaseQueryFn>(
+  baseQueryFunction: BaseQueryType,
   config: Config,
 ) => BaseQueryFn<
-  BaseQueryArg<BaseQueryFunctionType> & AdditionalArgs,
-  BaseQueryResult<BaseQueryFunctionType>,
-  BaseQueryError<BaseQueryFunctionType>,
-  BaseQueryExtraOptions<BaseQueryFunctionType> &
-    AdditionalDefinitionExtraOptions,
-  NonNullable<BaseQueryMeta<BaseQueryFunctionType>>
+  BaseQueryArg<BaseQueryType> & AdditionalArgs,
+  BaseQueryResult<BaseQueryType>,
+  BaseQueryError<BaseQueryType>,
+  BaseQueryExtraOptions<BaseQueryType> & AdditionalDefinitionExtraOptions,
+  NonNullable<BaseQueryMeta<BaseQueryType>>
 >
 
 /**
  * @public
  */
-export type BaseQueryResult<BaseQueryFunctionType extends BaseQueryFn> =
-  UnwrapPromise<ReturnType<BaseQueryFunctionType>> extends infer Unwrapped
+export type BaseQueryResult<BaseQuery extends BaseQueryFn> =
+  UnwrapPromise<ReturnType<BaseQuery>> extends infer Unwrapped
     ? Unwrapped extends { data: any }
       ? Unwrapped['data']
       : never
@@ -77,14 +76,15 @@ export type BaseQueryResult<BaseQueryFunctionType extends BaseQueryFn> =
 /**
  * @public
  */
-export type BaseQueryMeta<BaseQueryFunctionType extends BaseQueryFn> =
-  UnwrapPromise<ReturnType<BaseQueryFunctionType>>['meta']
+export type BaseQueryMeta<BaseQuery extends BaseQueryFn> = UnwrapPromise<
+  ReturnType<BaseQuery>
+>['meta']
 
 /**
  * @public
  */
-export type BaseQueryError<BaseQueryFunctionType extends BaseQueryFn> = Exclude<
-  UnwrapPromise<ReturnType<BaseQueryFunctionType>>,
+export type BaseQueryError<BaseQuery extends BaseQueryFn> = Exclude<
+  UnwrapPromise<ReturnType<BaseQuery>>,
   { error?: undefined }
 >['error']
 
@@ -97,5 +97,5 @@ export type BaseQueryArg<T extends (arg: any, ...args: any[]) => any> =
 /**
  * @public
  */
-export type BaseQueryExtraOptions<BaseQueryFunctionType extends BaseQueryFn> =
-  Parameters<BaseQueryFunctionType>[2]
+export type BaseQueryExtraOptions<BaseQuery extends BaseQueryFn> =
+  Parameters<BaseQuery>[2]

@@ -1,5 +1,5 @@
-import type { Draft } from 'immer'
 import type { PayloadAction } from '../createAction'
+import type { Draft } from '../immerImports'
 import type { CastAny, Id } from '../tsHelpers'
 import type { UncheckedIndexedAccess } from '../uncheckedindexed.js'
 import type { GetSelectorsOptions } from './state_selectors'
