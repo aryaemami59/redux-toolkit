@@ -9,7 +9,7 @@ import type {
   FullTagDescription,
 } from '../../endpointDefinitions'
 import type { QueryStatus, QuerySubState, RootState } from '../apiState'
-import type { QueryThunkArg } from '../buildThunks'
+import type { ApiEndpointQuery } from '../module'
 import { createAction, isAction } from '../rtkImports'
 import { buildBatchedActionsHandler } from './batchActions'
 import { buildCacheCollectionHandler } from './cacheCollection'
@@ -18,13 +18,8 @@ import { buildDevCheckHandler } from './devMiddleware'
 import { buildInvalidationByTagsHandler } from './invalidationByTags'
 import { buildPollingHandler } from './polling'
 import { buildQueryLifecycleHandler } from './queryLifecycle'
-import type {
-  BuildMiddlewareInput,
-  InternalHandlerBuilder,
-  InternalMiddlewareState,
-} from './types'
+import type { BuildMiddlewareInput, InternalHandlerBuilder } from './types'
 import { buildWindowEventHandler } from './windowEventHandling'
-import type { ApiEndpointQuery } from '../module'
 export type { ReferenceCacheCollection } from './cacheCollection'
 export type {
   MutationCacheLifecycleApi,
@@ -41,16 +36,16 @@ export type {
 export type { SubscriptionSelectors } from './types'
 
 export function buildMiddleware<
-  Definitions extends EndpointDefinitions,
-  ReducerPath extends string,
-  TagTypes extends string,
->(input: BuildMiddlewareInput<Definitions, ReducerPath, TagTypes>) {
+  DefinitionsType extends EndpointDefinitions,
+  ReducerPathType extends string,
+  ApiTagTypes extends string,
+>(input: BuildMiddlewareInput<DefinitionsType, ReducerPathType, ApiTagTypes>) {
   const { reducerPath, queryThunk, api, context, getInternalState } = input
   const { apiUid } = context
 
   const actions = {
     invalidateTags: createAction<
-      Array<TagTypes | FullTagDescription<TagTypes> | null | undefined>
+      Array<ApiTagTypes | FullTagDescription<ApiTagTypes> | null | undefined>
     >(`${reducerPath}/invalidateTags`),
   }
 
@@ -68,7 +63,7 @@ export function buildMiddleware<
 
   const middleware: Middleware<
     {},
-    RootState<Definitions, string, ReducerPath>,
+    RootState<DefinitionsType, string, ReducerPathType>,
     ThunkDispatch<any, any, UnknownAction>
   > = (mwApi) => {
     let initialized = false

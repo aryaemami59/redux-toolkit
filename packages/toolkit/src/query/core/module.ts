@@ -10,7 +10,7 @@ import type {
   ThunkDispatch,
   UnknownAction,
 } from '@reduxjs/toolkit'
-import { enablePatches } from '../utils/immerImports'
+import type { CreateSelectorFunction } from 'reselect'
 import type { Api, Module } from '../apiTypes'
 import type { BaseQueryFn } from '../baseQueryTypes'
 import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
@@ -30,6 +30,8 @@ import {
   isQueryDefinition,
 } from '../endpointDefinitions'
 import { assertCast, safeAssign } from '../tsHelpers'
+import { enablePatches } from '../utils/immerImports'
+import { getOrInsertComputed } from '../utils/index'
 import type {
   CombinedState,
   MutationKeys,
@@ -37,12 +39,12 @@ import type {
   RootState,
 } from './apiState'
 import type {
+  BuildInitiateApiEndpointInfiniteQuery,
   BuildInitiateApiEndpointMutation,
   BuildInitiateApiEndpointQuery,
+  InfiniteQueryActionCreatorResult,
   MutationActionCreatorResult,
   QueryActionCreatorResult,
-  InfiniteQueryActionCreatorResult,
-  BuildInitiateApiEndpointInfiniteQuery,
 } from './buildInitiate'
 import { buildInitiate } from './buildInitiate'
 import type {
@@ -51,6 +53,7 @@ import type {
   ReferenceQueryLifecycle,
 } from './buildMiddleware'
 import { buildMiddleware } from './buildMiddleware'
+import type { InternalMiddlewareState } from './buildMiddleware/types'
 import type {
   BuildSelectorsApiEndpointInfiniteQuery,
   BuildSelectorsApiEndpointMutation,
@@ -72,9 +75,6 @@ import type {
 import { buildThunks } from './buildThunks'
 import { createSelector as _createSelector } from './rtkImports'
 import { onFocus, onFocusLost, onOffline, onOnline } from './setupListeners'
-import type { InternalMiddlewareState } from './buildMiddleware/types'
-import { getOrInsertComputed } from '../utils'
-import type { CreateSelectorFunction } from 'reselect'
 
 /**
  * `ifOlderThan` - (default: `false` | `number`) - _number is value in seconds_
@@ -430,10 +430,12 @@ export interface ApiEndpointQuery<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Definition extends QueryDefinition<any, any, any, any, any>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  Definitions extends EndpointDefinitions,
-> extends BuildThunksApiEndpointQuery<Definition>,
+  DefinitionsType extends EndpointDefinitions,
+>
+  extends
+    BuildThunksApiEndpointQuery<Definition>,
     BuildInitiateApiEndpointQuery<Definition>,
-    BuildSelectorsApiEndpointQuery<Definition, Definitions> {
+    BuildSelectorsApiEndpointQuery<Definition, DefinitionsType> {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
@@ -445,10 +447,12 @@ export interface ApiEndpointInfiniteQuery<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  Definitions extends EndpointDefinitions,
-> extends BuildThunksApiEndpointInfiniteQuery<Definition>,
+  DefinitionsType extends EndpointDefinitions,
+>
+  extends
+    BuildThunksApiEndpointInfiniteQuery<Definition>,
     BuildInitiateApiEndpointInfiniteQuery<Definition>,
-    BuildSelectorsApiEndpointInfiniteQuery<Definition, Definitions> {
+    BuildSelectorsApiEndpointInfiniteQuery<Definition, DefinitionsType> {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
@@ -461,10 +465,12 @@ export interface ApiEndpointMutation<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Definition extends MutationDefinition<any, any, any, any, any>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  Definitions extends EndpointDefinitions,
-> extends BuildThunksApiEndpointMutation<Definition>,
+  DefinitionsType extends EndpointDefinitions,
+>
+  extends
+    BuildThunksApiEndpointMutation<Definition>,
     BuildInitiateApiEndpointMutation<Definition>,
-    BuildSelectorsApiEndpointMutation<Definition, Definitions> {
+    BuildSelectorsApiEndpointMutation<Definition, DefinitionsType> {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
