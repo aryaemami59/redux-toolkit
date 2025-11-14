@@ -1,80 +1,81 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
-import {
-  combineReducers,
-  createAction,
-  createSlice,
-  isAnyOf,
-  isFulfilled,
-  isRejectedWithValue,
-  createNextState,
-  prepareAutoBatched,
-  SHOULD_AUTOBATCH,
-  nanoid,
-} from './rtkImports'
+import type { Patch } from 'immer'
+import { applyPatches, isDraft, original } from 'immer'
+import type { ApiContext } from '../apiTypes'
+import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
 import type {
-  QuerySubstateIdentifier,
-  QuerySubState,
-  MutationSubstateIdentifier,
-  MutationSubState,
-  MutationState,
-  QueryState,
-  InvalidationState,
-  Subscribers,
-  QueryCacheKey,
-  SubscriptionState,
+  AssertTagTypes,
+  EndpointDefinitions,
+  FullTagDescription,
+  QueryDefinition,
+} from '../endpointDefinitions'
+import {
+  ENDPOINT_QUERY,
+  isInfiniteQueryDefinition,
+} from '../endpointDefinitions'
+import type { UnwrapPromise } from '../tsHelpers'
+import { getCurrent } from '../utils/getCurrent'
+import {
+  copyWithStructuralSharing,
+  isDocumentVisible,
+  isOnline,
+} from '../utils/index'
+import type {
   ConfigState,
-  InfiniteQuerySubState,
   InfiniteQueryDirection,
+  InfiniteQuerySubState,
+  InvalidationState,
+  MutationState,
+  MutationSubState,
+  MutationSubstateIdentifier,
+  QueryCacheKey,
+  QueryState,
+  QuerySubState,
+  QuerySubstateIdentifier,
+  Subscribers,
+  SubscriptionState,
 } from './apiState'
 import {
   STATUS_FULFILLED,
   STATUS_PENDING,
-  QueryStatus,
   STATUS_REJECTED,
   STATUS_UNINITIALIZED,
 } from './apiState'
+import { isUpsertQuery } from './buildInitiate'
 import type {
   AllQueryKeys,
-  QueryArgFromAnyQueryDefinition,
   DataFromAnyQueryDefinition,
   InfiniteQueryThunk,
   MutationThunk,
+  QueryArgFromAnyQueryDefinition,
   QueryThunk,
   QueryThunkArg,
 } from './buildThunks'
 import { calculateProvidedByThunk } from './buildThunks'
 import {
-  ENDPOINT_QUERY,
-  isInfiniteQueryDefinition,
-  type AssertTagTypes,
-  type EndpointDefinitions,
-  type FullTagDescription,
-  type QueryDefinition,
-} from '../endpointDefinitions'
-import type { Patch } from 'immer'
-import { applyPatches, original, isDraft } from '../utils/immerImports'
+  combineReducers,
+  createAction,
+  createNextState,
+  createSlice,
+  isAnyOf,
+  isFulfilled,
+  isRejectedWithValue,
+  nanoid,
+  prepareAutoBatched,
+  SHOULD_AUTOBATCH,
+} from './rtkImports'
 import { onFocus, onFocusLost, onOffline, onOnline } from './setupListeners'
-import {
-  isDocumentVisible,
-  isOnline,
-  copyWithStructuralSharing,
-} from '../utils'
-import type { ApiContext } from '../apiTypes'
-import { isUpsertQuery } from './buildInitiate'
-import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
-import type { UnwrapPromise } from '../tsHelpers'
-import { getCurrent } from '../utils/getCurrent'
 
 /**
  * A typesafe single entry to be upserted into the cache
  */
 export type NormalizedQueryUpsertEntry<
-  Definitions extends EndpointDefinitions,
-  EndpointName extends AllQueryKeys<Definitions>,
+  DefinitionsType extends EndpointDefinitions,
+  EndpointName extends AllQueryKeys<DefinitionsType>,
 > = {
   endpointName: EndpointName
-  arg: QueryArgFromAnyQueryDefinition<Definitions, EndpointName>
-  value: DataFromAnyQueryDefinition<Definitions, EndpointName>
+  arg: QueryArgFromAnyQueryDefinition<DefinitionsType, EndpointName>
+  value: DataFromAnyQueryDefinition<DefinitionsType, EndpointName>
 }
 
 /**
@@ -94,13 +95,13 @@ export type ProcessedQueryUpsertEntry = {
 /**
  * A typesafe representation of a util action creator that accepts cache entry descriptions to upsert
  */
-export type UpsertEntries<Definitions extends EndpointDefinitions> = (<
-  EndpointNames extends Array<AllQueryKeys<Definitions>>,
+export type UpsertEntries<DefinitionsType extends EndpointDefinitions> = (<
+  EndpointNames extends Array<AllQueryKeys<DefinitionsType>>,
 >(
   entries: [
     ...{
       [I in keyof EndpointNames]: NormalizedQueryUpsertEntry<
-        Definitions,
+        DefinitionsType,
         EndpointNames[I]
       >
     },

@@ -55,7 +55,7 @@ export interface Slice<
   State = any,
   CaseReducers extends SliceCaseReducers<State> = SliceCaseReducers<State>,
   Name extends string = string,
-  ReducerPath extends string = Name,
+  ReducerPathType extends string = Name,
   Selectors extends SliceSelectors<State> = SliceSelectors<State>,
 > {
   /**
@@ -66,7 +66,7 @@ export interface Slice<
   /**
    *  The slice reducer path.
    */
-  reducerPath: ReducerPath
+  reducerPath: ReducerPathType
 
   /**
    * The slice's reducer.
@@ -109,13 +109,13 @@ export interface Slice<
    * Equivalent to `slice.getSelectors((state: RootState) => state[slice.reducerPath])`.
    */
   get selectors(): Id<
-    SliceDefinedSelectors<State, Selectors, { [K in ReducerPath]: State }>
+    SliceDefinedSelectors<State, Selectors, { [K in ReducerPathType]: State }>
   >
 
   /**
    * Inject slice into provided reducer (return value from `combineSlices`), and return injected slice.
    */
-  injectInto<NewReducerPath extends string = ReducerPath>(
+  injectInto<NewReducerPath extends string = ReducerPathType>(
     this: this,
     injectable: {
       inject: (
@@ -131,7 +131,7 @@ export interface Slice<
    *
    * Will throw an error if slice is not found.
    */
-  selectSlice(state: { [K in ReducerPath]: State }): State
+  selectSlice(state: { [K in ReducerPathType]: State }): State
 }
 
 /**
@@ -143,10 +143,10 @@ type InjectedSlice<
   State = any,
   CaseReducers extends SliceCaseReducers<State> = SliceCaseReducers<State>,
   Name extends string = string,
-  ReducerPath extends string = Name,
+  ReducerPathType extends string = Name,
   Selectors extends SliceSelectors<State> = SliceSelectors<State>,
 > = Omit<
-  Slice<State, CaseReducers, Name, ReducerPath, Selectors>,
+  Slice<State, CaseReducers, Name, ReducerPathType, Selectors>,
   'getSelectors' | 'selectors'
 > & {
   /**
@@ -170,7 +170,7 @@ type InjectedSlice<
     SliceDefinedSelectors<
       State,
       Selectors,
-      { [K in ReducerPath]?: State | undefined }
+      { [K in ReducerPathType]?: State | undefined }
     >
   >
 
@@ -179,7 +179,7 @@ type InjectedSlice<
    *
    * Returns initial state if slice is not found.
    */
-  selectSlice(state: { [K in ReducerPath]?: State | undefined }): State
+  selectSlice(state: { [K in ReducerPathType]?: State | undefined }): State
 }
 
 /**
@@ -191,7 +191,7 @@ export interface CreateSliceOptions<
   State = any,
   CR extends SliceCaseReducers<State> = SliceCaseReducers<State>,
   Name extends string = string,
-  ReducerPath extends string = Name,
+  ReducerPathType extends string = Name,
   Selectors extends SliceSelectors<State> = SliceSelectors<State>,
 > {
   /**
@@ -202,7 +202,7 @@ export interface CreateSliceOptions<
   /**
    * The slice's reducer path. Used when injecting into a combined slice reducer.
    */
-  reducerPath?: ReducerPath
+  reducerPath?: ReducerPathType
 
   /**
    * The initial state that should be used when the reducer is called the first time. This may also be a "lazy initializer" function, which should return an initial state value when called. This will be used whenever the reducer is called with `undefined` as its state value, and is primarily useful for cases like reading initial state from `localStorage`.
@@ -572,17 +572,17 @@ export function buildCreateSlice({ creators }: BuildCreateSliceConfig = {}) {
     CaseReducers extends SliceCaseReducers<State>,
     Name extends string,
     Selectors extends SliceSelectors<State>,
-    ReducerPath extends string = Name,
+    ReducerPathType extends string = Name,
   >(
     options: CreateSliceOptions<
       State,
       CaseReducers,
       Name,
-      ReducerPath,
+      ReducerPathType,
       Selectors
     >,
-  ): Slice<State, CaseReducers, Name, ReducerPath, Selectors> {
-    const { name, reducerPath = name as unknown as ReducerPath } = options
+  ): Slice<State, CaseReducers, Name, ReducerPathType, Selectors> {
+    const { name, reducerPath = name as unknown as ReducerPathType } = options
     if (!name) {
       throw new Error('`name` is a required option for createSlice')
     }
@@ -736,7 +736,9 @@ export function buildCreateSlice({ creators }: BuildCreateSliceConfig = {}) {
       return _reducer.getInitialState()
     }
 
-    function makeSelectorProps<CurrentReducerPath extends string = ReducerPath>(
+    function makeSelectorProps<
+      CurrentReducerPath extends string = ReducerPathType,
+    >(
       reducerPath: CurrentReducerPath,
       injected = false,
     ): Pick<
@@ -800,22 +802,23 @@ export function buildCreateSlice({ creators }: BuildCreateSliceConfig = {}) {
       }
     }
 
-    const slice: Slice<State, CaseReducers, Name, ReducerPath, Selectors> = {
-      name,
-      reducer,
-      actions: context.actionCreators as any,
-      caseReducers: context.sliceCaseReducersByName as any,
-      getInitialState,
-      ...makeSelectorProps(reducerPath),
-      injectInto(injectable, { reducerPath: pathOpt, ...config } = {}) {
-        const newReducerPath = pathOpt ?? reducerPath
-        injectable.inject({ reducerPath: newReducerPath, reducer }, config)
-        return {
-          ...slice,
-          ...makeSelectorProps(newReducerPath, true),
-        } as any
-      },
-    }
+    const slice: Slice<State, CaseReducers, Name, ReducerPathType, Selectors> =
+      {
+        name,
+        reducer,
+        actions: context.actionCreators as any,
+        caseReducers: context.sliceCaseReducersByName as any,
+        getInitialState,
+        ...makeSelectorProps(reducerPath),
+        injectInto(injectable, { reducerPath: pathOpt, ...config } = {}) {
+          const newReducerPath = pathOpt ?? reducerPath
+          injectable.inject({ reducerPath: newReducerPath, reducer }, config)
+          return {
+            ...slice,
+            ...makeSelectorProps(newReducerPath, true),
+          } as any
+        },
+      }
     return slice
   }
 }
