@@ -1,5 +1,5 @@
-import { QueryStatus, STATUS_UNINITIALIZED } from '../apiState'
 import type { QueryCacheKey } from '../apiState'
+import { STATUS_UNINITIALIZED } from '../apiState'
 import { onFocus, onOnline } from '../setupListeners'
 import type {
   ApiMiddlewareInternalHandler,
