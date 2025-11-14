@@ -1,6 +1,5 @@
 import type {
   Action,
-  AsyncThunkAction,
   Dispatch,
   Middleware,
   MiddlewareAPI,
@@ -18,21 +17,18 @@ import type {
   QuerySubState,
   RootState,
   SubscriptionInternalState,
-  SubscriptionState,
 } from '../apiState'
-import type {
-  InfiniteQueryThunk,
-  MutationThunk,
-  QueryThunk,
-  QueryThunkArg,
-  ThunkResult,
-} from '../buildThunks'
 import type {
   InfiniteQueryActionCreatorResult,
   MutationActionCreatorResult,
   QueryActionCreatorResult,
 } from '../buildInitiate'
 import type { AllSelectors } from '../buildSelectors'
+import type {
+  InfiniteQueryThunk,
+  MutationThunk,
+  QueryThunk,
+} from '../buildThunks'
 
 export type QueryStateMeta<T> = Record<string, undefined | T>
 export type TimeoutId = ReturnType<typeof setTimeout>
@@ -62,16 +58,16 @@ export interface SubscriptionSelectors {
 }
 
 export interface BuildMiddlewareInput<
-  Definitions extends EndpointDefinitions,
-  ReducerPath extends string,
+  DefinitionsType extends EndpointDefinitions,
+  ReducerPathType extends string,
   TagTypes extends string,
 > {
-  reducerPath: ReducerPath
-  context: ApiContext<Definitions>
+  reducerPath: ReducerPathType
+  context: ApiContext<DefinitionsType>
   queryThunk: QueryThunk
   mutationThunk: MutationThunk
   infiniteQueryThunk: InfiniteQueryThunk<any>
-  api: Api<any, Definitions, ReducerPath, TagTypes>
+  api: Api<any, DefinitionsType, ReducerPathType, TagTypes>
   assertTagType: AssertTagTypes
   selectors: AllSelectors
   getRunningQueryThunk: (

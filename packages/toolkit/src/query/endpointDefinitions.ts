@@ -29,6 +29,7 @@ import type {
 } from './core/index'
 import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import type { NEVER } from './fakeBaseQuery'
+import type { NamedSchemaError } from './standardSchema'
 import type {
   CastAny,
   HasRequiredProps,
@@ -38,7 +39,6 @@ import type {
   UnwrapPromise,
 } from './tsHelpers'
 import { isNotNullish } from './utils'
-import type { NamedSchemaError } from './standardSchema'
 import { filterMap } from './utils/filterMap'
 
 const rawResultType = /* @__PURE__ */ Symbol()
@@ -57,16 +57,17 @@ export type SchemaFailureHandler = (
   info: SchemaFailureInfo,
 ) => void
 
-export type SchemaFailureConverter<BaseQuery extends BaseQueryFn> = (
-  error: NamedSchemaError,
-  info: SchemaFailureInfo,
-) => BaseQueryError<BaseQuery>
+export type SchemaFailureConverter<BaseQueryFunctionType extends BaseQueryFn> =
+  (
+    error: NamedSchemaError,
+    info: SchemaFailureInfo,
+  ) => BaseQueryError<BaseQueryFunctionType>
 
 export type EndpointDefinitionWithQuery<
   QueryArg,
-  BaseQuery extends BaseQueryFn,
+  BaseQueryFunctionType extends BaseQueryFn,
   ResultType,
-  RawResultType extends BaseQueryResult<BaseQuery>,
+  RawResultType extends BaseQueryResult<BaseQueryFunctionType>,
 > = {
   /**
    * `query` can be a function that returns either a `string` or an `object` which is passed to your `baseQuery`. If you are using [fetchBaseQuery](./fetchBaseQuery), this can return either a `string` or an `object` of properties in `FetchArgs`. If you use your own custom [`baseQuery`](../../rtk-query/usage/customizing-queries), you can customize this behavior to your liking.
@@ -106,22 +107,22 @@ export type EndpointDefinitionWithQuery<
    * })
    * ```
    */
-  query(arg: QueryArg): BaseQueryArg<BaseQuery>
+  query(arg: QueryArg): BaseQueryArg<BaseQueryFunctionType>
   queryFn?: never
   /**
    * A function to manipulate the data returned by a query or mutation.
    */
   transformResponse?(
     baseQueryReturnValue: RawResultType,
-    meta: BaseQueryMeta<BaseQuery>,
+    meta: BaseQueryMeta<BaseQueryFunctionType>,
     arg: QueryArg,
   ): ResultType | Promise<ResultType>
   /**
    * A function to manipulate the data returned by a failed query or mutation.
    */
   transformErrorResponse?(
-    baseQueryReturnValue: BaseQueryError<BaseQuery>,
-    meta: BaseQueryMeta<BaseQuery>,
+    baseQueryReturnValue: BaseQueryError<BaseQueryFunctionType>,
+    meta: BaseQueryMeta<BaseQueryFunctionType>,
     arg: QueryArg,
   ): unknown
 
@@ -173,12 +174,14 @@ export type EndpointDefinitionWithQuery<
    * })
    * ```
    */
-  rawErrorResponseSchema?: StandardSchemaV1<BaseQueryError<BaseQuery>>
+  rawErrorResponseSchema?: StandardSchemaV1<
+    BaseQueryError<BaseQueryFunctionType>
+  >
 }
 
 export type EndpointDefinitionWithQueryFn<
   QueryArg,
-  BaseQuery extends BaseQueryFn,
+  BaseQueryFunctionType extends BaseQueryFn,
   ResultType,
 > = {
   /**
@@ -222,13 +225,15 @@ export type EndpointDefinitionWithQueryFn<
   queryFn(
     arg: QueryArg,
     api: BaseQueryApi,
-    extraOptions: BaseQueryExtraOptions<BaseQuery>,
-    baseQuery: (arg: Parameters<BaseQuery>[0]) => ReturnType<BaseQuery>,
+    extraOptions: BaseQueryExtraOptions<BaseQueryFunctionType>,
+    baseQuery: (
+      arg: Parameters<BaseQueryFunctionType>[0],
+    ) => ReturnType<BaseQueryFunctionType>,
   ): MaybePromise<
     QueryReturnValue<
       ResultType,
-      BaseQueryError<BaseQuery>,
-      BaseQueryMeta<BaseQuery>
+      BaseQueryError<BaseQueryFunctionType>,
+      BaseQueryMeta<BaseQueryFunctionType>
     >
   >
   query?: never
@@ -240,12 +245,12 @@ export type EndpointDefinitionWithQueryFn<
 
 type BaseEndpointTypes<
   QueryArg,
-  BaseQuery extends BaseQueryFn,
+  BaseQueryFunctionType extends BaseQueryFn,
   ResultType,
   RawResultType,
 > = {
   QueryArg: QueryArg
-  BaseQuery: BaseQuery
+  BaseQuery: BaseQueryFunctionType
   ResultType: ResultType
   RawResultType: RawResultType
 }
@@ -260,7 +265,7 @@ export type SchemaType =
 
 interface CommonEndpointDefinition<
   QueryArg,
-  BaseQuery extends BaseQueryFn,
+  BaseQueryFunctionType extends BaseQueryFn,
   ResultType,
 > {
   /**
@@ -331,7 +336,7 @@ interface CommonEndpointDefinition<
    * })
    * ```
    */
-  errorResponseSchema?: StandardSchemaV1<BaseQueryError<BaseQuery>>
+  errorResponseSchema?: StandardSchemaV1<BaseQueryError<BaseQueryFunctionType>>
 
   /**
    * A schema for the `meta` property returned by the `query` or `queryFn`.
@@ -354,7 +359,7 @@ interface CommonEndpointDefinition<
    * })
    * ```
    */
-  metaSchema?: StandardSchemaV1<BaseQueryMeta<BaseQuery>>
+  metaSchema?: StandardSchemaV1<BaseQueryMeta<BaseQueryFunctionType>>
 
   /**
    * Defaults to `true`.
@@ -428,7 +433,7 @@ interface CommonEndpointDefinition<
    * })
    * ```
    */
-  catchSchemaFailure?: SchemaFailureConverter<BaseQuery>
+  catchSchemaFailure?: SchemaFailureConverter<BaseQueryFunctionType>
 
   /**
    * Defaults to `false`.
@@ -461,31 +466,32 @@ interface CommonEndpointDefinition<
 
 export type BaseEndpointDefinition<
   QueryArg,
-  BaseQuery extends BaseQueryFn,
+  BaseQueryFunctionType extends BaseQueryFn,
   ResultType,
-  RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+  RawResultType extends
+    BaseQueryResult<BaseQueryFunctionType> = BaseQueryResult<BaseQueryFunctionType>,
 > = (
-  | ([CastAny<BaseQueryResult<BaseQuery>, {}>] extends [NEVER]
+  | ([CastAny<BaseQueryResult<BaseQueryFunctionType>, {}>] extends [NEVER]
       ? never
       : EndpointDefinitionWithQuery<
           QueryArg,
-          BaseQuery,
+          BaseQueryFunctionType,
           ResultType,
           RawResultType
         >)
-  | EndpointDefinitionWithQueryFn<QueryArg, BaseQuery, ResultType>
+  | EndpointDefinitionWithQueryFn<QueryArg, BaseQueryFunctionType, ResultType>
 ) &
-  CommonEndpointDefinition<QueryArg, BaseQuery, ResultType> & {
+  CommonEndpointDefinition<QueryArg, BaseQueryFunctionType, ResultType> & {
     /* phantom type */
     [rawResultType]?: RawResultType
     /* phantom type */
     [resultType]?: ResultType
     /* phantom type */
-    [baseQuery]?: BaseQuery
+    [baseQuery]?: BaseQueryFunctionType
   } & HasRequiredProps<
-    BaseQueryExtraOptions<BaseQuery>,
-    { extraOptions: BaseQueryExtraOptions<BaseQuery> },
-    { extraOptions?: BaseQueryExtraOptions<BaseQuery> }
+    BaseQueryExtraOptions<BaseQueryFunctionType>,
+    { extraOptions: BaseQueryExtraOptions<BaseQueryFunctionType> },
+    { extraOptions?: BaseQueryExtraOptions<BaseQueryFunctionType> }
   >
 
 // NOTE As with QueryStatus in `apiState.ts`, don't use this for real comparisons
@@ -500,12 +506,12 @@ export const ENDPOINT_QUERY = DefinitionType.query
 export const ENDPOINT_MUTATION = DefinitionType.mutation
 export const ENDPOINT_INFINITEQUERY = DefinitionType.infinitequery
 
-type TagDescriptionArray<TagTypes extends string> = ReadonlyArray<
-  TagDescription<TagTypes> | undefined | null
+type TagDescriptionArray<ApiTagTypes extends string> = ReadonlyArray<
+  TagDescription<ApiTagTypes> | undefined | null
 >
 
 export type GetResultDescriptionFn<
-  TagTypes extends string,
+  ApiTagTypes extends string,
   ResultType,
   QueryArg,
   ErrorType,
@@ -515,7 +521,7 @@ export type GetResultDescriptionFn<
   error: ErrorType | undefined,
   arg: QueryArg,
   meta: MetaType,
-) => TagDescriptionArray<TagTypes>
+) => TagDescriptionArray<ApiTagTypes>
 
 export type FullTagDescription<TagType> = {
   type: TagType
@@ -527,23 +533,35 @@ export type TagDescription<TagType> = TagType | FullTagDescription<TagType>
  * @public
  */
 export type ResultDescription<
-  TagTypes extends string,
+  ApiTagTypes extends string,
   ResultType,
   QueryArg,
   ErrorType,
   MetaType,
 > =
-  | TagDescriptionArray<TagTypes>
-  | GetResultDescriptionFn<TagTypes, ResultType, QueryArg, ErrorType, MetaType>
+  | TagDescriptionArray<ApiTagTypes>
+  | GetResultDescriptionFn<
+      ApiTagTypes,
+      ResultType,
+      QueryArg,
+      ErrorType,
+      MetaType
+    >
 
 type QueryTypes<
   QueryArg,
-  BaseQuery extends BaseQueryFn,
-  TagTypes extends string,
+  BaseQueryFunctionType extends BaseQueryFn,
+  ApiTagTypes extends string,
   ResultType,
-  ReducerPath extends string = string,
-  RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
-> = BaseEndpointTypes<QueryArg, BaseQuery, ResultType, RawResultType> & {
+  ReducerPathType extends string = string,
+  RawResultType extends
+    BaseQueryResult<BaseQueryFunctionType> = BaseQueryResult<BaseQueryFunctionType>,
+> = BaseEndpointTypes<
+  QueryArg,
+  BaseQueryFunctionType,
+  ResultType,
+  RawResultType
+> & {
   /**
    * The endpoint definition type. To be used with some internal generic types.
    * @example
@@ -553,36 +571,37 @@ type QueryTypes<
    */
   QueryDefinition: QueryDefinition<
     QueryArg,
-    BaseQuery,
-    TagTypes,
+    BaseQueryFunctionType,
+    ApiTagTypes,
     ResultType,
-    ReducerPath
+    ReducerPathType
   >
-  TagTypes: TagTypes
-  ReducerPath: ReducerPath
+  TagTypes: ApiTagTypes
+  ReducerPath: ReducerPathType
 }
 
 /**
  * @public
  */
 export interface QueryExtraOptions<
-  TagTypes extends string,
+  ApiTagTypes extends string,
   ResultType,
   QueryArg,
-  BaseQuery extends BaseQueryFn,
-  ReducerPath extends string = string,
-  RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+  BaseQueryFunctionType extends BaseQueryFn,
+  ReducerPathType extends string = string,
+  RawResultType extends
+    BaseQueryResult<BaseQueryFunctionType> = BaseQueryResult<BaseQueryFunctionType>,
 > extends CacheLifecycleQueryExtraOptions<
       ResultType,
       QueryArg,
-      BaseQuery,
-      ReducerPath
+      BaseQueryFunctionType,
+      ReducerPathType
     >,
     QueryLifecycleQueryExtraOptions<
       ResultType,
       QueryArg,
-      BaseQuery,
-      ReducerPath
+      BaseQueryFunctionType,
+      ReducerPathType
     >,
     CacheCollectionQueryExtraOptions {
   type: DefinitionType.query
@@ -630,11 +649,11 @@ export interface QueryExtraOptions<
    * ```
    */
   providesTags?: ResultDescription<
-    TagTypes,
+    ApiTagTypes,
     ResultType,
     QueryArg,
-    BaseQueryError<BaseQuery>,
-    BaseQueryMeta<BaseQuery>
+    BaseQueryError<BaseQueryFunctionType>,
+    BaseQueryMeta<BaseQueryFunctionType>
   >
   /**
    * Not to be used. A query should not invalidate tags in the cache.
@@ -760,7 +779,7 @@ export interface QueryExtraOptions<
     responseData: ResultType,
     otherArgs: {
       arg: QueryArg
-      baseQueryMeta: BaseQueryMeta<BaseQuery>
+      baseQueryMeta: BaseQueryMeta<BaseQueryFunctionType>
       requestId: string
       fulfilledTimeStamp: number
     },
@@ -818,40 +837,52 @@ export interface QueryExtraOptions<
    */
   Types?: QueryTypes<
     QueryArg,
-    BaseQuery,
-    TagTypes,
+    BaseQueryFunctionType,
+    ApiTagTypes,
     ResultType,
-    ReducerPath,
+    ReducerPathType,
     RawResultType
   >
 }
 
 export type QueryDefinition<
   QueryArg,
-  BaseQuery extends BaseQueryFn,
-  TagTypes extends string,
+  BaseQueryFunctionType extends BaseQueryFn,
+  ApiTagTypes extends string,
   ResultType,
-  ReducerPath extends string = string,
-  RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
-> = BaseEndpointDefinition<QueryArg, BaseQuery, ResultType, RawResultType> &
+  ReducerPathType extends string = string,
+  RawResultType extends
+    BaseQueryResult<BaseQueryFunctionType> = BaseQueryResult<BaseQueryFunctionType>,
+> = BaseEndpointDefinition<
+  QueryArg,
+  BaseQueryFunctionType,
+  ResultType,
+  RawResultType
+> &
   QueryExtraOptions<
-    TagTypes,
+    ApiTagTypes,
     ResultType,
     QueryArg,
-    BaseQuery,
-    ReducerPath,
+    BaseQueryFunctionType,
+    ReducerPathType,
     RawResultType
   >
 
 export type InfiniteQueryTypes<
   QueryArg,
   PageParam,
-  BaseQuery extends BaseQueryFn,
-  TagTypes extends string,
+  BaseQueryFunctionType extends BaseQueryFn,
+  ApiTagTypes extends string,
   ResultType,
-  ReducerPath extends string = string,
-  RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
-> = BaseEndpointTypes<QueryArg, BaseQuery, ResultType, RawResultType> & {
+  ReducerPathType extends string = string,
+  RawResultType extends
+    BaseQueryResult<BaseQueryFunctionType> = BaseQueryResult<BaseQueryFunctionType>,
+> = BaseEndpointTypes<
+  QueryArg,
+  BaseQueryFunctionType,
+  ResultType,
+  RawResultType
+> & {
   /**
    * The endpoint definition type. To be used with some internal generic types.
    * @example
@@ -862,44 +893,45 @@ export type InfiniteQueryTypes<
   InfiniteQueryDefinition: InfiniteQueryDefinition<
     QueryArg,
     PageParam,
-    BaseQuery,
-    TagTypes,
+    BaseQueryFunctionType,
+    ApiTagTypes,
     ResultType,
-    ReducerPath
+    ReducerPathType
   >
-  TagTypes: TagTypes
-  ReducerPath: ReducerPath
+  TagTypes: ApiTagTypes
+  ReducerPath: ReducerPathType
 }
 
 export interface InfiniteQueryExtraOptions<
-  TagTypes extends string,
+  ApiTagTypes extends string,
   ResultType,
   QueryArg,
   PageParam,
-  BaseQuery extends BaseQueryFn,
-  ReducerPath extends string = string,
-  RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+  BaseQueryFunctionType extends BaseQueryFn,
+  ReducerPathType extends string = string,
+  RawResultType extends
+    BaseQueryResult<BaseQueryFunctionType> = BaseQueryResult<BaseQueryFunctionType>,
 > extends CacheLifecycleInfiniteQueryExtraOptions<
       InfiniteData<ResultType, PageParam>,
       QueryArg,
-      BaseQuery,
-      ReducerPath
+      BaseQueryFunctionType,
+      ReducerPathType
     >,
     QueryLifecycleInfiniteQueryExtraOptions<
       InfiniteData<ResultType, PageParam>,
       QueryArg,
-      BaseQuery,
-      ReducerPath
+      BaseQueryFunctionType,
+      ReducerPathType
     >,
     CacheCollectionQueryExtraOptions {
   type: DefinitionType.infinitequery
 
   providesTags?: ResultDescription<
-    TagTypes,
+    ApiTagTypes,
     InfiniteData<ResultType, PageParam>,
     QueryArg,
-    BaseQueryError<BaseQuery>,
-    BaseQueryMeta<BaseQuery>
+    BaseQueryError<BaseQueryFunctionType>,
+    BaseQueryMeta<BaseQueryFunctionType>
   >
   /**
    * Not to be used. A query should not invalidate tags in the cache.
@@ -913,18 +945,18 @@ export interface InfiniteQueryExtraOptions<
    * `initialPageParam` may be specified when using the
    * endpoint, to override the default value.
    * `maxPages` and `getPreviousPageParam` are both optional.
-   * 
+   *
    * @example
-   * 
+   *
    * ```ts
    * // codeblock-meta title="infiniteQueryOptions example"
    * import { createApi, fetchBaseQuery, defaultSerializeQueryArgs } from '@reduxjs/toolkit/query/react'
-   * 
+   *
    * type Pokemon = {
    *   id: string
    *   name: string
    * }
-   * 
+   *
    * const pokemonApi = createApi({
    *   baseQuery: fetchBaseQuery({ baseUrl: 'https://pokeapi.co/api/v2/' }),
    *   endpoints: (build) => ({
@@ -949,7 +981,7 @@ export interface InfiniteQueryExtraOptions<
    *     }),
    *   }),
    * })
-   
+
    * ```
    */
   infiniteQueryOptions: InfiniteQueryConfigOptions<
@@ -1025,10 +1057,10 @@ export interface InfiniteQueryExtraOptions<
   Types?: InfiniteQueryTypes<
     QueryArg,
     PageParam,
-    BaseQuery,
-    TagTypes,
+    BaseQueryFunctionType,
+    ApiTagTypes,
     ResultType,
-    ReducerPath,
+    ReducerPathType,
     RawResultType
   >
 }
@@ -1036,37 +1068,44 @@ export interface InfiniteQueryExtraOptions<
 export type InfiniteQueryDefinition<
   QueryArg,
   PageParam,
-  BaseQuery extends BaseQueryFn,
-  TagTypes extends string,
+  BaseQueryFunctionType extends BaseQueryFn,
+  ApiTagTypes extends string,
   ResultType,
-  ReducerPath extends string = string,
-  RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+  ReducerPathType extends string = string,
+  RawResultType extends
+    BaseQueryResult<BaseQueryFunctionType> = BaseQueryResult<BaseQueryFunctionType>,
 > =
   // Infinite query endpoints receive `{queryArg, pageParam}`
   BaseEndpointDefinition<
     InfiniteQueryCombinedArg<QueryArg, PageParam>,
-    BaseQuery,
+    BaseQueryFunctionType,
     ResultType,
     RawResultType
   > &
     InfiniteQueryExtraOptions<
-      TagTypes,
+      ApiTagTypes,
       ResultType,
       QueryArg,
       PageParam,
-      BaseQuery,
-      ReducerPath,
+      BaseQueryFunctionType,
+      ReducerPathType,
       RawResultType
     >
 
 type MutationTypes<
   QueryArg,
-  BaseQuery extends BaseQueryFn,
-  TagTypes extends string,
+  BaseQueryFunctionType extends BaseQueryFn,
+  ApiTagTypes extends string,
   ResultType,
-  ReducerPath extends string = string,
-  RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
-> = BaseEndpointTypes<QueryArg, BaseQuery, ResultType, RawResultType> & {
+  ReducerPathType extends string = string,
+  RawResultType extends
+    BaseQueryResult<BaseQueryFunctionType> = BaseQueryResult<BaseQueryFunctionType>,
+> = BaseEndpointTypes<
+  QueryArg,
+  BaseQueryFunctionType,
+  ResultType,
+  RawResultType
+> & {
   /**
    * The endpoint definition type. To be used with some internal generic types.
    * @example
@@ -1076,36 +1115,37 @@ type MutationTypes<
    */
   MutationDefinition: MutationDefinition<
     QueryArg,
-    BaseQuery,
-    TagTypes,
+    BaseQueryFunctionType,
+    ApiTagTypes,
     ResultType,
-    ReducerPath
+    ReducerPathType
   >
-  TagTypes: TagTypes
-  ReducerPath: ReducerPath
+  TagTypes: ApiTagTypes
+  ReducerPath: ReducerPathType
 }
 
 /**
  * @public
  */
 export interface MutationExtraOptions<
-  TagTypes extends string,
+  ApiTagTypes extends string,
   ResultType,
   QueryArg,
-  BaseQuery extends BaseQueryFn,
-  ReducerPath extends string = string,
-  RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+  BaseQueryFunctionType extends BaseQueryFn,
+  ReducerPathType extends string = string,
+  RawResultType extends
+    BaseQueryResult<BaseQueryFunctionType> = BaseQueryResult<BaseQueryFunctionType>,
 > extends CacheLifecycleMutationExtraOptions<
       ResultType,
       QueryArg,
-      BaseQuery,
-      ReducerPath
+      BaseQueryFunctionType,
+      ReducerPathType
     >,
     QueryLifecycleMutationExtraOptions<
       ResultType,
       QueryArg,
-      BaseQuery,
-      ReducerPath
+      BaseQueryFunctionType,
+      ReducerPathType
     > {
   type: DefinitionType.mutation
 
@@ -1155,11 +1195,11 @@ export interface MutationExtraOptions<
    * ```
    */
   invalidatesTags?: ResultDescription<
-    TagTypes,
+    ApiTagTypes,
     ResultType,
     QueryArg,
-    BaseQueryError<BaseQuery>,
-    BaseQueryMeta<BaseQuery>
+    BaseQueryError<BaseQueryFunctionType>,
+    BaseQueryMeta<BaseQueryFunctionType>
   >
   /**
    * Not to be used. A mutation should not provide tags to the cache.
@@ -1171,63 +1211,70 @@ export interface MutationExtraOptions<
    */
   Types?: MutationTypes<
     QueryArg,
-    BaseQuery,
-    TagTypes,
+    BaseQueryFunctionType,
+    ApiTagTypes,
     ResultType,
-    ReducerPath,
+    ReducerPathType,
     RawResultType
   >
 }
 
 export type MutationDefinition<
   QueryArg,
-  BaseQuery extends BaseQueryFn,
-  TagTypes extends string,
+  BaseQueryFunctionType extends BaseQueryFn,
+  ApiTagTypes extends string,
   ResultType,
-  ReducerPath extends string = string,
-  RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
-> = BaseEndpointDefinition<QueryArg, BaseQuery, ResultType, RawResultType> &
+  ReducerPathType extends string = string,
+  RawResultType extends
+    BaseQueryResult<BaseQueryFunctionType> = BaseQueryResult<BaseQueryFunctionType>,
+> = BaseEndpointDefinition<
+  QueryArg,
+  BaseQueryFunctionType,
+  ResultType,
+  RawResultType
+> &
   MutationExtraOptions<
-    TagTypes,
+    ApiTagTypes,
     ResultType,
     QueryArg,
-    BaseQuery,
-    ReducerPath,
+    BaseQueryFunctionType,
+    ReducerPathType,
     RawResultType
   >
 
 export type EndpointDefinition<
   QueryArg,
-  BaseQuery extends BaseQueryFn,
-  TagTypes extends string,
+  BaseQueryFunctionType extends BaseQueryFn,
+  ApiTagTypes extends string,
   ResultType,
-  ReducerPath extends string = string,
+  ReducerPathType extends string = string,
   PageParam = any,
-  RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+  RawResultType extends
+    BaseQueryResult<BaseQueryFunctionType> = BaseQueryResult<BaseQueryFunctionType>,
 > =
   | QueryDefinition<
       QueryArg,
-      BaseQuery,
-      TagTypes,
+      BaseQueryFunctionType,
+      ApiTagTypes,
       ResultType,
-      ReducerPath,
+      ReducerPathType,
       RawResultType
     >
   | MutationDefinition<
       QueryArg,
-      BaseQuery,
-      TagTypes,
+      BaseQueryFunctionType,
+      ApiTagTypes,
       ResultType,
-      ReducerPath,
+      ReducerPathType,
       RawResultType
     >
   | InfiniteQueryDefinition<
       QueryArg,
       PageParam,
-      BaseQuery,
-      TagTypes,
+      BaseQueryFunctionType,
+      ApiTagTypes,
       ResultType,
-      ReducerPath,
+      ReducerPathType,
       RawResultType
     >
 
@@ -1263,9 +1310,9 @@ export function isAnyQueryDefinition(
 }
 
 export type EndpointBuilder<
-  BaseQuery extends BaseQueryFn,
-  TagTypes extends string,
-  ReducerPath extends string,
+  BaseQueryFunctionType extends BaseQueryFn,
+  ApiTagTypes extends string,
+  ReducerPathType extends string,
 > = {
   /**
    * An endpoint definition that retrieves data, and may provide tags to the cache.
@@ -1297,25 +1344,25 @@ export type EndpointBuilder<
     ResultType,
     QueryArg,
     RawResultType extends
-      BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+      BaseQueryResult<BaseQueryFunctionType> = BaseQueryResult<BaseQueryFunctionType>,
   >(
     definition: OmitFromUnion<
       QueryDefinition<
         QueryArg,
-        BaseQuery,
-        TagTypes,
+        BaseQueryFunctionType,
+        ApiTagTypes,
         ResultType,
-        ReducerPath,
+        ReducerPathType,
         RawResultType
       >,
       'type'
     >,
   ): QueryDefinition<
     QueryArg,
-    BaseQuery,
-    TagTypes,
+    BaseQueryFunctionType,
+    ApiTagTypes,
     ResultType,
-    ReducerPath,
+    ReducerPathType,
     RawResultType
   >
 
@@ -1349,25 +1396,25 @@ export type EndpointBuilder<
     ResultType,
     QueryArg,
     RawResultType extends
-      BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+      BaseQueryResult<BaseQueryFunctionType> = BaseQueryResult<BaseQueryFunctionType>,
   >(
     definition: OmitFromUnion<
       MutationDefinition<
         QueryArg,
-        BaseQuery,
-        TagTypes,
+        BaseQueryFunctionType,
+        ApiTagTypes,
         ResultType,
-        ReducerPath,
+        ReducerPathType,
         RawResultType
       >,
       'type'
     >,
   ): MutationDefinition<
     QueryArg,
-    BaseQuery,
-    TagTypes,
+    BaseQueryFunctionType,
+    ApiTagTypes,
     ResultType,
-    ReducerPath,
+    ReducerPathType,
     RawResultType
   >
 
@@ -1376,16 +1423,16 @@ export type EndpointBuilder<
     QueryArg,
     PageParam,
     RawResultType extends
-      BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+      BaseQueryResult<BaseQueryFunctionType> = BaseQueryResult<BaseQueryFunctionType>,
   >(
     definition: OmitFromUnion<
       InfiniteQueryDefinition<
         QueryArg,
         PageParam,
-        BaseQuery,
-        TagTypes,
+        BaseQueryFunctionType,
+        ApiTagTypes,
         ResultType,
-        ReducerPath,
+        ReducerPathType,
         RawResultType
       >,
       'type'
@@ -1393,10 +1440,10 @@ export type EndpointBuilder<
   ): InfiniteQueryDefinition<
     QueryArg,
     PageParam,
-    BaseQuery,
-    TagTypes,
+    BaseQueryFunctionType,
+    ApiTagTypes,
     ResultType,
-    ReducerPath,
+    ReducerPathType,
     RawResultType
   >
 }
@@ -1494,10 +1541,10 @@ export type InfiniteQueryCombinedArg<QueryArg, PageParam> = {
 }
 
 export type TagTypesFromApi<T> =
-  T extends Api<any, any, any, infer TagTypes> ? TagTypes : never
+  T extends Api<any, any, any, infer ApiTagTypes> ? ApiTagTypes : never
 
 export type DefinitionsFromApi<T> =
-  T extends Api<any, infer Definitions, any, any> ? Definitions : never
+  T extends Api<any, infer DefinitionsType, any, any> ? DefinitionsType : never
 
 export type TransformedResponse<
   NewDefinitions extends EndpointDefinitions,
@@ -1514,92 +1561,98 @@ export type TransformedResponse<
 export type OverrideResultType<Definition, NewResultType> =
   Definition extends QueryDefinition<
     infer QueryArg,
-    infer BaseQuery,
-    infer TagTypes,
+    infer BaseQueryFunctionType,
+    infer ApiTagTypes,
     any,
-    infer ReducerPath
+    infer ReducerPathType
   >
-    ? QueryDefinition<QueryArg, BaseQuery, TagTypes, NewResultType, ReducerPath>
+    ? QueryDefinition<
+        QueryArg,
+        BaseQueryFunctionType,
+        ApiTagTypes,
+        NewResultType,
+        ReducerPathType
+      >
     : Definition extends MutationDefinition<
           infer QueryArg,
-          infer BaseQuery,
-          infer TagTypes,
+          infer BaseQueryFunctionType,
+          infer ApiTagTypes,
           any,
-          infer ReducerPath
+          infer ReducerPathType
         >
       ? MutationDefinition<
           QueryArg,
-          BaseQuery,
-          TagTypes,
+          BaseQueryFunctionType,
+          ApiTagTypes,
           NewResultType,
-          ReducerPath
+          ReducerPathType
         >
       : Definition extends InfiniteQueryDefinition<
             infer QueryArg,
             infer PageParam,
-            infer BaseQuery,
-            infer TagTypes,
+            infer BaseQueryFunctionType,
+            infer ApiTagTypes,
             any,
-            infer ReducerPath
+            infer ReducerPathType
           >
         ? InfiniteQueryDefinition<
             QueryArg,
             PageParam,
-            BaseQuery,
-            TagTypes,
+            BaseQueryFunctionType,
+            ApiTagTypes,
             NewResultType,
-            ReducerPath
+            ReducerPathType
           >
         : never
 
 export type UpdateDefinitions<
-  Definitions extends EndpointDefinitions,
+  DefinitionsType extends EndpointDefinitions,
   NewTagTypes extends string,
   NewDefinitions extends EndpointDefinitions,
 > = {
-  [K in keyof Definitions]: Definitions[K] extends QueryDefinition<
+  [K in keyof DefinitionsType]: DefinitionsType[K] extends QueryDefinition<
     infer QueryArg,
-    infer BaseQuery,
+    infer BaseQueryFunctionType,
     any,
     infer ResultType,
-    infer ReducerPath
+    infer ReducerPathType
   >
     ? QueryDefinition<
         QueryArg,
-        BaseQuery,
+        BaseQueryFunctionType,
         NewTagTypes,
         TransformedResponse<NewDefinitions, K, ResultType>,
-        ReducerPath
+        ReducerPathType
       >
-    : Definitions[K] extends MutationDefinition<
+    : DefinitionsType[K] extends MutationDefinition<
           infer QueryArg,
-          infer BaseQuery,
+          infer BaseQueryFunctionType,
           any,
           infer ResultType,
-          infer ReducerPath
+          infer ReducerPathType
         >
       ? MutationDefinition<
           QueryArg,
-          BaseQuery,
+          BaseQueryFunctionType,
           NewTagTypes,
           TransformedResponse<NewDefinitions, K, ResultType>,
-          ReducerPath
+          ReducerPathType
         >
-      : Definitions[K] extends InfiniteQueryDefinition<
+      : DefinitionsType[K] extends InfiniteQueryDefinition<
             infer QueryArg,
             infer PageParam,
-            infer BaseQuery,
+            infer BaseQueryFunctionType,
             any,
             infer ResultType,
-            infer ReducerPath
+            infer ReducerPathType
           >
         ? InfiniteQueryDefinition<
             QueryArg,
             PageParam,
-            BaseQuery,
+            BaseQueryFunctionType,
             NewTagTypes,
             TransformedResponse<NewDefinitions, K, ResultType>,
-            ReducerPath
+            ReducerPathType
           >
         : never
 }

@@ -3,7 +3,8 @@
     "target": "ESnext",
     "module": "ESnext",
     "lib": ["DOM", "ESNext"],
-    "importHelpers": true,
+    "declarationMap": true,
+    "noUncheckedSideEffectImports": true,
     // output .d.ts declaration files for consumers
     "declaration": true,
     // match output dir to input dir. e.g. dist/index instead of dist/src/index
@@ -17,7 +18,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     // use Node's module resolution algorithm, instead of the legacy TS one
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     // transpile JSX to React.createElement
     "jsx": "react",
     // interop between ESM and CJS modules. Recommended by TS

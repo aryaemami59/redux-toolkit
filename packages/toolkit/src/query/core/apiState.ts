@@ -170,8 +170,8 @@ export type SubscriptionOptions = {
 }
 export type SubscribersInternal = Map<string, SubscriptionOptions>
 export type Subscribers = { [requestId: string]: SubscriptionOptions }
-export type QueryKeys<Definitions extends EndpointDefinitions> = {
-  [K in keyof Definitions]: Definitions[K] extends QueryDefinition<
+export type QueryKeys<DefinitionsType extends EndpointDefinitions> = {
+  [K in keyof DefinitionsType]: DefinitionsType[K] extends QueryDefinition<
     any,
     any,
     any,
@@ -179,10 +179,10 @@ export type QueryKeys<Definitions extends EndpointDefinitions> = {
   >
     ? K
     : never
-}[keyof Definitions]
+}[keyof DefinitionsType]
 
-export type InfiniteQueryKeys<Definitions extends EndpointDefinitions> = {
-  [K in keyof Definitions]: Definitions[K] extends InfiniteQueryDefinition<
+export type InfiniteQueryKeys<DefinitionsType extends EndpointDefinitions> = {
+  [K in keyof DefinitionsType]: DefinitionsType[K] extends InfiniteQueryDefinition<
     any,
     any,
     any,
@@ -191,10 +191,10 @@ export type InfiniteQueryKeys<Definitions extends EndpointDefinitions> = {
   >
     ? K
     : never
-}[keyof Definitions]
+}[keyof DefinitionsType]
 
-export type MutationKeys<Definitions extends EndpointDefinitions> = {
-  [K in keyof Definitions]: Definitions[K] extends MutationDefinition<
+export type MutationKeys<DefinitionsType extends EndpointDefinitions> = {
+  [K in keyof DefinitionsType]: DefinitionsType[K] extends MutationDefinition<
     any,
     any,
     any,
@@ -202,7 +202,7 @@ export type MutationKeys<Definitions extends EndpointDefinitions> = {
   >
     ? K
     : never
-}[keyof Definitions]
+}[keyof DefinitionsType]
 
 type BaseQuerySubState<
   D extends BaseEndpointDefinition<any, any, any, any>,
@@ -225,8 +225,8 @@ type BaseQuerySubState<
    */
   error?:
     | SerializedError
-    | (D extends QueryDefinition<any, infer BaseQuery, any, any>
-        ? BaseQueryError<BaseQuery>
+    | (D extends QueryDefinition<any, infer BaseQueryFunctionType, any, any>
+        ? BaseQueryError<BaseQueryFunctionType>
         : never)
   /**
    * The name of the endpoint associated with the query
@@ -285,8 +285,8 @@ type BaseMutationSubState<
   data?: ResultTypeFrom<D>
   error?:
     | SerializedError
-    | (D extends MutationDefinition<any, infer BaseQuery, any, any>
-        ? BaseQueryError<BaseQuery>
+    | (D extends MutationDefinition<any, infer BaseQueryFunctionType, any, any>
+        ? BaseQueryError<BaseQueryFunctionType>
         : never)
   endpointName: string
   startedTimeStamp: number
@@ -322,13 +322,13 @@ export type MutationSubState<
 export type CombinedState<
   D extends EndpointDefinitions,
   E extends string,
-  ReducerPath extends string,
+  ReducerPathType extends string,
 > = {
   queries: QueryState<D>
   mutations: MutationState<D>
   provided: InvalidationState<E>
   subscriptions: SubscriptionState
-  config: ConfigState<ReducerPath>
+  config: ConfigState<ReducerPathType>
 }
 
 export type InvalidationState<TagTypes extends string> = {
@@ -354,8 +354,8 @@ export type SubscriptionState = {
   [queryCacheKey: string]: Subscribers | undefined
 }
 
-export type ConfigState<ReducerPath> = RefetchConfigOptions & {
-  reducerPath: ReducerPath
+export type ConfigState<ReducerPathType> = RefetchConfigOptions & {
+  reducerPath: ReducerPathType
   online: boolean
   focused: boolean
   middlewareRegistered: boolean | 'conflict'
@@ -371,7 +371,7 @@ export type MutationState<D extends EndpointDefinitions> = {
 }
 
 export type RootState<
-  Definitions extends EndpointDefinitions,
+  DefinitionsType extends EndpointDefinitions,
   TagTypes extends string,
-  ReducerPath extends string,
-> = { [P in ReducerPath]: CombinedState<Definitions, TagTypes, P> }
+  ReducerPathType extends string,
+> = { [P in ReducerPathType]: CombinedState<DefinitionsType, TagTypes, P> }
