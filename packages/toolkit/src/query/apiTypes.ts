@@ -1,6 +1,6 @@
 import type { UnknownAction } from '@reduxjs/toolkit'
 import type { BaseQueryFn } from './baseQueryTypes'
-import type { CombinedState, CoreModule, QueryKeys } from './core'
+import type { CombinedState, CoreModule } from './core'
 import type { ApiModules } from './core/module'
 import type { CreateApiOptions } from './createApi'
 import type {
@@ -20,25 +20,14 @@ export type ModuleName = keyof ApiModules<any, any, any, any>
 export type Module<Name extends ModuleName> = {
   name: Name
   init<
-    BaseQueryFunctionType extends BaseQueryFn,
-    DefinitionsType extends EndpointDefinitions,
-    ReducerPathType extends string,
-    ApiTagTypes extends string,
+    BaseQuery extends BaseQueryFn,
+    Definitions extends EndpointDefinitions,
+    ReducerPath extends string,
+    TagTypes extends string,
   >(
-    api: Api<
-      BaseQueryFunctionType,
-      EndpointDefinitions,
-      ReducerPathType,
-      ApiTagTypes,
-      ModuleName
-    >,
+    api: Api<BaseQuery, EndpointDefinitions, ReducerPath, TagTypes, ModuleName>,
     options: WithRequiredProp<
-      CreateApiOptions<
-        BaseQueryFunctionType,
-        DefinitionsType,
-        ReducerPathType,
-        ApiTagTypes
-      >,
+      CreateApiOptions<BaseQuery, Definitions, ReducerPath, TagTypes>,
       | 'reducerPath'
       | 'serializeQueryArgs'
       | 'keepUnusedDataFor'
@@ -48,7 +37,7 @@ export type Module<Name extends ModuleName> = {
       | 'invalidationBehavior'
       | 'tagTypes'
     >,
-    context: ApiContext<DefinitionsType>,
+    context: ApiContext<Definitions>,
   ): {
     injectEndpoint(
       endpointName: string,
@@ -57,9 +46,9 @@ export type Module<Name extends ModuleName> = {
   }
 }
 
-export interface ApiContext<DefinitionsType extends EndpointDefinitions> {
+export interface ApiContext<Definitions extends EndpointDefinitions> {
   apiUid: string
-  endpointDefinitions: DefinitionsType
+  endpointDefinitions: Definitions
   batch(cb: () => void): void
   extractRehydrationInfo: (
     action: UnknownAction,
@@ -78,23 +67,18 @@ export const getEndpointDefinition = <
 export type Api<
   BaseQuery extends BaseQueryFn,
   DefinitionsType extends EndpointDefinitions,
-  ReducerPathType extends string,
-  ApiTagTypes extends string,
+  ReducerPath extends string,
+  TagTypes extends string,
   Enhancers extends ModuleName = CoreModule,
 > = UnionToIntersection<
-  ApiModules<
-    BaseQuery,
-    DefinitionsType,
-    ReducerPathType,
-    ApiTagTypes
-  >[Enhancers]
+  ApiModules<BaseQuery, DefinitionsType, ReducerPath, TagTypes>[Enhancers]
 > & {
   /**
    * A function to inject the endpoints into the original API, but also give you that same API with correct types for these endpoints back. Useful with code-splitting.
    */
   injectEndpoints<NewDefinitions extends EndpointDefinitions>(_: {
     endpoints: (
-      build: EndpointBuilder<BaseQuery, ApiTagTypes, ReducerPathType>,
+      build: EndpointBuilder<BaseQuery, TagTypes, ReducerPath>,
     ) => NewDefinitions
     /**
      * Optionally allows endpoints to be overridden if defined by multiple `injectEndpoints` calls.
@@ -107,8 +91,8 @@ export type Api<
   }): Api<
     BaseQuery,
     DefinitionsType & NewDefinitions,
-    ReducerPathType,
-    ApiTagTypes,
+    ReducerPath,
+    TagTypes,
     Enhancers
   >
   /**
@@ -121,7 +105,7 @@ export type Api<
     addTagTypes?: readonly NewTagTypes[]
     endpoints?: UpdateDefinitions<
       DefinitionsType,
-      ApiTagTypes | NoInfer<NewTagTypes>,
+      TagTypes | NoInfer<NewTagTypes>,
       NewDefinitions
     > extends infer NewDefinitions
       ? {
@@ -132,13 +116,9 @@ export type Api<
       : never
   }): Api<
     BaseQuery,
-    UpdateDefinitions<
-      DefinitionsType,
-      ApiTagTypes | NewTagTypes,
-      NewDefinitions
-    >,
-    ReducerPathType,
-    ApiTagTypes | NewTagTypes,
+    UpdateDefinitions<DefinitionsType, TagTypes | NewTagTypes, NewDefinitions>,
+    ReducerPath,
+    TagTypes | NewTagTypes,
     Enhancers
   >
 }
