@@ -7,7 +7,6 @@ import type {
   UnknownAction,
 } from '@reduxjs/toolkit'
 import type { Patch } from 'immer'
-import { isDraftable, produceWithPatches } from '../utils/immerImports'
 import type { Api, ApiContext } from '../apiTypes'
 import type {
   BaseQueryError,
@@ -46,6 +45,7 @@ import {
   shouldSkip,
 } from '../standardSchema'
 import type { UnwrapPromise } from '../tsHelpers'
+import { isDraftable, produceWithPatches } from '../utils/immerImports'
 import type {
   InfiniteData,
   InfiniteQueryConfigOptions,
@@ -55,7 +55,7 @@ import type {
   QuerySubstateIdentifier,
   RootState,
 } from './apiState'
-import { QueryStatus, STATUS_UNINITIALIZED } from './apiState'
+import { STATUS_UNINITIALIZED } from './apiState'
 import type {
   InfiniteQueryActionCreatorResult,
   QueryActionCreatorResult,
@@ -209,40 +209,40 @@ export type UpsertRecipe<T> = (
 ) => void | MaybeDrafted<T>
 
 export type PatchQueryDataThunk<
-  DefinitionsType extends EndpointDefinitions,
+  Definitions extends EndpointDefinitions,
   PartialState,
-> = <EndpointName extends QueryKeys<DefinitionsType>>(
+> = <EndpointName extends QueryKeys<Definitions>>(
   endpointName: EndpointName,
-  arg: QueryArgFrom<DefinitionsType[EndpointName]>,
+  arg: QueryArgFrom<Definitions[EndpointName]>,
   patches: readonly Patch[],
   updateProvided?: boolean,
 ) => ThunkAction<void, PartialState, any, UnknownAction>
 
-export type AllQueryKeys<DefinitionsType extends EndpointDefinitions> =
-  | QueryKeys<DefinitionsType>
-  | InfiniteQueryKeys<DefinitionsType>
+export type AllQueryKeys<Definitions extends EndpointDefinitions> =
+  | QueryKeys<Definitions>
+  | InfiniteQueryKeys<Definitions>
 
 export type QueryArgFromAnyQueryDefinition<
-  DefinitionsType extends EndpointDefinitions,
-  EndpointName extends AllQueryKeys<DefinitionsType>,
+  Definitions extends EndpointDefinitions,
+  EndpointName extends AllQueryKeys<Definitions>,
 > =
-  DefinitionsType[EndpointName] extends InfiniteQueryDefinition<
+  Definitions[EndpointName] extends InfiniteQueryDefinition<
     any,
     any,
     any,
     any,
     any
   >
-    ? InfiniteQueryArgFrom<DefinitionsType[EndpointName]>
-    : DefinitionsType[EndpointName] extends QueryDefinition<any, any, any, any>
-      ? QueryArgFrom<DefinitionsType[EndpointName]>
+    ? InfiniteQueryArgFrom<Definitions[EndpointName]>
+    : Definitions[EndpointName] extends QueryDefinition<any, any, any, any>
+      ? QueryArgFrom<Definitions[EndpointName]>
       : never
 
 export type DataFromAnyQueryDefinition<
-  DefinitionsType extends EndpointDefinitions,
-  EndpointName extends AllQueryKeys<DefinitionsType>,
+  Definitions extends EndpointDefinitions,
+  EndpointName extends AllQueryKeys<Definitions>,
 > =
-  DefinitionsType[EndpointName] extends InfiniteQueryDefinition<
+  Definitions[EndpointName] extends InfiniteQueryDefinition<
     any,
     any,
     any,
@@ -250,50 +250,48 @@ export type DataFromAnyQueryDefinition<
     any
   >
     ? InfiniteData<
-        ResultTypeFrom<DefinitionsType[EndpointName]>,
-        PageParamFrom<DefinitionsType[EndpointName]>
+        ResultTypeFrom<Definitions[EndpointName]>,
+        PageParamFrom<Definitions[EndpointName]>
       >
-    : DefinitionsType[EndpointName] extends QueryDefinition<any, any, any, any>
-      ? ResultTypeFrom<DefinitionsType[EndpointName]>
+    : Definitions[EndpointName] extends QueryDefinition<any, any, any, any>
+      ? ResultTypeFrom<Definitions[EndpointName]>
       : unknown
 
 export type UpsertThunkResult<
-  DefinitionsType extends EndpointDefinitions,
-  EndpointName extends AllQueryKeys<DefinitionsType>,
+  Definitions extends EndpointDefinitions,
+  EndpointName extends AllQueryKeys<Definitions>,
 > =
-  DefinitionsType[EndpointName] extends InfiniteQueryDefinition<
+  Definitions[EndpointName] extends InfiniteQueryDefinition<
     any,
     any,
     any,
     any,
     any
   >
-    ? InfiniteQueryActionCreatorResult<DefinitionsType[EndpointName]>
-    : DefinitionsType[EndpointName] extends QueryDefinition<any, any, any, any>
-      ? QueryActionCreatorResult<DefinitionsType[EndpointName]>
+    ? InfiniteQueryActionCreatorResult<Definitions[EndpointName]>
+    : Definitions[EndpointName] extends QueryDefinition<any, any, any, any>
+      ? QueryActionCreatorResult<Definitions[EndpointName]>
       : QueryActionCreatorResult<never>
 
 export type UpdateQueryDataThunk<
-  DefinitionsType extends EndpointDefinitions,
+  Definitions extends EndpointDefinitions,
   PartialState,
-> = <EndpointName extends AllQueryKeys<DefinitionsType>>(
+> = <EndpointName extends AllQueryKeys<Definitions>>(
   endpointName: EndpointName,
-  arg: QueryArgFromAnyQueryDefinition<DefinitionsType, EndpointName>,
-  updateRecipe: Recipe<
-    DataFromAnyQueryDefinition<DefinitionsType, EndpointName>
-  >,
+  arg: QueryArgFromAnyQueryDefinition<Definitions, EndpointName>,
+  updateRecipe: Recipe<DataFromAnyQueryDefinition<Definitions, EndpointName>>,
   updateProvided?: boolean,
 ) => ThunkAction<PatchCollection, PartialState, any, UnknownAction>
 
 export type UpsertQueryDataThunk<
-  DefinitionsType extends EndpointDefinitions,
+  Definitions extends EndpointDefinitions,
   PartialState,
-> = <EndpointName extends AllQueryKeys<DefinitionsType>>(
+> = <EndpointName extends AllQueryKeys<Definitions>>(
   endpointName: EndpointName,
-  arg: QueryArgFromAnyQueryDefinition<DefinitionsType, EndpointName>,
-  value: DataFromAnyQueryDefinition<DefinitionsType, EndpointName>,
+  arg: QueryArgFromAnyQueryDefinition<Definitions, EndpointName>,
+  value: DataFromAnyQueryDefinition<Definitions, EndpointName>,
 ) => ThunkAction<
-  UpsertThunkResult<DefinitionsType, EndpointName>,
+  UpsertThunkResult<Definitions, EndpointName>,
   PartialState,
   any,
   UnknownAction

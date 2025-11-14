@@ -60,12 +60,12 @@ export const skipToken = /* @__PURE__ */ Symbol.for('RTKQ/skipToken')
 
 export type BuildSelectorsApiEndpointQuery<
   Definition extends QueryDefinition<any, any, any, any, any>,
-  DefinitionsType extends EndpointDefinitions,
+  Definitions extends EndpointDefinitions,
 > = {
   select: QueryResultSelectorFactory<
     Definition,
     _RootState<
-      DefinitionsType,
+      Definitions,
       TagTypesFrom<Definition>,
       ReducerPathFrom<Definition>
     >
@@ -74,12 +74,12 @@ export type BuildSelectorsApiEndpointQuery<
 
 export type BuildSelectorsApiEndpointInfiniteQuery<
   Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
-  DefinitionsType extends EndpointDefinitions,
+  Definitions extends EndpointDefinitions,
 > = {
   select: InfiniteQueryResultSelectorFactory<
     Definition,
     _RootState<
-      DefinitionsType,
+      Definitions,
       TagTypesFrom<Definition>,
       ReducerPathFrom<Definition>
     >
@@ -88,12 +88,12 @@ export type BuildSelectorsApiEndpointInfiniteQuery<
 
 export type BuildSelectorsApiEndpointMutation<
   Definition extends MutationDefinition<any, any, any, any, any>,
-  DefinitionsType extends EndpointDefinitions,
+  Definitions extends EndpointDefinitions,
 > = {
   select: MutationResultSelectorFactory<
     Definition,
     _RootState<
-      DefinitionsType,
+      Definitions,
       TagTypesFrom<Definition>,
       ReducerPathFrom<Definition>
     >
@@ -102,10 +102,10 @@ export type BuildSelectorsApiEndpointMutation<
 
 type QueryResultSelectorFactory<
   Definition extends QueryDefinition<any, any, any, any>,
-  RootState,
+  RootStateType,
 > = (
   queryArg: QueryArgFrom<Definition> | SkipToken,
-) => (state: RootState) => QueryResultSelectorResult<Definition>
+) => (state: RootStateType) => QueryResultSelectorResult<Definition>
 
 export type QueryResultSelectorResult<
   Definition extends QueryDefinition<any, any, any, any>,
@@ -113,10 +113,10 @@ export type QueryResultSelectorResult<
 
 type InfiniteQueryResultSelectorFactory<
   Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
-  RootState,
+  RootStateType,
 > = (
   queryArg: InfiniteQueryArgFrom<Definition> | SkipToken,
-) => (state: RootState) => InfiniteQueryResultSelectorResult<Definition>
+) => (state: RootStateType) => InfiniteQueryResultSelectorResult<Definition>
 
 export type InfiniteQueryResultFlags = {
   hasNextPage: boolean
@@ -135,13 +135,13 @@ export type InfiniteQueryResultSelectorResult<
 
 type MutationResultSelectorFactory<
   Definition extends MutationDefinition<any, any, any, any>,
-  RootState,
+  RootStateType,
 > = (
   requestId:
     | string
     | { requestId: string | undefined; fixedCacheKey: string | undefined }
     | SkipToken,
-) => (state: RootState) => MutationResultSelectorResult<Definition>
+) => (state: RootStateType) => MutationResultSelectorResult<Definition>
 
 export type MutationResultSelectorResult<
   Definition extends MutationDefinition<any, any, any, any>,

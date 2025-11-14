@@ -1,11 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
-import type { Context } from 'react'
-import { useContext, useEffect } from './reactImports'
-import * as React from 'react'
-import type { ReactReduxContextValue } from 'react-redux'
+import type { Api } from '@reduxjs/toolkit/query'
+import type { Context, JSX } from './reactImports'
+import { useContext, useEffect, useState } from './reactImports'
+import type { ReactReduxContextValue } from './reactReduxImports'
 import { Provider, ReactReduxContext } from './reactReduxImports'
 import { setupListeners } from './rtkqImports'
-import type { Api } from '@reduxjs/toolkit/query'
 
 /**
  * Can be used as a `Provider` if you **do not already have a Redux store**.
@@ -36,7 +35,7 @@ export function ApiProvider(props: {
   api: Api<any, {}, any, any>
   setupListeners?: Parameters<typeof setupListeners>[1] | false
   context?: Context<ReactReduxContextValue | null>
-}) {
+}): JSX.Element {
   const context = props.context || ReactReduxContext
   const existingContext = useContext(context)
   if (existingContext) {
@@ -44,7 +43,7 @@ export function ApiProvider(props: {
       'Existing Redux context detected. If you already have a store set up, please use the traditional Redux setup.',
     )
   }
-  const [store] = React.useState(() =>
+  const [store] = useState(() =>
     configureStore({
       reducer: {
         [props.api.reducerPath]: props.api.reducer,
