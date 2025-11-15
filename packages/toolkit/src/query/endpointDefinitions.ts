@@ -1675,18 +1675,18 @@ export type TransformedResponse<
 
 export type OverrideResultType<Definition, NewResultType> =
   Definition extends QueryDefinition<
-    infer QueryArg,
+    infer InferredQueryArgumentType,
     infer BaseQueryFunctionType,
-    infer ApiTagTypes,
+    infer InferredApiTagTypes,
     any,
-    infer ReducerPathType
+    infer InferredReducerPathType
   >
     ? QueryDefinition<
-        QueryArg,
+        InferredQueryArgumentType,
         BaseQueryFunctionType,
-        ApiTagTypes,
+        InferredApiTagTypes,
         NewResultType,
-        ReducerPathType
+        InferredReducerPathType
       >
     : Definition extends MutationDefinition<
           infer QueryArg,

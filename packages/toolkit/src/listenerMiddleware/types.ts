@@ -15,8 +15,8 @@ import type { TaskAbortError } from './exceptions'
  */
 
 /** @internal */
-type TypedActionCreatorWithMatchFunction<Type extends string> =
-  TypedActionCreator<Type> & {
+type TypedActionCreatorWithMatchFunction<ActionType extends string> =
+  TypedActionCreator<ActionType> & {
     match: MatchFunction<any>
   }
 
@@ -359,8 +359,8 @@ export type TakePatternOutputWithoutTimeout<
   State,
   Predicate extends AnyListenerPredicate<State>,
 > =
-  Predicate extends MatchFunction<infer ActionType>
-    ? Promise<[ActionType, State, State]>
+  Predicate extends MatchFunction<infer InferredActionType>
+    ? Promise<[InferredActionType, State, State]>
     : Promise<[UnknownAction, State, State]>
 
 /** @public */
@@ -368,23 +368,23 @@ export type TakePatternOutputWithTimeout<
   State,
   Predicate extends AnyListenerPredicate<State>,
 > =
-  Predicate extends MatchFunction<infer ActionType>
-    ? Promise<[ActionType, State, State] | null>
+  Predicate extends MatchFunction<infer InferredActionType>
+    ? Promise<[InferredActionType, State, State] | null>
     : Promise<[UnknownAction, State, State] | null>
 
 /** @public */
-export interface TakePattern<State> {
-  <Predicate extends AnyListenerPredicate<State>>(
+export interface TakePattern<StateType> {
+  <Predicate extends AnyListenerPredicate<StateType>>(
     predicate: Predicate,
-  ): TakePatternOutputWithoutTimeout<State, Predicate>
-  <Predicate extends AnyListenerPredicate<State>>(
+  ): TakePatternOutputWithoutTimeout<StateType, Predicate>
+  <Predicate extends AnyListenerPredicate<StateType>>(
     predicate: Predicate,
     timeout: number,
-  ): TakePatternOutputWithTimeout<State, Predicate>
-  <Predicate extends AnyListenerPredicate<State>>(
+  ): TakePatternOutputWithTimeout<StateType, Predicate>
+  <Predicate extends AnyListenerPredicate<StateType>>(
     predicate: Predicate,
     timeout?: number | undefined,
-  ): TakePatternOutputWithTimeout<State, Predicate>
+  ): TakePatternOutputWithTimeout<StateType, Predicate>
 }
 
 /** @public */
@@ -877,10 +877,15 @@ export type FallbackAddListenerOptions = {
  */
 
 /** @public */
-export type GuardedType<T> = T extends (x: any, ...args: any[]) => x is infer T
-  ? T
+export type GuardedType<T> = T extends (
+  x: any,
+  ...args: any[]
+) => x is infer InferredPredicateType
+  ? InferredPredicateType
   : never
 
 /** @public */
 export type ListenerPredicateGuardedActionType<T> =
-  T extends ListenerPredicate<infer ActionType, any> ? ActionType : never
+  T extends ListenerPredicate<infer InferredActionType, any>
+    ? InferredActionType
+    : never

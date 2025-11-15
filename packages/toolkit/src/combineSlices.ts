@@ -17,23 +17,29 @@ import { getOrInsertComputed } from './utils'
 
 type SliceLike<
   ReducerPathType extends string,
-  State,
-  PreloadedState = State,
+  StateType,
+  PreloadedStateType = StateType,
 > = {
   reducerPath: ReducerPathType
-  reducer: Reducer<State, any, PreloadedState>
+  reducer: Reducer<StateType, any, PreloadedStateType>
 }
 
 type AnySliceLike = SliceLike<string, any>
 
 type SliceLikeReducerPath<A extends AnySliceLike> =
-  A extends SliceLike<infer ReducerPathType, any> ? ReducerPathType : never
+  A extends SliceLike<infer InferredReducerPathType, any>
+    ? InferredReducerPathType
+    : never
 
 type SliceLikeState<A extends AnySliceLike> =
-  A extends SliceLike<any, infer State, any> ? State : never
+  A extends SliceLike<any, infer InferredStateType, any>
+    ? InferredStateType
+    : never
 
 type SliceLikePreloadedState<A extends AnySliceLike> =
-  A extends SliceLike<any, any, infer PreloadedState> ? PreloadedState : never
+  A extends SliceLike<any, any, infer InferredPreloadedStateType>
+    ? InferredPreloadedStateType
+    : never
 
 export type WithSlice<A extends AnySliceLike> = {
   [Path in SliceLikeReducerPath<A>]: SliceLikeState<A>
@@ -46,10 +52,10 @@ export type WithSlicePreloadedState<A extends AnySliceLike> = {
 type ReducerMap = Record<string, Reducer>
 
 type ExistingSliceLike<DeclaredState, PreloadedState> = {
-  [ReducerPathType in keyof DeclaredState]: SliceLike<
-    ReducerPathType & string,
-    NonUndefined<DeclaredState[ReducerPathType]>,
-    NonUndefined<PreloadedState[ReducerPathType & keyof PreloadedState]>
+  [DeclaredStateKeyType in keyof DeclaredState]: SliceLike<
+    DeclaredStateKeyType & string,
+    NonUndefined<DeclaredState[DeclaredStateKeyType]>,
+    NonUndefined<PreloadedState[DeclaredStateKeyType & keyof PreloadedState]>
   >
 }[keyof DeclaredState]
 
@@ -64,8 +70,8 @@ export type InjectConfig = {
  * A reducer that allows for slices/reducers to be injected after initialisation.
  */
 export interface CombinedSliceReducer<
-  InitialState,
-  DeclaredState extends InitialState = InitialState,
+  InitialSliceStateType,
+  DeclaredState extends InitialSliceStateType = InitialSliceStateType,
   PreloadedState extends Partial<
     Record<keyof PreloadedState, any>
   > = Partial<DeclaredState>,
@@ -100,7 +106,7 @@ export interface CombinedSliceReducer<
    * ```
    */
   withLazyLoadedSlices<Lazy = {}, LazyPreloaded = Lazy>(): CombinedSliceReducer<
-    InitialState,
+    InitialSliceStateType,
     Id<DeclaredState & Partial<Lazy>>,
     Id<PreloadedState & Partial<LazyPreloaded>>
   >
@@ -121,7 +127,7 @@ export interface CombinedSliceReducer<
     slice: Sl,
     config?: InjectConfig,
   ): CombinedSliceReducer<
-    InitialState,
+    InitialSliceStateType,
     Id<DeclaredState & WithSlice<Sl>>,
     Id<PreloadedState & Partial<WithSlicePreloadedState<Sl>>>
   >
@@ -145,7 +151,7 @@ export interface CombinedSliceReducer<
     >,
     config?: InjectConfig,
   ): CombinedSliceReducer<
-    InitialState,
+    InitialSliceStateType,
     Id<DeclaredState & WithSlice<SliceLike<ReducerPathType, State>>>
   >
 
@@ -238,7 +244,7 @@ export interface CombinedSliceReducer<
     ): (
       state: WithOptionalProp<
         Parameters<SelectorFunctionType>[0],
-        Exclude<keyof DeclaredState, keyof InitialState>
+        Exclude<keyof DeclaredState, keyof InitialSliceStateType>
       >,
       ...args: Tail<Parameters<SelectorFunctionType>>
     ) => ReturnType<SelectorFunctionType>
@@ -309,7 +315,7 @@ export interface CombinedSliceReducer<
         ...args: Tail<Parameters<SelectorFunctionType>>
       ) => WithOptionalProp<
         Parameters<SelectorFunctionType>[0],
-        Exclude<keyof DeclaredState, keyof InitialState>
+        Exclude<keyof DeclaredState, keyof InitialSliceStateType>
       >,
     ): (
       state: RootState,
@@ -321,25 +327,27 @@ export interface CombinedSliceReducer<
      * @returns original, unproxied state
      * @throws if value passed is not a state Proxy
      */
-    original: (state: DeclaredState) => InitialState & Partial<DeclaredState>
+    original: (
+      state: DeclaredState,
+    ) => InitialSliceStateType & Partial<DeclaredState>
   }
 }
 
 type InitialState<Slices extends Array<AnySliceLike | ReducerMap>> =
   UnionToIntersection<
-    Slices[number] extends infer Slice
-      ? Slice extends AnySliceLike
-        ? WithSlice<Slice>
-        : StateFromReducersMapObject<Slice>
+    Slices[number] extends infer InferredSliceType
+      ? InferredSliceType extends AnySliceLike
+        ? WithSlice<InferredSliceType>
+        : StateFromReducersMapObject<InferredSliceType>
       : never
   >
 
 type InitialPreloadedState<Slices extends Array<AnySliceLike | ReducerMap>> =
   UnionToIntersection<
-    Slices[number] extends infer Slice
-      ? Slice extends AnySliceLike
-        ? WithSlicePreloadedState<Slice>
-        : PreloadedStateShapeFromReducersMapObject<Slice>
+    Slices[number] extends infer InferredSliceType
+      ? InferredSliceType extends AnySliceLike
+        ? WithSlicePreloadedState<InferredSliceType>
+        : PreloadedStateShapeFromReducersMapObject<InferredSliceType>
       : never
   >
 
