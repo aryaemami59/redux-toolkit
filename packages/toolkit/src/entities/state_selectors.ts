@@ -9,26 +9,27 @@ export type GetSelectorsOptions = {
   createSelector?: AnyCreateSelectorFunction
 }
 
-export function createSelectorsFactory<T, Id extends EntityId>() {
+export function createSelectorsFactory<T, EntityIdType extends EntityId>() {
   function getSelectors(
     selectState?: undefined,
     options?: GetSelectorsOptions,
-  ): EntitySelectors<T, EntityState<T, Id>, Id>
+  ): EntitySelectors<T, EntityState<T, EntityIdType>, EntityIdType>
   function getSelectors<V>(
-    selectState: (state: V) => EntityState<T, Id>,
+    selectState: (state: V) => EntityState<T, EntityIdType>,
     options?: GetSelectorsOptions,
-  ): EntitySelectors<T, V, Id>
+  ): EntitySelectors<T, V, EntityIdType>
   function getSelectors<V>(
-    selectState?: (state: V) => EntityState<T, Id>,
+    selectState?: (state: V) => EntityState<T, EntityIdType>,
     options: GetSelectorsOptions = {},
-  ): EntitySelectors<T, any, Id> {
+  ): EntitySelectors<T, any, EntityIdType> {
     const {
       createSelector = createDraftSafeSelector as AnyCreateSelectorFunction,
     } = options
 
-    const selectIds = (state: EntityState<T, Id>) => state.ids
+    const selectIds = (state: EntityState<T, EntityIdType>) => state.ids
 
-    const selectEntities = (state: EntityState<T, Id>) => state.entities
+    const selectEntities = (state: EntityState<T, EntityIdType>) =>
+      state.entities
 
     const selectAll = createSelector(
       selectIds,
@@ -36,9 +37,10 @@ export function createSelectorsFactory<T, Id extends EntityId>() {
       (ids, entities): T[] => ids.map((id) => entities[id]!),
     )
 
-    const selectId = (_: unknown, id: Id) => id
+    const selectId = (_: unknown, id: EntityIdType) => id
 
-    const selectById = (entities: Record<Id, T>, id: Id) => entities[id]
+    const selectById = (entities: Record<EntityIdType, T>, id: EntityIdType) =>
+      entities[id]
 
     const selectTotal = createSelector(selectIds, (ids) => ids.length)
 
@@ -53,7 +55,7 @@ export function createSelectorsFactory<T, Id extends EntityId>() {
     }
 
     const selectGlobalizedEntities = createSelector(
-      selectState as Selector<V, EntityState<T, Id>>,
+      selectState as Selector<V, EntityState<T, EntityIdType>>,
       selectEntities,
     )
 
