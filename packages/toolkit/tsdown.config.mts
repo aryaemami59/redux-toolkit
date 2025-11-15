@@ -144,15 +144,23 @@ export default defineConfig((cliOptions) => {
 
   const developmentCjsConfig = {
     ...commonOptions,
-    entry: {
-      'redux-toolkit': 'src/index.ts',
-    },
-    external: peerAndProductionDependencies,
     env: {
       NODE_ENV: 'development',
     },
-    outExtensions: () => ({ js: '.development.cjs' }),
     format: ['cjs'],
+    outExtensions: () => ({ js: '.development.cjs' }),
+    outputOptions(options, format, context) {
+      return {
+        topLevelVar: false,
+      }
+    },
+    inputOptions(options, format, context) {
+      return {
+        experimental: {
+          strictExecutionOrder: true,
+        },
+      }
+    },
   } as const satisfies InlineConfig
 
   const productionCjsConfig = {
@@ -160,10 +168,21 @@ export default defineConfig((cliOptions) => {
     env: {
       NODE_ENV: 'production',
     },
-    external: peerAndProductionDependencies,
-    outExtensions: () => ({ js: '.production.min.cjs' }),
-    minify: true,
     format: ['cjs'],
+    minify: true,
+    outExtensions: () => ({ js: '.production.min.cjs' }),
+    outputOptions(options, format, context) {
+      return {
+        topLevelVar: false,
+      }
+    },
+    inputOptions(options, format, context) {
+      return {
+        experimental: {
+          strictExecutionOrder: true,
+        },
+      }
+    },
     onSuccess: async ({ outDir }) => {
       await writeCommonJSEntry(path.join(outDir, 'cjs'), 'redux-toolkit')
     },
@@ -174,7 +193,6 @@ export default defineConfig((cliOptions) => {
     env: {
       NODE_ENV: 'production',
     },
-    external: peerAndProductionDependencies,
     define: {
       process: 'undefined',
     },
@@ -185,7 +203,6 @@ export default defineConfig((cliOptions) => {
 
   const legacyEsmConfig = {
     ...commonOptions,
-    external: peerAndProductionDependencies,
     outExtensions: () => ({ js: '.legacy-esm.js' }),
     format: ['esm'],
     target: ['es2017'],
