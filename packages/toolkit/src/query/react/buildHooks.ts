@@ -131,9 +131,11 @@ export type UseQuery<D extends QueryDefinition<any, any, any, any>> = <
 
 export type TypedUseQuery<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-> = UseQuery<QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>>
+> = UseQuery<
+  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
+>
 
 export type UseQueryHookResult<
   D extends QueryDefinition<any, any, any, any>,
@@ -146,13 +148,13 @@ export type UseQueryHookResult<
  */
 export type TypedUseQueryHookResult<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
   R = UseQueryStateDefaultResult<
-    QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
+    QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
   >,
-> = TypedUseQueryStateResult<ResultType, QueryArg, BaseQuery, R> &
-  TypedUseQuerySubscriptionResult<ResultType, QueryArg, BaseQuery>
+> = TypedUseQueryStateResult<ResultType, QueryArgumentType, BaseQuery, R> &
+  TypedUseQuerySubscriptionResult<ResultType, QueryArgumentType, BaseQuery>
 
 export type UseQuerySubscriptionOptions = SubscriptionOptions & {
   /**
@@ -234,10 +236,10 @@ export type UseQuerySubscription<
 
 export type TypedUseQuerySubscription<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
 > = UseQuerySubscription<
-  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
+  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
 >
 
 export type UseQuerySubscriptionResult<
@@ -250,10 +252,10 @@ export type UseQuerySubscriptionResult<
  */
 export type TypedUseQuerySubscriptionResult<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
 > = UseQuerySubscriptionResult<
-  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
+  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
 >
 
 export type UseLazyQueryLastPromiseInfo<
@@ -291,10 +293,10 @@ export type UseLazyQuery<D extends QueryDefinition<any, any, any, any>> = <
 
 export type TypedUseLazyQuery<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
 > = UseLazyQuery<
-  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
+  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
 >
 
 export type UseLazyQueryStateResult<
@@ -314,13 +316,13 @@ export type UseLazyQueryStateResult<
  */
 export type TypedUseLazyQueryStateResult<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
   R = UseQueryStateDefaultResult<
-    QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
+    QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
   >,
 > = UseLazyQueryStateResult<
-  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>,
+  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>,
   R
 >
 
@@ -353,10 +355,10 @@ export type LazyQueryTrigger<D extends QueryDefinition<any, any, any, any>> = {
 
 export type TypedLazyQueryTrigger<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
 > = LazyQueryTrigger<
-  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
+  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
 >
 
 /**
@@ -382,10 +384,10 @@ export type UseLazyQuerySubscription<
 
 export type TypedUseLazyQuerySubscription<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
 > = UseLazyQuerySubscription<
-  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
+  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
 >
 
 /**
@@ -528,10 +530,10 @@ export type UseQueryState<D extends QueryDefinition<any, any, any, any>> = <
 
 export type TypedUseQueryState<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
 > = UseQueryState<
-  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
+  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
 >
 
 /**
@@ -663,7 +665,7 @@ export type UseQueryStateOptions<
  * ```
  *
  * @template ResultType - The type of the result `data` returned by the query.
- * @template QueryArg - The type of the argument passed into the query.
+ * @template QueryArgumentType - The type of the argument passed into the query.
  * @template BaseQuery - The type of the base query function being used.
  * @template SelectedResult - The type of the selected result returned by the __`selectFromResult`__ function.
  *
@@ -672,13 +674,13 @@ export type UseQueryStateOptions<
  */
 export type TypedUseQueryStateOptions<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
   SelectedResult extends Record<string, any> = UseQueryStateDefaultResult<
-    QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
+    QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
   >,
 > = UseQueryStateOptions<
-  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>,
+  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>,
   SelectedResult
 >
 
@@ -693,10 +695,10 @@ export type UseQueryStateResult<
  */
 export type TypedUseQueryStateResult<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
   R = UseQueryStateDefaultResult<
-    QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
+    QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
   >,
 > = R
 
@@ -822,12 +824,12 @@ export type LazyInfiniteQueryTrigger<
 
 export type TypedLazyInfiniteQueryTrigger<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   PageParam,
   BaseQuery extends BaseQueryFn,
 > = LazyInfiniteQueryTrigger<
   InfiniteQueryDefinition<
-    QueryArg,
+    QueryArgumentType,
     PageParam,
     BaseQuery,
     string,
@@ -896,12 +898,12 @@ export type UseInfiniteQuerySubscriptionOptions<
 
 export type TypedUseInfiniteQuerySubscription<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   PageParam,
   BaseQuery extends BaseQueryFn,
 > = UseInfiniteQuerySubscription<
   InfiniteQueryDefinition<
-    QueryArg,
+    QueryArgumentType,
     PageParam,
     BaseQuery,
     string,
@@ -930,12 +932,12 @@ export type UseInfiniteQuerySubscriptionResult<
  */
 export type TypedUseInfiniteQuerySubscriptionResult<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   PageParam,
   BaseQuery extends BaseQueryFn,
 > = UseInfiniteQuerySubscriptionResult<
   InfiniteQueryDefinition<
-    QueryArg,
+    QueryArgumentType,
     PageParam,
     BaseQuery,
     string,
@@ -951,13 +953,13 @@ export type InfiniteQueryStateSelector<
 
 export type TypedInfiniteQueryStateSelector<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   PageParam,
   BaseQuery extends BaseQueryFn,
   SelectedResult extends Record<string, any> =
     UseInfiniteQueryStateDefaultResult<
       InfiniteQueryDefinition<
-        QueryArg,
+        QueryArgumentType,
         PageParam,
         BaseQuery,
         string,
@@ -968,7 +970,7 @@ export type TypedInfiniteQueryStateSelector<
 > = InfiniteQueryStateSelector<
   SelectedResult,
   InfiniteQueryDefinition<
-    QueryArg,
+    QueryArgumentType,
     PageParam,
     BaseQuery,
     string,
@@ -1016,12 +1018,12 @@ export type UseInfiniteQuery<
 
 export type TypedUseInfiniteQuery<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   PageParam,
   BaseQuery extends BaseQueryFn,
 > = UseInfiniteQuery<
   InfiniteQueryDefinition<
-    QueryArg,
+    QueryArgumentType,
     PageParam,
     BaseQuery,
     string,
@@ -1049,12 +1051,12 @@ export type UseInfiniteQueryState<
 
 export type TypedUseInfiniteQueryState<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   PageParam,
   BaseQuery extends BaseQueryFn,
 > = UseInfiniteQueryState<
   InfiniteQueryDefinition<
-    QueryArg,
+    QueryArgumentType,
     PageParam,
     BaseQuery,
     string,
@@ -1095,12 +1097,12 @@ export type UseInfiniteQueryHookResult<
 
 export type TypedUseInfiniteQueryHookResult<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   PageParam,
   BaseQuery extends BaseQueryFn,
   R extends Record<string, any> = UseInfiniteQueryStateDefaultResult<
     InfiniteQueryDefinition<
-      QueryArg,
+      QueryArgumentType,
       PageParam,
       BaseQuery,
       string,
@@ -1110,7 +1112,7 @@ export type TypedUseInfiniteQueryHookResult<
   >,
 > = UseInfiniteQueryHookResult<
   InfiniteQueryDefinition<
-    QueryArg,
+    QueryArgumentType,
     PageParam,
     BaseQuery,
     string,
@@ -1195,13 +1197,13 @@ export type UseInfiniteQueryStateOptions<
 
 export type TypedUseInfiniteQueryStateOptions<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   PageParam,
   BaseQuery extends BaseQueryFn,
   SelectedResult extends Record<string, any> =
     UseInfiniteQueryStateDefaultResult<
       InfiniteQueryDefinition<
-        QueryArg,
+        QueryArgumentType,
         PageParam,
         BaseQuery,
         string,
@@ -1211,7 +1213,7 @@ export type TypedUseInfiniteQueryStateOptions<
     >,
 > = UseInfiniteQueryStateOptions<
   InfiniteQueryDefinition<
-    QueryArg,
+    QueryArgumentType,
     PageParam,
     BaseQuery,
     string,
@@ -1228,12 +1230,12 @@ export type UseInfiniteQueryStateResult<
 
 export type TypedUseInfiniteQueryStateResult<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   PageParam,
   BaseQuery extends BaseQueryFn,
   R = UseInfiniteQueryStateDefaultResult<
     InfiniteQueryDefinition<
-      QueryArg,
+      QueryArgumentType,
       PageParam,
       BaseQuery,
       string,
@@ -1243,7 +1245,7 @@ export type TypedUseInfiniteQueryStateResult<
   >,
 > = UseInfiniteQueryStateResult<
   InfiniteQueryDefinition<
-    QueryArg,
+    QueryArgumentType,
     PageParam,
     BaseQuery,
     string,
@@ -1389,13 +1391,13 @@ export type UseMutationStateResult<
  */
 export type TypedUseMutationResult<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
   R = MutationResultSelectorResult<
-    MutationDefinition<QueryArg, BaseQuery, string, ResultType, string>
+    MutationDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
   >,
 > = UseMutationStateResult<
-  MutationDefinition<QueryArg, BaseQuery, string, ResultType, string>,
+  MutationDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>,
   R
 >
 
@@ -1417,10 +1419,10 @@ export type UseMutation<D extends MutationDefinition<any, any, any, any>> = <
 
 export type TypedUseMutation<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
 > = UseMutation<
-  MutationDefinition<QueryArg, BaseQuery, string, ResultType, string>
+  MutationDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
 >
 
 export type MutationTrigger<D extends MutationDefinition<any, any, any, any>> =
@@ -1446,10 +1448,10 @@ export type MutationTrigger<D extends MutationDefinition<any, any, any, any>> =
 
 export type TypedMutationTrigger<
   ResultType,
-  QueryArg,
+  QueryArgumentType,
   BaseQuery extends BaseQueryFn,
 > = MutationTrigger<
-  MutationDefinition<QueryArg, BaseQuery, string, ResultType, string>
+  MutationDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
 >
 
 /**
