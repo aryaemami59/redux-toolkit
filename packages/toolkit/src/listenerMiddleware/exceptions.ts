@@ -1,4 +1,4 @@
-import type { SerializedError } from '@reduxjs/toolkit'
+import type { SerializedError } from '../createAsyncThunk'
 
 const task = 'task'
 const listener = 'listener'
