@@ -5,10 +5,9 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import type { InlineConfig, UserConfig } from 'tsdown'
 import { defineConfig } from 'tsdown'
+import packageJson from './package.json' with { type: 'json' }
 import type { MangleErrorsPluginOptions } from './scripts/mangleErrors.mjs'
 import { mangleErrorsPlugin } from './scripts/mangleErrors.mjs'
-
-const outputDir = path.join(import.meta.dirname, 'dist')
 
 async function writeCommonJSEntry(folder: string, prefix: string) {
   await fs.writeFile(
@@ -59,26 +58,19 @@ const mangleErrorsTransform: Plugin = {
   },
 }
 
-const external = [
-  '@standard-schema/spec',
-  '@standard-schema/utils',
-  'immer',
-  'react-redux',
-  'react',
-  'redux-thunk',
-  'redux',
-  'reselect',
-]
+const peerAndProductionDependencies = Object.keys({
+  ...packageJson.dependencies,
+  ...packageJson.peerDependencies,
+} as const)
 
 export default defineConfig((cliOptions) => {
-  console.log(cliOptions)
   const commonOptions = {
     cwd: import.meta.dirname,
+    debug: {},
     dts: false,
-    exports: false,
-    external: (id, parentId, isResolved) => {
-      console.log({ id, parentId, isResolved })
-    },
+    outDir: 'dist',
+    fixedExtension: false,
+    external: peerAndProductionDependencies,
     failOnWarn: true,
     format: ['esm', 'cjs'],
     hash: false,
@@ -88,396 +80,372 @@ export default defineConfig((cliOptions) => {
     target: ['esnext'],
     platform: 'node',
     tsconfig: path.join(import.meta.dirname, 'tsconfig.build.json'),
-    outExtensions: (context) => ({
-      js: context.format === 'es' ? '.mjs' : '.js',
-      dts: context.format === 'es' ? '.d.mts' : '.d.ts',
+    outExtensions: ({ format, options }) => ({
+      dts: format === 'es' ? '.d.mts' : '.d.ts',
+      js:
+        format === 'es'
+          ? `${options.platform === 'browser' ? '.browser' : ''}.mjs`
+          : '.cjs',
     }),
     ...cliOptions,
   } as const satisfies InlineConfig
 
+  const sharedDTSConfig = {
+    ...commonOptions,
+    dts: {
+      build: false,
+      cjsDefault: false,
+      cwd: commonOptions.cwd,
+      dtsInput: false,
+      eager: true,
+      emitDtsOnly: true,
+      emitJs: false,
+      newContext: true,
+      oxc: false,
+      parallel: false,
+      resolver: 'tsc',
+      sideEffects: false,
+      sourcemap: true,
+      tsconfig: commonOptions.tsconfig,
+    },
+    external: [...peerAndProductionDependencies, /uncheckedindexed/],
+
+    /**
+     * @todo Investigate why an unexpected `index.js` file is still emitted
+     * even with `emitDtsOnly: true`. The goal is to produce `.d.ts`
+     * outputs for CJS builds without generating any JavaScript files.
+     *
+     * Until the root cause is identified, we disable source map generation
+     * to avoid producing additional unwanted artifacts.
+     */
+    sourcemap: false,
+  } as const satisfies InlineConfig
+
+  const modernEsmConfig = {
+    ...commonOptions,
+    format: ['esm'],
+    outExtensions: () => ({ js: '.modern.mjs' }),
+  } as const satisfies InlineConfig
+
+  const developmentCjsConfig = {
+    ...commonOptions,
+    entry: {
+      'redux-toolkit': 'src/index.ts',
+    },
+    external: peerAndProductionDependencies,
+    env: {
+      NODE_ENV: 'development',
+    },
+    outExtensions: () => ({ js: '.development.cjs' }),
+    format: ['cjs'],
+  } as const satisfies InlineConfig
+
+  const productionCjsConfig = {
+    ...commonOptions,
+    env: {
+      NODE_ENV: 'production',
+    },
+    external: peerAndProductionDependencies,
+    outExtensions: () => ({ js: '.production.min.cjs' }),
+    minify: true,
+    format: ['cjs'],
+    onSuccess: async ({ outDir }) => {
+      await writeCommonJSEntry(path.join(outDir, 'cjs'), 'redux-toolkit')
+    },
+  } as const satisfies InlineConfig
+
+  const browserEsmConfig = {
+    ...commonOptions,
+    env: {
+      NODE_ENV: 'production',
+    },
+    external: peerAndProductionDependencies,
+    define: {
+      process: 'undefined',
+    },
+    format: ['esm'],
+    minify: true,
+    platform: 'browser',
+  } as const satisfies InlineConfig
+
+  const legacyEsmConfig = {
+    ...commonOptions,
+    external: peerAndProductionDependencies,
+    outExtensions: () => ({ js: '.legacy-esm.js' }),
+    format: ['esm'],
+    target: ['es2017'],
+  } as const satisfies InlineConfig
+
   return [
     {
-      ...commonOptions,
+      ...modernEsmConfig,
       name: 'Redux-Toolkit-Core-ESM',
       entry: {
-        'redux-toolkit.modern': 'src/index.ts',
+        'redux-toolkit': 'src/index.ts',
       },
-      // outExtensions: ({ format }) => ({
-      //   js: format === 'es' ? '.mjs' : '.cjs',
-      // }),
-      copy: () => [
+      copy: ({ outDir }) => [
         {
           from: path.join(import.meta.dirname, 'src', 'uncheckedindexed.ts'),
-          to: path.join(outputDir, 'uncheckedindexed.ts'),
+          to: path.join(outDir, 'uncheckedindexed.ts'),
         },
       ],
-      format: ['esm'],
     },
     {
-      ...commonOptions,
+      ...modernEsmConfig,
       name: 'Redux-Toolkit-React-ESM',
-      external: external.concat('@reduxjs/toolkit'),
       entry: {
-        'react/redux-toolkit-react.modern': 'src/react/index.ts',
+        'react/redux-toolkit-react': 'src/react/index.ts',
       },
-      outExtensions: () => ({ js: '.mjs' }),
-      format: ['esm'],
+      external: [...peerAndProductionDependencies, packageJson.name],
     },
     {
-      ...commonOptions,
+      ...modernEsmConfig,
       name: 'Redux-Toolkit-Query-ESM',
-      external: external.concat('@reduxjs/toolkit'),
       entry: {
-        'query/rtk-query.modern': 'src/query/index.ts',
+        'query/rtk-query': 'src/query/index.ts',
       },
-      outExtensions: () => ({ js: '.mjs' }),
-      format: ['esm'],
+      external: [
+        ...peerAndProductionDependencies,
+        packageJson.name,
+        `${packageJson.name}/react`,
+      ],
     },
     {
-      ...commonOptions,
+      ...modernEsmConfig,
       name: 'Redux-Toolkit-Query-React-ESM',
-      external: external.concat('@reduxjs/toolkit'),
       entry: {
-        'query/react/rtk-query-react.modern': 'src/query/react/index.ts',
+        'query/react/rtk-query-react': 'src/query/react/index.ts',
       },
-      outExtensions: () => ({ js: '.mjs' }),
-      format: ['esm'],
+      external: [
+        ...peerAndProductionDependencies,
+        packageJson.name,
+        `${packageJson.name}/react`,
+        `${packageJson.name}/query`,
+      ],
     },
     {
-      ...commonOptions,
+      ...developmentCjsConfig,
       name: 'Redux-Toolkit-Core-CJS-Development',
       entry: {
-        'cjs/redux-toolkit.development': 'src/index.ts',
+        'cjs/redux-toolkit': 'src/index.ts',
       },
-      outExtensions: () => ({ js: '.cjs' }),
-      env: {
-        NODE_ENV: 'development',
-      },
-      format: ['cjs'],
     },
     {
-      ...commonOptions,
+      ...developmentCjsConfig,
       name: 'Redux-Toolkit-React-CJS-Development',
-      external: external.concat('@reduxjs/toolkit'),
       entry: {
-        'react/cjs/redux-toolkit-react.development': 'src/react/index.ts',
+        'react/cjs/redux-toolkit-react': 'src/react/index.ts',
       },
-      outExtensions: () => ({ js: '.cjs' }),
-      env: {
-        NODE_ENV: 'development',
-      },
-      format: ['cjs'],
+      external: [...peerAndProductionDependencies, packageJson.name],
     },
     {
-      ...commonOptions,
+      ...developmentCjsConfig,
       name: 'Redux-Toolkit-Query-CJS-Development',
-      external: external.concat('@reduxjs/toolkit'),
       entry: {
-        'query/cjs/rtk-query.development': 'src/query/index.ts',
+        'query/cjs/rtk-query': 'src/query/index.ts',
       },
-      outExtensions: () => ({ js: '.cjs' }),
-      env: {
-        NODE_ENV: 'development',
-      },
-      format: ['cjs'],
+      external: [
+        ...peerAndProductionDependencies,
+        packageJson.name,
+        `${packageJson.name}/react`,
+      ],
     },
     {
-      ...commonOptions,
+      ...developmentCjsConfig,
       name: 'Redux-Toolkit-Query-React-CJS-Development',
-      external: external.concat('@reduxjs/toolkit'),
       entry: {
-        'query/react/cjs/rtk-query-react.development':
-          'src/query/react/index.ts',
+        'query/react/cjs/rtk-query-react': 'src/query/react/index.ts',
       },
-      outExtensions: () => ({ js: '.cjs' }),
-      env: {
-        NODE_ENV: 'development',
-      },
-      format: ['cjs'],
+      external: [
+        ...peerAndProductionDependencies,
+        packageJson.name,
+        `${packageJson.name}/react`,
+        `${packageJson.name}/query`,
+      ],
     },
     {
-      ...commonOptions,
+      ...productionCjsConfig,
       name: 'Redux-Toolkit-Core-CJS-Production',
       entry: {
-        'cjs/redux-toolkit.production.min': 'src/index.ts',
+        'cjs/redux-toolkit': 'src/index.ts',
       },
-      outExtensions: () => ({ js: '.cjs' }),
-      env: {
-        NODE_ENV: 'production',
-      },
-      minify: true,
-      format: ['cjs'],
-      onSuccess: async () => {
-        await writeCommonJSEntry(
-          path.join(import.meta.dirname, 'dist', 'cjs'),
-          'redux-toolkit',
-        )
+      onSuccess: async ({ outDir }) => {
+        await writeCommonJSEntry(path.join(outDir, 'cjs'), 'redux-toolkit')
       },
     },
 
     {
-      ...commonOptions,
+      ...productionCjsConfig,
       name: 'Redux-Toolkit-React-CJS-Production',
-      external: external.concat('@reduxjs/toolkit'),
       entry: {
-        'react/cjs/redux-toolkit-react.production.min': 'src/react/index.ts',
+        'react/cjs/redux-toolkit-react': 'src/react/index.ts',
       },
-      outExtensions: () => ({ js: '.cjs' }),
-      env: {
-        NODE_ENV: 'production',
-      },
-      minify: true,
-      format: ['cjs'],
-      onSuccess: async () => {
+      external: [...peerAndProductionDependencies, packageJson.name],
+      onSuccess: async ({ outDir }) => {
         await writeCommonJSEntry(
-          path.join(import.meta.dirname, 'dist', 'react', 'cjs'),
+          path.join(outDir, 'react', 'cjs'),
           'redux-toolkit-react',
         )
       },
     },
     {
-      ...commonOptions,
+      ...productionCjsConfig,
       name: 'Redux-Toolkit-Query-CJS-Production',
-      external: external.concat('@reduxjs/toolkit'),
       entry: {
-        'query/cjs/rtk-query.production.min': 'src/query/index.ts',
+        'query/cjs/rtk-query': 'src/query/index.ts',
       },
-      outExtensions: () => ({ js: '.cjs' }),
-      env: {
-        NODE_ENV: 'production',
-      },
-      minify: true,
-      format: ['cjs'],
-      onSuccess: async () => {
-        await writeCommonJSEntry(
-          path.join(import.meta.dirname, 'dist', 'query', 'cjs'),
-          'rtk-query',
-        )
+      external: [
+        ...peerAndProductionDependencies,
+        packageJson.name,
+        `${packageJson.name}/react`,
+      ],
+      onSuccess: async ({ outDir }) => {
+        await writeCommonJSEntry(path.join(outDir, 'query', 'cjs'), 'rtk-query')
       },
     },
     {
-      ...commonOptions,
+      ...productionCjsConfig,
       name: 'Redux-Toolkit-Query-React-CJS-Production',
-      external: external.concat('@reduxjs/toolkit'),
       entry: {
-        'query/react/cjs/rtk-query-react.production.min':
-          'src/query/react/index.ts',
+        'query/react/cjs/rtk-query-react': 'src/query/react/index.ts',
       },
-      outExtensions: () => ({ js: '.cjs' }),
-      env: {
-        NODE_ENV: 'production',
-      },
-      minify: true,
-      format: ['cjs'],
-      onSuccess: async () => {
+      external: [
+        ...peerAndProductionDependencies,
+        packageJson.name,
+        `${packageJson.name}/react`,
+        `${packageJson.name}/query`,
+      ],
+      onSuccess: async ({ outDir }) => {
         await writeCommonJSEntry(
-          path.join(import.meta.dirname, 'dist', 'query', 'react', 'cjs'),
+          path.join(outDir, 'query', 'react', 'cjs'),
           'rtk-query-react',
         )
       },
     },
 
     {
-      ...commonOptions,
+      ...browserEsmConfig,
       name: 'Redux-Toolkit-Core-Browser',
       entry: {
-        'redux-toolkit.browser': 'src/index.ts',
+        'redux-toolkit': 'src/index.ts',
       },
-      outExtensions: () => ({ js: '.mjs' }),
-      platform: 'browser',
-      env: {
-        NODE_ENV: 'production',
-      },
-      minify: 'dce-only',
-      define: {
-        process: 'undefined',
-      },
-      format: ['esm'],
     },
 
     {
-      ...commonOptions,
+      ...browserEsmConfig,
       name: 'Redux-Toolkit-React-Browser',
-      external: external.concat('@reduxjs/toolkit'),
       entry: {
-        'react/redux-toolkit-react.browser': 'src/react/index.ts',
+        'react/redux-toolkit-react': 'src/react/index.ts',
       },
-      outExtensions: () => ({ js: '.mjs' }),
-      platform: 'browser',
-      env: {
-        NODE_ENV: 'production',
-      },
-      minify: true,
-      define: {
-        process: 'undefined',
-      },
-      format: ['esm'],
+      external: [...peerAndProductionDependencies, packageJson.name],
     },
     {
-      ...commonOptions,
+      ...browserEsmConfig,
       name: 'Redux-Toolkit-Query-Browser',
-      external: external.concat('@reduxjs/toolkit'),
       entry: {
-        'query/rtk-query.browser': 'src/query/index.ts',
-      },
-      outExtensions: () => ({ js: '.mjs' }),
-      platform: 'browser',
-      env: {
-        NODE_ENV: 'production',
-      },
-      minify: true,
-      define: {
-        process: 'undefined',
-      },
-      format: ['esm'],
-    },
-    {
-      ...commonOptions,
-      name: 'Redux-Toolkit-Query-React-Browser',
-      external: external.concat('@reduxjs/toolkit'),
-      entry: {
-        'query/react/rtk-query-react.browser': 'src/query/react/index.ts',
-      },
-      outExtensions: () => ({ js: '.mjs' }),
-      platform: 'browser',
-      env: {
-        NODE_ENV: 'production',
-      },
-      minify: true,
-      define: {
-        process: 'undefined',
-      },
-      format: ['esm'],
-    },
-    {
-      ...commonOptions,
-      name: 'Redux-Toolkit-Core-Legacy-ESM',
-      entry: {
-        'redux-toolkit.legacy-esm': 'src/index.ts',
-      },
-      outExtensions: () => ({ js: '.js' }),
-      format: ['esm'],
-      target: ['es2017'],
-    },
-    {
-      ...commonOptions,
-      name: 'Redux-Toolkit-React-Legacy-ESM',
-      external: external.concat('@reduxjs/toolkit'),
-      entry: {
-        'react/redux-toolkit-react.legacy-esm': 'src/react/index.ts',
-      },
-      outExtensions: () => ({ js: '.js' }),
-      format: ['esm'],
-      target: ['es2017'],
-    },
-    {
-      ...commonOptions,
-      name: 'Redux-Toolkit-Query-Legacy-ESM',
-      external: external.concat('@reduxjs/toolkit'),
-      entry: {
-        'query/rtk-query.legacy-esm': 'src/query/index.ts',
-      },
-      outExtensions: () => ({ js: '.js' }),
-      format: ['esm'],
-      target: ['es2017'],
-    },
-    {
-      ...commonOptions,
-      name: 'Redux-Toolkit-Query-React-Legacy-ESM',
-      external: external.concat('@reduxjs/toolkit'),
-      entry: {
-        'query/react/rtk-query-react.legacy-esm': 'src/query/react/index.ts',
-      },
-      outExtensions: () => ({ js: '.js' }),
-      format: ['esm'],
-      target: ['es2017'],
-    },
-
-    {
-      ...commonOptions,
-      name: 'Redux-Toolkit-Type-Definitions',
-      entry: {
-        index: 'src/index.ts',
-      },
-      // outExtensions: (context) => ({
-      //   dts: context.format === 'es' ? '.d.mts' : '.d.ts',
-      // }),
-      // format: ['esm'],
-      // sourcemap: false,
-      external: [/uncheckedindexed/],
-      dts: {
-        emitDtsOnly: true,
-        newContext: true,
-        resolver: 'tsc',
-        // newContext: true,
-        // sourcemap: false,
-        cjsDefault: true,
-        // eager: true,
-        // oxc: false,
-        emitJs: false,
-        tsconfig: path.join(import.meta.dirname, 'tsconfig.build.json'),
-      },
-    },
-
-    {
-      ...commonOptions,
-      name: 'RTK-React-Type-Definitions',
-      entry: {
-        'react/index': 'src/react/index.ts',
-      },
-      dts: {
-        newContext: true,
-        // resolve: true,
-        emitDtsOnly: true,
-        emitJs: false,
-        resolver: 'tsc',
-        tsconfig: path.join(import.meta.dirname, 'tsconfig.build.json'),
-      },
-      external: [...external, '@reduxjs/toolkit', /uncheckedindexed/],
-    },
-
-    {
-      ...commonOptions,
-      name: 'RTK-Query-Type-Definitions',
-      entry: {
-        'query/index': 'src/query/index.ts',
-      },
-      dts: {
-        newContext: true,
-        // resolve: true,
-        emitDtsOnly: true,
-        emitJs: false,
-        resolver: 'tsc',
-        tsconfig: path.join(import.meta.dirname, 'tsconfig.build.json'),
+        'query/rtk-query': 'src/query/index.ts',
       },
       external: [
-        ...external,
-        '@reduxjs/toolkit',
-        '@reduxjs/toolkit/react',
-        /uncheckedindexed/,
+        ...peerAndProductionDependencies,
+        packageJson.name,
+        `${packageJson.name}/react`,
+      ],
+    },
+    {
+      ...browserEsmConfig,
+      name: 'Redux-Toolkit-Query-React-Browser',
+      entry: {
+        'query/react/rtk-query-react': 'src/query/react/index.ts',
+      },
+      external: [
+        ...peerAndProductionDependencies,
+        packageJson.name,
+        `${packageJson.name}/react`,
+        `${packageJson.name}/query`,
+      ],
+    },
+    {
+      ...legacyEsmConfig,
+      name: 'Redux-Toolkit-Core-Legacy-ESM',
+      entry: {
+        'redux-toolkit': 'src/index.ts',
+      },
+    },
+    {
+      ...legacyEsmConfig,
+      name: 'Redux-Toolkit-React-Legacy-ESM',
+      entry: {
+        'react/redux-toolkit-react': 'src/react/index.ts',
+      },
+      external: [...peerAndProductionDependencies, packageJson.name],
+    },
+    {
+      ...legacyEsmConfig,
+      name: 'Redux-Toolkit-Query-Legacy-ESM',
+      entry: {
+        'query/rtk-query': 'src/query/index.ts',
+      },
+      external: [
+        ...peerAndProductionDependencies,
+        packageJson.name,
+        `${packageJson.name}/react`,
+      ],
+    },
+    {
+      ...legacyEsmConfig,
+      name: 'Redux-Toolkit-Query-React-Legacy-ESM',
+      entry: {
+        'query/react/rtk-query-react': 'src/query/react/index.ts',
+      },
+      external: [
+        ...peerAndProductionDependencies,
+        packageJson.name,
+        `${packageJson.name}/react`,
+        `${packageJson.name}/query`,
       ],
     },
 
     {
-      ...commonOptions,
+      ...sharedDTSConfig,
+      name: 'Redux-Toolkit-Type-Definitions',
+      entry: {
+        index: 'src/index.ts',
+      },
+    },
+
+    {
+      ...sharedDTSConfig,
+      name: 'RTK-React-Type-Definitions',
+      entry: {
+        'react/index': 'src/react/index.ts',
+      },
+      external: [...sharedDTSConfig.external, packageJson.name],
+    },
+
+    {
+      ...sharedDTSConfig,
+      name: 'RTK-Query-Type-Definitions',
+      entry: {
+        'query/index': 'src/query/index.ts',
+      },
+      external: [
+        ...sharedDTSConfig.external,
+        packageJson.name,
+        `${packageJson.name}/react`,
+      ],
+    },
+
+    {
+      ...sharedDTSConfig,
       name: 'RTK-Query-React-Type-Definitions',
       entry: {
         'query/react/index': 'src/query/react/index.ts',
       },
-      dts: {
-        newContext: true,
-        // resolve: true,
-        emitDtsOnly: true,
-        emitJs: false,
-        resolver: 'tsc',
-        tsconfig: path.join(import.meta.dirname, 'tsconfig.build.json'),
-      },
       external: [
-        ...external,
-        '@reduxjs/toolkit',
-        '@reduxjs/toolkit/react',
-        '@reduxjs/toolkit/query',
-        /uncheckedindexed/,
+        ...sharedDTSConfig.external,
+        packageJson.name,
+        `${packageJson.name}/react`,
+        `${packageJson.name}/query`,
       ],
     },
   ] as const satisfies UserConfig[]
