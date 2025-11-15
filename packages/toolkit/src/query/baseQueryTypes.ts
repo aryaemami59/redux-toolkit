@@ -52,15 +52,16 @@ export type BaseQueryEnhancer<
   AdditionalArgs = unknown,
   AdditionalDefinitionExtraOptions = unknown,
   Config = void,
-> = <BaseQueryType extends BaseQueryFn>(
-  baseQueryFunction: BaseQueryType,
+> = <BaseQueryFunctionType extends BaseQueryFn>(
+  baseQueryFunction: BaseQueryFunctionType,
   config: Config,
 ) => BaseQueryFn<
-  BaseQueryArg<BaseQueryType> & AdditionalArgs,
-  BaseQueryResult<BaseQueryType>,
-  BaseQueryError<BaseQueryType>,
-  BaseQueryExtraOptions<BaseQueryType> & AdditionalDefinitionExtraOptions,
-  NonNullable<BaseQueryMeta<BaseQueryType>>
+  BaseQueryArg<BaseQueryFunctionType> & AdditionalArgs,
+  BaseQueryResult<BaseQueryFunctionType>,
+  BaseQueryError<BaseQueryFunctionType>,
+  BaseQueryExtraOptions<BaseQueryFunctionType> &
+    AdditionalDefinitionExtraOptions,
+  NonNullable<BaseQueryMeta<BaseQueryFunctionType>>
 >
 
 /**
