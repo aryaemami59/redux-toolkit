@@ -75,6 +75,21 @@ export default defineConfig((cliOptions) => {
     format: ['esm', 'cjs'],
     hash: false,
     nodeProtocol: true,
+    inputOptions(options, format, context) {
+      return {
+        ...options,
+        // experimental: { attachDebugInfo: 'none' },
+        ...(format === 'es'
+          ? {
+              transform: {
+                inject: {
+                  React: ['react', '*'] as const,
+                },
+              },
+            }
+          : {}),
+      }
+    },
     plugins: [mangleErrorsTransform],
     sourcemap: true,
     target: ['esnext'],
