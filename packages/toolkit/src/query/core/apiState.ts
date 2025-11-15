@@ -229,8 +229,13 @@ type BaseQuerySubState<
    */
   error?:
     | SerializedError
-    | (D extends QueryDefinition<any, infer BaseQueryFunctionType, any, any>
-        ? BaseQueryError<BaseQueryFunctionType>
+    | (D extends QueryDefinition<
+        any,
+        infer InferredBaseQueryFunctionType,
+        any,
+        any
+      >
+        ? BaseQueryError<InferredBaseQueryFunctionType>
         : never)
   /**
    * The name of the endpoint associated with the query
@@ -289,8 +294,13 @@ type BaseMutationSubState<
   data?: ResultTypeFrom<D>
   error?:
     | SerializedError
-    | (D extends MutationDefinition<any, infer BaseQueryFunctionType, any, any>
-        ? BaseQueryError<BaseQueryFunctionType>
+    | (D extends MutationDefinition<
+        any,
+        infer InferredBaseQueryFunctionType,
+        any,
+        any
+      >
+        ? BaseQueryError<InferredBaseQueryFunctionType>
         : never)
   endpointName: string
   startedTimeStamp: number
