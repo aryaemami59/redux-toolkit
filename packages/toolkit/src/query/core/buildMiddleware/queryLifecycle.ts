@@ -20,7 +20,7 @@ import type {
 
 export type ReferenceQueryLifecycle = never
 
-type QueryLifecyclePromises<QueryResultType, BaseQuery extends BaseQueryFn> = {
+type QueryLifecyclePromises<ResultType, BaseQuery extends BaseQueryFn> = {
   /**
    * Promise that will resolve with the (transformed) query result.
    *
@@ -35,7 +35,7 @@ type QueryLifecyclePromises<QueryResultType, BaseQuery extends BaseQueryFn> = {
       /**
        * The (transformed) query result.
        */
-      data: QueryResultType
+      data: ResultType
       /**
        * The `meta` returned by the `baseQuery`
        */
@@ -68,7 +68,7 @@ type QueryFulfilledRejectionReason<BaseQuery extends BaseQueryFn> =
     }
 
 export type QueryLifecycleQueryExtraOptions<
-  QueryResultType,
+  ResultType,
   QueryArgumentType,
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
@@ -117,26 +117,26 @@ export type QueryLifecycleQueryExtraOptions<
     queryLifeCycleApi: QueryLifecycleApi<
       QueryArgumentType,
       BaseQuery,
-      QueryResultType,
+      ResultType,
       ReducerPath
     >,
   ): Promise<void> | void
 }
 
 export type QueryLifecycleInfiniteQueryExtraOptions<
-  QueryResultType,
+  ResultType,
   QueryArgumentType,
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
 > = QueryLifecycleQueryExtraOptions<
-  QueryResultType,
+  ResultType,
   QueryArgumentType,
   BaseQuery,
   ReducerPath
 >
 
 export type QueryLifecycleMutationExtraOptions<
-  QueryResultType,
+  ResultType,
   QueryArgumentType,
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
@@ -194,7 +194,7 @@ export type QueryLifecycleMutationExtraOptions<
     mutationLifeCycleApi: MutationLifecycleApi<
       QueryArgumentType,
       BaseQuery,
-      QueryResultType,
+      ResultType,
       ReducerPath
     >,
   ): Promise<void> | void
@@ -203,28 +203,28 @@ export type QueryLifecycleMutationExtraOptions<
 export interface QueryLifecycleApi<
   QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  QueryResultType,
+  ResultType,
   ReducerPath extends string = string,
 > extends QueryBaseLifecycleApi<
       QueryArgumentType,
       BaseQuery,
-      QueryResultType,
+      ResultType,
       ReducerPath
     >,
-    QueryLifecyclePromises<QueryResultType, BaseQuery> {}
+    QueryLifecyclePromises<ResultType, BaseQuery> {}
 
 export type MutationLifecycleApi<
   QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  QueryResultType,
+  ResultType,
   ReducerPath extends string = string,
 > = MutationBaseLifecycleApi<
   QueryArgumentType,
   BaseQuery,
-  QueryResultType,
+  ResultType,
   ReducerPath
 > &
-  QueryLifecyclePromises<QueryResultType, BaseQuery>
+  QueryLifecyclePromises<ResultType, BaseQuery>
 
 /**
  * Provides a way to define a strongly-typed version of
@@ -304,23 +304,23 @@ export type MutationLifecycleApi<
  * })
  * ```
  *
- * @template QueryResultType - The type of the result `data` returned by the query.
+ * @template ResultType - The type of the result `data` returned by the query.
  * @template QueryArgumentType - The type of the argument passed into the query.
- * @template BaseQueryType - The type of the base query function being used.
+ * @template BaseQueryFunctionType - The type of the base query function being used.
  * @template ReducerPath - The type representing the `reducerPath` for the API slice.
  *
  * @since 2.4.0
  * @public
  */
 export type TypedQueryOnQueryStarted<
-  QueryResultType,
+  ResultType,
   QueryArgumentType,
-  BaseQueryType extends BaseQueryFn,
+  BaseQueryFunctionType extends BaseQueryFn,
   ReducerPath extends string = string,
 > = QueryLifecycleQueryExtraOptions<
-  QueryResultType,
+  ResultType,
   QueryArgumentType,
-  BaseQueryType,
+  BaseQueryFunctionType,
   ReducerPath
 >['onQueryStarted']
 
@@ -412,23 +412,23 @@ export type TypedQueryOnQueryStarted<
  * })
  * ```
  *
- * @template QueryResultType - The type of the result `data` returned by the query.
+ * @template ResultType - The type of the result `data` returned by the query.
  * @template QueryArgumentType - The type of the argument passed into the query.
- * @template BaseQueryType - The type of the base query function being used.
+ * @template BaseQueryFunctionType - The type of the base query function being used.
  * @template ReducerPath - The type representing the `reducerPath` for the API slice.
  *
  * @since 2.4.0
  * @public
  */
 export type TypedMutationOnQueryStarted<
-  QueryResultType,
+  ResultType,
   QueryArgumentType,
-  BaseQueryType extends BaseQueryFn,
+  BaseQueryFunctionType extends BaseQueryFn,
   ReducerPath extends string = string,
 > = QueryLifecycleMutationExtraOptions<
-  QueryResultType,
+  ResultType,
   QueryArgumentType,
-  BaseQueryType,
+  BaseQueryFunctionType,
   ReducerPath
 >['onQueryStarted']
 
