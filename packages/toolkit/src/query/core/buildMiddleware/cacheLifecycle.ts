@@ -29,8 +29,8 @@ export type ReferenceCacheLifecycle = never
 
 export interface QueryBaseLifecycleApi<
   QueryArgumentType,
-  BaseQueryType extends BaseQueryFn,
-  QueryResultType,
+  BaseQueryFunctionType extends BaseQueryFn,
+  ResultType,
   ReducerPath extends string = string,
 > extends LifecycleApi<ReducerPath> {
   /**
@@ -39,22 +39,22 @@ export interface QueryBaseLifecycleApi<
   getCacheEntry(): QueryResultSelectorResult<
     { type: DefinitionType.query } & BaseEndpointDefinition<
       QueryArgumentType,
-      BaseQueryType,
-      QueryResultType,
-      BaseQueryResult<BaseQueryType>
+      BaseQueryFunctionType,
+      ResultType,
+      BaseQueryResult<BaseQueryFunctionType>
     >
   >
   /**
    * Updates the current cache entry value.
    * For documentation see `api.util.updateQueryData`.
    */
-  updateCachedData(updateRecipe: Recipe<QueryResultType>): PatchCollection
+  updateCachedData(updateRecipe: Recipe<ResultType>): PatchCollection
 }
 
 export type MutationBaseLifecycleApi<
   QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  QueryResultType,
+  ResultType,
   ReducerPath extends string = string,
 > = LifecycleApi<ReducerPath> & {
   /**
@@ -64,7 +64,7 @@ export type MutationBaseLifecycleApi<
     { type: DefinitionType.mutation } & BaseEndpointDefinition<
       QueryArgumentType,
       BaseQuery,
-      QueryResultType,
+      ResultType,
       BaseQueryResult<BaseQuery>
     >
   >
@@ -89,7 +89,7 @@ type LifecycleApi<ReducerPath extends string = string> = {
   requestId: string
 }
 
-type CacheLifecyclePromises<QueryResultType = unknown, MetaType = unknown> = {
+type CacheLifecyclePromises<ResultType = unknown, MetaType = unknown> = {
   /**
    * Promise that will resolve with the first value for this cache key.
    * This allows you to `await` until an actual value is in cache.
@@ -108,7 +108,7 @@ type CacheLifecyclePromises<QueryResultType = unknown, MetaType = unknown> = {
       /**
        * The (transformed) query result.
        */
-      data: QueryResultType
+      data: ResultType
       /**
        * The `meta` returned by the `baseQuery`
        */
@@ -127,31 +127,31 @@ type CacheLifecyclePromises<QueryResultType = unknown, MetaType = unknown> = {
 export interface QueryCacheLifecycleApi<
   QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  QueryResultType,
+  ResultType,
   ReducerPath extends string = string,
 > extends QueryBaseLifecycleApi<
       QueryArgumentType,
       BaseQuery,
-      QueryResultType,
+      ResultType,
       ReducerPath
     >,
-    CacheLifecyclePromises<QueryResultType, BaseQueryMeta<BaseQuery>> {}
+    CacheLifecyclePromises<ResultType, BaseQueryMeta<BaseQuery>> {}
 
 export type MutationCacheLifecycleApi<
   QueryArgumentType,
   BaseQuery extends BaseQueryFn,
-  QueryResultType,
+  ResultType,
   ReducerPath extends string = string,
 > = MutationBaseLifecycleApi<
   QueryArgumentType,
   BaseQuery,
-  QueryResultType,
+  ResultType,
   ReducerPath
 > &
-  CacheLifecyclePromises<QueryResultType, BaseQueryMeta<BaseQuery>>
+  CacheLifecyclePromises<ResultType, BaseQueryMeta<BaseQuery>>
 
 export type CacheLifecycleQueryExtraOptions<
-  QueryResultType,
+  ResultType,
   QueryArgumentType,
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
@@ -161,26 +161,26 @@ export type CacheLifecycleQueryExtraOptions<
     api: QueryCacheLifecycleApi<
       QueryArgumentType,
       BaseQuery,
-      QueryResultType,
+      ResultType,
       ReducerPath
     >,
   ): Promise<void> | void
 }
 
 export type CacheLifecycleInfiniteQueryExtraOptions<
-  QueryResultType,
+  ResultType,
   QueryArgumentType,
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
 > = CacheLifecycleQueryExtraOptions<
-  QueryResultType,
+  ResultType,
   QueryArgumentType,
   BaseQuery,
   ReducerPath
 >
 
 export type CacheLifecycleMutationExtraOptions<
-  QueryResultType,
+  ResultType,
   QueryArgumentType,
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
@@ -190,7 +190,7 @@ export type CacheLifecycleMutationExtraOptions<
     api: MutationCacheLifecycleApi<
       QueryArgumentType,
       BaseQuery,
-      QueryResultType,
+      ResultType,
       ReducerPath
     >,
   ): Promise<void> | void
