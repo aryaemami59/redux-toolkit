@@ -103,8 +103,8 @@ type ExtractDispatchFromMiddlewareTuple<
   : Acc
 
 export type ExtractDispatchExtensions<M> =
-  M extends Tuple<infer MiddlewareTuple>
-    ? ExtractDispatchFromMiddlewareTuple<MiddlewareTuple, {}>
+  M extends Tuple<infer InferredMiddlewareTupleType>
+    ? ExtractDispatchFromMiddlewareTuple<InferredMiddlewareTupleType, {}>
     : M extends ReadonlyArray<Middleware>
       ? ExtractDispatchFromMiddlewareTuple<[...M], {}>
       : never
@@ -120,8 +120,8 @@ type ExtractStoreExtensionsFromEnhancerTuple<
   : Acc
 
 export type ExtractStoreExtensions<E> =
-  E extends Tuple<infer EnhancerTuple>
-    ? ExtractStoreExtensionsFromEnhancerTuple<EnhancerTuple, {}>
+  E extends Tuple<infer InferredEnhancerTupleType>
+    ? ExtractStoreExtensionsFromEnhancerTuple<InferredEnhancerTupleType, {}>
     : E extends ReadonlyArray<StoreEnhancer>
       ? UnionToIntersection<
           E[number] extends StoreEnhancer<infer Ext>
@@ -146,8 +146,8 @@ type ExtractStateExtensionsFromEnhancerTuple<
   : Acc
 
 export type ExtractStateExtensions<E> =
-  E extends Tuple<infer EnhancerTuple>
-    ? ExtractStateExtensionsFromEnhancerTuple<EnhancerTuple, {}>
+  E extends Tuple<infer InferredEnhancerTupleType>
+    ? ExtractStateExtensionsFromEnhancerTuple<InferredEnhancerTupleType, {}>
     : E extends ReadonlyArray<StoreEnhancer>
       ? UnionToIntersection<
           E[number] extends StoreEnhancer<any, infer StateExt>
@@ -169,11 +169,17 @@ export type NoInfer<T> = [T][T extends any ? 0 : never]
 
 export type NonUndefined<T> = T extends undefined ? never : T
 
-export type WithRequiredProp<T, K extends keyof T> = Omit<T, K> &
-  Required<Pick<T, K>>
+export type WithRequiredProp<T, RequiredKeys extends keyof T> = Omit<
+  T,
+  RequiredKeys
+> &
+  Required<Pick<T, RequiredKeys>>
 
-export type WithOptionalProp<T, K extends keyof T> = Omit<T, K> &
-  Partial<Pick<T, K>>
+export type WithOptionalProp<T, OptionalKeys extends keyof T> = Omit<
+  T,
+  OptionalKeys
+> &
+  Partial<Pick<T, OptionalKeys>>
 
 export interface TypeGuard<T> {
   (value: any): value is T
@@ -194,7 +200,9 @@ export type Matcher<T> = HasMatchFunction<T> | TypeGuard<T>
 
 /** @public */
 export type ActionFromMatcher<M extends Matcher<any>> =
-  M extends Matcher<infer T> ? T : never
+  M extends Matcher<infer InferredMatchedActionType>
+    ? InferredMatchedActionType
+    : never
 
 export type Id<T> = { [Key in keyof T]: T[Key] } & {}
 
