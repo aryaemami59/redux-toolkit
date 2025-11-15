@@ -427,53 +427,57 @@ export interface ApiModules<
 }
 
 export interface ApiEndpointQuery<
-  Definition extends QueryDefinition<any, any, any, any, any>,
+  QueryDefinitionType extends QueryDefinition<any, any, any, any, any>,
   DefinitionsType extends EndpointDefinitions,
 >
   extends
-    BuildThunksApiEndpointQuery<Definition>,
-    BuildInitiateApiEndpointQuery<Definition>,
-    BuildSelectorsApiEndpointQuery<Definition, DefinitionsType> {
+    BuildThunksApiEndpointQuery<QueryDefinitionType>,
+    BuildInitiateApiEndpointQuery<QueryDefinitionType>,
+    BuildSelectorsApiEndpointQuery<QueryDefinitionType, DefinitionsType> {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
-  Types: NonNullable<Definition['Types']>
+  Types: NonNullable<QueryDefinitionType['Types']>
 }
 
 export interface ApiEndpointInfiniteQuery<
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
+    any,
+    any,
+    any,
+    any,
+    any
+  >,
   DefinitionsType extends EndpointDefinitions,
 >
   extends
-    BuildThunksApiEndpointInfiniteQuery<Definition>,
-    BuildInitiateApiEndpointInfiniteQuery<Definition>,
-    BuildSelectorsApiEndpointInfiniteQuery<Definition, DefinitionsType> {
+    BuildThunksApiEndpointInfiniteQuery<InfiniteQueryDefinitionType>,
+    BuildInitiateApiEndpointInfiniteQuery<InfiniteQueryDefinitionType>,
+    BuildSelectorsApiEndpointInfiniteQuery<
+      InfiniteQueryDefinitionType,
+      DefinitionsType
+    > {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
-  Types: NonNullable<Definition['Types']>
+  Types: NonNullable<InfiniteQueryDefinitionType['Types']>
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface ApiEndpointMutation<
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  Definition extends MutationDefinition<any, any, any, any, any>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  MutationDefinitionType extends MutationDefinition<any, any, any, any, any>,
   DefinitionsType extends EndpointDefinitions,
 >
   extends
-    BuildThunksApiEndpointMutation<Definition>,
-    BuildInitiateApiEndpointMutation<Definition>,
-    BuildSelectorsApiEndpointMutation<Definition, DefinitionsType> {
+    BuildThunksApiEndpointMutation<MutationDefinitionType>,
+    BuildInitiateApiEndpointMutation<MutationDefinitionType>,
+    BuildSelectorsApiEndpointMutation<MutationDefinitionType, DefinitionsType> {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
-  Types: NonNullable<Definition['Types']>
+  Types: NonNullable<MutationDefinitionType['Types']>
 }
 
 export type ListenerActions = {
