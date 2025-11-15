@@ -184,11 +184,11 @@ export type MutationActionCreatorResult<
             BaseQueryError<
               D extends MutationDefinition<
                 any,
-                infer BaseQueryFunctionType,
+                infer InferredBaseQueryFunctionType,
                 any,
                 any
               >
-                ? BaseQueryFunctionType
+                ? InferredBaseQueryFunctionType
                 : never
             >,
             undefined
