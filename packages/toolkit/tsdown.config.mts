@@ -473,12 +473,7 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/react/index': 'src/query/react/index.ts',
       },
-      external: [
-        ...sharedDTSConfig.external,
-        packageJson.name,
-        `${packageJson.name}/react`,
-        `${packageJson.name}/query`,
-      ],
+      external: [`${packageJson.name}/react`, `${packageJson.name}/query`],
     },
   ] as const satisfies UserConfig[]
 })
