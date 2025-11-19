@@ -20,8 +20,14 @@ import { buildPollingHandler } from './polling'
 import { buildQueryLifecycleHandler } from './queryLifecycle'
 import type { BuildMiddlewareInput, InternalHandlerBuilder } from './types'
 import { buildWindowEventHandler } from './windowEventHandling'
-export type { ReferenceCacheCollection } from './cacheCollection'
 export type {
+  CacheCollectionQueryExtraOptions,
+  ReferenceCacheCollection,
+} from './cacheCollection'
+export type {
+  CacheLifecycleInfiniteQueryExtraOptions,
+  CacheLifecycleMutationExtraOptions,
+  CacheLifecycleQueryExtraOptions,
   MutationCacheLifecycleApi,
   QueryCacheLifecycleApi,
   ReferenceCacheLifecycle,
@@ -29,11 +35,14 @@ export type {
 export type {
   MutationLifecycleApi,
   QueryLifecycleApi,
+  QueryLifecycleInfiniteQueryExtraOptions,
+  QueryLifecycleMutationExtraOptions,
+  QueryLifecycleQueryExtraOptions,
   ReferenceQueryLifecycle,
   TypedMutationOnQueryStarted,
   TypedQueryOnQueryStarted,
 } from './queryLifecycle'
-export type { SubscriptionSelectors } from './types'
+export type { InternalMiddlewareState, SubscriptionSelectors } from './types'
 
 export function buildMiddleware<
   DefinitionsType extends EndpointDefinitions,

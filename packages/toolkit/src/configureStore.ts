@@ -1,36 +1,35 @@
-import type {
-  Reducer,
-  ReducersMapObject,
-  Middleware,
-  Action,
-  StoreEnhancer,
-  Store,
-  UnknownAction,
-} from 'redux'
-import {
-  applyMiddleware,
-  createStore,
-  compose,
-  combineReducers,
-  isPlainObject,
-} from './reduxImports'
 import type { DevToolsEnhancerOptions as DevToolsOptions } from './devtoolsExtension'
 import { composeWithDevTools } from './devtoolsExtension'
-
+import type { GetDefaultEnhancers } from './getDefaultEnhancers'
+import { buildGetDefaultEnhancers } from './getDefaultEnhancers'
 import type {
-  ThunkMiddlewareFor,
   GetDefaultMiddleware,
+  ThunkMiddlewareFor,
 } from './getDefaultMiddleware'
 import { buildGetDefaultMiddleware } from './getDefaultMiddleware'
 import type {
+  Action,
+  Middleware,
+  Reducer,
+  ReducersMapObject,
+  Store,
+  StoreEnhancer,
+  UnknownAction,
+} from './reduxImports'
+import {
+  applyMiddleware,
+  combineReducers,
+  compose,
+  createStore,
+  isPlainObject,
+} from './reduxImports'
+import type {
   ExtractDispatchExtensions,
-  ExtractStoreExtensions,
   ExtractStateExtensions,
+  ExtractStoreExtensions,
   UnknownIfNonSpecific,
 } from './tsHelpers'
 import type { Tuple } from './utils'
-import type { GetDefaultEnhancers } from './getDefaultEnhancers'
-import { buildGetDefaultEnhancers } from './getDefaultEnhancers'
 
 /**
  * Options for `configureStore()`.
