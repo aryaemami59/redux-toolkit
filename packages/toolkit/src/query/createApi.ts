@@ -463,7 +463,7 @@ export function buildCreateApi<Modules extends [Module<any>, ...Module<any>[]]>(
             )
           } else if (
             typeof process !== 'undefined' &&
-            process.env.NODE_ENV === 'development'
+            process.env.NODE_ENV !== 'production'
           ) {
             console.error(
               `called \`injectEndpoints\` to override already-existing endpointName ${endpointName} without specifying \`overrideExisting: true\``,
@@ -475,7 +475,7 @@ export function buildCreateApi<Modules extends [Module<any>, ...Module<any>[]]>(
 
         if (
           typeof process !== 'undefined' &&
-          process.env.NODE_ENV === 'development'
+          process.env.NODE_ENV !== 'production'
         ) {
           if (isInfiniteQueryDefinition(definition)) {
             const { infiniteQueryOptions } = definition

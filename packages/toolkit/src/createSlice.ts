@@ -1,4 +1,3 @@
-import type { Action, Reducer, UnknownAction } from 'redux'
 import type { InjectConfig } from './combineSlices'
 import type {
   ActionCreatorWithoutPayload,
@@ -28,6 +27,7 @@ import type {
   TypedActionCreator,
 } from './mapBuilders'
 import { executeReducerBuilderCallback } from './mapBuilders'
+import type { Action, Reducer, UnknownAction } from './reduxImports'
 import type { Selector } from './reselectImports'
 import type { Id, TypeGuard } from './tsHelpers'
 import { getOrInsertComputed } from './utils'
@@ -618,7 +618,7 @@ export function buildCreateSlice({ creators }: BuildCreateSliceConfig = {}) {
 
     if (
       typeof process !== 'undefined' &&
-      process.env.NODE_ENV === 'development'
+      process.env.NODE_ENV !== 'production'
     ) {
       if (options.initialState === undefined) {
         console.error(

@@ -1,10 +1,10 @@
+import { nanoid } from './nanoid'
 import type {
   PreloadedStateShapeFromReducersMapObject,
   Reducer,
   StateFromReducersMapObject,
   UnknownAction,
-} from 'redux'
-import { nanoid } from './nanoid'
+} from './reduxImports'
 import { combineReducers } from './reduxImports'
 import type {
   Id,
@@ -457,7 +457,7 @@ export function combineSlices<Slices extends Array<AnySliceLike | ReducerMap>>(
     ) {
       if (
         typeof process !== 'undefined' &&
-        process.env.NODE_ENV === 'development'
+        process.env.NODE_ENV !== 'production'
       ) {
         console.error(
           `called \`inject\` to override already-existing reducer ${reducerPath} without specifying \`overrideExisting: true\``,

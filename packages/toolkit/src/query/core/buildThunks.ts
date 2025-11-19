@@ -624,7 +624,7 @@ export function buildThunks<
 
         if (
           typeof process !== 'undefined' &&
-          process.env.NODE_ENV === 'development'
+          process.env.NODE_ENV !== 'production'
         ) {
           const what = endpointDefinition.query ? '`baseQuery`' : '`queryFn`'
           let err: undefined | string
@@ -809,7 +809,7 @@ export function buildThunks<
     } catch (error) {
       let caughtError = error
       if (caughtError instanceof HandledError) {
-        let transformErrorResponse = getTransformCallbackForEndpoint(
+        const transformErrorResponse = getTransformCallbackForEndpoint(
           endpointDefinition,
           'transformErrorResponse',
         )
@@ -948,8 +948,7 @@ In the case of an unhandled error, no tags will be "provided" or "invalidated".`
         const previousArg = requestState?.originalArgs
         const endpointDefinition =
           endpointDefinitions[queryThunkArg.endpointName]
-        const direction = (queryThunkArg as InfiniteQueryThunkArg<any>)
-          .direction
+        const { direction } = queryThunkArg as InfiniteQueryThunkArg<any>
 
         // Order of these checks matters.
         // In order for `upsertQueryData` to successfully run while an existing request is in flight,

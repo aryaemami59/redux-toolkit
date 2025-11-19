@@ -1,4 +1,4 @@
-import type { QueryCacheKey } from './core/apiState'
+import type { QueryCacheKey } from './core/index'
 import { isPlainObject } from './core/rtkImports'
 import type { EndpointDefinition } from './endpointDefinitions'
 

@@ -1,6 +1,6 @@
 import type { FullTagDescription } from '../../endpointDefinitions'
 import { calculateProvidedBy } from '../../endpointDefinitions'
-import { createNewMap, getOrInsertComputed } from '../../utils/getOrInsert'
+import { createNewMap, getOrInsertComputed } from '../../utils/index'
 import type { QueryCacheKey } from '../apiState'
 import { STATUS_UNINITIALIZED } from '../apiState'
 import { calculateProvidedByThunk } from '../buildThunks'
