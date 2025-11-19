@@ -1,6 +1,5 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { Patch } from 'immer'
-import { applyPatches, isDraft, original } from 'immer'
 import type { ApiContext } from '../apiTypes'
 import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
 import type {
@@ -14,9 +13,10 @@ import {
   isInfiniteQueryDefinition,
 } from '../endpointDefinitions'
 import type { UnwrapPromise } from '../tsHelpers'
-import { getCurrent } from '../utils/getCurrent'
+import { applyPatches, isDraft, original } from '../utils/immerImports'
 import {
   copyWithStructuralSharing,
+  getCurrent,
   isDocumentVisible,
   isOnline,
 } from '../utils/index'

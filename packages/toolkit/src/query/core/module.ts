@@ -48,12 +48,12 @@ import type {
 } from './buildInitiate'
 import { buildInitiate } from './buildInitiate'
 import type {
+  InternalMiddlewareState,
   ReferenceCacheCollection,
   ReferenceCacheLifecycle,
   ReferenceQueryLifecycle,
-} from './buildMiddleware'
-import { buildMiddleware } from './buildMiddleware'
-import type { InternalMiddlewareState } from './buildMiddleware/types'
+} from './buildMiddleware/index'
+import { buildMiddleware } from './buildMiddleware/index'
 import type {
   BuildSelectorsApiEndpointInfiniteQuery,
   BuildSelectorsApiEndpointMutation,
