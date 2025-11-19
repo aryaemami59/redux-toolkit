@@ -62,6 +62,56 @@ export function createSortedStateAdapter<T, EntityIdType extends EntityId>(
     return addManyMutably([entity], state)
   }
 
+  const mergeFunction: MergeFunction = (
+    state,
+    addedItems,
+    appliedUpdates,
+    replacedIds,
+  ) => {
+    const currentEntities = getCurrent(state.entities)
+    const currentIds = getCurrent(state.ids)
+
+    const stateEntities = state.entities as Record<EntityIdType, T>
+
+    let ids: Iterable<EntityIdType> = currentIds
+    if (replacedIds) {
+      ids = new Set(currentIds)
+    }
+
+    let sortedEntities: T[] = []
+    for (const id of ids) {
+      const entity = currentEntities[id]
+      if (entity) {
+        sortedEntities.push(entity)
+      }
+    }
+    const wasPreviouslyEmpty = sortedEntities.length === 0
+
+    // Insert/overwrite all new/updated
+    for (const item of addedItems) {
+      stateEntities[selectId(item)] = item
+
+      if (!wasPreviouslyEmpty) {
+        // Binary search insertion generally requires fewer comparisons
+        insert(sortedEntities, item, comparer)
+      }
+    }
+
+    if (wasPreviouslyEmpty) {
+      // All we have is the incoming values, sort them
+      sortedEntities = addedItems.slice().sort(comparer)
+    } else if (appliedUpdates) {
+      // We should have a _mostly_-sorted array already
+      sortedEntities.sort(comparer)
+    }
+
+    const newSortedIds = sortedEntities.map(selectId)
+
+    if (!areArraysEqual(currentIds, newSortedIds)) {
+      state.ids = newSortedIds
+    }
+  }
+
   function addManyMutably(
     newEntities: readonly T[] | Record<EntityIdType, T>,
     state: R,
@@ -199,56 +249,6 @@ export function createSortedStateAdapter<T, EntityIdType extends EntityId>(
     appliedUpdates?: boolean,
     replacedIds?: boolean,
   ) => void
-
-  const mergeFunction: MergeFunction = (
-    state,
-    addedItems,
-    appliedUpdates,
-    replacedIds,
-  ) => {
-    const currentEntities = getCurrent(state.entities)
-    const currentIds = getCurrent(state.ids)
-
-    const stateEntities = state.entities as Record<EntityIdType, T>
-
-    let ids: Iterable<EntityIdType> = currentIds
-    if (replacedIds) {
-      ids = new Set(currentIds)
-    }
-
-    let sortedEntities: T[] = []
-    for (const id of ids) {
-      const entity = currentEntities[id]
-      if (entity) {
-        sortedEntities.push(entity)
-      }
-    }
-    const wasPreviouslyEmpty = sortedEntities.length === 0
-
-    // Insert/overwrite all new/updated
-    for (const item of addedItems) {
-      stateEntities[selectId(item)] = item
-
-      if (!wasPreviouslyEmpty) {
-        // Binary search insertion generally requires fewer comparisons
-        insert(sortedEntities, item, comparer)
-      }
-    }
-
-    if (wasPreviouslyEmpty) {
-      // All we have is the incoming values, sort them
-      sortedEntities = addedItems.slice().sort(comparer)
-    } else if (appliedUpdates) {
-      // We should have a _mostly_-sorted array already
-      sortedEntities.sort(comparer)
-    }
-
-    const newSortedIds = sortedEntities.map(selectId)
-
-    if (!areArraysEqual(currentIds, newSortedIds)) {
-      state.ids = newSortedIds
-    }
-  }
 
   return {
     removeOne,

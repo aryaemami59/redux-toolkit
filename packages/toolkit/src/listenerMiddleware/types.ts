@@ -1,12 +1,12 @@
+import type { BaseActionCreator, PayloadAction } from '../createAction'
+import type { TypedActionCreator } from '../mapBuilders'
 import type {
   Action,
   Dispatch,
   Middleware,
   MiddlewareAPI,
   UnknownAction,
-} from 'redux'
-import type { BaseActionCreator, PayloadAction } from '../createAction'
-import type { TypedActionCreator } from '../mapBuilders'
+} from '../reduxImports'
 import type { ThunkDispatch } from '../reduxThunkImports'
 import type { TaskAbortError } from './exceptions'
 
@@ -324,11 +324,8 @@ export type ListenerMiddleware<
 /** @public */
 export interface ListenerMiddlewareInstance<
   StateType = unknown,
-  DispatchType extends ThunkDispatch<
-    StateType,
-    unknown,
-    Action
-  > = ThunkDispatch<StateType, unknown, UnknownAction>,
+  DispatchType extends ThunkDispatch<StateType, unknown, Action> =
+    ThunkDispatch<StateType, unknown, UnknownAction>,
   ExtraArgument = unknown,
 > {
   middleware: ListenerMiddleware<StateType, DispatchType, ExtraArgument>

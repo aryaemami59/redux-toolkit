@@ -13,7 +13,7 @@ import type {
   TagTypesFrom,
 } from '../endpointDefinitions'
 import { expandTagDescription } from '../endpointDefinitions'
-import { filterMap, isNotNullish } from '../utils'
+import { filterMap, isNotNullish } from '../utils/index'
 import type {
   InfiniteData,
   InfiniteQueryConfigOptions,

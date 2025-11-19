@@ -1,4 +1,4 @@
-import type { Middleware, StoreEnhancer } from 'redux'
+import type { Middleware, StoreEnhancer } from './reduxImports'
 import type { Tuple } from './utils'
 
 export function safeAssign<T extends object>(

@@ -151,11 +151,14 @@ export default defineConfig((cliOptions) => {
     outExtensions: () => ({ js: '.development.cjs' }),
     outputOptions(options, format, context) {
       return {
+        ...options,
         topLevelVar: false,
+        legalComments: 'none',
       }
     },
     inputOptions(options, format, context) {
       return {
+        ...options,
         experimental: {
           strictExecutionOrder: true,
         },
@@ -173,11 +176,13 @@ export default defineConfig((cliOptions) => {
     outExtensions: () => ({ js: '.production.min.cjs' }),
     outputOptions(options, format, context) {
       return {
+        ...options,
         topLevelVar: false,
       }
     },
     inputOptions(options, format, context) {
       return {
+        ...options,
         experimental: {
           strictExecutionOrder: true,
         },

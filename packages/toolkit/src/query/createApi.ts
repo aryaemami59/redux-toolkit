@@ -3,7 +3,7 @@ import { weakMapMemoize } from 'reselect'
 import type { Api, ApiContext, Module, ModuleName } from './apiTypes'
 import { getEndpointDefinition } from './apiTypes'
 import type { BaseQueryFn } from './baseQueryTypes'
-import type { CombinedState } from './core/apiState'
+import type { CombinedState } from './core/index'
 import { nanoid } from './core/rtkImports'
 import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import { defaultSerializeQueryArgs } from './defaultSerializeQueryArgs'
@@ -21,7 +21,6 @@ import {
   isInfiniteQueryDefinition,
 } from './endpointDefinitions'
 import type { NoInfer } from './tsHelpers'
-
 export interface CreateApiOptions<
   BaseQuery extends BaseQueryFn,
   Definitions extends EndpointDefinitions,

@@ -1,8 +1,8 @@
-import type { InternalHandlerBuilder, SubscriptionSelectors } from './types'
-import type { SubscriptionInternalState, SubscriptionState } from '../apiState'
-import { produceWithPatches } from '../../utils/immerImports'
 import type { Action } from '@reduxjs/toolkit'
-import { getOrInsertComputed, createNewMap } from '../../utils/getOrInsert'
+import { produceWithPatches } from '../../utils/immerImports'
+import { createNewMap, getOrInsertComputed } from '../../utils/index'
+import type { SubscriptionInternalState, SubscriptionState } from '../apiState'
+import type { InternalHandlerBuilder, SubscriptionSelectors } from './types'
 
 export const buildBatchedActionsHandler: InternalHandlerBuilder<
   [actionShouldContinue: boolean, returnValue: SubscriptionSelectors | boolean]

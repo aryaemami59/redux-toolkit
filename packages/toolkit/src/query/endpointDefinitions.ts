@@ -1,5 +1,6 @@
-import type { Api } from '@reduxjs/toolkit/query'
 import type { StandardSchemaV1 } from '@standard-schema/spec'
+// import type { Api } from '@reduxjs/toolkit/query'
+import type { Api } from './apiTypes'
 import type {
   BaseQueryApi,
   BaseQueryArg,
@@ -10,20 +11,16 @@ import type {
   BaseQueryResult,
   QueryReturnValue,
 } from './baseQueryTypes'
-import type { CacheCollectionQueryExtraOptions } from './core/buildMiddleware/cacheCollection'
 import type {
+  CacheCollectionQueryExtraOptions,
   CacheLifecycleInfiniteQueryExtraOptions,
   CacheLifecycleMutationExtraOptions,
   CacheLifecycleQueryExtraOptions,
-} from './core/buildMiddleware/cacheLifecycle'
-import type {
+  InfiniteData,
+  InfiniteQueryConfigOptions,
   QueryLifecycleInfiniteQueryExtraOptions,
   QueryLifecycleMutationExtraOptions,
   QueryLifecycleQueryExtraOptions,
-} from './core/buildMiddleware/queryLifecycle'
-import type {
-  InfiniteData,
-  InfiniteQueryConfigOptions,
   QuerySubState,
   RootState,
 } from './core/index'
@@ -38,8 +35,7 @@ import type {
   OmitFromUnion,
   UnwrapPromise,
 } from './tsHelpers'
-import { isNotNullish } from './utils'
-import { filterMap } from './utils/filterMap'
+import { filterMap, isNotNullish } from './utils/index'
 
 const rawResultType = /* @__PURE__ */ Symbol()
 const resultType = /* @__PURE__ */ Symbol()

@@ -1,4 +1,3 @@
-import type { Action, Reducer, UnknownAction } from 'redux'
 import type { InjectConfig } from './combineSlices'
 import type {
   ActionCreatorWithoutPayload,
@@ -28,6 +27,7 @@ import type {
   TypedActionCreator,
 } from './mapBuilders'
 import { executeReducerBuilderCallback } from './mapBuilders'
+import type { Action, Reducer, UnknownAction } from './reduxImports'
 import type { Selector } from './reselectImports'
 import type { Id, TypeGuard } from './tsHelpers'
 import { getOrInsertComputed } from './utils'
