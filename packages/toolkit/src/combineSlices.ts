@@ -457,7 +457,7 @@ export function combineSlices<Slices extends Array<AnySliceLike | ReducerMap>>(
     ) {
       if (
         typeof process !== 'undefined' &&
-        process.env.NODE_ENV === 'development'
+        process.env.NODE_ENV !== 'production'
       ) {
         console.error(
           `called \`inject\` to override already-existing reducer ${reducerPath} without specifying \`overrideExisting: true\``,
