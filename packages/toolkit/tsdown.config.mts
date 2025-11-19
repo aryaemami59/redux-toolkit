@@ -68,28 +68,29 @@ export default defineConfig((cliOptions) => {
     cwd: import.meta.dirname,
     debug: {},
     dts: false,
-    outDir: 'dist',
-    fixedExtension: false,
     external: peerAndProductionDependencies,
     failOnWarn: true,
-    format: ['esm', 'cjs'],
+    fixedExtension: false,
+    format: ['es', 'cjs'],
     hash: false,
+    inlineOnly: [],
     nodeProtocol: true,
-    inputOptions(options, format, context) {
-      return {
-        ...options,
-        // experimental: { attachDebugInfo: 'none' },
-        ...(format === 'es'
-          ? {
-              transform: {
-                inject: {
-                  React: ['react', '*'] as const,
-                },
+    outDir: 'dist',
+    inputOptions: (options, format, context) => ({
+      ...options,
+      // experimental: { attachDebugInfo: 'none' },
+      ...(format === 'es'
+        ? {
+            transform: {
+              ...options.transform,
+              inject: {
+                ...options.transform?.inject,
+                React: ['react', '*'] as const,
               },
-            }
-          : {}),
-      }
-    },
+            },
+          }
+        : {}),
+    }),
     plugins: [mangleErrorsTransform],
     sourcemap: true,
     target: ['esnext'],
@@ -138,7 +139,7 @@ export default defineConfig((cliOptions) => {
 
   const modernEsmConfig = {
     ...commonOptions,
-    format: ['esm'],
+    format: ['es'],
     outExtensions: () => ({ js: '.modern.mjs' }),
   } as const satisfies InlineConfig
 
@@ -149,21 +150,18 @@ export default defineConfig((cliOptions) => {
     },
     format: ['cjs'],
     outExtensions: () => ({ js: '.development.cjs' }),
-    outputOptions(options, format, context) {
-      return {
-        ...options,
-        topLevelVar: false,
-        legalComments: 'none',
-      }
-    },
-    inputOptions(options, format, context) {
-      return {
-        ...options,
-        experimental: {
-          strictExecutionOrder: true,
-        },
-      }
-    },
+    outputOptions: (options, format, context) => ({
+      ...options,
+      topLevelVar: false,
+      legalComments: 'none',
+    }),
+    inputOptions: (options, format, context) => ({
+      ...options,
+      experimental: {
+        ...options.experimental,
+        strictExecutionOrder: true,
+      },
+    }),
   } as const satisfies InlineConfig
 
   const productionCjsConfig = {
@@ -174,20 +172,17 @@ export default defineConfig((cliOptions) => {
     format: ['cjs'],
     minify: true,
     outExtensions: () => ({ js: '.production.min.cjs' }),
-    outputOptions(options, format, context) {
-      return {
-        ...options,
-        topLevelVar: false,
-      }
-    },
-    inputOptions(options, format, context) {
-      return {
-        ...options,
-        experimental: {
-          strictExecutionOrder: true,
-        },
-      }
-    },
+    outputOptions: (options, format, context) => ({
+      ...options,
+      topLevelVar: false,
+    }),
+    inputOptions: (options, format, context) => ({
+      ...options,
+      experimental: {
+        ...options.experimental,
+        strictExecutionOrder: true,
+      },
+    }),
     onSuccess: async ({ outDir }) => {
       await writeCommonJSEntry(path.join(outDir, 'cjs'), 'redux-toolkit')
     },
@@ -201,7 +196,7 @@ export default defineConfig((cliOptions) => {
     define: {
       process: 'undefined',
     },
-    format: ['esm'],
+    format: ['es'],
     minify: true,
     platform: 'browser',
   } as const satisfies InlineConfig
