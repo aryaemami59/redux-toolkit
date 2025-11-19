@@ -7,30 +7,30 @@ import type {
 } from '@reduxjs/toolkit'
 import type { Dispatch } from 'redux'
 import { asSafePromise } from '../../tsHelpers'
-import { getEndpointDefinition, type Api, type ApiContext } from '../apiTypes'
+import type { Api, ApiContext } from '../apiTypes'
+import { getEndpointDefinition } from '../apiTypes'
 import type { BaseQueryError, QueryReturnValue } from '../baseQueryTypes'
 import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
-import {
-  ENDPOINT_QUERY,
-  isQueryDefinition,
-  type EndpointDefinition,
-  type EndpointDefinitions,
-  type InfiniteQueryArgFrom,
-  type InfiniteQueryDefinition,
-  type MutationDefinition,
-  type PageParamFrom,
-  type QueryArgFrom,
-  type QueryDefinition,
-  type ResultTypeFrom,
+import type {
+  EndpointDefinition,
+  EndpointDefinitions,
+  InfiniteQueryArgFrom,
+  InfiniteQueryDefinition,
+  MutationDefinition,
+  PageParamFrom,
+  QueryArgFrom,
+  QueryDefinition,
+  ResultTypeFrom,
 } from '../endpointDefinitions'
-import { filterNullishValues } from '../utils'
+import { ENDPOINT_QUERY, isQueryDefinition } from '../endpointDefinitions'
+import { filterNullishValues } from '../utils/index'
 import type {
   InfiniteData,
   InfiniteQueryConfigOptions,
   InfiniteQueryDirection,
   SubscriptionOptions,
 } from './apiState'
-import type { InternalMiddlewareState } from './buildMiddleware/types'
+import type { InternalMiddlewareState } from './buildMiddleware/index'
 import type {
   InfiniteQueryResultSelectorResult,
   QueryResultSelectorResult,
