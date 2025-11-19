@@ -1,4 +1,4 @@
-import type { Middleware } from 'redux'
+import type { Middleware } from './reduxImports'
 import { isAction, isPlainObject } from './reduxImports'
 import { getTimeMeasureUtils } from './utils'
 
