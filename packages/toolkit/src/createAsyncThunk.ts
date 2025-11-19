@@ -725,7 +725,7 @@ export const createAsyncThunk = /* @__PURE__ */ (() => {
           abort,
           requestId,
           arg,
-          unwrap() {
+          async unwrap() {
             return promise.then<any>(unwrapResult)
           },
         })
