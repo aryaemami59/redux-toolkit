@@ -1499,7 +1499,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
   const unsubscribePromiseRef = (ref: UnsubscribePromiseRef) =>
     ref.current?.unsubscribe?.()
 
-  const endpointDefinitions = context.endpointDefinitions
+  const { endpointDefinitions } = context
 
   return {
     buildQueryHooks,
@@ -1696,8 +1696,8 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
       skipPollingIfUnfocused,
     })
 
-    const initialPageParam = (rest as UseInfiniteQuerySubscriptionOptions<any>)
-      .initialPageParam
+    const { initialPageParam } =
+      rest as UseInfiniteQuerySubscriptionOptions<any>
     const stableInitialPageParam = useShallowStableValue(initialPageParam)
 
     const refetchCachedPages = (
@@ -1734,13 +1734,6 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
 
     usePossiblyImmediateEffect((): void | undefined => {
       const lastPromise = promiseRef.current
-      if (
-        typeof process !== 'undefined' &&
-        process.env.NODE_ENV === 'removeMeOnCompilation'
-      ) {
-        // this is only present to enforce the rule of hooks to keep `isSubscribed` in the dependency array
-        console.log(subscriptionRemoved)
-      }
 
       if (stableArg === skipToken) {
         lastPromise?.unsubscribe()
@@ -1817,7 +1810,6 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
           // @ts-ignore
           createSelector(
             [
-              // @ts-ignore
               select(stableArg),
               (_: ApiRootState, lastResult: any) => lastResult,
               (_: ApiRootState) => stableArg,

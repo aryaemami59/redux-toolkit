@@ -28,7 +28,7 @@ import {
   isMutationDefinition,
   isQueryDefinition,
 } from '../endpointDefinitions'
-import { assertCast, safeAssign } from '../tsHelpers'
+import { safeAssign } from '../tsHelpers'
 import { enablePatches } from '../utils/immerImports'
 import { getOrInsertComputed } from '../utils/index'
 import type {
@@ -529,12 +529,10 @@ export const coreModule = ({
   ) {
     enablePatches()
 
-    assertCast<InternalSerializeQueryArgs>(serializeQueryArgs)
-
     const assertTagType: AssertTagTypes = (tag) => {
       if (
         typeof process !== 'undefined' &&
-        process.env.NODE_ENV === 'development'
+        process.env.NODE_ENV !== 'production'
       ) {
         if (!tagTypes.includes(tag.type as any)) {
           console.error(
@@ -558,7 +556,7 @@ export const coreModule = ({
     })
 
     const selectors = buildSelectors({
-      serializeQueryArgs: serializeQueryArgs as any,
+      serializeQueryArgs: serializeQueryArgs as InternalSerializeQueryArgs,
       reducerPath,
       createSelector,
     })
@@ -587,7 +585,7 @@ export const coreModule = ({
       reducerPath,
       context,
       api,
-      serializeQueryArgs,
+      serializeQueryArgs: serializeQueryArgs as InternalSerializeQueryArgs,
       assertTagType,
       selectors,
       onSchemaFailure,
@@ -600,7 +598,7 @@ export const coreModule = ({
       queryThunk,
       infiniteQueryThunk,
       mutationThunk,
-      serializeQueryArgs,
+      serializeQueryArgs: serializeQueryArgs as InternalSerializeQueryArgs,
       reducerPath,
       assertTagType,
       config: {
