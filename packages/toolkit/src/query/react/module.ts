@@ -12,18 +12,12 @@ import type {
   QueryKeys,
 } from '@reduxjs/toolkit/query'
 import {
-  batch as rrBatch,
-  useDispatch as rrUseDispatch,
-  useSelector as rrUseSelector,
-  useStore as rrUseStore,
-} from 'react-redux'
-import {
   isInfiniteQueryDefinition,
   isMutationDefinition,
   isQueryDefinition,
 } from '../endpointDefinitions'
 import { safeAssign } from '../tsHelpers'
-import { capitalize, countObjectKeys } from '../utils'
+import { capitalize, countObjectKeys } from '../utils/index'
 import type {
   InfiniteQueryHooks,
   MutationHooks,
@@ -31,6 +25,12 @@ import type {
 } from './buildHooks'
 import { buildHooks } from './buildHooks'
 import type { HooksWithUniqueNames } from './namedHooks'
+import {
+  batch as rrBatch,
+  useDispatch as rrUseDispatch,
+  useSelector as rrUseSelector,
+  useStore as rrUseStore,
+} from './reactReduxImports'
 
 export const reactHooksModuleName = /* @__PURE__ */ Symbol()
 export type ReactHooksModule = typeof reactHooksModuleName
