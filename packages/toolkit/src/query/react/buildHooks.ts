@@ -38,15 +38,17 @@ import type {
   TSHelpersNoInfer,
   TSHelpersOverride,
 } from '@reduxjs/toolkit/query'
-import type { DependencyList } from 'react'
-import type { InfiniteQueryDirection } from '../core/apiState'
-import type { StartInfiniteQueryActionCreator } from '../core/buildInitiate'
-import type { SubscriptionSelectors } from '../core/buildMiddleware/index'
-import type { InfiniteData } from '../core/index'
+import type {
+  InfiniteData,
+  InfiniteQueryDirection,
+  StartInfiniteQueryActionCreator,
+  SubscriptionSelectors,
+} from '../core/index'
 import { isInfiniteQueryDefinition } from '../endpointDefinitions'
 import type { UninitializedValue } from './constants'
 import { UNINITIALIZED_VALUE } from './constants'
 import type { ReactHooksModuleOptions } from './module'
+import type { DependencyList } from './reactImports'
 import {
   useCallback,
   useDebugValue,
