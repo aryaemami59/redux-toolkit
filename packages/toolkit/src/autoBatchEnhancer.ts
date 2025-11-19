@@ -1,4 +1,4 @@
-import type { StoreEnhancer } from 'redux'
+import type { StoreEnhancer } from './reduxImports'
 
 export const SHOULD_AUTOBATCH = 'RTK_autoBatch'
 

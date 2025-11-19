@@ -1,12 +1,12 @@
+import type { BaseActionCreator, PayloadAction } from '../createAction'
+import type { TypedActionCreator } from '../mapBuilders'
 import type {
   Action,
   Dispatch,
   Middleware,
   MiddlewareAPI,
   UnknownAction,
-} from 'redux'
-import type { BaseActionCreator, PayloadAction } from '../createAction'
-import type { TypedActionCreator } from '../mapBuilders'
+} from '../reduxImports'
 import type { ThunkDispatch } from '../reduxThunkImports'
 import type { TaskAbortError } from './exceptions'
 
@@ -112,9 +112,9 @@ export interface ForkedTask<T> {
    * ```ts
    * const result = await fork(async (forkApi) => Promise.resolve(4)).result
    *
-   * if(result.status === 'ok') {
+   * if (result.status === 'ok') {
    *   console.log(result.value) // logs 4
-   * }}
+   * }
    * ```
    */
   result: Promise<TaskResult<T>>
