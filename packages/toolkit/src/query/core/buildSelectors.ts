@@ -13,7 +13,7 @@ import type {
   TagTypesFrom,
 } from '../endpointDefinitions'
 import { expandTagDescription } from '../endpointDefinitions'
-import { filterMap, isNotNullish } from '../utils'
+import { filterMap, isNotNullish } from '../utils/index'
 import type {
   InfiniteData,
   InfiniteQueryConfigOptions,
@@ -346,7 +346,7 @@ export function buildSelectors<
         continue
       }
 
-      let invalidateSubscriptions =
+      const invalidateSubscriptions =
         (tag.id !== undefined
           ? // id given: invalidate all queries that provide this type & id
             provided[tag.id]

@@ -1,6 +1,5 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { Patch } from 'immer'
-import { applyPatches, isDraft, original } from 'immer'
 import type { ApiContext } from '../apiTypes'
 import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
 import type {
@@ -14,9 +13,10 @@ import {
   isInfiniteQueryDefinition,
 } from '../endpointDefinitions'
 import type { UnwrapPromise } from '../tsHelpers'
-import { getCurrent } from '../utils/getCurrent'
+import { applyPatches, isDraft, original } from '../utils/immerImports'
 import {
   copyWithStructuralSharing,
+  getCurrent,
   isDocumentVisible,
   isOnline,
 } from '../utils/index'
@@ -249,15 +249,18 @@ export function buildSlice({
           // We're already inside an Immer-powered reducer, and the user could just mutate `substate.data`
           // themselves inside of `merge()`. But, they might also want to return a new value.
           // Try to let Immer figure that part out, save the result, and assign it to `substate.data`.
-          let newData = createNextState(substate.data, (draftSubstateData) => {
-            // As usual with Immer, you can mutate _or_ return inside here, but not both
-            return merge(draftSubstateData, payload, {
-              arg: arg.originalArgs,
-              baseQueryMeta,
-              fulfilledTimeStamp,
-              requestId,
-            })
-          })
+          const newData = createNextState(
+            substate.data,
+            (draftSubstateData) => {
+              // As usual with Immer, you can mutate _or_ return inside here, but not both
+              return merge(draftSubstateData, payload, {
+                arg: arg.originalArgs,
+                baseQueryMeta,
+                fulfilledTimeStamp,
+                requestId,
+              })
+            },
+          )
           substate.data = newData
         } else {
           // Presumably a fresh request. Just cache the response data.

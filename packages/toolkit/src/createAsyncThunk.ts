@@ -1,8 +1,8 @@
-import type { Dispatch, UnknownAction } from 'redux'
 import type { ActionCreatorWithPreparedPayload } from './createAction'
 import { createAction } from './createAction'
 import { isAnyOf } from './matchers'
 import { nanoid } from './nanoid'
+import type { Dispatch, UnknownAction } from './reduxImports'
 import type { ThunkDispatch } from './reduxThunkImports'
 import type {
   FallbackIfUnknown,
@@ -739,7 +739,7 @@ export const createAsyncThunk = /* @__PURE__ */ (() => {
           abort,
           requestId,
           arg,
-          unwrap() {
+          async unwrap() {
             return promise.then<any>(unwrapResult)
           },
         })
