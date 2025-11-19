@@ -46,7 +46,7 @@ export function findNonSerializableValue(
   if (!isSerializable(value)) {
     return {
       keyPath: path || '<root>',
-      value: value,
+      value,
     }
   }
 
