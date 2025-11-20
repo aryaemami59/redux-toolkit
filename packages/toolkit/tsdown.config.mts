@@ -82,6 +82,11 @@ const peerAndProductionDependencies = Object.keys({
 
 export default defineConfig((cliOptions) => {
   const commonOptions = {
+    /**
+     * @todo Comply with
+     * {@link https://rolldown.rs/options/output-clean-dir#multiple-configurations | this}
+     */
+    clean: false,
     cwd: import.meta.dirname,
     debug: {},
     dts: false,
@@ -162,19 +167,57 @@ export default defineConfig((cliOptions) => {
     env: {
       NODE_ENV: 'development',
     },
+    define: {
+      process: JSON.stringify('process'),
+    },
     format: ['cjs'],
     minify: 'dce-only',
     outExtensions: () => ({ js: '.development.cjs' }),
-    outputOptions: (options, format, context) => ({
+    plugins: [
+      {
+        name: 'de-duplicate-re-exports',
+        resolveId: {
+          filter: {
+            id: {
+              include: [/(redux|rtkq)Imports$/],
+              exclude: [/node_modules/],
+            },
+          },
+          async handler(source) {
+            return {
+              id: source.includes('reduxImports')
+                ? 'redux'
+                : source.includes('rtkqImports')
+                  ? `${packageJson.name}/query`
+                  : source,
+              external: false,
+              invalidate: true,
+              meta: {},
+              moduleSideEffects: false,
+              packageJsonPath: path.join(import.meta.dirname, 'package.json'),
+            }
+          },
+        },
+      },
+    ],
+    outputOptions: (options) => ({
       ...options,
-      topLevelVar: false,
       legalComments: 'none',
     }),
-    inputOptions: (options, format, context) => ({
+    inputOptions: (options) => ({
       ...options,
       experimental: {
         ...options.experimental,
-        strictExecutionOrder: true,
+        attachDebugInfo: 'none',
+        nativeMagicString: true,
+      },
+
+      transform: {
+        ...options.transform,
+        inject: {
+          ...options.transform?.inject,
+          React: ['react', '*'] as const,
+        },
       },
     }),
   } as const satisfies InlineConfig
@@ -187,15 +230,23 @@ export default defineConfig((cliOptions) => {
     format: ['cjs'],
     minify: true,
     outExtensions: () => ({ js: '.production.min.cjs' }),
-    outputOptions: (options, format, context) => ({
+    outputOptions: (options) => ({
       ...options,
-      topLevelVar: false,
     }),
-    inputOptions: (options, format, context) => ({
+    inputOptions: (options) => ({
       ...options,
       experimental: {
         ...options.experimental,
-        strictExecutionOrder: true,
+        attachDebugInfo: 'none',
+        nativeMagicString: true,
+      },
+
+      transform: {
+        ...options.transform,
+        inject: {
+          ...options.transform?.inject,
+          React: ['react', '*'] as const,
+        },
       },
     }),
     onSuccess: async ({ outDir }) => {
