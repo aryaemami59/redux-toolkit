@@ -152,8 +152,8 @@ const createTakePattern = <S>(
 
     const tuplePromise = new Promise<[Action, S, S]>((resolve, reject) => {
       // Inside the Promise, we synchronously add the listener.
-      let stopListening = startListening({
-        predicate: predicate as any,
+      const stopListening = startListening({
+        predicate,
         effect: (action, listenerApi): void => {
           // One-shot listener that cleans up as soon as the predicate passes
           listenerApi.unsubscribe()
@@ -204,9 +204,7 @@ const getListenerEntryPropsFrom = (options: FallbackAddListenerOptions) => {
     predicate = actionCreator.match
   } else if (matcher) {
     predicate = matcher
-  } else if (predicate) {
-    // pass
-  } else {
+  } else if (!predicate) {
     throw new Error(
       'Creating or removing a listener requires one of the known fields for matching an action',
     )
