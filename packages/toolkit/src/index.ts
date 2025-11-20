@@ -1,7 +1,3 @@
-// This must remain here so that the `mangleErrors.cjs` build script
-// does not have to import this into each source file it rewrites.
-import { formatProdErrorMessage } from './formatProdErrorMessage'
-
 export { freeze, original } from 'immer'
 export type { WritableDraft } from 'immer'
 export * from 'redux'
@@ -118,7 +114,6 @@ export type {
   IdSelector,
   Update,
 } from './entities/index'
-export { formatProdErrorMessage } from './formatProdErrorMessage'
 export { createNextState, current, isDraft } from './immerImports'
 export type { Draft } from './immerImports'
 export {
