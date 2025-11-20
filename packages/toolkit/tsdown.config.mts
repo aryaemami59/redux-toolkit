@@ -1,8 +1,7 @@
 import * as babel from '@babel/core'
-import type { Plugin } from 'esbuild'
-import { getBuildExtensions } from 'esbuild-extra'
-import fs from 'node:fs/promises'
-import path from 'node:path'
+import * as fs from 'node:fs/promises'
+import * as path from 'node:path'
+import type { Plugin } from 'rolldown'
 import type { InlineConfig, UserConfig } from 'tsdown'
 import { defineConfig } from 'tsdown'
 import packageJson from './package.json' with { type: 'json' }
@@ -23,39 +22,57 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Extract error strings, replace them with error codes, and write messages to a file
-const mangleErrorsTransform: Plugin = {
-  name: mangleErrorsPlugin.name,
-  setup(build) {
-    const { onTransform } = getBuildExtensions(build, mangleErrorsPlugin.name)
+const mangleErrorsTransform = (
+  mangleErrorsPluginOptions: MangleErrorsPluginOptions = {},
+): Plugin => {
+  const { minify = false } = mangleErrorsPluginOptions
 
-    onTransform({ loaders: ['ts', 'tsx'] }, async (args) => {
-      try {
-        const res = await babel.transformAsync(args.code, {
-          parserOpts: {
-            plugins: ['typescript', 'jsx'],
-          },
-          plugins: [
-            [
-              mangleErrorsPlugin,
-              { minify: false } satisfies MangleErrorsPluginOptions,
+  return {
+    name: mangleErrorsPlugin.name,
+    transform: {
+      filter: {
+        code: { include: ['throw new Error'] },
+        id: {
+          exclude: ['src/**/*.d.ts'],
+          include: ['src/**/*.ts', 'src/**/*.tsx'],
+        },
+        moduleType: { include: ['ts', 'tsx'] },
+      },
+
+      async handler(code, id, meta) {
+        try {
+          const res = await babel.transformAsync(code, {
+            sourceFileName: id,
+            parserOpts: {
+              sourceFilename: id,
+              plugins: ['typescript', 'jsx'],
+            },
+            plugins: [
+              [
+                mangleErrorsPlugin,
+                { minify } satisfies MangleErrorsPluginOptions,
+              ],
             ],
-          ],
-        })
+          })
 
-        if (res == null) {
-          throw new Error('Babel transformAsync returned null')
-        }
+          if (res == null) {
+            throw new Error('Babel transformAsync returned null')
+          }
 
-        return {
-          code: res.code!,
-          map: res.map!,
+          return {
+            code: res.code!,
+            map: res.map!,
+            moduleSideEffects: false,
+            moduleType: meta.moduleType,
+            packageJsonPath: path.join(import.meta.dirname, 'package.json'),
+          }
+        } catch (err) {
+          console.error('Babel mangleErrors error: ', err)
+          return null
         }
-      } catch (err) {
-        console.error('Babel mangleErrors error: ', err)
-        return null
-      }
-    })
-  },
+      },
+    },
+  }
 }
 
 const peerAndProductionDependencies = Object.keys({
@@ -79,19 +96,15 @@ export default defineConfig((cliOptions) => {
     inputOptions: (options, format, context) => ({
       ...options,
       // experimental: { attachDebugInfo: 'none' },
-      ...(format === 'es'
-        ? {
-            transform: {
-              ...options.transform,
-              inject: {
-                ...options.transform?.inject,
-                React: ['react', '*'] as const,
-              },
-            },
-          }
-        : {}),
+      transform: {
+        ...options.transform,
+        inject: {
+          ...options.transform?.inject,
+          React: ['react', '*'] as const,
+        },
+      },
     }),
-    plugins: [mangleErrorsTransform],
+    plugins: [mangleErrorsTransform()],
     sourcemap: true,
     target: ['esnext'],
     platform: 'node',

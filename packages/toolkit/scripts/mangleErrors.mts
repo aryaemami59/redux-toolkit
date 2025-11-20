@@ -10,13 +10,15 @@ type Babel = typeof import('@babel/core')
  *
  * @internal
  */
-export interface MangleErrorsPluginOptions {
+export type MangleErrorsPluginOptions = {
   /**
    * Whether to minify the error messages or not.
    * If `true`, the error messages will be replaced with an index
    * that maps object lookup.
+   *
+   * @default false
    */
-  minify: boolean
+  minify?: boolean | undefined
 }
 
 /**
@@ -100,14 +102,20 @@ const evalToString = (
  */
 export const mangleErrorsPlugin = (
   babel: Babel,
-  options: MangleErrorsPluginOptions,
+  options: MangleErrorsPluginOptions = {},
 ): PluginObj<PluginPass & MangleErrorsPluginOptions> => {
   const t = babel.types
   // When the plugin starts up, we'll load in the existing file. This allows us to continually add to it so that the
   // indexes do not change between builds.
   let errorsFiles = ''
   // Save this to the root
-  const errorsPath = path.join(__dirname, '../../../errors.json')
+  const errorsPath = path.join(
+    import.meta.dirname,
+    '..',
+    '..',
+    '..',
+    'errors.json',
+  )
   if (fs.existsSync(errorsPath)) {
     errorsFiles = fs.readFileSync(errorsPath).toString()
   }
@@ -129,7 +137,7 @@ export const mangleErrorsPlugin = (
           return
         }
         const args = path.node.argument.arguments
-        const { minify } = options
+        const { minify = false } = options
 
         if (args && args[0]) {
           // Skip running this logic when certain types come up:
@@ -213,5 +221,3 @@ export const mangleErrorsPlugin = (
     },
   }
 }
-
-export default mangleErrorsPlugin
