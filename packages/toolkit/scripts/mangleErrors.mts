@@ -2,8 +2,11 @@ import type { Node, PluginObj, PluginPass } from '@babel/core'
 import * as helperModuleImports from '@babel/helper-module-imports'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 type Babel = typeof import('@babel/core')
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 /**
  * Represents the options for the {@linkcode mangleErrorsPlugin}.
@@ -109,13 +112,8 @@ export const mangleErrorsPlugin = (
   // indexes do not change between builds.
   let errorsFiles = ''
   // Save this to the root
-  const errorsPath = path.join(
-    import.meta.dirname,
-    '..',
-    '..',
-    '..',
-    'errors.json',
-  )
+  // TODO: For some reason `import.meta.dirname` here points to the wrong location. There is probably an issue with `unrun`.
+  const errorsPath = path.join(__dirname, '..', '..', '..', 'errors.json')
   if (fs.existsSync(errorsPath)) {
     errorsFiles = fs.readFileSync(errorsPath).toString()
   }
@@ -129,14 +127,14 @@ export const mangleErrorsPlugin = (
       changeInArray = false
     },
     visitor: {
-      ThrowStatement(path) {
+      ThrowStatement(nodePath) {
         if (
-          !('arguments' in path.node.argument) ||
-          !t.isNewExpression(path.node.argument)
+          !('arguments' in nodePath.node.argument) ||
+          !t.isNewExpression(nodePath.node.argument)
         ) {
           return
         }
-        const args = path.node.argument.arguments
+        const args = nodePath.node.argument.arguments
         const { minify = false } = options
 
         if (args && args[0]) {
@@ -144,21 +142,24 @@ export const mangleErrorsPlugin = (
           //  Identifier comes up when a variable is thrown (E.g. throw new error(message))
           //  NumericLiteral, CallExpression, and ConditionalExpression is code we have already processed
           if (
-            path.node.argument.arguments[0].type === 'Identifier' ||
-            path.node.argument.arguments[0].type === 'NumericLiteral' ||
-            path.node.argument.arguments[0].type === 'ConditionalExpression' ||
-            path.node.argument.arguments[0].type === 'CallExpression' ||
-            path.node.argument.arguments[0].type === 'ObjectExpression' ||
-            path.node.argument.arguments[0].type === 'MemberExpression' ||
-            !t.isExpression(path.node.argument.arguments[0]) ||
-            !t.isIdentifier(path.node.argument.callee)
+            nodePath.node.argument.arguments[0].type === 'Identifier' ||
+            nodePath.node.argument.arguments[0].type === 'NumericLiteral' ||
+            nodePath.node.argument.arguments[0].type ===
+              'ConditionalExpression' ||
+            nodePath.node.argument.arguments[0].type === 'CallExpression' ||
+            nodePath.node.argument.arguments[0].type === 'ObjectExpression' ||
+            nodePath.node.argument.arguments[0].type === 'MemberExpression' ||
+            !t.isExpression(nodePath.node.argument.arguments[0]) ||
+            !t.isIdentifier(nodePath.node.argument.callee)
           ) {
             return
           }
 
-          const errorName = path.node.argument.callee.name
+          const errorName = nodePath.node.argument.callee.name
 
-          const errorMsgLiteral = evalToString(path.node.argument.arguments[0])
+          const errorMsgLiteral = evalToString(
+            nodePath.node.argument.arguments[0],
+          )
 
           if (errorMsgLiteral.includes('Super expression')) {
             // ignore Babel runtime error message
@@ -175,26 +176,30 @@ export const mangleErrorsPlugin = (
 
           // Import the error message function
           const formatProdErrorMessageIdentifier = helperModuleImports.addNamed(
-            path,
+            nodePath,
             'formatProdErrorMessage',
-            '@reduxjs/toolkit',
+            path.join(__dirname, '..', 'src', 'formatProdErrorMessage.ts'),
             { nameHint: 'formatProdErrorMessage' },
           )
 
           // Creates a function call to output the message to the error code page on the website
-          const prodMessage = t.callExpression(
-            formatProdErrorMessageIdentifier,
-            [t.numericLiteral(errorIndex)],
+          const prodMessage = t.addComment(
+            t.callExpression(formatProdErrorMessageIdentifier, [
+              t.numericLiteral(errorIndex),
+            ]),
+            'leading',
+            '@__PURE__',
+            false,
           )
 
           if (minify) {
-            path.replaceWith(
+            nodePath.replaceWith(
               t.throwStatement(
                 t.newExpression(t.identifier(errorName), [prodMessage]),
               ),
             )
           } else {
-            path.replaceWith(
+            nodePath.replaceWith(
               t.throwStatement(
                 t.newExpression(t.identifier(errorName), [
                   t.conditionalExpression(
@@ -204,7 +209,7 @@ export const mangleErrorsPlugin = (
                       t.stringLiteral('production'),
                     ),
                     prodMessage,
-                    path.node.argument.arguments[0],
+                    nodePath.node.argument.arguments[0],
                   ),
                 ]),
               ),

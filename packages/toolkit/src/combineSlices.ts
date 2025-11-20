@@ -364,7 +364,7 @@ const getReducers = (slices: Array<AnySliceLike | ReducerMap>) =>
       : Object.entries(sliceOrMap),
   )
 
-const ORIGINAL_STATE = Symbol.for('rtk-state-proxy-original')
+const ORIGINAL_STATE = /* @__PURE__ */ Symbol.for('rtk-state-proxy-original')
 
 const isStateProxy = (value: any) => !!value && !!value[ORIGINAL_STATE]
 
