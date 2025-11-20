@@ -24,7 +24,7 @@ export function findInsertIndex<T>(
   let lowIndex = 0
   let highIndex = sortedItems.length
   while (lowIndex < highIndex) {
-    let middleIndex = (lowIndex + highIndex) >>> 1
+    const middleIndex = (lowIndex + highIndex) >>> 1
     const currentItem = sortedItems[middleIndex]
     const res = comparisonFunction(item, currentItem)
     if (res >= 0) {
@@ -143,7 +143,7 @@ export function createSortedStateAdapter<T, EntityIdType extends EntityId>(
     newEntities: readonly T[] | Record<EntityIdType, T>,
     state: R,
   ): void {
-    let deduplicatedEntities = {} as Record<EntityIdType, T>
+    const deduplicatedEntities = {} as Record<EntityIdType, T>
     newEntities = ensureEntitiesArray(newEntities)
     if (newEntities.length !== 0) {
       for (const item of newEntities) {
@@ -179,7 +179,7 @@ export function createSortedStateAdapter<T, EntityIdType extends EntityId>(
     let appliedUpdates = false
     let replacedIds = false
 
-    for (let update of updates) {
+    for (const update of updates) {
       const entity: T | undefined = (state.entities as Record<EntityIdType, T>)[
         update.id
       ]
