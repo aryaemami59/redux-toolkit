@@ -40,8 +40,6 @@ export type AutoBatchOptions =
  * - `{type: 'timer', timeout: number}`: queues using `setTimeout`
  * - `{type: 'raf'}`: queues using `requestAnimationFrame` (default)
  * - `{type: 'callback', queueNotification: (notify: () => void) => void}`: lets you provide your own callback
- *
- *
  */
 export const autoBatchEnhancer =
   (options: AutoBatchOptions = { type: 'raf' }): StoreEnhancer =>

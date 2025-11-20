@@ -92,6 +92,7 @@ export default defineConfig((cliOptions) => {
     hash: false,
     inlineOnly: [],
     nodeProtocol: true,
+    shims: true,
     outDir: 'dist',
     inputOptions: (options, format, context) => ({
       ...options,
@@ -162,6 +163,7 @@ export default defineConfig((cliOptions) => {
       NODE_ENV: 'development',
     },
     format: ['cjs'],
+    minify: 'dce-only',
     outExtensions: () => ({ js: '.development.cjs' }),
     outputOptions: (options, format, context) => ({
       ...options,
