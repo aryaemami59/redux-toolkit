@@ -31,7 +31,7 @@ export function ensureEntitiesArray<T, EntityIdType extends EntityId>(
   entities: readonly T[] | Record<EntityIdType, T>,
 ): readonly T[] {
   if (!Array.isArray(entities)) {
-    entities = Object.values(entities)
+    return Object.values(entities)
   }
 
   return entities
