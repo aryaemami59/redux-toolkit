@@ -396,13 +396,13 @@ export function buildSlice({
               arg.queryCacheKey,
               (substate) => {
                 if (condition) {
+                  return
                   // request was aborted due to condition (another query already running)
-                } else {
-                  // request failed
-                  if (substate.requestId !== requestId) return
-                  substate.status = STATUS_REJECTED
-                  substate.error = (payload ?? error) as any
                 }
+                // request failed
+                if (substate.requestId !== requestId) return
+                substate.status = STATUS_REJECTED
+                substate.error = (payload ?? error) as any
               },
             )
           },

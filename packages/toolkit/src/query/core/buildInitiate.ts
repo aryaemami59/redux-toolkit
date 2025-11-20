@@ -63,7 +63,7 @@ export type BuildInitiateApiEndpointMutation<
   initiate: StartMutationActionCreator<Definition>
 }
 
-export const forceQueryFnSymbol = Symbol('forceQueryFn')
+export const forceQueryFnSymbol = /* @__PURE__ */ Symbol('forceQueryFn')
 export const isUpsertQuery = (arg: QueryThunkArg) =>
   typeof arg[forceQueryFnSymbol] === 'function'
 
