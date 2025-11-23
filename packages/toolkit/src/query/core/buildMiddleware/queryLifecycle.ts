@@ -81,7 +81,7 @@ export type QueryLifecycleQueryExtraOptions<
    * @example
    * ```ts
    * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query'
-   * import { messageCreated } from './notificationsSlice
+   * import { messageCreated } from './notificationsSlice'
    * export interface Post {
    *   id: number
    *   name: string
