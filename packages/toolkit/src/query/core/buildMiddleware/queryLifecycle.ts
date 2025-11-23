@@ -205,7 +205,9 @@ export interface QueryLifecycleApi<
   BaseQuery extends BaseQueryFn,
   ResultType,
   ReducerPath extends string = string,
-> extends QueryBaseLifecycleApi<
+>
+  extends
+    QueryBaseLifecycleApi<
       QueryArgumentType,
       BaseQuery,
       ResultType,
