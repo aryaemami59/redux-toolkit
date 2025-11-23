@@ -31,9 +31,11 @@ const mangleErrorsTransform = (
     name: mangleErrorsPlugin.name,
     transform: {
       filter: {
-        code: { include: ['throw new Error'] },
+        code: {
+          include: ['throw new Error'],
+        },
         id: {
-          exclude: ['src/**/*.d.ts'],
+          exclude: ['src/**/*.d.ts', /node_modules/],
           include: ['src/**/*.ts', 'src/**/*.tsx'],
         },
         moduleType: { include: ['ts', 'tsx'] },
@@ -62,6 +64,8 @@ const mangleErrorsTransform = (
           return {
             code: res.code!,
             map: res.map!,
+            invalidate: true,
+            meta: {},
             moduleSideEffects: false,
             moduleType: meta.moduleType,
             packageJsonPath: path.join(import.meta.dirname, 'package.json'),
@@ -69,6 +73,34 @@ const mangleErrorsTransform = (
         } catch (err) {
           console.error('Babel mangleErrors error: ', err)
           return null
+        }
+      },
+    },
+  }
+}
+
+const deDuplicateReExportsPlugin = (): Plugin => {
+  return {
+    name: 'de-duplicate-re-exports',
+    resolveId: {
+      filter: {
+        id: {
+          exclude: [/node_modules/],
+          include: [/(redux|rtkq)Imports$/],
+        },
+      },
+      async handler(source) {
+        return {
+          external: false,
+          id: source.includes('reduxImports')
+            ? 'redux'
+            : source.includes('rtkqImports')
+              ? `${packageJson.name}/query`
+              : source,
+          invalidate: true,
+          meta: {},
+          moduleSideEffects: false,
+          packageJsonPath: path.join(import.meta.dirname, 'package.json'),
         }
       },
     },
@@ -99,9 +131,8 @@ export default defineConfig((cliOptions) => {
     nodeProtocol: true,
     shims: true,
     outDir: 'dist',
-    inputOptions: (options, format, context) => ({
+    inputOptions: (options) => ({
       ...options,
-      // experimental: { attachDebugInfo: 'none' },
       transform: {
         ...options.transform,
         inject: {
@@ -171,42 +202,16 @@ export default defineConfig((cliOptions) => {
 
   const developmentCjsConfig = {
     ...commonOptions,
-    env: {
-      NODE_ENV: 'development',
-    },
     define: {
       process: JSON.stringify('process'),
+    },
+    env: {
+      NODE_ENV: 'development',
     },
     format: ['cjs'],
     minify: 'dce-only',
     outExtensions: () => ({ js: '.development.cjs' }),
-    plugins: [
-      {
-        name: 'de-duplicate-re-exports',
-        resolveId: {
-          filter: {
-            id: {
-              include: [/(redux|rtkq)Imports$/],
-              exclude: [/node_modules/],
-            },
-          },
-          async handler(source) {
-            return {
-              id: source.includes('reduxImports')
-                ? 'redux'
-                : source.includes('rtkqImports')
-                  ? `${packageJson.name}/query`
-                  : source,
-              external: false,
-              invalidate: true,
-              meta: {},
-              moduleSideEffects: false,
-              packageJsonPath: path.join(import.meta.dirname, 'package.json'),
-            }
-          },
-        },
-      },
-    ],
+    plugins: [commonOptions.plugins, deDuplicateReExportsPlugin()],
     outputOptions: (options) => ({
       ...options,
       legalComments: 'none',
@@ -231,6 +236,9 @@ export default defineConfig((cliOptions) => {
 
   const productionCjsConfig = {
     ...commonOptions,
+    define: {
+      process: JSON.stringify('process'),
+    },
     env: {
       NODE_ENV: 'production',
     },
@@ -239,6 +247,7 @@ export default defineConfig((cliOptions) => {
     outExtensions: () => ({ js: '.production.min.cjs' }),
     outputOptions: (options) => ({
       ...options,
+      legalComments: 'none',
     }),
     inputOptions: (options) => ({
       ...options,
@@ -259,42 +268,17 @@ export default defineConfig((cliOptions) => {
     onSuccess: async ({ outDir }) => {
       await writeCommonJSEntry(path.join(outDir, 'cjs'), 'redux-toolkit')
     },
-    plugins: [
-      {
-        name: 'de-duplicate-re-exports',
-        resolveId: {
-          filter: {
-            id: {
-              include: [/(redux|rtkq)Imports$/],
-              exclude: [/node_modules/],
-            },
-          },
-          async handler(source) {
-            return {
-              id: source.includes('reduxImports')
-                ? 'redux'
-                : source.includes('rtkqImports')
-                  ? `${packageJson.name}/query`
-                  : source,
-              external: false,
-              invalidate: true,
-              meta: {},
-              moduleSideEffects: false,
-              packageJsonPath: path.join(import.meta.dirname, 'package.json'),
-            }
-          },
-        },
-      },
-    ],
+    plugins: [commonOptions.plugins, deDuplicateReExportsPlugin()],
   } as const satisfies InlineConfig
 
   const browserEsmConfig = {
     ...commonOptions,
-    env: {
-      NODE_ENV: 'production',
-    },
     define: {
       process: 'undefined',
+      window: JSON.stringify('window'),
+    },
+    env: {
+      NODE_ENV: 'production',
     },
     format: ['es'],
     minify: true,
@@ -304,7 +288,7 @@ export default defineConfig((cliOptions) => {
   const legacyEsmConfig = {
     ...commonOptions,
     outExtensions: () => ({ js: '.legacy-esm.js' }),
-    format: ['esm'],
+    format: ['es'],
     target: ['es2017'],
   } as const satisfies InlineConfig
 
