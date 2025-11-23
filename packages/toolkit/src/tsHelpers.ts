@@ -1,9 +1,9 @@
 import type { Middleware, StoreEnhancer } from './reduxImports'
 import type { Tuple } from './utils'
 
-export function safeAssign<T extends object>(
-  target: T,
-  ...args: Array<Partial<NoInfer<T>>>
+export function safeAssign<TargetType extends object>(
+  target: TargetType,
+  ...args: Array<Partial<NoInfer<TargetType>>>
 ) {
   Object.assign(target, ...args)
 }
@@ -86,73 +86,116 @@ export type UnionToIntersection<U> = (
 
 // Appears to have a convenient side effect of ignoring `never` even if that's not what you specified
 export type ExcludeFromTuple<T, E, Acc extends unknown[] = []> = T extends [
-  infer Head,
-  ...infer Tail,
+  infer InferredHeadType,
+  ...infer InferredTailType,
 ]
-  ? ExcludeFromTuple<Tail, E, [...Acc, ...([Head] extends [E] ? [] : [Head])]>
+  ? ExcludeFromTuple<
+      InferredTailType,
+      E,
+      [...Acc, ...([InferredHeadType] extends [E] ? [] : [InferredHeadType])]
+    >
   : Acc
 
 type ExtractDispatchFromMiddlewareTuple<
-  MiddlewareTuple extends readonly any[],
+  MiddlewareTupleType extends readonly any[],
   Acc extends {},
-> = MiddlewareTuple extends [infer Head, ...infer Tail]
+> = MiddlewareTupleType extends [
+  infer InferredHeadType,
+  ...infer InferredTailType,
+]
   ? ExtractDispatchFromMiddlewareTuple<
-      Tail,
-      Acc & (Head extends Middleware<infer D> ? IsAny<D, {}, D> : {})
+      InferredTailType,
+      Acc &
+        (InferredHeadType extends Middleware<
+          infer InferredDispatchExtensionType
+        >
+          ? IsAny<
+              InferredDispatchExtensionType,
+              {},
+              InferredDispatchExtensionType
+            >
+          : {})
     >
   : Acc
 
-export type ExtractDispatchExtensions<M> =
-  M extends Tuple<infer InferredMiddlewareTupleType>
+export type ExtractDispatchExtensions<MiddlewareTupleType> =
+  MiddlewareTupleType extends Tuple<infer InferredMiddlewareTupleType>
     ? ExtractDispatchFromMiddlewareTuple<InferredMiddlewareTupleType, {}>
-    : M extends ReadonlyArray<Middleware>
-      ? ExtractDispatchFromMiddlewareTuple<[...M], {}>
+    : MiddlewareTupleType extends ReadonlyArray<Middleware>
+      ? ExtractDispatchFromMiddlewareTuple<[...MiddlewareTupleType], {}>
       : never
 
 type ExtractStoreExtensionsFromEnhancerTuple<
-  EnhancerTuple extends readonly any[],
+  EnhancerTupleType extends readonly any[],
   Acc extends {},
-> = EnhancerTuple extends [infer Head, ...infer Tail]
+> = EnhancerTupleType extends [
+  infer InferredHeadType,
+  ...infer InferredTailType,
+]
   ? ExtractStoreExtensionsFromEnhancerTuple<
-      Tail,
-      Acc & (Head extends StoreEnhancer<infer Ext> ? IsAny<Ext, {}, Ext> : {})
+      InferredTailType,
+      Acc &
+        (InferredHeadType extends StoreEnhancer<
+          infer InferredStoreExtensionType
+        >
+          ? IsAny<InferredStoreExtensionType, {}, InferredStoreExtensionType>
+          : {})
     >
   : Acc
 
-export type ExtractStoreExtensions<E> =
-  E extends Tuple<infer InferredEnhancerTupleType>
+export type ExtractStoreExtensions<EnhancerTupleType> =
+  EnhancerTupleType extends Tuple<infer InferredEnhancerTupleType>
     ? ExtractStoreExtensionsFromEnhancerTuple<InferredEnhancerTupleType, {}>
-    : E extends ReadonlyArray<StoreEnhancer>
+    : EnhancerTupleType extends ReadonlyArray<StoreEnhancer>
       ? UnionToIntersection<
-          E[number] extends StoreEnhancer<infer Ext>
-            ? Ext extends {}
-              ? IsAny<Ext, {}, Ext>
+          EnhancerTupleType[number] extends StoreEnhancer<
+            infer InferredStoreExtensionType
+          >
+            ? InferredStoreExtensionType extends {}
+              ? IsAny<
+                  InferredStoreExtensionType,
+                  {},
+                  InferredStoreExtensionType
+                >
               : {}
             : {}
         >
       : never
 
 type ExtractStateExtensionsFromEnhancerTuple<
-  EnhancerTuple extends readonly any[],
+  EnhancerTupleType extends readonly any[],
   Acc extends {},
-> = EnhancerTuple extends [infer Head, ...infer Tail]
+> = EnhancerTupleType extends [
+  infer InferredHeadType,
+  ...infer InferredTailType,
+]
   ? ExtractStateExtensionsFromEnhancerTuple<
-      Tail,
+      InferredTailType,
       Acc &
-        (Head extends StoreEnhancer<any, infer StateExt>
-          ? IsAny<StateExt, {}, StateExt>
+        (InferredHeadType extends StoreEnhancer<
+          any,
+          infer InferredStateExtensionType
+        >
+          ? IsAny<InferredStateExtensionType, {}, InferredStateExtensionType>
           : {})
     >
   : Acc
 
-export type ExtractStateExtensions<E> =
-  E extends Tuple<infer InferredEnhancerTupleType>
+export type ExtractStateExtensions<EnhancerTupleType> =
+  EnhancerTupleType extends Tuple<infer InferredEnhancerTupleType>
     ? ExtractStateExtensionsFromEnhancerTuple<InferredEnhancerTupleType, {}>
-    : E extends ReadonlyArray<StoreEnhancer>
+    : EnhancerTupleType extends ReadonlyArray<StoreEnhancer>
       ? UnionToIntersection<
-          E[number] extends StoreEnhancer<any, infer StateExt>
-            ? StateExt extends {}
-              ? IsAny<StateExt, {}, StateExt>
+          EnhancerTupleType[number] extends StoreEnhancer<
+            any,
+            infer InferredStateExtensionType
+          >
+            ? InferredStateExtensionType extends {}
+              ? IsAny<
+                  InferredStateExtensionType,
+                  {},
+                  InferredStateExtensionType
+                >
               : {}
             : {}
         >
@@ -199,15 +242,18 @@ export const hasMatchFunction = <T>(
 export type Matcher<T> = HasMatchFunction<T> | TypeGuard<T>
 
 /** @public */
-export type ActionFromMatcher<M extends Matcher<any>> =
-  M extends Matcher<infer InferredMatchedActionType>
+export type ActionFromMatcher<MatcherType extends Matcher<any>> =
+  MatcherType extends Matcher<infer InferredMatchedActionType>
     ? InferredMatchedActionType
     : never
 
-export type Id<T> = { [Key in keyof T]: T[Key] } & {}
+export type Id<T> = { [KeyType in keyof T]: T[KeyType] } & {}
 
-export type Tail<T extends any[]> = T extends [any, ...infer Tail]
-  ? Tail
+export type Tail<ArrayType extends any[]> = ArrayType extends [
+  any,
+  ...infer InferredTailType,
+]
+  ? InferredTailType
   : never
 
 export type UnknownIfNonSpecific<T> = {} extends T ? unknown : T
