@@ -259,6 +259,33 @@ export default defineConfig((cliOptions) => {
     onSuccess: async ({ outDir }) => {
       await writeCommonJSEntry(path.join(outDir, 'cjs'), 'redux-toolkit')
     },
+    plugins: [
+      {
+        name: 'de-duplicate-re-exports',
+        resolveId: {
+          filter: {
+            id: {
+              include: [/(redux|rtkq)Imports$/],
+              exclude: [/node_modules/],
+            },
+          },
+          async handler(source) {
+            return {
+              id: source.includes('reduxImports')
+                ? 'redux'
+                : source.includes('rtkqImports')
+                  ? `${packageJson.name}/query`
+                  : source,
+              external: false,
+              invalidate: true,
+              meta: {},
+              moduleSideEffects: false,
+              packageJsonPath: path.join(import.meta.dirname, 'package.json'),
+            }
+          },
+        },
+      },
+    ],
   } as const satisfies InlineConfig
 
   const browserEsmConfig = {
