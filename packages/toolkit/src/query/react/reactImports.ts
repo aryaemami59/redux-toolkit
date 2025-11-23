@@ -8,4 +8,4 @@ export {
   useRef,
   useState,
 } from 'react'
-export type { Context, DependencyList, JSX } from 'react'
+export type { Context, DependencyList, JSX, RefObject } from 'react'

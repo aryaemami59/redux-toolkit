@@ -1,53 +1,159 @@
+import type { NodePath } from '@babel/core'
 import * as babel from '@babel/core'
-import * as fs from 'node:fs/promises'
+import { generate } from '@babel/generator'
+import { declare } from '@babel/helper-plugin-utils'
+import type {
+  CallExpression,
+  ExportNamedDeclaration,
+  ExportSpecifier,
+  Function,
+  Identifier,
+  ImportDeclaration,
+  ImportSpecifier,
+  MemberExpression,
+  Node,
+  Statement,
+  TSSymbolKeyword,
+  TSTypeAnnotation,
+  TSTypeOperator,
+  VariableDeclaration,
+  VariableDeclarator,
+} from '@babel/types'
 import * as path from 'node:path'
-import type { Plugin } from 'rolldown'
-import type { InlineConfig, UserConfig } from 'tsdown'
+import type { InlineConfig, Rolldown, UserConfig } from 'tsdown'
 import { defineConfig } from 'tsdown'
 import packageJson from './package.json' with { type: 'json' }
-import type { MangleErrorsPluginOptions } from './scripts/mangleErrors.mjs'
+import type {
+  BabelPluginResult,
+  MangleErrorsPluginOptions,
+} from './scripts/mangleErrors.mjs'
 import { mangleErrorsPlugin } from './scripts/mangleErrors.mjs'
+import type { Id } from './src/tsHelpers.js'
 
-async function writeCommonJSEntry(folder: string, prefix: string) {
-  await fs.writeFile(
-    path.join(folder, 'index.js'),
-    `'use strict';
-if (process.env.NODE_ENV === 'production') {
-  module.exports = require('./${prefix}.production.min.cjs');
+const cwd = import.meta.dirname
+
+const packageJsonPath = path.join(cwd, 'package.json')
+
+const sourceRootDirectory = path.join(cwd, 'src')
+
+const RE_NODE_MODULES = /[\\/]node_modules[\\/]/
+
+const RE_TS = /\.([cm]?)tsx?$/
+
+const RE_DTS = /\.d\.([cm]?)ts$/
+
+const RE_JS = /\.([cm]?)jsx?$/
+
+/**
+ * @internal
+ */
+type GenerateBundleObjectHook = Id<
+  Pick<
+    Extract<
+      NonNullable<Rolldown.Plugin['generateBundle']>,
+      { handler: unknown }
+    >,
+    'order'
+  >
+>
+
+/**
+ * Rolldown plugin to emit a CommonJS entry file that switches between
+ * development and production bundles based on `NODE_ENV`.
+ *
+ * Automatically derives the folder and prefix from the output chunk filenames.
+ * Only acts on production CJS builds (chunks ending in `.production.min.cjs`).
+ *
+ * @param [pluginOptions={}] - Options forwarded to the plugin.
+ * @returns A Rolldown plugin that emits the CJS entry file.
+ * @internal
+ */
+const writeCommonJSEntryPlugin = (
+  pluginOptions: GenerateBundleObjectHook = {},
+): Rolldown.Plugin => {
+  const { order = null } = pluginOptions
+
+  return {
+    name: 'write-commonjs-entry',
+    generateBundle: {
+      order,
+      handler(outputOptions, bundle, isWrite) {
+        if (outputOptions.format === 'cjs' && isWrite) {
+          Object.values(bundle).forEach((chunk) => {
+            if (
+              chunk.type === 'chunk' &&
+              chunk.isEntry &&
+              chunk.fileName.endsWith('.production.min.cjs')
+            ) {
+              const chunkDirectory = path.dirname(chunk.fileName)
+
+              const prefix = path.basename(
+                chunk.fileName,
+                '.production.min.cjs',
+              )
+
+              this.emitFile({
+                fileName: `${chunkDirectory}/index.js`,
+                isEntry: true,
+                type: 'prebuilt-chunk',
+                code: `"use strict";
+if (process.env.NODE_ENV === "production") {
+  module.exports = require("./${prefix}.production.min.cjs");
 } else {
-  module.exports = require('./${prefix}.development.cjs');
-}`,
-    { encoding: 'utf-8' },
-  )
+  module.exports = require("./${prefix}.development.cjs");
+}\n`,
+              })
+            }
+          })
+        }
+      },
+    },
+  }
 }
 
-// Extract error strings, replace them with error codes, and write messages to a file
+/**
+ * Extract error strings, replace them with error codes, and write messages to
+ * a file.
+ *
+ * @param [mangleErrorsPluginOptions={}] - Options forwarded to the `mangleErrorsPlugin`. Supported options include `minify` to indicate whether error messages should be further minified.
+ * @returns A Rolldown plugin that applies the Babel transformation to TypeScript/TSX sources matching the configured filter and returns transformed code and source maps.
+ * @internal
+ */
 const mangleErrorsTransform = (
   mangleErrorsPluginOptions: MangleErrorsPluginOptions = {},
-): Plugin => {
+): Rolldown.Plugin => {
   const { minify = false } = mangleErrorsPluginOptions
 
   return {
-    name: mangleErrorsPlugin.name,
+    name: 'mangle-errors-plugin',
     transform: {
       filter: {
         code: {
-          include: ['throw new Error'],
+          include: ['throw'],
         },
         id: {
-          exclude: ['src/**/*.d.ts', /node_modules/],
-          include: ['src/**/*.ts', 'src/**/*.tsx'],
+          exclude: [RE_DTS, RE_NODE_MODULES],
+          include: [RE_TS],
         },
-        moduleType: { include: ['ts', 'tsx'] },
+        moduleType: {
+          include: ['ts', 'tsx'],
+        },
       },
 
       async handler(code, id, meta) {
         try {
           const res = await babel.transformAsync(code, {
-            sourceFileName: id,
+            ast: true,
+            cwd,
+            filename: id,
+            filenameRelative: path.relative(sourceRootDirectory, id),
             parserOpts: {
+              createParenthesizedExpressions: true,
+              errorRecovery: true,
+              plugins: [['typescript', { dts: false }], 'jsx'],
+              ranges: true,
               sourceFilename: id,
-              plugins: ['typescript', 'jsx'],
+              sourceType: 'module',
             },
             plugins: [
               [
@@ -55,6 +161,9 @@ const mangleErrorsTransform = (
                 { minify } satisfies MangleErrorsPluginOptions,
               ],
             ],
+            sourceFileName: id,
+            sourceMaps: 'both',
+            sourceType: 'module',
           })
 
           if (res == null) {
@@ -62,13 +171,19 @@ const mangleErrorsTransform = (
           }
 
           return {
-            code: res.code!,
-            map: res.map!,
-            invalidate: true,
-            meta: {},
+            code: res.code ?? code,
+            map: {
+              ...res.map,
+              mappings: res.map?.mappings ?? '',
+              names: [...(res.map?.names ?? [])],
+              sources: [...(res.map?.sources ?? [])],
+              sourcesContent: [...(res.map?.sourcesContent ?? [])],
+              x_google_ignoreList: [...(res.map?.ignoreList ?? [])],
+            },
+            meta,
             moduleSideEffects: false,
             moduleType: meta.moduleType,
-            packageJsonPath: path.join(import.meta.dirname, 'package.json'),
+            packageJsonPath,
           }
         } catch (err) {
           console.error('Babel mangleErrors error: ', err)
@@ -79,28 +194,793 @@ const mangleErrorsTransform = (
   }
 }
 
-const deDuplicateReExportsPlugin = (): Plugin => {
+/**
+ * Rolldown plugin to remove generated CommonJS (.cjs) JavaScript outputs
+ * from DTS-only builds. When generating type definition builds we may still
+ * emit stray .cjs files; this plugin deletes those entries from the
+ * generated bundle to ensure only declaration artifacts remain.
+ *
+ * @param [pluginOptions={}] - Options forwarded to the plugin.
+ * @returns A Rolldown plugin that prunes .cjs files from the bundle.
+ * @internal
+ */
+const removeCJSOutputsFromDTSBuilds = (
+  pluginOptions: GenerateBundleObjectHook = {},
+): Rolldown.Plugin => {
+  const { order = null } = pluginOptions
+
   return {
-    name: 'de-duplicate-re-exports',
-    resolveId: {
-      filter: {
-        id: {
-          exclude: [/node_modules/],
-          include: [/(redux|rtkq)Imports$/],
+    name: 'remove-cjs-outputs-from-dts-builds',
+    generateBundle: {
+      order,
+      handler(outputOptions, bundle, isWrite) {
+        if (outputOptions.format === 'cjs' && isWrite) {
+          Object.values(bundle).forEach((outputChunk) => {
+            if (
+              outputChunk.type === 'chunk' &&
+              outputChunk.isEntry &&
+              !RE_DTS.test(outputChunk.fileName)
+            ) {
+              delete bundle[outputChunk.fileName]
+              delete bundle[`${outputChunk.fileName}.map`]
+            }
+          })
+        }
+      },
+    },
+  }
+}
+
+/**
+ * @internal
+ */
+const isPureAnnotated = (node: Node): boolean => {
+  const { leadingComments } = node
+
+  if (!leadingComments || leadingComments.length === 0) {
+    return false
+  }
+
+  return leadingComments.some((leadingComment) =>
+    /[@#]__PURE__/.test(leadingComment.value),
+  )
+}
+
+/**
+ * @internal
+ */
+const annotateAsPure = (nodePath: NodePath): void => {
+  if (isPureAnnotated(nodePath.node)) {
+    return
+  }
+
+  nodePath.addComment('leading', '@__PURE__', false)
+}
+
+/**
+ * @internal
+ */
+type AnnotateAsPurePluginOptions = Id<
+  GenerateBundleObjectHook & {
+    /**
+     * A list of call expression method names to annotate as pure.
+     *
+     * @default []
+     */
+    callExpressions?: string[] | undefined
+  }
+>
+
+/**
+ * @internal
+ */
+type AnnotateAsPurePluginResult = BabelPluginResult<
+  AnnotateAsPurePluginOptions,
+  'annotate-as-pure'
+>
+
+/**
+ * @internal
+ */
+const hasCallableParent = <NodePathType extends NodePath>(
+  nodePath: NodePathType,
+): nodePath is NodePathType & { parentPath: NodePath<CallExpression> } =>
+  nodePath.parentPath != null &&
+  (nodePath.parentPath.isCallExpression() ||
+    nodePath.parentPath.isNewExpression())
+
+/**
+ * @internal
+ */
+const isUsedAsCallee = <
+  NodePathType extends NodePath<CallExpression | Function>,
+>(
+  nodePath: NodePathType,
+): nodePath is NodePathType & { parentPath: NodePath<CallExpression> } =>
+  hasCallableParent(nodePath) && nodePath.parentPath.get('callee') === nodePath
+
+/**
+ * @internal
+ */
+function isInCallee(nodePath: NodePath<CallExpression>): boolean {
+  do {
+    nodePath = nodePath.parentPath as NodePath<CallExpression>
+
+    if (isUsedAsCallee(nodePath)) {
+      return true
+    }
+  } while (!nodePath.isStatement() && !nodePath.isFunction())
+
+  return false
+}
+
+/**
+ * @internal
+ */
+const isExecutedDuringInitialization = (
+  nodePath: NodePath<CallExpression>,
+): boolean => {
+  let functionParent: NodePath<Function> | null = nodePath.getFunctionParent()
+
+  while (functionParent) {
+    if (!isUsedAsCallee(functionParent)) {
+      return false
+    }
+
+    functionParent = functionParent.getFunctionParent()
+  }
+
+  return true
+}
+
+/**
+ * @internal
+ */
+const isInAssignmentContext = (nodePath: NodePath<CallExpression>): boolean => {
+  const statement: NodePath<Statement> | null = nodePath.getStatementParent()
+
+  let parentPath: NodePath | null = null
+
+  do {
+    ;({ parentPath } = parentPath || nodePath)
+
+    if (
+      parentPath != null &&
+      (parentPath.isVariableDeclaration() ||
+        parentPath.isAssignmentExpression() ||
+        parentPath.isClass())
+    ) {
+      return true
+    }
+  } while (parentPath !== statement)
+
+  return false
+}
+
+/**
+ * @internal
+ */
+function callableExpressionVisitor(nodePath: NodePath<CallExpression>): void {
+  if (
+    isUsedAsCallee(nodePath) ||
+    isInCallee(nodePath) ||
+    !isExecutedDuringInitialization(nodePath) ||
+    (!isInAssignmentContext(nodePath) &&
+      !nodePath.getStatementParent()?.isExportDefaultDeclaration())
+  ) {
+    return
+  }
+
+  annotateAsPure(nodePath)
+}
+
+/**
+ * @internal
+ */
+const annotateAsPureBabelPlugin = declare(
+  (
+    api,
+    options: AnnotateAsPurePluginOptions = {},
+  ): AnnotateAsPurePluginResult => {
+    const { types: t } = api
+
+    const { callExpressions = [] } = options
+
+    return {
+      name: 'annotate-as-pure',
+      visitor: {
+        CallExpression(path: NodePath<CallExpression>) {
+          if (callExpressions.length === 0) {
+            return
+          }
+
+          const callee = path.get('callee')
+
+          if (!callee.isIdentifier()) {
+            return
+          }
+
+          if (
+            callExpressions.some((callExpression) =>
+              callee.matchesPattern(callExpression),
+            ) ||
+            callExpressions.includes(callee.node.name)
+          ) {
+            callableExpressionVisitor(path)
+          }
+        },
+
+        MemberExpression(path: NodePath<MemberExpression>) {
+          if (callExpressions.length === 0) {
+            return
+          }
+
+          const property = path.get('property')
+
+          if (!property.isIdentifier()) {
+            return
+          }
+
+          if (
+            callExpressions.some((callExpression) => {
+              if (path.matchesPattern(callExpression)) {
+                return true
+              }
+
+              return false
+            })
+          ) {
+            const statementParent = path.getStatementParent()
+
+            if (statementParent == null) {
+              return
+            }
+
+            if (
+              statementParent.isReturnStatement() ||
+              t.isVariableDeclaration(statementParent.node, {
+                kind: 'const',
+              }) ||
+              (t.isExportNamedDeclaration(statementParent.node, {
+                exportKind: 'value',
+              }) &&
+                t.isVariableDeclaration(statementParent.node.declaration, {
+                  kind: 'const',
+                }))
+            ) {
+              annotateAsPure(path)
+            }
+          }
         },
       },
-      async handler(source) {
+    }
+  },
+)
+
+/**
+ * @internal
+ */
+const annotateAsPurePlugin = (
+  annotateAsPurePluginOptions: AnnotateAsPurePluginOptions = {},
+): Rolldown.Plugin => {
+  const { callExpressions = [], order = null } = annotateAsPurePluginOptions
+
+  return {
+    name: 'annotate-as-pure',
+    transform: {
+      filter: {
+        id: {
+          exclude: [RE_DTS, RE_NODE_MODULES],
+          include: [RE_TS],
+        },
+        moduleType: {
+          include: ['ts', 'tsx'],
+        },
+      },
+      order,
+      async handler(code, id, meta) {
+        const transformResult = await babel.transformAsync(code, {
+          ast: true,
+          cwd,
+          filename: id,
+          filenameRelative: path.relative(sourceRootDirectory, id),
+          parserOpts: {
+            createParenthesizedExpressions: true,
+            errorRecovery: true,
+            plugins: [['typescript', { dts: false }], 'jsx'],
+            ranges: true,
+            sourceFilename: id,
+            sourceType: 'module',
+          },
+          plugins: [
+            [
+              annotateAsPureBabelPlugin,
+              {
+                callExpressions,
+              } as const satisfies Required<
+                Pick<AnnotateAsPurePluginOptions, 'callExpressions'>
+              >,
+            ],
+          ],
+          sourceFileName: id,
+          sourceMaps: 'both',
+          sourceType: 'module',
+        })
+
+        if (transformResult == null) {
+          return null
+        }
+
         return {
-          external: false,
-          id: source.includes('reduxImports')
-            ? 'redux'
-            : source.includes('rtkqImports')
-              ? `${packageJson.name}/query`
-              : source,
-          invalidate: true,
-          meta: {},
+          code: transformResult.code ?? code,
+          map: {
+            ...transformResult.map,
+            mappings: transformResult.map?.mappings ?? '',
+            names: [...(transformResult.map?.names ?? [])],
+            sources: [...(transformResult.map?.sources ?? [])],
+            sourcesContent: [...(transformResult.map?.sourcesContent ?? [])],
+            x_google_ignoreList: [...(transformResult.map?.ignoreList ?? [])],
+          },
+          meta,
           moduleSideEffects: false,
-          packageJsonPath: path.join(import.meta.dirname, 'package.json'),
+          moduleType: meta.moduleType,
+          packageJsonPath,
+        }
+      },
+    },
+  }
+}
+
+/**
+ * Represents a `const` variable declaration whose identifier is annotated with
+ * the {@linkcode https://www.typescriptlang.org/docs/handbook/symbols.html#unique-symbol | unique symbol}
+ * type in a TypeScript declaration file (`.d.ts`).
+ *
+ * @example
+ * <caption>Top-level unique symbol declaration</caption>
+ *
+ * ```ts
+ * declare const skipToken: unique symbol;
+ * ```
+ *
+ * @internal
+ */
+type UniqueSymbolVariableDeclaration = Id<
+  VariableDeclaration & {
+    declarations: [
+      variableDeclarator: VariableDeclarator & {
+        id: Identifier & {
+          typeAnnotation: TSTypeAnnotation & {
+            typeAnnotation: TSTypeOperator & {
+              operator: 'unique'
+              typeAnnotation: TSSymbolKeyword
+            }
+          }
+        }
+      },
+      ...VariableDeclarator[],
+    ]
+    declare: true
+    kind: 'const'
+  }
+>
+
+/**
+ * Rolldown plugin to implement proper `import type` / `export type` syntax in
+ * TypeScript declaration files.
+ *
+ * In a `.d.ts` file, any import whose local name is not re-exported as a plain
+ * value is type-only. This plugin:
+ * 1. Splits mixed `import { Value, type Type }` into separate value/type imports.
+ * 2. Splits mixed `export { value, type Type }` into separate value/type exports.
+ *
+ * @param [pluginOptions={}] - Options forwarded to the plugin.
+ * @returns A Rolldown plugin that rewrites imports and exports in `.d.ts` files.
+ * @internal
+ */
+const splitTypeImports = (
+  pluginOptions: GenerateBundleObjectHook = {},
+): Rolldown.Plugin => {
+  const { types: t } = babel
+
+  const { order = null } = pluginOptions
+
+  return {
+    name: 'split-type-imports',
+    renderChunk: {
+      // filter: {
+      //   code: {
+      //     include: [/type/],
+      //   },
+      // },
+      order,
+      async handler(code, chunk) {
+        if (!(RE_DTS.test(chunk.fileName) && chunk.isEntry)) {
+          return
+        }
+
+        const parsedFile = await babel.parseAsync(code, {
+          ast: true,
+          cwd,
+          filename: chunk.fileName,
+          filenameRelative: path.relative(sourceRootDirectory, chunk.fileName),
+          parserOpts: {
+            createParenthesizedExpressions: true,
+            errorRecovery: true,
+            plugins: [['typescript', { dts: true }]],
+            ranges: true,
+            sourceFilename: chunk.fileName,
+            sourceType: 'module',
+          },
+          sourceFileName: chunk.fileName,
+          sourceMaps: 'both',
+          sourceType: 'module',
+        })
+
+        if (parsedFile == null) {
+          return null
+        }
+
+        // Collect local names that are explicitly exported as values (no `type`
+        // keyword). In a .d.ts file any import whose local name is NOT in this
+        // set is type-only.
+        const valueExportedNames = new Set<string>()
+
+        parsedFile.program.body.forEach((statement) => {
+          if (t.isExportNamedDeclaration(statement)) {
+            statement.specifiers.forEach((exportSpecifier) => {
+              if (
+                t.isExportSpecifier(exportSpecifier) &&
+                exportSpecifier.exportKind === 'value' &&
+                t.isIdentifier(exportSpecifier.local)
+              ) {
+                valueExportedNames.add(exportSpecifier.local.name)
+              }
+            })
+          }
+        })
+
+        // Preserve value imports for identifiers used as base classes in extends
+        // clauses. `import type { X }` cannot be used in `class Y extends X {}`.
+        parsedFile.program.body.forEach((statement) => {
+          const exportedDeclaration = t.isExportNamedDeclaration(statement)
+            ? statement.declaration
+            : statement
+
+          if (
+            t.isClassDeclaration(exportedDeclaration) &&
+            exportedDeclaration.superClass != null &&
+            t.isIdentifier(exportedDeclaration.superClass)
+          ) {
+            valueExportedNames.add(exportedDeclaration.superClass.name)
+          }
+        })
+
+        // Split value/type import specifiers into separate import declarations.
+        parsedFile.program.body = parsedFile.program.body.flatMap(
+          (statement) => {
+            if (t.isImportDeclaration(statement)) {
+              // Namespace imports (`import * as X`) can't be split — convert the
+              // whole declaration to `import type * as X` when X is not a value export.
+              if (
+                statement.importKind === 'value' &&
+                statement.specifiers.length === 1 &&
+                t.isImportNamespaceSpecifier(statement.specifiers[0]) &&
+                !valueExportedNames.has(statement.specifiers[0].local.name)
+              ) {
+                return [
+                  {
+                    ...statement,
+                    importKind: 'type',
+                  } satisfies ImportDeclaration,
+                ]
+              }
+
+              const newImportSpecifiers = statement.specifiers.map(
+                (importSpecifier) => {
+                  if (
+                    t.isImportSpecifier(importSpecifier, {
+                      importKind: 'value',
+                    }) &&
+                    t.isIdentifier(importSpecifier.imported) &&
+                    !valueExportedNames.has(importSpecifier.local.name)
+                  ) {
+                    const newTypeImportSpecifier = {
+                      ...t.importSpecifier(
+                        t.identifier(importSpecifier.local.name),
+                        t.identifier(importSpecifier.imported.name),
+                      ),
+                      importKind: 'type',
+                    } satisfies ImportSpecifier
+
+                    return newTypeImportSpecifier
+                  }
+
+                  return importSpecifier
+                },
+              )
+
+              const valueImportSpecifiers = newImportSpecifiers.filter(
+                (importSpecifier) =>
+                  t.isImportSpecifier(importSpecifier, { importKind: 'value' }),
+              )
+
+              const typeImportSpecifiers = newImportSpecifiers.filter(
+                (importSpecifier) =>
+                  t.isImportSpecifier(importSpecifier, { importKind: 'type' }),
+              )
+
+              const statementsList: Statement[] = []
+
+              if (valueImportSpecifiers.length > 0) {
+                statementsList.push({
+                  ...t.importDeclaration(
+                    valueImportSpecifiers,
+                    statement.source,
+                  ),
+                  importKind: 'value',
+                } satisfies ImportDeclaration)
+              }
+
+              if (typeImportSpecifiers.length > 0) {
+                statementsList.push({
+                  ...t.importDeclaration(
+                    typeImportSpecifiers.map(
+                      (typeImportSpecifier) =>
+                        ({
+                          ...t.importSpecifier(
+                            typeImportSpecifier.local,
+                            typeImportSpecifier.imported,
+                          ),
+                          importKind: 'value',
+                        }) satisfies ImportSpecifier,
+                    ),
+                    statement.source,
+                  ),
+                  importKind: 'type',
+                } satisfies ImportDeclaration)
+              }
+
+              return statementsList.length === 0 ? [statement] : statementsList
+            }
+
+            return [statement]
+          },
+        )
+
+        // Split mixed `export { value, type Type }` into separate statements.
+        parsedFile.program.body = parsedFile.program.body.flatMap(
+          (statement) => {
+            if (
+              t.isExportNamedDeclaration(statement) &&
+              statement.declaration == null
+            ) {
+              const valueExportSpecifiers = statement.specifiers.filter(
+                (exportSpecifier) =>
+                  t.isExportSpecifier(exportSpecifier, { exportKind: 'value' }),
+              )
+
+              const typeExportSpecifiers = statement.specifiers.filter(
+                (exportSpecifier) =>
+                  t.isExportSpecifier(exportSpecifier, { exportKind: 'type' }),
+              )
+
+              if (
+                valueExportSpecifiers.length > 0 &&
+                typeExportSpecifiers.length > 0
+              ) {
+                return [
+                  {
+                    ...t.exportNamedDeclaration(
+                      null,
+                      valueExportSpecifiers,
+                      statement.source,
+                    ),
+                    exportKind: 'value',
+                  } satisfies ExportNamedDeclaration,
+                  {
+                    ...t.exportNamedDeclaration(
+                      null,
+                      typeExportSpecifiers.map(
+                        (typeExportSpecifier) =>
+                          ({
+                            ...t.exportSpecifier(
+                              typeExportSpecifier.local,
+                              typeExportSpecifier.exported,
+                            ),
+                            exportKind: 'value',
+                          }) satisfies ExportSpecifier,
+                      ),
+                      statement.source,
+                    ),
+                    exportKind: 'type',
+                  } satisfies ExportNamedDeclaration,
+                ]
+              }
+            }
+
+            return [statement]
+          },
+        )
+
+        const generatedResults = generate(
+          parsedFile,
+          {
+            comments: true,
+            sourceFileName: chunk.fileName,
+            sourceMaps: true,
+          },
+          code,
+        )
+
+        return {
+          code: generatedResults.code,
+          map: {
+            ...generatedResults.map,
+            mappings: generatedResults.map?.mappings ?? '',
+            names: [...(generatedResults.map?.names ?? [])],
+            sources: [...(generatedResults.map?.sources ?? [])],
+            sourcesContent: [...(generatedResults.map?.sourcesContent ?? [])],
+            x_google_ignoreList: [...(generatedResults.map?.ignoreList ?? [])],
+          },
+        }
+      },
+    },
+  }
+}
+
+/**
+ * Rolldown plugin to fix unique symbol exports in TypeScript declaration files.
+ *
+ * TypeScript has issues with re-exporting unique symbols in barrel exports.
+ * This plugin uses Babel to parse the AST, identify unique symbol declarations,
+ * remove them from export statements, and convert them to individual export
+ * declarations (e.g., `export declare const X: unique symbol`).
+ *
+ * @param [pluginOptions={}] - Options forwarded to the plugin.
+ * @returns A Rolldown plugin that fixes unique symbol exports in `.d.ts` files.
+ * @internal
+ */
+const fixUniqueSymbolExports = (
+  pluginOptions: GenerateBundleObjectHook = {},
+): Rolldown.Plugin => {
+  const { types: t } = babel
+
+  const { order = null } = pluginOptions
+
+  const processedFiles = new Set<string>()
+
+  return {
+    name: 'fix-unique-symbol-exports',
+    renderChunk: {
+      filter: {
+        code: {
+          include: [/unique symbol/],
+        },
+      },
+      order,
+      async handler(code, chunk, _outputOptions, _meta) {
+        if (!(RE_DTS.test(chunk.fileName) && chunk.isEntry)) {
+          return
+        }
+
+        const parsedFile = await babel.parseAsync(code, {
+          ast: true,
+          cwd,
+          filename: chunk.fileName,
+          filenameRelative: path.relative(sourceRootDirectory, chunk.fileName),
+          parserOpts: {
+            createParenthesizedExpressions: true,
+            errorRecovery: true,
+            plugins: [['typescript', { dts: true }]],
+            ranges: true,
+            sourceFilename: chunk.fileName,
+            sourceType: 'module',
+          },
+          sourceFileName: chunk.fileName,
+          sourceMaps: 'both',
+          sourceType: 'module',
+        })
+
+        if (parsedFile == null) {
+          return null
+        }
+
+        const allUniqueSymbols = new Set<string>()
+        const exportedUniqueSymbols = new Set<string>()
+
+        const isUniqueSymbolDeclaration = <StatementType extends Statement>(
+          statement: StatementType,
+        ): statement is Id<StatementType & UniqueSymbolVariableDeclaration> =>
+          t.isVariableDeclaration(statement, {
+            declare: true,
+            kind: 'const',
+          }) &&
+          t.isIdentifier(statement.declarations[0].id) &&
+          t.isTSTypeAnnotation(statement.declarations[0].id.typeAnnotation) &&
+          t.isTSTypeOperator(
+            statement.declarations[0].id.typeAnnotation.typeAnnotation,
+            { operator: 'unique' },
+          ) &&
+          t.isTSSymbolKeyword(
+            statement.declarations[0].id.typeAnnotation.typeAnnotation
+              .typeAnnotation,
+          )
+
+        // First pass: find all unique symbol declarations
+        parsedFile.program.body.forEach((statement) => {
+          if (isUniqueSymbolDeclaration(statement)) {
+            allUniqueSymbols.add(statement.declarations[0].id.name)
+          }
+        })
+
+        // Second pass: find which ones are in the export list
+        parsedFile.program.body.forEach((statement) => {
+          if (t.isExportNamedDeclaration(statement)) {
+            statement.specifiers.forEach((exportSpecifier) => {
+              if (
+                t.isExportSpecifier(exportSpecifier) &&
+                t.isIdentifier(exportSpecifier.local) &&
+                allUniqueSymbols.has(exportSpecifier.local.name)
+              ) {
+                exportedUniqueSymbols.add(exportSpecifier.local.name)
+              }
+            })
+
+            // Remove exported unique symbols from the export specifier list
+            statement.specifiers = statement.specifiers.filter(
+              (exportSpecifier) => {
+                if (
+                  t.isExportSpecifier(exportSpecifier, {
+                    exportKind: 'value',
+                  }) &&
+                  t.isIdentifier(exportSpecifier.local) &&
+                  t.isIdentifier(exportSpecifier.exported) &&
+                  exportedUniqueSymbols.has(exportSpecifier.local.name)
+                ) {
+                  return false
+                }
+
+                return true
+              },
+            )
+          }
+        })
+
+        // Convert unique symbol declarations to export declarations
+        parsedFile.program.body = parsedFile.program.body.map((statement) => {
+          if (
+            isUniqueSymbolDeclaration(statement) &&
+            exportedUniqueSymbols.has(statement.declarations[0].id.name)
+          ) {
+            return t.exportNamedDeclaration(statement)
+          }
+
+          return statement
+        })
+
+        const generatedResults = generate(
+          parsedFile,
+          {
+            comments: true,
+            sourceFileName: chunk.fileName,
+            sourceMaps: true,
+          },
+          code,
+        )
+
+        processedFiles.add(chunk.fileName)
+
+        return {
+          code: generatedResults.code,
+          map: {
+            ...generatedResults.map,
+            mappings: generatedResults.map?.mappings ?? '',
+            names: [...(generatedResults.map?.names ?? [])],
+            sources: [...(generatedResults.map?.sources ?? [])],
+            sourcesContent: [...(generatedResults.map?.sourcesContent ?? [])],
+            x_google_ignoreList: [...(generatedResults.map?.ignoreList ?? [])],
+          },
         }
       },
     },
@@ -110,63 +990,143 @@ const deDuplicateReExportsPlugin = (): Plugin => {
 const peerAndProductionDependencies = Object.keys({
   ...packageJson.dependencies,
   ...packageJson.peerDependencies,
-} as const)
+} as const) satisfies Extract<Rolldown.ExternalOption, unknown[]>
+
+const neverBundle = [
+  ...peerAndProductionDependencies,
+  /uncheckedindexed/,
+] as const satisfies Extract<Rolldown.ExternalOption, unknown[]>
 
 export default defineConfig((cliOptions) => {
   const commonOptions = {
-    /**
-     * @todo Comply with
-     * {@link https://rolldown.rs/options/output-clean-dir#multiple-configurations | this}
-     */
     clean: false,
-    cwd: import.meta.dirname,
-    debug: {},
+    cwd,
+    deps: {
+      neverBundle,
+      onlyBundle: [],
+    },
+    devtools: {
+      clean: true,
+      enabled: true,
+    },
     dts: false,
-    external: peerAndProductionDependencies,
     failOnWarn: true,
     fixedExtension: false,
-    format: ['es', 'cjs'],
+    format: ['cjs', 'es'],
     hash: false,
-    inlineOnly: [],
-    nodeProtocol: true,
-    shims: true,
-    outDir: 'dist',
-    inputOptions: (options) => ({
-      ...options,
-      transform: {
-        ...options.transform,
-        inject: {
-          ...options.transform?.inject,
-          React: ['react', '*'] as const,
+    inputOptions: (options) => {
+      const plugins = options.plugins
+        ? Array.isArray(options.plugins)
+          ? options.plugins.flat()
+          : [options.plugins]
+        : []
+
+      return {
+        ...options,
+        experimental: {
+          ...options.experimental,
+          lazyBarrel: true,
+          nativeMagicString: true,
         },
-      },
-    }),
-    plugins: [mangleErrorsTransform()],
-    sourcemap: true,
-    target: ['esnext'],
-    platform: 'node',
-    tsconfig: path.join(import.meta.dirname, 'tsconfig.build.json'),
+        plugins: [
+          ...plugins,
+          mangleErrorsTransform(),
+          annotateAsPurePlugin({
+            callExpressions: ['__assign', 'Object.assign'],
+          }),
+        ],
+        transform: {
+          ...options.transform,
+          typescript: {
+            ...options.transform?.typescript,
+            optimizeConstEnums: true,
+            optimizeEnums: true,
+          },
+          inject: {
+            ...options.transform?.inject,
+            'Object.assign': [
+              path.join(sourceRootDirectory, 'bundle-size-utils.ts'),
+              '__assign',
+            ],
+            React: ['react', '*'],
+          },
+        },
+      } as const satisfies Rolldown.InputOptions
+    },
+    minify: false,
+    nodeProtocol: true,
+    outDir: 'dist',
     outExtensions: ({ format, options }) => ({
       dts: format === 'es' ? '.d.mts' : '.d.ts',
       js:
-        format === 'es'
-          ? `${options.platform === 'browser' ? '.browser' : ''}.mjs`
+        format === 'es' && options.transform?.target != null
+          ? (Array.isArray(options.transform?.target) &&
+              options.transform?.target.includes('es2017')) ||
+            options.transform?.target === 'es2017'
+            ? '.legacy-esm.js'
+            : `${options.platform === 'browser' ? '.browser' : '.modern'}.mjs`
           : '.cjs',
     }),
+    outputOptions: (options, format, context) => {
+      const plugins = options.plugins
+        ? Array.isArray(options.plugins)
+          ? options.plugins.flat()
+          : [options.plugins]
+        : []
+
+      return {
+        ...options,
+        codeSplitting: false,
+        comments: {
+          annotation: true,
+          jsdoc: false,
+          legal: true,
+        },
+        strict: true,
+        ...(format === 'cjs' && !context.cjsDts
+          ? {
+              externalLiveBindings: false,
+              plugins: [
+                ...plugins,
+                ...(typeof options.entryFileNames === 'string' &&
+                options.entryFileNames?.endsWith('.production.min.cjs')
+                  ? [writeCommonJSEntryPlugin()]
+                  : []),
+              ],
+            }
+          : {}),
+      } as const satisfies Rolldown.OutputOptions
+    },
+    platform: 'node',
+    root: sourceRootDirectory,
+    shims: true,
+    sourcemap: true,
+    target: ['esnext'],
+    treeshake: {
+      moduleSideEffects: false,
+    },
+    tsconfig: path.join(cwd, 'tsconfig.build.json'),
     ...cliOptions,
   } as const satisfies InlineConfig
 
   const sharedDTSConfig = {
     ...commonOptions,
+    deps: {
+      ...commonOptions.deps,
+      neverBundle,
+    },
     dts: {
       build: false,
       cjsDefault: false,
+      cjsReexport: false,
       cwd: commonOptions.cwd,
       dtsInput: false,
-      eager: true,
+      eager: false,
       emitDtsOnly: true,
       emitJs: false,
-      newContext: true,
+      enabled: true,
+      incremental: false,
+      newContext: false,
       oxc: false,
       parallel: false,
       resolver: 'tsc',
@@ -174,30 +1134,61 @@ export default defineConfig((cliOptions) => {
       sourcemap: true,
       tsconfig: commonOptions.tsconfig,
     },
-    external: [...peerAndProductionDependencies, /uncheckedindexed/],
-    inputOptions: (options) => ({
-      ...options,
-      experimental: {
-        ...options.experimental,
-        attachDebugInfo: 'none',
-      },
-    }),
+    inputOptions: (options) => {
+      const plugins = options.plugins
+        ? Array.isArray(options.plugins)
+          ? options.plugins.flat()
+          : [options.plugins]
+        : []
 
-    /**
-     * @todo Investigate why an unexpected `index.js` file is still emitted
-     * even with `emitDtsOnly: true`. The goal is to produce `.d.ts`
-     * outputs for CJS builds without generating any JavaScript files.
-     *
-     * Until the root cause is identified, we disable source map generation
-     * to avoid producing additional unwanted artifacts.
-     */
-    sourcemap: false,
+      return {
+        ...options,
+        transform: {
+          ...options.transform,
+          typescript: {
+            ...options.transform?.typescript,
+            optimizeConstEnums: true,
+            optimizeEnums: true,
+          },
+        },
+        experimental: {
+          ...options.experimental,
+          attachDebugInfo: 'none',
+          lazyBarrel: true,
+          nativeMagicString: true,
+        },
+        plugins: [...plugins, fixUniqueSymbolExports(), splitTypeImports()],
+      } as const satisfies Rolldown.InputOptions
+    },
+    outputOptions: (options, format, context) => {
+      const plugins = options.plugins
+        ? Array.isArray(options.plugins)
+          ? options.plugins.flat()
+          : [options.plugins]
+        : []
+
+      return {
+        ...options,
+        codeSplitting: false,
+        comments: {
+          annotation: true,
+          jsdoc: true,
+          legal: true,
+        },
+        plugins: [
+          ...plugins,
+          format === 'cjs' && !context.cjsDts
+            ? removeCJSOutputsFromDTSBuilds()
+            : false,
+        ],
+        strict: true,
+      } as const satisfies Rolldown.OutputOptions
+    },
   } as const satisfies InlineConfig
 
   const modernEsmConfig = {
     ...commonOptions,
     format: ['es'],
-    outExtensions: () => ({ js: '.modern.mjs' }),
   } as const satisfies InlineConfig
 
   const developmentCjsConfig = {
@@ -209,66 +1200,18 @@ export default defineConfig((cliOptions) => {
       NODE_ENV: 'development',
     },
     format: ['cjs'],
-    minify: 'dce-only',
     outExtensions: () => ({ js: '.development.cjs' }),
-    plugins: [commonOptions.plugins, deDuplicateReExportsPlugin()],
-    outputOptions: (options) => ({
-      ...options,
-      legalComments: 'none',
-    }),
-    inputOptions: (options) => ({
-      ...options,
-      experimental: {
-        ...options.experimental,
-        attachDebugInfo: 'none',
-        nativeMagicString: true,
-      },
-
-      transform: {
-        ...options.transform,
-        inject: {
-          ...options.transform?.inject,
-          React: ['react', '*'] as const,
-        },
-      },
-    }),
   } as const satisfies InlineConfig
 
   const productionCjsConfig = {
     ...commonOptions,
-    define: {
-      process: JSON.stringify('process'),
-    },
+    define: developmentCjsConfig.define,
     env: {
       NODE_ENV: 'production',
     },
     format: ['cjs'],
     minify: true,
     outExtensions: () => ({ js: '.production.min.cjs' }),
-    outputOptions: (options) => ({
-      ...options,
-      legalComments: 'none',
-    }),
-    inputOptions: (options) => ({
-      ...options,
-      experimental: {
-        ...options.experimental,
-        attachDebugInfo: 'none',
-        nativeMagicString: true,
-      },
-
-      transform: {
-        ...options.transform,
-        inject: {
-          ...options.transform?.inject,
-          React: ['react', '*'] as const,
-        },
-      },
-    }),
-    onSuccess: async ({ outDir }) => {
-      await writeCommonJSEntry(path.join(outDir, 'cjs'), 'redux-toolkit')
-    },
-    plugins: [commonOptions.plugins, deDuplicateReExportsPlugin()],
   } as const satisfies InlineConfig
 
   const browserEsmConfig = {
@@ -277,17 +1220,14 @@ export default defineConfig((cliOptions) => {
       process: 'undefined',
       window: JSON.stringify('window'),
     },
-    env: {
-      NODE_ENV: 'production',
-    },
+    env: productionCjsConfig.env,
     format: ['es'],
-    minify: true,
+    minify: productionCjsConfig.minify,
     platform: 'browser',
   } as const satisfies InlineConfig
 
   const legacyEsmConfig = {
     ...commonOptions,
-    outExtensions: () => ({ js: '.legacy-esm.js' }),
     format: ['es'],
     target: ['es2017'],
   } as const satisfies InlineConfig
@@ -301,44 +1241,61 @@ export default defineConfig((cliOptions) => {
       },
       copy: ({ outDir }) => [
         {
-          from: path.join(import.meta.dirname, 'src', 'uncheckedindexed.ts'),
-          to: path.join(outDir, 'uncheckedindexed.ts'),
+          from: path.join(sourceRootDirectory, 'uncheckedindexed.ts'),
+          to: outDir,
+          verbose: true,
         },
       ],
     },
     {
       ...modernEsmConfig,
-      name: 'Redux-Toolkit-React-ESM',
+      name: 'RTK-React-ESM',
       entry: {
         'react/redux-toolkit-react': 'src/react/index.ts',
       },
-      external: [...peerAndProductionDependencies, packageJson.name],
+      deps: {
+        ...modernEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
     {
       ...modernEsmConfig,
-      name: 'Redux-Toolkit-Query-ESM',
+      name: 'RTK-Query-ESM',
       entry: {
         'query/rtk-query': 'src/query/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-      ],
+      deps: {
+        ...modernEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
     {
       ...modernEsmConfig,
-      name: 'Redux-Toolkit-Query-React-ESM',
+      name: 'RTK-Query-React-ESM',
       entry: {
         'query/react/rtk-query-react': 'src/query/react/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-        `${packageJson.name}/query`,
-      ],
+      deps: {
+        ...modernEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
+
     {
       ...developmentCjsConfig,
       name: 'Redux-Toolkit-Core-CJS-Development',
@@ -348,94 +1305,106 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...developmentCjsConfig,
-      name: 'Redux-Toolkit-React-CJS-Development',
+      name: 'RTK-React-CJS-Development',
       entry: {
         'react/cjs/redux-toolkit-react': 'src/react/index.ts',
       },
-      external: [...peerAndProductionDependencies, packageJson.name],
+      deps: {
+        ...developmentCjsConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
     {
       ...developmentCjsConfig,
-      name: 'Redux-Toolkit-Query-CJS-Development',
+      name: 'RTK-Query-CJS-Development',
       entry: {
         'query/cjs/rtk-query': 'src/query/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-      ],
+      deps: {
+        ...developmentCjsConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
     {
       ...developmentCjsConfig,
-      name: 'Redux-Toolkit-Query-React-CJS-Development',
+      name: 'RTK-Query-React-CJS-Development',
       entry: {
         'query/react/cjs/rtk-query-react': 'src/query/react/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-        `${packageJson.name}/query`,
-      ],
+      deps: {
+        ...developmentCjsConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
     {
       ...productionCjsConfig,
-      name: 'Redux-Toolkit-Core-CJS-Production',
+      name: 'RTK-Core-CJS-Production',
       entry: {
         'cjs/redux-toolkit': 'src/index.ts',
-      },
-      onSuccess: async ({ outDir }) => {
-        await writeCommonJSEntry(path.join(outDir, 'cjs'), 'redux-toolkit')
       },
     },
 
     {
       ...productionCjsConfig,
-      name: 'Redux-Toolkit-React-CJS-Production',
+      name: 'RTK-React-CJS-Production',
       entry: {
         'react/cjs/redux-toolkit-react': 'src/react/index.ts',
       },
-      external: [...peerAndProductionDependencies, packageJson.name],
-      onSuccess: async ({ outDir }) => {
-        await writeCommonJSEntry(
-          path.join(outDir, 'react', 'cjs'),
-          'redux-toolkit-react',
-        )
+      deps: {
+        ...productionCjsConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
       },
     },
     {
       ...productionCjsConfig,
-      name: 'Redux-Toolkit-Query-CJS-Production',
+      name: 'RTK-Query-CJS-Production',
       entry: {
         'query/cjs/rtk-query': 'src/query/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-      ],
-      onSuccess: async ({ outDir }) => {
-        await writeCommonJSEntry(path.join(outDir, 'query', 'cjs'), 'rtk-query')
+      deps: {
+        ...productionCjsConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
       },
     },
     {
       ...productionCjsConfig,
-      name: 'Redux-Toolkit-Query-React-CJS-Production',
+      name: 'RTK-Query-React-CJS-Production',
       entry: {
         'query/react/cjs/rtk-query-react': 'src/query/react/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-        `${packageJson.name}/query`,
-      ],
-      onSuccess: async ({ outDir }) => {
-        await writeCommonJSEntry(
-          path.join(outDir, 'query', 'react', 'cjs'),
-          'rtk-query-react',
-        )
+      deps: {
+        ...productionCjsConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
       },
     },
 
@@ -449,36 +1418,51 @@ export default defineConfig((cliOptions) => {
 
     {
       ...browserEsmConfig,
-      name: 'Redux-Toolkit-React-Browser',
+      name: 'RTK-React-Browser',
       entry: {
         'react/redux-toolkit-react': 'src/react/index.ts',
       },
-      external: [...peerAndProductionDependencies, packageJson.name],
+      deps: {
+        ...browserEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
     {
       ...browserEsmConfig,
-      name: 'Redux-Toolkit-Query-Browser',
+      name: 'RTK-Query-Browser',
       entry: {
         'query/rtk-query': 'src/query/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-      ],
+      deps: {
+        ...browserEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
     {
       ...browserEsmConfig,
-      name: 'Redux-Toolkit-Query-React-Browser',
+      name: 'RTK-Query-React-Browser',
       entry: {
         'query/react/rtk-query-react': 'src/query/react/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-        `${packageJson.name}/query`,
-      ],
+      deps: {
+        ...browserEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
     {
       ...legacyEsmConfig,
@@ -489,36 +1473,51 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...legacyEsmConfig,
-      name: 'Redux-Toolkit-React-Legacy-ESM',
+      name: 'RTK-React-Legacy-ESM',
       entry: {
         'react/redux-toolkit-react': 'src/react/index.ts',
       },
-      external: [...peerAndProductionDependencies, packageJson.name],
+      deps: {
+        ...legacyEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
     {
       ...legacyEsmConfig,
-      name: 'Redux-Toolkit-Query-Legacy-ESM',
+      name: 'RTK-Query-Legacy-ESM',
       entry: {
         'query/rtk-query': 'src/query/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-      ],
+      deps: {
+        ...legacyEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
     {
       ...legacyEsmConfig,
-      name: 'Redux-Toolkit-Query-React-Legacy-ESM',
+      name: 'RTK-Query-React-Legacy-ESM',
       entry: {
         'query/react/rtk-query-react': 'src/query/react/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-        `${packageJson.name}/query`,
-      ],
+      deps: {
+        ...legacyEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
 
     {
@@ -534,8 +1533,18 @@ export default defineConfig((cliOptions) => {
       name: 'RTK-React-Type-Definitions',
       entry: {
         'react/index': 'src/react/index.ts',
+        // 'query/index': 'src/query/index.ts',
+        // 'query/react/index': 'src/query/react/index.ts',
       },
-      external: [...sharedDTSConfig.external, packageJson.name],
+      deps: {
+        ...sharedDTSConfig.deps,
+        neverBundle: [
+          ...sharedDTSConfig.deps.neverBundle,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
 
     {
@@ -544,11 +1553,15 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/index': 'src/query/index.ts',
       },
-      external: [
-        ...sharedDTSConfig.external,
-        packageJson.name,
-        `${packageJson.name}/react`,
-      ],
+      deps: {
+        ...sharedDTSConfig.deps,
+        neverBundle: [
+          ...sharedDTSConfig.deps.neverBundle,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
 
     {
@@ -557,7 +1570,15 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/react/index': 'src/query/react/index.ts',
       },
-      external: [`${packageJson.name}/react`, `${packageJson.name}/query`],
+      deps: {
+        ...sharedDTSConfig.deps,
+        neverBundle: [
+          ...sharedDTSConfig.deps.neverBundle,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
   ] as const satisfies UserConfig[]
 })

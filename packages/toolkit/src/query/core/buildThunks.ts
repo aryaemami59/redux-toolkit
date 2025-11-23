@@ -45,7 +45,7 @@ import {
   shouldSkip,
 } from '../standardSchema'
 import type { UnwrapPromise } from '../tsHelpers'
-import { isDraftable, produceWithPatches } from '../utils/immerImports'
+import { isDraftable, produceWithPatches } from '../utils/index'
 import type {
   InfiniteData,
   InfiniteQueryConfigOptions,
@@ -344,12 +344,12 @@ export const addShouldAutoBatch = <T extends Record<string, any>>(
 }
 
 export function buildThunks<
-  BaseQueryFunctionType extends BaseQueryFn,
-  ReducerPathType extends string,
-  DefinitionsType extends EndpointDefinitions,
+  BaseQuery extends BaseQueryFn,
+  ReducerPath extends string,
+  Definitions extends EndpointDefinitions,
 >({
   reducerPath,
-  baseQuery,
+  baseQuery: baseQueryFunction,
   context: { endpointDefinitions },
   serializeQueryArgs,
   api,
@@ -359,18 +359,18 @@ export function buildThunks<
   catchSchemaFailure: globalCatchSchemaFailure,
   skipSchemaValidation: globalSkipSchemaValidation,
 }: {
-  baseQuery: BaseQueryFunctionType
-  reducerPath: ReducerPathType
-  context: ApiContext<DefinitionsType>
+  baseQuery: BaseQuery
+  reducerPath: ReducerPath
+  context: ApiContext<Definitions>
   serializeQueryArgs: InternalSerializeQueryArgs
-  api: Api<BaseQueryFunctionType, DefinitionsType, ReducerPathType, any>
+  api: Api<BaseQuery, Definitions, ReducerPath, any>
   assertTagType: AssertTagTypes
   selectors: AllSelectors
   onSchemaFailure: SchemaFailureHandler | undefined
-  catchSchemaFailure: SchemaFailureConverter<BaseQueryFunctionType> | undefined
+  catchSchemaFailure: SchemaFailureConverter<BaseQuery> | undefined
   skipSchemaValidation: boolean | SchemaType[] | undefined
 }) {
-  type State = RootState<any, string, ReducerPathType>
+  type State = RootState<any, string, ReducerPath>
 
   const patchQueryData: PatchQueryDataThunk<EndpointDefinitions, State> =
     (endpointName, arg, patches, updateProvided) => (dispatch, getState) => {
@@ -477,21 +477,21 @@ export function buildThunks<
       return ret
     }
 
-  const upsertQueryData: UpsertQueryDataThunk<DefinitionsType, State> =
+  const upsertQueryData: UpsertQueryDataThunk<Definitions, State> =
     (endpointName, arg, value) => (dispatch) => {
       type EndpointName = typeof endpointName
       const res = dispatch(
         (
           api.endpoints[endpointName] as ApiEndpointQuery<
             QueryDefinition<any, any, any, any, any>,
-            DefinitionsType
+            Definitions
           >
         ).initiate(arg, {
           subscribe: false,
           forceRefetch: true,
           [forceQueryFnSymbol]: () => ({ data: value }),
         }),
-      ) as UpsertThunkResult<DefinitionsType, EndpointName>
+      ) as UpsertThunkResult<Definitions, EndpointName>
 
       return res
     }
@@ -501,7 +501,7 @@ export function buildThunks<
     transformFieldName: 'transformResponse' | 'transformErrorResponse',
   ): TransformCallback => {
     return endpointDefinition.query && endpointDefinition[transformFieldName]
-      ? (endpointDefinition[transformFieldName]! as TransformCallback)
+      ? (endpointDefinition[transformFieldName] as TransformCallback)
       : defaultTransformResponse
   }
 
@@ -509,7 +509,7 @@ export function buildThunks<
   const executeEndpoint: AsyncThunkPayloadCreator<
     ThunkResult,
     QueryThunkArg | MutationThunkArg | InfiniteQueryThunkArg<any>,
-    ThunkApiMetaConfig & { state: RootState<any, string, ReducerPathType> }
+    ThunkApiMetaConfig & { state: RootState<any, string, ReducerPath> }
   > = async (
     arg,
     {
@@ -608,7 +608,7 @@ export function buildThunks<
             'transformResponse',
           )
 
-          result = await baseQuery(
+          result = await baseQueryFunction(
             endpointDefinition.query(finalQueryArg as any),
             baseQueryApi,
             extraOptions as any,
@@ -618,7 +618,7 @@ export function buildThunks<
             finalQueryArg as any,
             baseQueryApi,
             extraOptions as any,
-            (arg) => baseQuery(arg, baseQueryApi, extraOptions as any),
+            (arg) => baseQueryFunction(arg, baseQueryApi, extraOptions as any),
           )
         }
 
@@ -722,9 +722,8 @@ export function buildThunks<
         const isForcedQueryNeedingRefetch = // arg.forceRefetch
           isForcedQuery(arg, getState()) &&
           !(arg as InfiniteQueryThunkArg<any>).direction
-        const existingData = (
+        const existingData =
           isForcedQueryNeedingRefetch || !cachedData ? blankData : cachedData
-        ) as InfiniteData<unknown, unknown>
 
         // If the thunk specified a direction and we do have at least one page,
         // fetch the next or previous page
@@ -899,7 +898,7 @@ In the case of an unhandled error, no tags will be "provided" or "invalidated".`
 
   function isForcedQuery(
     arg: QueryThunkArg,
-    state: RootState<any, string, ReducerPathType>,
+    state: RootState<any, string, ReducerPath>,
   ) {
     const requestState = selectors.selectQueryEntry(state, arg.queryCacheKey)
     const baseFetchOnMountOrArgChange =
@@ -925,7 +924,7 @@ In the case of an unhandled error, no tags will be "provided" or "invalidated".`
     const generatedQueryThunk = createAsyncThunk<
       ThunkResult,
       ThunkArgType,
-      ThunkApiMetaConfig & { state: RootState<any, string, ReducerPathType> }
+      ThunkApiMetaConfig & { state: RootState<any, string, ReducerPath> }
     >(`${reducerPath}/executeQuery`, executeEndpoint, {
       getPendingMeta({ arg }) {
         const endpointDefinition = endpointDefinitions[arg.endpointName]
@@ -998,7 +997,7 @@ In the case of an unhandled error, no tags will be "provided" or "invalidated".`
   const mutationThunk = createAsyncThunk<
     ThunkResult,
     MutationThunkArg,
-    ThunkApiMetaConfig & { state: RootState<any, string, ReducerPathType> }
+    ThunkApiMetaConfig & { state: RootState<any, string, ReducerPath> }
   >(`${reducerPath}/executeMutation`, executeEndpoint, {
     getPendingMeta() {
       return addShouldAutoBatch({ startedTimeStamp: Date.now() })
@@ -1012,7 +1011,7 @@ In the case of an unhandled error, no tags will be "provided" or "invalidated".`
   ): options is { ifOlderThan: false | number } => 'ifOlderThan' in options
 
   const prefetch =
-    <EndpointName extends QueryKeys<DefinitionsType>>(
+    <EndpointName extends QueryKeys<Definitions>>(
       endpointName: EndpointName,
       arg: any,
       options: PrefetchOptions = {},

@@ -1,12 +1,11 @@
 import type {
   AsyncThunkAction,
+  Dispatch,
   SafePromise,
   SerializedError,
   ThunkAction,
   UnknownAction,
 } from '@reduxjs/toolkit'
-import type { Dispatch } from 'redux'
-import { asSafePromise } from '../../tsHelpers'
 import type { Api, ApiContext } from '../apiTypes'
 import { getEndpointDefinition } from '../apiTypes'
 import type { BaseQueryError, QueryReturnValue } from '../baseQueryTypes'
@@ -23,6 +22,7 @@ import type {
   ResultTypeFrom,
 } from '../endpointDefinitions'
 import { ENDPOINT_QUERY, isQueryDefinition } from '../endpointDefinitions'
+import { asSafePromise } from '../tsHelpers'
 import { filterNullishValues } from '../utils/index'
 import type {
   InfiniteData,
@@ -85,12 +85,10 @@ export type StartInfiniteQueryActionCreatorOptions<
   param?: unknown
 } & Partial<
     Pick<
-      Partial<
-        InfiniteQueryConfigOptions<
-          ResultTypeFrom<D>,
-          PageParamFrom<D>,
-          InfiniteQueryArgFrom<D>
-        >
+      InfiniteQueryConfigOptions<
+        ResultTypeFrom<D>,
+        PageParamFrom<D>,
+        InfiniteQueryArgFrom<D>
       >,
       'initialPageParam' | 'refetchCachedPages'
     >
@@ -160,10 +158,12 @@ type StartMutationActionCreator<
   arg: QueryArgFrom<D>,
   options?: {
     /**
-     * If this mutation should be tracked in the store.
-     * If you just want to manually trigger this mutation using `dispatch` and don't care about the
-     * result, state & potential errors being held in store, you can set this to false.
-     * (defaults to `true`)
+     * If this mutation should be tracked in the store. If you just want to
+     * manually trigger this mutation using `dispatch` and don't care about the
+     * result, state & potential errors being held in store, you can set this
+     * to `false`.
+     *
+     * @default true
      */
     track?: boolean
     fixedCacheKey?: string
@@ -196,7 +196,9 @@ export type MutationActionCreatorResult<
         | SerializedError
     }
 > & {
-  /** @internal */
+  /**
+   * @internal
+   */
   arg: {
     /**
      * The name of the given endpoint for the mutation
@@ -231,17 +233,17 @@ export type MutationActionCreatorResult<
    *
    * useEffect(() => {
    *   const promise = updateUser(id);
-   *   promise
-   *     .unwrap()
-   *     .catch((err) => {
-   *       if (err.name === 'AbortError') return;
-   *       // else handle the unexpected error
-   *     })
+   *   promise.unwrap().catch((err) => {
+   *     if (err.name === 'AbortError') {
+   *       return;
+   *     }
+   *     // else handle the unexpected error
+   *   });
    *
    *   return () => {
    *     promise.abort();
-   *   }
-   * }, [id, updateUser])
+   *   };
+   * }, [id, updateUser]);
    * ```
    */
   abort(): void
@@ -265,7 +267,7 @@ export type MutationActionCreatorResult<
    * // codeblock-meta title="Using .unwrap with async await"
    * try {
    *   const payload = await addPost({ id: 1, name: 'Example' }).unwrap();
-   *   console.log('fulfilled', payload)
+   *   console.log('fulfilled', payload);
    * } catch (error) {
    *   console.error('rejected', error);
    * }
@@ -357,26 +359,28 @@ export function buildInitiate({
   }
 
   function middlewareWarning(dispatch: Dispatch) {
-    if (process.env.NODE_ENV !== 'production') {
-      if ((middlewareWarning as any).triggered) return
-      const returnedValue = dispatch(
-        api.internalActions.internal_getRTKQSubscriptions(),
-      )
+    if (process.env.NODE_ENV === 'production') {
+      return
+    }
 
-      ;(middlewareWarning as any).triggered = true
+    if ((middlewareWarning as any).triggered) return
+    const returnedValue = dispatch(
+      api.internalActions.internal_getRTKQSubscriptions(),
+    )
 
-      // The RTKQ middleware should return the internal state object,
-      // but it should _not_ be the action object.
-      if (
-        typeof returnedValue !== 'object' ||
-        typeof returnedValue?.type === 'string'
-      ) {
-        // Otherwise, must not have been added
-        throw new Error(
-          `Warning: Middleware for RTK-Query API at reducerPath "${api.reducerPath}" has not been added to the store.
+    ;(middlewareWarning as any).triggered = true
+
+    // The RTKQ middleware should return the internal state object,
+    // but it should _not_ be the action object.
+    if (
+      typeof returnedValue !== 'object' ||
+      typeof returnedValue?.type === 'string'
+    ) {
+      // Otherwise, must not have been added
+      throw new Error(
+        `Warning: Middleware for RTK-Query API at reducerPath "${api.reducerPath}" has not been added to the store.
 You must add the middleware for RTK-Query to function correctly!`,
-        )
-      }
+      )
     }
   }
 
@@ -513,7 +517,7 @@ You must add the middleware for RTK-Query to function correctly!`,
         )
 
         if (!runningQuery && !skippedSynchronously && !forceQueryFn) {
-          const runningQueries = getRunningQueries(dispatch)!
+          const runningQueries = getRunningQueries(dispatch)
           runningQueries.set(queryCacheKey, statePromise)
 
           statePromise.then(() => {
@@ -580,7 +584,7 @@ You must add the middleware for RTK-Query to function correctly!`,
           reset,
         })
 
-        const runningMutations = getRunningMutations(dispatch)!
+        const runningMutations = getRunningMutations(dispatch)
 
         runningMutations.set(requestId, ret)
         ret.then(() => {

@@ -12,6 +12,7 @@ import type {
   BaseQueryFn,
   CoreModule,
   EndpointDefinitions,
+  InfiniteData,
   InfiniteQueryActionCreatorResult,
   InfiniteQueryArgFrom,
   InfiniteQueryDefinition,
@@ -38,7 +39,6 @@ import type {
   TSHelpersOverride,
 } from '@reduxjs/toolkit/query'
 import type {
-  InfiniteData,
   InfiniteQueryDirection,
   StartInfiniteQueryActionCreator,
   SubscriptionSelectors,
@@ -47,7 +47,7 @@ import { isInfiniteQueryDefinition } from '../endpointDefinitions'
 import type { UninitializedValue } from './constants'
 import { UNINITIALIZED_VALUE } from './constants'
 import type { ReactHooksModuleOptions } from './module'
-import type { DependencyList } from './reactImports'
+import type { DependencyList, RefObject } from './reactImports'
 import {
   useCallback,
   useDebugValue,
@@ -110,11 +110,16 @@ export type MutationHooks<
 }
 
 /**
- * A React hook that automatically triggers fetches of data from an endpoint, 'subscribes' the component to the cached data, and reads the request status and cached data from the Redux store. The component will re-render as the loading status changes and the data becomes available.
- *
- * The query arg is used as a cache key. Changing the query arg will tell the hook to re-fetch the data if it does not exist in the cache already, and the hook will return the data for that query arg once it's available.
- *
- * This hook combines the functionality of both [`useQueryState`](#usequerystate) and [`useQuerySubscription`](#usequerysubscription) together, and is intended to be used in the majority of situations.
+ * A React hook that automatically triggers fetches of data from an endpoint,
+ * 'subscribes' the component to the cached data, and reads the request status
+ * and cached data from the Redux store. The component will re-render as the
+ * loading status changes and the data becomes available. The query arg is used
+ * as a cache key. Changing the query arg will tell the hook to re-fetch the
+ * data if it does not exist in the cache already, and the hook will return the
+ * data for that query arg once it's available. This hook combines the
+ * functionality of both {@linkcode QueryHooks.useQueryState | useQueryState}
+ * and {@linkcode QueryHooks.useQuerySubscription | useQuerySubscription}
+ * together, and is intended to be used in the majority of situations.
  *
  * #### Features
  *
@@ -133,11 +138,9 @@ export type UseQuery<D extends QueryDefinition<any, any, any, any>> = <
 
 export type TypedUseQuery<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   BaseQuery extends BaseQueryFn,
-> = UseQuery<
-  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
->
+> = UseQuery<QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>>
 
 export type UseQueryHookResult<
   D extends QueryDefinition<any, any, any, any>,
@@ -150,13 +153,13 @@ export type UseQueryHookResult<
  */
 export type TypedUseQueryHookResult<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   BaseQuery extends BaseQueryFn,
   R = UseQueryStateDefaultResult<
-    QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
+    QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
   >,
-> = TypedUseQueryStateResult<ResultType, QueryArgumentType, BaseQuery, R> &
-  TypedUseQuerySubscriptionResult<ResultType, QueryArgumentType, BaseQuery>
+> = TypedUseQueryStateResult<ResultType, QueryArg, BaseQuery, R> &
+  TypedUseQuerySubscriptionResult<ResultType, QueryArg, BaseQuery>
 
 export type UseQuerySubscriptionOptions = SubscriptionOptions & {
   /**
@@ -193,12 +196,18 @@ export type UseQuerySubscriptionOptions = SubscriptionOptions & {
    */
   skip?: boolean
   /**
-   * Defaults to `false`. This setting allows you to control whether if a cached result is already available, RTK Query will only serve a cached result, or if it should `refetch` when set to `true` or if an adequate amount of time has passed since the last successful query result.
+   * This setting allows you to control whether if a cached result is already
+   * available, RTK Query will only serve a cached result, or if it should
+   * `refetch` when set to `true` or if an adequate amount of time has passed
+   * since the last successful query result.
    * - `false` - Will not cause a query to be performed _unless_ it does not exist yet.
    * - `true` - Will always refetch when a new subscriber to a query is added. Behaves the same as calling the `refetch` callback or passing `forceRefetch: true` in the action creator.
    * - `number` - **Value is in seconds**. If a number is provided and there is an existing query in the cache, it will compare the current time vs the last fulfilled timestamp, and only refetch if enough time has elapsed.
    *
-   * If you specify this option alongside `skip: true`, this **will not be evaluated** until `skip` is false.
+   * If you specify this option alongside `skip: true`, this
+   * **will not be evaluated** until `skip` is `false`.
+   *
+   * @default false
    */
   refetchOnMountOrArgChange?: boolean | number
 }
@@ -238,10 +247,10 @@ export type UseQuerySubscription<
 
 export type TypedUseQuerySubscription<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   BaseQuery extends BaseQueryFn,
 > = UseQuerySubscription<
-  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 export type UseQuerySubscriptionResult<
@@ -254,10 +263,10 @@ export type UseQuerySubscriptionResult<
  */
 export type TypedUseQuerySubscriptionResult<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   BaseQuery extends BaseQueryFn,
 > = UseQuerySubscriptionResult<
-  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 export type UseLazyQueryLastPromiseInfo<
@@ -295,10 +304,10 @@ export type UseLazyQuery<D extends QueryDefinition<any, any, any, any>> = <
 
 export type TypedUseLazyQuery<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   BaseQuery extends BaseQueryFn,
 > = UseLazyQuery<
-  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 export type UseLazyQueryStateResult<
@@ -318,13 +327,13 @@ export type UseLazyQueryStateResult<
  */
 export type TypedUseLazyQueryStateResult<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   BaseQuery extends BaseQueryFn,
   R = UseQueryStateDefaultResult<
-    QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
+    QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
   >,
 > = UseLazyQueryStateResult<
-  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>,
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>,
   R
 >
 
@@ -357,16 +366,18 @@ export type LazyQueryTrigger<D extends QueryDefinition<any, any, any, any>> = {
 
 export type TypedLazyQueryTrigger<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   BaseQuery extends BaseQueryFn,
 > = LazyQueryTrigger<
-  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 /**
- * A React hook similar to [`useQuerySubscription`](#usequerysubscription), but with manual control over when the data fetching occurs.
- *
- * Note that this hook does not return a request status or cached data. For that use-case, see [`useLazyQuery`](#uselazyquery).
+ * A React hook similar to
+ * {@linkcode QueryHooks.useQuerySubscription | useQuerySubscription}, but with
+ * manual control over when the data fetching occurs. Note that this hook does
+ * not return a request status or cached data. For that use-case, see
+ * {@linkcode QueryHooks.useLazyQuery | useLazyQuery}.
  *
  * #### Features
  *
@@ -386,10 +397,10 @@ export type UseLazyQuerySubscription<
 
 export type TypedUseLazyQuerySubscription<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   BaseQuery extends BaseQueryFn,
 > = UseLazyQuerySubscription<
-  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 /**
@@ -532,10 +543,10 @@ export type UseQueryState<D extends QueryDefinition<any, any, any, any>> = <
 
 export type TypedUseQueryState<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   BaseQuery extends BaseQueryFn,
 > = UseQueryState<
-  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 /**
@@ -667,7 +678,7 @@ export type UseQueryStateOptions<
  * ```
  *
  * @template ResultType - The type of the result `data` returned by the query.
- * @template QueryArgumentType - The type of the argument passed into the query.
+ * @template QueryArg - The type of the argument passed into the query.
  * @template BaseQuery - The type of the base query function being used.
  * @template SelectedResult - The type of the selected result returned by the __`selectFromResult`__ function.
  *
@@ -676,13 +687,13 @@ export type UseQueryStateOptions<
  */
 export type TypedUseQueryStateOptions<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   BaseQuery extends BaseQueryFn,
   SelectedResult extends Record<string, any> = UseQueryStateDefaultResult<
-    QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
+    QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
   >,
 > = UseQueryStateOptions<
-  QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>,
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>,
   SelectedResult
 >
 
@@ -697,10 +708,10 @@ export type UseQueryStateResult<
  */
 export type TypedUseQueryStateResult<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   BaseQuery extends BaseQueryFn,
   R = UseQueryStateDefaultResult<
-    QueryDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
+    QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
   >,
 > = R
 
@@ -826,12 +837,12 @@ export type LazyInfiniteQueryTrigger<
 
 export type TypedLazyInfiniteQueryTrigger<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
   BaseQuery extends BaseQueryFn,
 > = LazyInfiniteQueryTrigger<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
     BaseQuery,
     string,
@@ -877,35 +888,44 @@ export type UseInfiniteQuerySubscriptionOptions<
    */
   skip?: boolean
   /**
-   * Defaults to `false`. This setting allows you to control whether if a cached result is already available, RTK Query will only serve a cached result, or if it should `refetch` when set to `true` or if an adequate amount of time has passed since the last successful query result.
+   * This setting allows you to control whether if a cached result is already
+   * available, RTK Query will only serve a cached result, or if it should
+   * `refetch` when set to `true` or if an adequate amount of time has passed
+   * since the last successful query result.
    * - `false` - Will not cause a query to be performed _unless_ it does not exist yet.
    * - `true` - Will always refetch when a new subscriber to a query is added. Behaves the same as calling the `refetch` callback or passing `forceRefetch: true` in the action creator.
    * - `number` - **Value is in seconds**. If a number is provided and there is an existing query in the cache, it will compare the current time vs the last fulfilled timestamp, and only refetch if enough time has elapsed.
    *
-   * If you specify this option alongside `skip: true`, this **will not be evaluated** until `skip` is false.
+   * If you specify this option alongside `skip: true`, this
+   * **will not be evaluated** until `skip` is `false`.
+   *
+   * @default false
    */
   refetchOnMountOrArgChange?: boolean | number
   initialPageParam?: PageParamFrom<D>
   /**
-   * Defaults to `true`. When this is `true` and an infinite query endpoint is refetched
-   * (due to tag invalidation, polling, arg change configuration, or manual refetching),
-   * RTK Query will try to sequentially refetch all pages currently in the cache.
-   * When `false` only the first page will be refetched.
+   * When this is `true` and an infinite query endpoint is refetched
+   * (due to tag invalidation, polling, arg change configuration, or manual
+   * refetching), RTK Query will try to sequentially refetch all pages
+   * currently in the cache. When `false` only the first page will be
+   * refetched. This option applies to all automatic refetches for this
+   * subscription (polling, tag invalidation, etc.). It can be overridden on
+   * a per-call basis using the
+   * {@linkcode UseInfiniteQuerySubscriptionResult.refetch | refetch()} method.
    *
-   * This option applies to all automatic refetches for this subscription (polling, tag invalidation, etc.).
-   * It can be overridden on a per-call basis using the `refetch()` method.
+   * @default true
    */
   refetchCachedPages?: boolean
 }
 
 export type TypedUseInfiniteQuerySubscription<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
   BaseQuery extends BaseQueryFn,
 > = UseInfiniteQuerySubscription<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
     BaseQuery,
     string,
@@ -934,12 +954,12 @@ export type UseInfiniteQuerySubscriptionResult<
  */
 export type TypedUseInfiniteQuerySubscriptionResult<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
   BaseQuery extends BaseQueryFn,
 > = UseInfiniteQuerySubscriptionResult<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
     BaseQuery,
     string,
@@ -955,13 +975,13 @@ export type InfiniteQueryStateSelector<
 
 export type TypedInfiniteQueryStateSelector<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
   BaseQuery extends BaseQueryFn,
   SelectedResult extends Record<string, any> =
     UseInfiniteQueryStateDefaultResult<
       InfiniteQueryDefinition<
-        QueryArgumentType,
+        QueryArg,
         PageParam,
         BaseQuery,
         string,
@@ -972,7 +992,7 @@ export type TypedInfiniteQueryStateSelector<
 > = InfiniteQueryStateSelector<
   SelectedResult,
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
     BaseQuery,
     string,
@@ -1020,12 +1040,12 @@ export type UseInfiniteQuery<
 
 export type TypedUseInfiniteQuery<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
   BaseQuery extends BaseQueryFn,
 > = UseInfiniteQuery<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
     BaseQuery,
     string,
@@ -1053,12 +1073,12 @@ export type UseInfiniteQueryState<
 
 export type TypedUseInfiniteQueryState<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
   BaseQuery extends BaseQueryFn,
 > = UseInfiniteQueryState<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
     BaseQuery,
     string,
@@ -1099,12 +1119,12 @@ export type UseInfiniteQueryHookResult<
 
 export type TypedUseInfiniteQueryHookResult<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
   BaseQuery extends BaseQueryFn,
   R extends Record<string, any> = UseInfiniteQueryStateDefaultResult<
     InfiniteQueryDefinition<
-      QueryArgumentType,
+      QueryArg,
       PageParam,
       BaseQuery,
       string,
@@ -1114,7 +1134,7 @@ export type TypedUseInfiniteQueryHookResult<
   >,
 > = UseInfiniteQueryHookResult<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
     BaseQuery,
     string,
@@ -1199,13 +1219,13 @@ export type UseInfiniteQueryStateOptions<
 
 export type TypedUseInfiniteQueryStateOptions<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
   BaseQuery extends BaseQueryFn,
   SelectedResult extends Record<string, any> =
     UseInfiniteQueryStateDefaultResult<
       InfiniteQueryDefinition<
-        QueryArgumentType,
+        QueryArg,
         PageParam,
         BaseQuery,
         string,
@@ -1215,7 +1235,7 @@ export type TypedUseInfiniteQueryStateOptions<
     >,
 > = UseInfiniteQueryStateOptions<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
     BaseQuery,
     string,
@@ -1232,12 +1252,12 @@ export type UseInfiniteQueryStateResult<
 
 export type TypedUseInfiniteQueryStateResult<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
   BaseQuery extends BaseQueryFn,
   R = UseInfiniteQueryStateDefaultResult<
     InfiniteQueryDefinition<
-      QueryArgumentType,
+      QueryArg,
       PageParam,
       BaseQuery,
       string,
@@ -1247,7 +1267,7 @@ export type TypedUseInfiniteQueryStateResult<
   >,
 > = UseInfiniteQueryStateResult<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
     BaseQuery,
     string,
@@ -1393,13 +1413,13 @@ export type UseMutationStateResult<
  */
 export type TypedUseMutationResult<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   BaseQuery extends BaseQueryFn,
   R = MutationResultSelectorResult<
-    MutationDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
+    MutationDefinition<QueryArg, BaseQuery, string, ResultType, string>
   >,
 > = UseMutationStateResult<
-  MutationDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>,
+  MutationDefinition<QueryArg, BaseQuery, string, ResultType, string>,
   R
 >
 
@@ -1421,10 +1441,10 @@ export type UseMutation<D extends MutationDefinition<any, any, any, any>> = <
 
 export type TypedUseMutation<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   BaseQuery extends BaseQueryFn,
 > = UseMutation<
-  MutationDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
+  MutationDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 export type MutationTrigger<D extends MutationDefinition<any, any, any, any>> =
@@ -1450,10 +1470,10 @@ export type MutationTrigger<D extends MutationDefinition<any, any, any, any>> =
 
 export type TypedMutationTrigger<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   BaseQuery extends BaseQueryFn,
 > = MutationTrigger<
-  MutationDefinition<QueryArgumentType, BaseQuery, string, ResultType, string>
+  MutationDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 /**
@@ -1510,7 +1530,7 @@ type GenericPrefetchThunk = (
  * @param opts.moduleOptions.useSelector - The version of the `useSelector` hook to be used
  * @returns An object containing functions to generate hooks based on an endpoint
  */
-export function buildHooks<DefinitionsType extends EndpointDefinitions>({
+export function buildHooks<Definitions extends EndpointDefinitions>({
   api,
   moduleOptions: {
     batch,
@@ -1521,17 +1541,17 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
   serializeQueryArgs,
   context,
 }: {
-  api: Api<any, DefinitionsType, any, any, CoreModule>
+  api: Api<any, Definitions, any, any, CoreModule>
   moduleOptions: Required<ReactHooksModuleOptions>
   serializeQueryArgs: SerializeQueryArgs<any>
-  context: ApiContext<DefinitionsType>
+  context: ApiContext<Definitions>
 }) {
   const usePossiblyImmediateEffect: (
     effect: () => void | undefined,
     deps?: DependencyList,
   ) => void = unstable__sideEffectsInRender ? (cb) => cb() : useEffect
 
-  type UnsubscribePromiseRef = React.RefObject<
+  type UnsubscribePromiseRef = RefObject<
     { unsubscribe?: () => void } | undefined
   >
 
@@ -1665,7 +1685,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
     } as UseInfiniteQueryStateDefaultResult<any>
   }
 
-  function usePrefetch<EndpointName extends QueryKeys<DefinitionsType>>(
+  function usePrefetch<EndpointName extends QueryKeys<Definitions>>(
     endpointName: EndpointName,
     defaultOptions?: PrefetchOptions,
   ) {
@@ -1703,7 +1723,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
   ) {
     const { initiate } = api.endpoints[endpointName] as ApiEndpointQuery<
       QueryDefinition<any, any, any, any, any>,
-      DefinitionsType
+      Definitions
     >
     const dispatch = useDispatch<ThunkDispatch<any, any, UnknownAction>>()
 
@@ -1744,9 +1764,8 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
       rest as UseInfiniteQuerySubscriptionOptions<any>
     const stableInitialPageParam = useShallowStableValue(initialPageParam)
 
-    const refetchCachedPages = (
+    const { refetchCachedPages } =
       rest as UseInfiniteQuerySubscriptionOptions<any>
-    ).refetchCachedPages
     const stableRefetchCachedPages = useShallowStableValue(refetchCachedPages)
 
     /**
@@ -1754,7 +1773,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
      */
     const promiseRef = useRef<T | undefined>(undefined)
 
-    let { queryCacheKey, requestId } = promiseRef.current || {}
+    const { queryCacheKey, requestId } = promiseRef.current || {}
 
     // HACK We've saved the middleware subscription lookup callbacks into a ref,
     // so we can directly check here if the subscription exists for this query.
@@ -1838,7 +1857,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
     ) => {
       const { select } = api.endpoints[endpointName] as ApiEndpointQuery<
         QueryDefinition<any, any, any, any, any>,
-        DefinitionsType
+        Definitions
       >
       const stableArg = useStableQueryArgs(skip ? skipToken : arg)
 
@@ -1879,12 +1898,12 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
       )
 
       const currentState = useSelector(
-        (state: RootState<DefinitionsType, any, any>) =>
+        (state: RootState<Definitions, any, any>) =>
           querySelector(state, lastValue.current),
         shallowEqual,
       )
 
-      const store = useStore<RootState<DefinitionsType, any, any>>()
+      const store = useStore<RootState<Definitions, any, any>>()
       const newLastValue = selectDefaultResult(
         store.getState(),
         lastValue.current,
@@ -1915,7 +1934,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
     T extends
       | QueryActionCreatorResult<any>
       | InfiniteQueryActionCreatorResult<any>,
-  >(promiseRef: React.RefObject<T | undefined>): T {
+  >(promiseRef: RefObject<T | undefined>): T {
     if (!promiseRef.current)
       throw new Error('Cannot refetch a query that has not been started yet.')
     return promiseRef.current.refetch() as T
@@ -1951,7 +1970,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
     } = {}) => {
       const { initiate } = api.endpoints[endpointName] as ApiEndpointQuery<
         QueryDefinition<any, any, any, any, any>,
-        DefinitionsType
+        Definitions
       >
       const dispatch = useDispatch<ThunkDispatch<any, any, UnknownAction>>()
 
@@ -2102,15 +2121,13 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
       }, [stableSubscriptionOptions])
 
       // Extract and stabilize the hook-level refetchCachedPages option
-      const hookRefetchCachedPages = (
-        options as UseInfiniteQuerySubscriptionOptions<any>
-      ).refetchCachedPages
+      const hookRefetchCachedPages = options.refetchCachedPages
       const stableHookRefetchCachedPages = useShallowStableValue(
         hookRefetchCachedPages,
       )
 
       const trigger: LazyInfiniteQueryTrigger<any> = useCallback(
-        function (arg: unknown, direction: 'forward' | 'backward') {
+        function (arg: unknown, direction: InfiniteQueryDirection) {
           let promise: InfiniteQueryActionCreatorResult<any>
 
           batch(() => {
@@ -2217,7 +2234,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
     return ({ selectFromResult, fixedCacheKey } = {}) => {
       const { select, initiate } = api.endpoints[name] as ApiEndpointMutation<
         MutationDefinition<any, any, any, any, any>,
-        DefinitionsType
+        Definitions
       >
       const dispatch = useDispatch<ThunkDispatch<any, any, UnknownAction>>()
       const [promise, setPromise] = useState<MutationActionCreatorResult<any>>()
@@ -2246,7 +2263,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
         [fixedCacheKey, promise, select],
       )
       const mutationSelector = useMemo(
-        (): Selector<RootState<DefinitionsType, any, any>, any> =>
+        (): Selector<RootState<Definitions, any, any>, any> =>
           selectFromResult
             ? createSelector([selectDefaultResult], selectFromResult)
             : selectDefaultResult,
