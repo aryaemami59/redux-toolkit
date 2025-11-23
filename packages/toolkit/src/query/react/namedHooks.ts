@@ -12,51 +12,54 @@ import type {
   UseQuery,
 } from './buildHooks'
 
-type QueryHookNames<DefinitionsType extends EndpointDefinitions> = {
-  [K in keyof DefinitionsType as DefinitionsType[K] extends {
+type QueryHookNames<EndpointDefinitionsType extends EndpointDefinitions> = {
+  [K in keyof EndpointDefinitionsType as EndpointDefinitionsType[K] extends {
     type: DefinitionType.query
   }
     ? `use${Capitalize<K & string>}Query`
     : never]: UseQuery<
-    Extract<DefinitionsType[K], QueryDefinition<any, any, any, any>>
+    Extract<EndpointDefinitionsType[K], QueryDefinition<any, any, any, any>>
   >
 }
 
-type LazyQueryHookNames<DefinitionsType extends EndpointDefinitions> = {
-  [K in keyof DefinitionsType as DefinitionsType[K] extends {
+type LazyQueryHookNames<EndpointDefinitionsType extends EndpointDefinitions> = {
+  [K in keyof EndpointDefinitionsType as EndpointDefinitionsType[K] extends {
     type: DefinitionType.query
   }
     ? `useLazy${Capitalize<K & string>}Query`
     : never]: UseLazyQuery<
-    Extract<DefinitionsType[K], QueryDefinition<any, any, any, any>>
+    Extract<EndpointDefinitionsType[K], QueryDefinition<any, any, any, any>>
   >
 }
 
-type InfiniteQueryHookNames<DefinitionsType extends EndpointDefinitions> = {
-  [K in keyof DefinitionsType as DefinitionsType[K] extends {
+type InfiniteQueryHookNames<
+  EndpointDefinitionsType extends EndpointDefinitions,
+> = {
+  [K in keyof EndpointDefinitionsType as EndpointDefinitionsType[K] extends {
     type: DefinitionType.infinitequery
   }
     ? `use${Capitalize<K & string>}InfiniteQuery`
     : never]: UseInfiniteQuery<
     Extract<
-      DefinitionsType[K],
+      EndpointDefinitionsType[K],
       InfiniteQueryDefinition<any, any, any, any, any>
     >
   >
 }
 
-type MutationHookNames<DefinitionsType extends EndpointDefinitions> = {
-  [K in keyof DefinitionsType as DefinitionsType[K] extends {
+type MutationHookNames<EndpointDefinitionsType extends EndpointDefinitions> = {
+  [K in keyof EndpointDefinitionsType as EndpointDefinitionsType[K] extends {
     type: DefinitionType.mutation
   }
     ? `use${Capitalize<K & string>}Mutation`
     : never]: UseMutation<
-    Extract<DefinitionsType[K], MutationDefinition<any, any, any, any>>
+    Extract<EndpointDefinitionsType[K], MutationDefinition<any, any, any, any>>
   >
 }
 
-export type HooksWithUniqueNames<DefinitionsType extends EndpointDefinitions> =
-  QueryHookNames<DefinitionsType> &
-    LazyQueryHookNames<DefinitionsType> &
-    InfiniteQueryHookNames<DefinitionsType> &
-    MutationHookNames<DefinitionsType>
+export type HooksWithUniqueNames<
+  EndpointDefinitionsType extends EndpointDefinitions,
+> = QueryHookNames<EndpointDefinitionsType> &
+  LazyQueryHookNames<EndpointDefinitionsType> &
+  InfiniteQueryHookNames<EndpointDefinitionsType> &
+  MutationHookNames<EndpointDefinitionsType>

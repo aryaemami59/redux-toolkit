@@ -118,9 +118,9 @@ export type AsyncThunkConfig = {
 }
 
 export type GetState<ThunkApiConfig> = ThunkApiConfig extends {
-  state: infer InferredThunkStateType
+  state: infer InferredStateType
 }
-  ? InferredThunkStateType
+  ? InferredStateType
   : unknown
 
 type GetExtra<ThunkApiConfig> = ThunkApiConfig extends {
