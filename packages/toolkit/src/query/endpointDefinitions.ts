@@ -596,7 +596,7 @@ export type ResultDescription<
 type QueryTypes<
   QueryArgumentType,
   BaseQueryFunctionType extends BaseQueryFn,
-  TagType extends string,
+  TagTypes extends string,
   ResultType,
   ReducerPathType extends string = string,
   RawResultType extends
@@ -617,11 +617,11 @@ type QueryTypes<
   QueryDefinition: QueryDefinition<
     QueryArgumentType,
     BaseQueryFunctionType,
-    TagType,
+    TagTypes,
     ResultType,
     ReducerPathType
   >
-  TagTypes: TagType
+  TagTypes: TagTypes
   ReducerPath: ReducerPathType
 }
 
@@ -921,7 +921,7 @@ export type InfiniteQueryTypes<
   QueryArgumentType,
   PageParamType,
   BaseQueryFunctionType extends BaseQueryFn,
-  TagType extends string,
+  TagTypes extends string,
   ResultType,
   ReducerPathType extends string = string,
   RawResultType extends
@@ -943,11 +943,11 @@ export type InfiniteQueryTypes<
     QueryArgumentType,
     PageParamType,
     BaseQueryFunctionType,
-    TagType,
+    TagTypes,
     ResultType,
     ReducerPathType
   >
-  TagTypes: TagType
+  TagTypes: TagTypes
   ReducerPath: ReducerPathType
 }
 
@@ -1144,7 +1144,7 @@ export type InfiniteQueryDefinition<
 type MutationTypes<
   QueryArgumentType,
   BaseQueryFunctionType extends BaseQueryFn,
-  TagType extends string,
+  TagTypes extends string,
   ResultType,
   ReducerPathType extends string = string,
   RawResultType extends
@@ -1165,11 +1165,11 @@ type MutationTypes<
   MutationDefinition: MutationDefinition<
     QueryArgumentType,
     BaseQueryFunctionType,
-    TagType,
+    TagTypes,
     ResultType,
     ReducerPathType
   >
-  TagTypes: TagType
+  TagTypes: TagTypes
   ReducerPath: ReducerPathType
 }
 
