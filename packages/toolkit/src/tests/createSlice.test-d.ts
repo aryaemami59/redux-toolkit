@@ -934,7 +934,8 @@ describe('type tests', () => {
             state.status = 'loading'
           }),
           success: create.reducer<T>((state, action) => {
-            state.data = castDraft(action.payload)
+            // TODO: Figure out how to resolve type issues introduced by immer v11.0.3.
+            state.data = castDraft(action.payload) as any
             state.status = 'finished'
           }),
           ...reducers(create),

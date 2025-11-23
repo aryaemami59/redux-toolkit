@@ -30,8 +30,7 @@ import {
   isQueryDefinition,
 } from '../endpointDefinitions'
 import { safeAssign } from '../tsHelpers'
-import { enablePatches } from '../utils/immerImports'
-import { getOrInsertComputed } from '../utils/index'
+import { enablePatches, getOrInsertComputed } from '../utils/index'
 import type {
   CombinedState,
   MutationKeys,
@@ -73,7 +72,8 @@ import type {
   UpsertQueryDataThunk,
 } from './buildThunks'
 import { buildThunks } from './buildThunks'
-import { createSelector as _createSelector } from './rtkImports'
+import { _createSelector } from './rtkImports'
+import type { ListenerActions } from './setupListeners'
 import { onFocus, onFocusLost, onOffline, onOnline } from './setupListeners'
 
 /**
@@ -97,15 +97,9 @@ export type CoreModule =
   | ReferenceQueryLifecycle
   | ReferenceCacheCollection
 
-export type ThunkWithReturnValue<ThunkReturnType> = ThunkAction<
-  ThunkReturnType,
-  any,
-  any,
-  UnknownAction
->
+export type ThunkWithReturnValue<T> = ThunkAction<T, any, any, UnknownAction>
 
 export interface ApiModules<
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   BaseQuery extends BaseQueryFn,
   Definitions extends EndpointDefinitions,
   ReducerPath extends string,
@@ -177,7 +171,7 @@ export interface ApiModules<
        * Can be used to await a specific query triggered in any way,
        * including via hook calls or manually dispatching `initiate` actions.
        *
-       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
+       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
        */
       getRunningQueryThunk<EndpointName extends AllQueryKeys<Definitions>>(
         endpointName: EndpointName,
@@ -200,7 +194,7 @@ export interface ApiModules<
        * Can be used to await a specific mutation triggered in any way,
        * including via hook trigger functions or manually dispatching `initiate` actions.
        *
-       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
+       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
        */
       getRunningMutationThunk<EndpointName extends MutationKeys<Definitions>>(
         endpointName: EndpointName,
@@ -218,7 +212,7 @@ export interface ApiModules<
        * Useful for SSR scenarios to await all running queries triggered in any way,
        * including via hook calls or manually dispatching `initiate` actions.
        *
-       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
+       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
        */
       getRunningQueriesThunk(): ThunkWithReturnValue<
         Array<
@@ -232,7 +226,7 @@ export interface ApiModules<
        * Useful for SSR scenarios to await all running mutations triggered in any way,
        * including via hook calls or manually dispatching `initiate` actions.
        *
-       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
+       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
        */
       getRunningMutationsThunk(): ThunkWithReturnValue<
         Array<MutationActionCreatorResult<any>>
@@ -248,7 +242,7 @@ export interface ApiModules<
        * @example
        *
        * ```ts no-transpile
-       * dispatch(api.util.prefetch('getPosts', undefined, { force: true }))
+       * dispatch(api.util.prefetch('getPosts', undefined, { force: true }));
        * ```
        */
       prefetch<EndpointName extends QueryKeys<Definitions>>(
@@ -432,78 +426,48 @@ export interface ApiModules<
 }
 
 export interface ApiEndpointQuery<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any, any>,
-  EndpointDefinitionsType extends EndpointDefinitions,
+  Definition extends QueryDefinition<any, any, any, any, any>,
+  Definitions extends EndpointDefinitions,
 >
   extends
-    BuildThunksApiEndpointQuery<QueryDefinitionType>,
-    BuildInitiateApiEndpointQuery<QueryDefinitionType>,
-    BuildSelectorsApiEndpointQuery<
-      QueryDefinitionType,
-      EndpointDefinitionsType
-    > {
+    BuildThunksApiEndpointQuery<Definition>,
+    BuildInitiateApiEndpointQuery<Definition>,
+    BuildSelectorsApiEndpointQuery<Definition, Definitions> {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
-  Types: NonNullable<QueryDefinitionType['Types']>
+  Types: NonNullable<Definition['Types']>
 }
 
 export interface ApiEndpointInfiniteQuery<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
-  EndpointDefinitionsType extends EndpointDefinitions,
+  Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
+  Definitions extends EndpointDefinitions,
 >
   extends
-    BuildThunksApiEndpointInfiniteQuery<InfiniteQueryDefinitionType>,
-    BuildInitiateApiEndpointInfiniteQuery<InfiniteQueryDefinitionType>,
-    BuildSelectorsApiEndpointInfiniteQuery<
-      InfiniteQueryDefinitionType,
-      EndpointDefinitionsType
-    > {
+    BuildThunksApiEndpointInfiniteQuery<Definition>,
+    BuildInitiateApiEndpointInfiniteQuery<Definition>,
+    BuildSelectorsApiEndpointInfiniteQuery<Definition, Definitions> {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
-  Types: NonNullable<InfiniteQueryDefinitionType['Types']>
+  Types: NonNullable<Definition['Types']>
 }
 
 export interface ApiEndpointMutation<
-  MutationDefinitionType extends MutationDefinition<any, any, any, any, any>,
-  EndpointDefinitionsType extends EndpointDefinitions,
+  Definition extends MutationDefinition<any, any, any, any, any>,
+  Definitions extends EndpointDefinitions,
 >
   extends
-    BuildThunksApiEndpointMutation<MutationDefinitionType>,
-    BuildInitiateApiEndpointMutation<MutationDefinitionType>,
-    BuildSelectorsApiEndpointMutation<
-      MutationDefinitionType,
-      EndpointDefinitionsType
-    > {
+    BuildThunksApiEndpointMutation<Definition>,
+    BuildInitiateApiEndpointMutation<Definition>,
+    BuildSelectorsApiEndpointMutation<Definition, Definitions> {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
-  Types: NonNullable<MutationDefinitionType['Types']>
-}
-
-export type ListenerActions = {
-  /**
-   * Will cause the RTK Query middleware to trigger any refetchOnReconnect-related behavior
-   * @link https://redux-toolkit.js.org/rtk-query/api/setupListeners
-   */
-  onOnline: typeof onOnline
-  onOffline: typeof onOffline
-  /**
-   * Will cause the RTK Query middleware to trigger any refetchOnFocus-related behavior
-   * @link https://redux-toolkit.js.org/rtk-query/api/setupListeners
-   */
-  onFocus: typeof onFocus
-  onFocusLost: typeof onFocusLost
+  Types: NonNullable<Definition['Types']>
 }
 
 export type InternalActions = SliceActions & ListenerActions
@@ -511,6 +475,8 @@ export type InternalActions = SliceActions & ListenerActions
 export interface CoreModuleOptions {
   /**
    * A selector creator (usually from `reselect`, or matching the same signature)
+   *
+   * @default createSelector
    */
   createSelector?: CreateSelectorFunction<any, any, any>
 }
@@ -520,6 +486,8 @@ export interface CoreModuleOptions {
  *
  * @example
  * ```ts
+ * import { buildCreateApi, coreModule } from '@reduxjs/toolkit/query';
+ *
  * const createBaseApi = buildCreateApi(coreModule());
  * ```
  */
@@ -530,7 +498,7 @@ export const coreModule = ({
   init(
     api,
     {
-      baseQuery,
+      baseQuery: baseQueryFunction,
       tagTypes,
       reducerPath,
       serializeQueryArgs,
@@ -599,7 +567,7 @@ export const coreModule = ({
       prefetch,
       buildMatchThunkActions,
     } = buildThunks({
-      baseQuery,
+      baseQuery: baseQueryFunction,
       reducerPath,
       context,
       api,
