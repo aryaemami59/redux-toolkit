@@ -59,64 +59,78 @@ export type SkipToken = typeof skipToken
 export const skipToken = /* @__PURE__ */ Symbol.for('RTKQ/skipToken')
 
 export type BuildSelectorsApiEndpointQuery<
-  Definition extends QueryDefinition<any, any, any, any, any>,
+  QueryDefinitionType extends QueryDefinition<any, any, any, any, any>,
   Definitions extends EndpointDefinitions,
 > = {
   select: QueryResultSelectorFactory<
-    Definition,
+    QueryDefinitionType,
     _RootState<
       Definitions,
-      TagTypesFrom<Definition>,
-      ReducerPathFrom<Definition>
+      TagTypesFrom<QueryDefinitionType>,
+      ReducerPathFrom<QueryDefinitionType>
     >
   >
 }
 
 export type BuildSelectorsApiEndpointInfiniteQuery<
-  Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
+  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
+    any,
+    any,
+    any,
+    any,
+    any
+  >,
   Definitions extends EndpointDefinitions,
 > = {
   select: InfiniteQueryResultSelectorFactory<
-    Definition,
+    InfiniteQueryDefinitionType,
     _RootState<
       Definitions,
-      TagTypesFrom<Definition>,
-      ReducerPathFrom<Definition>
+      TagTypesFrom<InfiniteQueryDefinitionType>,
+      ReducerPathFrom<InfiniteQueryDefinitionType>
     >
   >
 }
 
 export type BuildSelectorsApiEndpointMutation<
-  Definition extends MutationDefinition<any, any, any, any, any>,
+  MutationDefinitionType extends MutationDefinition<any, any, any, any, any>,
   Definitions extends EndpointDefinitions,
 > = {
   select: MutationResultSelectorFactory<
-    Definition,
+    MutationDefinitionType,
     _RootState<
       Definitions,
-      TagTypesFrom<Definition>,
-      ReducerPathFrom<Definition>
+      TagTypesFrom<MutationDefinitionType>,
+      ReducerPathFrom<MutationDefinitionType>
     >
   >
 }
 
 type QueryResultSelectorFactory<
-  Definition extends QueryDefinition<any, any, any, any>,
+  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
   RootStateType,
 > = (
-  queryArg: QueryArgFrom<Definition> | SkipToken,
-) => (state: RootStateType) => QueryResultSelectorResult<Definition>
+  queryArg: QueryArgFrom<QueryDefinitionType> | SkipToken,
+) => (state: RootStateType) => QueryResultSelectorResult<QueryDefinitionType>
 
 export type QueryResultSelectorResult<
-  Definition extends QueryDefinition<any, any, any, any>,
-> = QuerySubState<Definition> & RequestStatusFlags
+  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
+> = QuerySubState<QueryDefinitionType> & RequestStatusFlags
 
 type InfiniteQueryResultSelectorFactory<
-  Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
+  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
+    any,
+    any,
+    any,
+    any,
+    any
+  >,
   RootStateType,
 > = (
-  queryArg: InfiniteQueryArgFrom<Definition> | SkipToken,
-) => (state: RootStateType) => InfiniteQueryResultSelectorResult<Definition>
+  queryArg: InfiniteQueryArgFrom<InfiniteQueryDefinitionType> | SkipToken,
+) => (
+  state: RootStateType,
+) => InfiniteQueryResultSelectorResult<InfiniteQueryDefinitionType>
 
 export type InfiniteQueryResultFlags = {
   hasNextPage: boolean
@@ -128,24 +142,32 @@ export type InfiniteQueryResultFlags = {
 }
 
 export type InfiniteQueryResultSelectorResult<
-  Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
-> = InfiniteQuerySubState<Definition> &
+  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
+    any,
+    any,
+    any,
+    any,
+    any
+  >,
+> = InfiniteQuerySubState<InfiniteQueryDefinitionType> &
   RequestStatusFlags &
   InfiniteQueryResultFlags
 
 type MutationResultSelectorFactory<
-  Definition extends MutationDefinition<any, any, any, any>,
+  MutationDefinitionType extends MutationDefinition<any, any, any, any>,
   RootStateType,
 > = (
   requestId:
     | string
     | { requestId: string | undefined; fixedCacheKey: string | undefined }
     | SkipToken,
-) => (state: RootStateType) => MutationResultSelectorResult<Definition>
+) => (
+  state: RootStateType,
+) => MutationResultSelectorResult<MutationDefinitionType>
 
 export type MutationResultSelectorResult<
-  Definition extends MutationDefinition<any, any, any, any>,
-> = MutationSubState<Definition> & RequestStatusFlags
+  MutationDefinitionType extends MutationDefinition<any, any, any, any>,
+> = MutationSubState<MutationDefinitionType> & RequestStatusFlags
 
 const initialSubState: QuerySubState<any> = {
   status: STATUS_UNINITIALIZED,

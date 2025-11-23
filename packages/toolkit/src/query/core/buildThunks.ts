@@ -76,16 +76,16 @@ import {
 } from './rtkImports'
 
 export type BuildThunksApiEndpointQuery<
-  Definition extends QueryDefinition<any, any, any, any, any>,
-> = Matchers<QueryThunk, Definition>
+  QueryDefinitionType extends QueryDefinition<any, any, any, any, any>,
+> = Matchers<QueryThunk, QueryDefinitionType>
 
 export type BuildThunksApiEndpointInfiniteQuery<
-  Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
-> = Matchers<InfiniteQueryThunk<any>, Definition>
+  QueryDefinitionType extends InfiniteQueryDefinition<any, any, any, any, any>,
+> = Matchers<InfiniteQueryThunk<any>, QueryDefinitionType>
 
 export type BuildThunksApiEndpointMutation<
-  Definition extends MutationDefinition<any, any, any, any, any>,
-> = Matchers<MutationThunk, Definition>
+  QueryDefinitionType extends MutationDefinition<any, any, any, any, any>,
+> = Matchers<MutationThunk, QueryDefinitionType>
 
 type EndpointThunk<
   Thunk extends QueryThunk | MutationThunk | InfiniteQueryThunk<any>,
@@ -170,9 +170,15 @@ export type QueryThunkArg = QuerySubstateIdentifier &
   }
 
 export type InfiniteQueryThunkArg<
-  D extends InfiniteQueryDefinition<any, any, any, any, any>,
+  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
+    any,
+    any,
+    any,
+    any,
+    any
+  >,
 > = QuerySubstateIdentifier &
-  StartInfiniteQueryActionCreatorOptions<D> & {
+  StartInfiniteQueryActionCreatorOptions<InfiniteQueryDefinitionType> & {
     type: `query`
     originalArgs: unknown
     endpointName: string
@@ -206,8 +212,18 @@ export type QueryThunk = AsyncThunk<
   ThunkApiMetaConfig
 >
 export type InfiniteQueryThunk<
-  D extends InfiniteQueryDefinition<any, any, any, any, any>,
-> = AsyncThunk<ThunkResult, InfiniteQueryThunkArg<D>, ThunkApiMetaConfig>
+  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
+    any,
+    any,
+    any,
+    any,
+    any
+  >,
+> = AsyncThunk<
+  ThunkResult,
+  InfiniteQueryThunkArg<InfiniteQueryDefinitionType>,
+  ThunkApiMetaConfig
+>
 export type MutationThunk = AsyncThunk<
   ThunkResult,
   MutationThunkArg,
