@@ -96,7 +96,12 @@ export type CoreModule =
   | ReferenceQueryLifecycle
   | ReferenceCacheCollection
 
-export type ThunkWithReturnValue<T> = ThunkAction<T, any, any, UnknownAction>
+export type ThunkWithReturnValue<ThunkReturnType> = ThunkAction<
+  ThunkReturnType,
+  any,
+  any,
+  UnknownAction
+>
 
 export interface ApiModules<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -427,10 +432,13 @@ export interface ApiModules<
 
 export interface ApiEndpointQuery<
   QueryDefinitionType extends QueryDefinition<any, any, any, any, any>,
-  DefinitionsType extends EndpointDefinitions,
+  EndpointDefinitionsType extends EndpointDefinitions,
 > extends BuildThunksApiEndpointQuery<QueryDefinitionType>,
     BuildInitiateApiEndpointQuery<QueryDefinitionType>,
-    BuildSelectorsApiEndpointQuery<QueryDefinitionType, DefinitionsType> {
+    BuildSelectorsApiEndpointQuery<
+      QueryDefinitionType,
+      EndpointDefinitionsType
+    > {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
@@ -446,12 +454,12 @@ export interface ApiEndpointInfiniteQuery<
     any,
     any
   >,
-  DefinitionsType extends EndpointDefinitions,
+  EndpointDefinitionsType extends EndpointDefinitions,
 > extends BuildThunksApiEndpointInfiniteQuery<InfiniteQueryDefinitionType>,
     BuildInitiateApiEndpointInfiniteQuery<InfiniteQueryDefinitionType>,
     BuildSelectorsApiEndpointInfiniteQuery<
       InfiniteQueryDefinitionType,
-      DefinitionsType
+      EndpointDefinitionsType
     > {
   name: string
   /**
@@ -462,10 +470,13 @@ export interface ApiEndpointInfiniteQuery<
 
 export interface ApiEndpointMutation<
   MutationDefinitionType extends MutationDefinition<any, any, any, any, any>,
-  DefinitionsType extends EndpointDefinitions,
+  EndpointDefinitionsType extends EndpointDefinitions,
 > extends BuildThunksApiEndpointMutation<MutationDefinitionType>,
     BuildInitiateApiEndpointMutation<MutationDefinitionType>,
-    BuildSelectorsApiEndpointMutation<MutationDefinitionType, DefinitionsType> {
+    BuildSelectorsApiEndpointMutation<
+      MutationDefinitionType,
+      EndpointDefinitionsType
+    > {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!

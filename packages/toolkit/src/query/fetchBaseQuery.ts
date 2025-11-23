@@ -234,14 +234,14 @@ export function fetchBaseQuery({
     } = typeof arg == 'string' ? { url: arg } : arg
 
     let abortController: AbortController | undefined,
-      signal = api.signal
+      { signal } = api
     if (timeout) {
       abortController = new AbortController()
       api.signal.addEventListener('abort', abortController.abort)
       signal = abortController.signal
     }
 
-    let config: RequestInit = {
+    const config: RequestInit = {
       ...baseFetchOptions,
       signal,
       ...rest,
