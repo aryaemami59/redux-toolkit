@@ -17,8 +17,8 @@ function isBoolean(x: any): x is boolean {
   return typeof x === 'boolean'
 }
 
-interface ThunkOptions<E = any> {
-  extraArgument: E
+type ThunkOptions<ExtraArgumentType = any> = {
+  extraArgument: ExtraArgumentType
 }
 
 interface GetDefaultMiddlewareOptions {
@@ -29,28 +29,37 @@ interface GetDefaultMiddlewareOptions {
 }
 
 export type ThunkMiddlewareFor<
-  S,
-  O extends GetDefaultMiddlewareOptions = {},
-> = O extends {
+  StateType,
+  DefaultMiddlewareOptionsType extends GetDefaultMiddlewareOptions = {},
+> = DefaultMiddlewareOptionsType extends {
   thunk: false
 }
   ? never
-  : O extends { thunk: { extraArgument: infer InferredExtraArgumentType } }
-    ? ThunkMiddleware<S, UnknownAction, InferredExtraArgumentType>
-    : ThunkMiddleware<S, UnknownAction>
+  : DefaultMiddlewareOptionsType extends {
+        thunk: { extraArgument: infer InferredExtraArgumentType }
+      }
+    ? ThunkMiddleware<StateType, UnknownAction, InferredExtraArgumentType>
+    : ThunkMiddleware<StateType, UnknownAction>
 
-export type GetDefaultMiddleware<S = any> = <
-  O extends GetDefaultMiddlewareOptions = {
+export type GetDefaultMiddleware<StateType = any> = <
+  DefaultMiddlewareOptionsType extends GetDefaultMiddlewareOptions = {
     thunk: true
     immutableCheck: true
     serializableCheck: true
     actionCreatorCheck: true
   },
 >(
-  options?: O,
-) => Tuple<ExcludeFromTuple<[ThunkMiddlewareFor<S, O>], never>>
+  options?: DefaultMiddlewareOptionsType,
+) => Tuple<
+  ExcludeFromTuple<
+    [ThunkMiddlewareFor<StateType, DefaultMiddlewareOptionsType>],
+    never
+  >
+>
 
-export const buildGetDefaultMiddleware = <S = any>(): GetDefaultMiddleware<S> =>
+export const buildGetDefaultMiddleware = <
+  StateType = any,
+>(): GetDefaultMiddleware<StateType> =>
   function getDefaultMiddleware(options) {
     const {
       thunk = true,

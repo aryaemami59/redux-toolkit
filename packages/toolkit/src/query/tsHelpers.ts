@@ -1,4 +1,4 @@
-export type Id<T> = { [Key in keyof T]: T[Key] } & {}
+export type Id<T> = { [KeyType in keyof T]: T[KeyType] } & {}
 export type WithRequiredProp<T, RequiredKeys extends keyof T> = Omit<
   T,
   RequiredKeys
