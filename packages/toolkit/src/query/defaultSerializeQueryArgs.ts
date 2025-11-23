@@ -41,12 +41,12 @@ export const defaultSerializeQueryArgs: SerializeQueryArgs<any> = ({
 
 export type SerializeQueryArgs<
   QueryArgs,
-  SerializedQueryResult = string,
+  SerializedQueryResultType = string,
 > = (_: {
   queryArgs: QueryArgs
   endpointDefinition: EndpointDefinition<any, any, any, any>
   endpointName: string
-}) => SerializedQueryResult
+}) => SerializedQueryResultType
 
 export type InternalSerializeQueryArgs = (_: {
   queryArgs: any

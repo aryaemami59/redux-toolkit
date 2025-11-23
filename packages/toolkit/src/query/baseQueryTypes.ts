@@ -24,16 +24,20 @@ export interface BaseQueryApi {
   queryCacheKey?: string
 }
 
-export type QueryReturnValue<T = unknown, E = unknown, M = unknown> =
+export type QueryReturnValue<
+  DataType = unknown,
+  ErrorType = unknown,
+  MetaType = unknown,
+> =
   | {
-      error: E
+      error: ErrorType
       data?: undefined
-      meta?: M
+      meta?: MetaType
     }
   | {
       error?: undefined
-      data: T
-      meta?: M
+      data: DataType
+      meta?: MetaType
     }
 
 export type BaseQueryFn<
@@ -67,8 +71,8 @@ export type BaseQueryEnhancer<
 /**
  * @public
  */
-export type BaseQueryResult<BaseQuery extends BaseQueryFn> =
-  UnwrapPromise<ReturnType<BaseQuery>> extends infer Unwrapped
+export type BaseQueryResult<BaseQueryFunctionType extends BaseQueryFn> =
+  UnwrapPromise<ReturnType<BaseQueryFunctionType>> extends infer Unwrapped
     ? Unwrapped extends { data: any }
       ? Unwrapped['data']
       : never
@@ -77,15 +81,14 @@ export type BaseQueryResult<BaseQuery extends BaseQueryFn> =
 /**
  * @public
  */
-export type BaseQueryMeta<BaseQuery extends BaseQueryFn> = UnwrapPromise<
-  ReturnType<BaseQuery>
->['meta']
+export type BaseQueryMeta<BaseQueryFunctionType extends BaseQueryFn> =
+  UnwrapPromise<ReturnType<BaseQueryFunctionType>>['meta']
 
 /**
  * @public
  */
-export type BaseQueryError<BaseQuery extends BaseQueryFn> = Exclude<
-  UnwrapPromise<ReturnType<BaseQuery>>,
+export type BaseQueryError<BaseQueryFunctionType extends BaseQueryFn> = Exclude<
+  UnwrapPromise<ReturnType<BaseQueryFunctionType>>,
   { error?: undefined }
 >['error']
 
@@ -93,10 +96,12 @@ export type BaseQueryError<BaseQuery extends BaseQueryFn> = Exclude<
  * @public
  */
 export type BaseQueryArg<T extends (arg: any, ...args: any[]) => any> =
-  T extends (arg: infer A, ...args: any[]) => any ? A : any
+  T extends (arg: infer InferredFirstArgumentType, ...args: any[]) => any
+    ? InferredFirstArgumentType
+    : any
 
 /**
  * @public
  */
-export type BaseQueryExtraOptions<BaseQuery extends BaseQueryFn> =
-  Parameters<BaseQuery>[2]
+export type BaseQueryExtraOptions<BaseQueryFunctionType extends BaseQueryFn> =
+  Parameters<BaseQueryFunctionType>[2]

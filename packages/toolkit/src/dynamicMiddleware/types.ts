@@ -21,9 +21,9 @@ export type MiddlewareApiConfig = {
 // TODO: consolidate with cAT helpers?
 export type GetDispatchType<MiddlewareApiConfigType> =
   MiddlewareApiConfigType extends {
-    dispatch: infer InferredMiddlewareDispatchType
+    dispatch: infer InferredDispatchType
   }
-    ? FallbackIfUnknown<InferredMiddlewareDispatchType, Dispatch>
+    ? FallbackIfUnknown<InferredDispatchType, Dispatch>
     : Dispatch
 
 export type AddMiddleware<

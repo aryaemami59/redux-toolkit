@@ -103,11 +103,15 @@ type Enhancers = ReadonlyArray<StoreEnhancer>
  * @public
  */
 export type EnhancedStore<
-  S = any,
-  A extends Action = UnknownAction,
-  E extends Enhancers = Enhancers,
-> = ExtractStoreExtensions<E> &
-  Store<S, A, UnknownIfNonSpecific<ExtractStateExtensions<E>>>
+  StateType = any,
+  ActionType extends Action = UnknownAction,
+  EnhancersType extends Enhancers = Enhancers,
+> = ExtractStoreExtensions<EnhancersType> &
+  Store<
+    StateType,
+    ActionType,
+    UnknownIfNonSpecific<ExtractStateExtensions<EnhancersType>>
+  >
 
 /**
  * A friendly abstraction over the standard Redux `createStore()` function.
