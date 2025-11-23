@@ -70,7 +70,7 @@ type QueryFulfilledRejectionReason<BaseQuery extends BaseQueryFn> =
 export type QueryLifecycleQueryExtraOptions<
   ResultType,
   QueryArgumentType,
-  BaseQuery extends BaseQueryFn,
+  BaseQueryFunctionType extends BaseQueryFn,
   ReducerPath extends string = string,
 > = {
   /**
@@ -116,7 +116,7 @@ export type QueryLifecycleQueryExtraOptions<
     queryArgument: QueryArgumentType,
     queryLifeCycleApi: QueryLifecycleApi<
       QueryArgumentType,
-      BaseQuery,
+      BaseQueryFunctionType,
       ResultType,
       ReducerPath
     >,
@@ -126,19 +126,19 @@ export type QueryLifecycleQueryExtraOptions<
 export type QueryLifecycleInfiniteQueryExtraOptions<
   ResultType,
   QueryArgumentType,
-  BaseQuery extends BaseQueryFn,
+  BaseQueryFunctionType extends BaseQueryFn,
   ReducerPath extends string = string,
 > = QueryLifecycleQueryExtraOptions<
   ResultType,
   QueryArgumentType,
-  BaseQuery,
+  BaseQueryFunctionType,
   ReducerPath
 >
 
 export type QueryLifecycleMutationExtraOptions<
   ResultType,
   QueryArgumentType,
-  BaseQuery extends BaseQueryFn,
+  BaseQueryFunctionType extends BaseQueryFn,
   ReducerPath extends string = string,
 > = {
   /**
@@ -193,7 +193,7 @@ export type QueryLifecycleMutationExtraOptions<
     queryArgument: QueryArgumentType,
     mutationLifeCycleApi: MutationLifecycleApi<
       QueryArgumentType,
-      BaseQuery,
+      BaseQueryFunctionType,
       ResultType,
       ReducerPath
     >,
@@ -202,31 +202,31 @@ export type QueryLifecycleMutationExtraOptions<
 
 export interface QueryLifecycleApi<
   QueryArgumentType,
-  BaseQuery extends BaseQueryFn,
+  BaseQueryFunctionType extends BaseQueryFn,
   ResultType,
   ReducerPath extends string = string,
 >
   extends
     QueryBaseLifecycleApi<
       QueryArgumentType,
-      BaseQuery,
+      BaseQueryFunctionType,
       ResultType,
       ReducerPath
     >,
-    QueryLifecyclePromises<ResultType, BaseQuery> {}
+    QueryLifecyclePromises<ResultType, BaseQueryFunctionType> {}
 
 export type MutationLifecycleApi<
   QueryArgumentType,
-  BaseQuery extends BaseQueryFn,
+  BaseQueryFunctionType extends BaseQueryFn,
   ResultType,
   ReducerPath extends string = string,
 > = MutationBaseLifecycleApi<
   QueryArgumentType,
-  BaseQuery,
+  BaseQueryFunctionType,
   ResultType,
   ReducerPath
 > &
-  QueryLifecyclePromises<ResultType, BaseQuery>
+  QueryLifecyclePromises<ResultType, BaseQueryFunctionType>
 
 /**
  * Provides a way to define a strongly-typed version of
