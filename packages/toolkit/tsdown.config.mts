@@ -144,6 +144,13 @@ export default defineConfig((cliOptions) => {
       tsconfig: commonOptions.tsconfig,
     },
     external: [...peerAndProductionDependencies, /uncheckedindexed/],
+    inputOptions: (options) => ({
+      ...options,
+      experimental: {
+        ...options.experimental,
+        attachDebugInfo: 'none',
+      },
+    }),
 
     /**
      * @todo Investigate why an unexpected `index.js` file is still emitted
