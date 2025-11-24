@@ -46,27 +46,21 @@ import type {
 import type { ApiEndpointQuery } from './module'
 
 export type BuildInitiateApiEndpointQuery<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any, any>,
+  Definition extends QueryDefinition<any, any, any, any, any>,
 > = {
-  initiate: StartQueryActionCreator<QueryDefinitionType>
+  initiate: StartQueryActionCreator<Definition>
 }
 
 export type BuildInitiateApiEndpointInfiniteQuery<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
+  Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
 > = {
-  initiate: StartInfiniteQueryActionCreator<InfiniteQueryDefinitionType>
+  initiate: StartInfiniteQueryActionCreator<Definition>
 }
 
 export type BuildInitiateApiEndpointMutation<
-  MutationDefinitionType extends MutationDefinition<any, any, any, any, any>,
+  Definition extends MutationDefinition<any, any, any, any, any>,
 > = {
-  initiate: StartMutationActionCreator<MutationDefinitionType>
+  initiate: StartMutationActionCreator<Definition>
 }
 
 export const forceQueryFnSymbol = /* @__PURE__ */ Symbol('forceQueryFn')
@@ -85,13 +79,7 @@ type RefetchOptions = {
 }
 
 export type StartInfiniteQueryActionCreatorOptions<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
 > = StartQueryActionCreatorOptions & {
   direction?: InfiniteQueryDirection
   param?: unknown
@@ -99,9 +87,9 @@ export type StartInfiniteQueryActionCreatorOptions<
     Pick<
       Partial<
         InfiniteQueryConfigOptions<
-          ResultTypeFrom<InfiniteQueryDefinitionType>,
-          PageParamFrom<InfiniteQueryDefinitionType>,
-          InfiniteQueryArgFrom<InfiniteQueryDefinitionType>
+          ResultTypeFrom<D>,
+          PageParamFrom<D>,
+          InfiniteQueryArgFrom<D>
         >
       >,
       'initialPageParam' | 'refetchCachedPages'
@@ -114,34 +102,18 @@ type AnyQueryActionCreator<D extends EndpointDefinition<any, any, any, any>> = (
 ) => ThunkAction<AnyActionCreatorResult, any, any, UnknownAction>
 
 type StartQueryActionCreator<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any, any>,
+  D extends QueryDefinition<any, any, any, any, any>,
 > = (
-  arg: QueryArgFrom<QueryDefinitionType>,
+  arg: QueryArgFrom<D>,
   options?: StartQueryActionCreatorOptions,
-) => ThunkAction<
-  QueryActionCreatorResult<QueryDefinitionType>,
-  any,
-  any,
-  UnknownAction
->
+) => ThunkAction<QueryActionCreatorResult<D>, any, any, UnknownAction>
 
 export type StartInfiniteQueryActionCreator<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
 > = (
-  arg: InfiniteQueryArgFrom<InfiniteQueryDefinitionType>,
-  options?: StartInfiniteQueryActionCreatorOptions<InfiniteQueryDefinitionType>,
-) => ThunkAction<
-  InfiniteQueryActionCreatorResult<InfiniteQueryDefinitionType>,
-  any,
-  any,
-  UnknownAction
->
+  arg: InfiniteQueryArgFrom<D>,
+  options?: StartInfiniteQueryActionCreatorOptions<D>,
+) => ThunkAction<InfiniteQueryActionCreatorResult<D>, any, any, UnknownAction>
 
 type QueryActionCreatorFields = {
   requestId: string
@@ -160,45 +132,32 @@ type AnyActionCreatorResult = SafePromise<any> &
   }
 
 export type QueryActionCreatorResult<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
-> = SafePromise<QueryResultSelectorResult<QueryDefinitionType>> &
+  D extends QueryDefinition<any, any, any, any>,
+> = SafePromise<QueryResultSelectorResult<D>> &
   QueryActionCreatorFields & {
-    arg: QueryArgFrom<QueryDefinitionType>
-    unwrap(): Promise<ResultTypeFrom<QueryDefinitionType>>
-    refetch(): QueryActionCreatorResult<QueryDefinitionType>
+    arg: QueryArgFrom<D>
+    unwrap(): Promise<ResultTypeFrom<D>>
+    refetch(): QueryActionCreatorResult<D>
   }
 
 export type InfiniteQueryActionCreatorResult<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
-> = SafePromise<
-  InfiniteQueryResultSelectorResult<InfiniteQueryDefinitionType>
-> &
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
+> = SafePromise<InfiniteQueryResultSelectorResult<D>> &
   QueryActionCreatorFields & {
-    arg: InfiniteQueryArgFrom<InfiniteQueryDefinitionType>
-    unwrap(): Promise<
-      InfiniteData<
-        ResultTypeFrom<InfiniteQueryDefinitionType>,
-        PageParamFrom<InfiniteQueryDefinitionType>
-      >
-    >
+    arg: InfiniteQueryArgFrom<D>
+    unwrap(): Promise<InfiniteData<ResultTypeFrom<D>, PageParamFrom<D>>>
     refetch(
       options?: Pick<
-        StartInfiniteQueryActionCreatorOptions<InfiniteQueryDefinitionType>,
+        StartInfiniteQueryActionCreatorOptions<D>,
         'refetchCachedPages'
       >,
-    ): InfiniteQueryActionCreatorResult<InfiniteQueryDefinitionType>
+    ): InfiniteQueryActionCreatorResult<D>
   }
 
 type StartMutationActionCreator<
-  MutationDefinitionType extends MutationDefinition<any, any, any, any>,
+  D extends MutationDefinition<any, any, any, any>,
 > = (
-  arg: QueryArgFrom<MutationDefinitionType>,
+  arg: QueryArgFrom<D>,
   options?: {
     /**
      * If this mutation should be tracked in the store.
@@ -209,18 +168,13 @@ type StartMutationActionCreator<
     track?: boolean
     fixedCacheKey?: string
   },
-) => ThunkAction<
-  MutationActionCreatorResult<MutationDefinitionType>,
-  any,
-  any,
-  UnknownAction
->
+) => ThunkAction<MutationActionCreatorResult<D>, any, any, UnknownAction>
 
 export type MutationActionCreatorResult<
-  MutationDefinitionType extends MutationDefinition<any, any, any, any>,
+  D extends MutationDefinition<any, any, any, any>,
 > = SafePromise<
   | {
-      data: ResultTypeFrom<MutationDefinitionType>
+      data: ResultTypeFrom<D>
       error?: undefined
     }
   | {
@@ -228,7 +182,7 @@ export type MutationActionCreatorResult<
       error:
         | Exclude<
             BaseQueryError<
-              MutationDefinitionType extends MutationDefinition<
+              D extends MutationDefinition<
                 any,
                 infer InferredBaseQueryFunctionType,
                 any,
@@ -251,7 +205,7 @@ export type MutationActionCreatorResult<
     /**
      * The original arguments supplied to the mutation call
      */
-    originalArgs: QueryArgFrom<MutationDefinitionType>
+    originalArgs: QueryArgFrom<D>
     /**
      * Whether the mutation is being tracked in the store.
      */
@@ -317,7 +271,7 @@ export type MutationActionCreatorResult<
    * }
    * ```
    */
-  unwrap(): Promise<ResultTypeFrom<MutationDefinitionType>>
+  unwrap(): Promise<ResultTypeFrom<D>>
   /**
    * A method to manually unsubscribe from the mutation call, meaning it will be removed from cache after the usual caching grace period.
    The value returned by the hook will reset to `isUninitialized` afterwards.
