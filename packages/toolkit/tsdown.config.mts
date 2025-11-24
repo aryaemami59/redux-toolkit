@@ -32,7 +32,7 @@ const mangleErrorsTransform = (
     transform: {
       filter: {
         code: {
-          include: ['throw new Error'],
+          include: ['throw new'],
         },
         id: {
           exclude: ['src/**/*.d.ts', /node_modules/],
@@ -210,10 +210,19 @@ export default defineConfig((cliOptions) => {
     },
     format: ['cjs'],
     minify: 'dce-only',
+    treeshake: {
+      annotations: true,
+      moduleSideEffects: false,
+      commonjs: true,
+    },
     outExtensions: () => ({ js: '.development.cjs' }),
     plugins: [commonOptions.plugins, deDuplicateReExportsPlugin()],
     outputOptions: (options) => ({
       ...options,
+      esModule: true,
+      exports: 'named',
+      externalLiveBindings: false,
+      intro: '"use strict";',
       legalComments: 'none',
     }),
     inputOptions: (options) => ({
@@ -223,7 +232,6 @@ export default defineConfig((cliOptions) => {
         attachDebugInfo: 'none',
         nativeMagicString: true,
       },
-
       transform: {
         ...options.transform,
         inject: {
@@ -244,9 +252,18 @@ export default defineConfig((cliOptions) => {
     },
     format: ['cjs'],
     minify: true,
+    treeshake: {
+      annotations: true,
+      moduleSideEffects: false,
+      commonjs: true,
+    },
     outExtensions: () => ({ js: '.production.min.cjs' }),
     outputOptions: (options) => ({
       ...options,
+      esModule: true,
+      exports: 'named',
+      externalLiveBindings: false,
+      intro: '"use strict";',
       legalComments: 'none',
     }),
     inputOptions: (options) => ({
@@ -256,7 +273,6 @@ export default defineConfig((cliOptions) => {
         attachDebugInfo: 'none',
         nativeMagicString: true,
       },
-
       transform: {
         ...options.transform,
         inject: {
