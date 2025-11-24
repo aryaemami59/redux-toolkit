@@ -20,25 +20,14 @@ export type ModuleName = keyof ApiModules<any, any, any, any>
 export type Module<Name extends ModuleName> = {
   name: Name
   init<
-    BaseQueryFunctionType extends BaseQueryFn,
-    EndpointDefinitionsType extends EndpointDefinitions,
-    ReducerPathType extends string,
+    BaseQuery extends BaseQueryFn,
+    Definitions extends EndpointDefinitions,
+    ReducerPath extends string,
     TagTypes extends string,
   >(
-    api: Api<
-      BaseQueryFunctionType,
-      EndpointDefinitions,
-      ReducerPathType,
-      TagTypes,
-      ModuleName
-    >,
+    api: Api<BaseQuery, EndpointDefinitions, ReducerPath, TagTypes, ModuleName>,
     options: WithRequiredProp<
-      CreateApiOptions<
-        BaseQueryFunctionType,
-        EndpointDefinitionsType,
-        ReducerPathType,
-        TagTypes
-      >,
+      CreateApiOptions<BaseQuery, Definitions, ReducerPath, TagTypes>,
       | 'reducerPath'
       | 'serializeQueryArgs'
       | 'keepUnusedDataFor'
@@ -48,7 +37,7 @@ export type Module<Name extends ModuleName> = {
       | 'invalidationBehavior'
       | 'tagTypes'
     >,
-    context: ApiContext<EndpointDefinitionsType>,
+    context: ApiContext<Definitions>,
   ): {
     injectEndpoint(
       endpointName: string,
@@ -57,11 +46,9 @@ export type Module<Name extends ModuleName> = {
   }
 }
 
-export interface ApiContext<
-  EndpointDefinitionsType extends EndpointDefinitions,
-> {
+export interface ApiContext<Definitions extends EndpointDefinitions> {
   apiUid: string
-  endpointDefinitions: EndpointDefinitionsType
+  endpointDefinitions: Definitions
   batch(cb: () => void): void
   extractRehydrationInfo: (
     action: UnknownAction,
@@ -70,34 +57,29 @@ export interface ApiContext<
 }
 
 export const getEndpointDefinition = <
-  EndpointDefinitionsType extends EndpointDefinitions,
-  EndpointName extends keyof EndpointDefinitionsType,
+  Definitions extends EndpointDefinitions,
+  EndpointName extends keyof Definitions,
 >(
-  context: ApiContext<EndpointDefinitionsType>,
+  context: ApiContext<Definitions>,
   endpointName: EndpointName,
 ) => context.endpointDefinitions[endpointName]
 
 export type Api<
-  BaseQueryFunctionType extends BaseQueryFn,
-  EndpointDefinitionsType extends EndpointDefinitions,
-  ReducerPathType extends string,
-  TagType extends string,
+  BaseQuery extends BaseQueryFn,
+  Definitions extends EndpointDefinitions,
+  ReducerPath extends string,
+  TagTypes extends string,
   Enhancers extends ModuleName = CoreModule,
 > = UnionToIntersection<
-  ApiModules<
-    BaseQueryFunctionType,
-    EndpointDefinitionsType,
-    ReducerPathType,
-    TagType
-  >[Enhancers]
+  ApiModules<BaseQuery, Definitions, ReducerPath, TagTypes>[Enhancers]
 > & {
   /**
    * A function to inject the endpoints into the original API, but also give you that same API with correct types for these endpoints back. Useful with code-splitting.
    */
-  injectEndpoints<NewEndpointDefinitionsType extends EndpointDefinitions>(_: {
+  injectEndpoints<NewDefinitions extends EndpointDefinitions>(_: {
     endpoints: (
-      build: EndpointBuilder<BaseQueryFunctionType, TagType, ReducerPathType>,
-    ) => NewEndpointDefinitionsType
+      build: EndpointBuilder<BaseQuery, TagTypes, ReducerPath>,
+    ) => NewDefinitions
     /**
      * Optionally allows endpoints to be overridden if defined by multiple `injectEndpoints` calls.
      *
@@ -107,24 +89,24 @@ export type Api<
      */
     overrideExisting?: boolean | 'throw'
   }): Api<
-    BaseQueryFunctionType,
-    EndpointDefinitionsType & NewEndpointDefinitionsType,
-    ReducerPathType,
-    TagType,
+    BaseQuery,
+    Definitions & NewDefinitions,
+    ReducerPath,
+    TagTypes,
     Enhancers
   >
   /**
    *A function to enhance a generated API with additional information. Useful with code-generation.
    */
   enhanceEndpoints<
-    NewTagType extends string = never,
-    NewEndpointDefinitionsType extends EndpointDefinitions = never,
+    NewTagTypes extends string = never,
+    NewDefinitions extends EndpointDefinitions = never,
   >(_: {
-    addTagTypes?: readonly NewTagType[]
+    addTagTypes?: readonly NewTagTypes[]
     endpoints?: UpdateDefinitions<
-      EndpointDefinitionsType,
-      TagType | NoInfer<NewTagType>,
-      NewEndpointDefinitionsType
+      Definitions,
+      TagTypes | NoInfer<NewTagTypes>,
+      NewDefinitions
     > extends infer InferredNewEndpointDefinitionsType
       ? {
           [K in keyof InferredNewEndpointDefinitionsType]?:
@@ -133,14 +115,10 @@ export type Api<
         }
       : never
   }): Api<
-    BaseQueryFunctionType,
-    UpdateDefinitions<
-      EndpointDefinitionsType,
-      TagType | NewTagType,
-      NewEndpointDefinitionsType
-    >,
-    ReducerPathType,
-    TagType | NewTagType,
+    BaseQuery,
+    UpdateDefinitions<Definitions, TagTypes | NewTagTypes, NewDefinitions>,
+    ReducerPath,
+    TagTypes | NewTagTypes,
     Enhancers
   >
 }
