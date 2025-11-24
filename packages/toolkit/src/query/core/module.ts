@@ -97,12 +97,7 @@ export type CoreModule =
   | ReferenceQueryLifecycle
   | ReferenceCacheCollection
 
-export type ThunkWithReturnValue<ThunkReturnType> = ThunkAction<
-  ThunkReturnType,
-  any,
-  any,
-  UnknownAction
->
+export type ThunkWithReturnValue<T> = ThunkAction<T, any, any, UnknownAction>
 
 export interface ApiModules<
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
