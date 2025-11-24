@@ -15,13 +15,9 @@ import type {
 } from './tsHelpers'
 import { getOrInsertComputed } from './utils'
 
-type SliceLike<
-  ReducerPathType extends string,
-  StateType,
-  PreloadedStateType = StateType,
-> = {
-  reducerPath: ReducerPathType
-  reducer: Reducer<StateType, any, PreloadedStateType>
+type SliceLike<ReducerPath extends string, State, PreloadedState = State> = {
+  reducerPath: ReducerPath
+  reducer: Reducer<State, any, PreloadedState>
 }
 
 type AnySliceLike = SliceLike<string, any>
@@ -144,15 +140,21 @@ export interface CombinedSliceReducer<
    * ```
    *
    */
-  inject<ReducerPathType extends string, State, PreloadedState = State>(
+  inject<ReducerPath extends string, State, PreloadedState = State>(
     slice: SliceLike<
-      ReducerPathType,
-      State & (ReducerPathType extends keyof DeclaredState ? never : State)
+      ReducerPath,
+      State & (ReducerPath extends keyof DeclaredState ? never : State),
+      PreloadedState &
+        (ReducerPath extends keyof PreloadedState ? never : PreloadedState)
     >,
     config?: InjectConfig,
   ): CombinedSliceReducer<
     InitialSliceStateType,
-    Id<DeclaredState & WithSlice<SliceLike<ReducerPathType, State>>>
+    Id<DeclaredState & WithSlice<SliceLike<ReducerPath, State>>>,
+    Id<
+      PreloadedState &
+        WithSlicePreloadedState<SliceLike<ReducerPath, State, PreloadedState>>
+    >
   >
 
   /**
