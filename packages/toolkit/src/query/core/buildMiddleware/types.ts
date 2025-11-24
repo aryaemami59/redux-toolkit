@@ -58,16 +58,16 @@ export interface SubscriptionSelectors {
 }
 
 export interface BuildMiddlewareInput<
-  EndpointDefinitionsType extends EndpointDefinitions,
+  Definitions extends EndpointDefinitions,
   ReducerPathType extends string,
-  TagType extends string,
+  TagTypes extends string,
 > {
   reducerPath: ReducerPathType
-  context: ApiContext<EndpointDefinitionsType>
+  context: ApiContext<Definitions>
   queryThunk: QueryThunk
   mutationThunk: MutationThunk
   infiniteQueryThunk: InfiniteQueryThunk<any>
-  api: Api<any, EndpointDefinitionsType, ReducerPathType, TagType>
+  api: Api<any, Definitions, ReducerPathType, TagTypes>
   assertTagType: AssertTagTypes
   selectors: AllSelectors
   getRunningQueryThunk: (
