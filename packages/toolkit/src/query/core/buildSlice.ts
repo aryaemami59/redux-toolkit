@@ -70,12 +70,12 @@ import { onFocus, onFocusLost, onOffline, onOnline } from './setupListeners'
  * A typesafe single entry to be upserted into the cache
  */
 export type NormalizedQueryUpsertEntry<
-  DefinitionsType extends EndpointDefinitions,
-  EndpointName extends AllQueryKeys<DefinitionsType>,
+  Definitions extends EndpointDefinitions,
+  EndpointName extends AllQueryKeys<Definitions>,
 > = {
   endpointName: EndpointName
-  arg: QueryArgFromAnyQueryDefinition<DefinitionsType, EndpointName>
-  value: DataFromAnyQueryDefinition<DefinitionsType, EndpointName>
+  arg: QueryArgFromAnyQueryDefinition<Definitions, EndpointName>
+  value: DataFromAnyQueryDefinition<Definitions, EndpointName>
 }
 
 /**
@@ -95,13 +95,13 @@ export type ProcessedQueryUpsertEntry = {
 /**
  * A typesafe representation of a util action creator that accepts cache entry descriptions to upsert
  */
-export type UpsertEntries<DefinitionsType extends EndpointDefinitions> = (<
-  EndpointNames extends Array<AllQueryKeys<DefinitionsType>>,
+export type UpsertEntries<Definitions extends EndpointDefinitions> = (<
+  EndpointNames extends Array<AllQueryKeys<Definitions>>,
 >(
   entries: [
     ...{
       [I in keyof EndpointNames]: NormalizedQueryUpsertEntry<
-        DefinitionsType,
+        Definitions,
         EndpointNames[I]
       >
     },
