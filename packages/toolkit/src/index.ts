@@ -1,9 +1,4 @@
-export { freeze, original } from 'immer'
-export type { WritableDraft } from 'immer'
 export * from 'redux'
-export type { ThunkAction } from 'redux-thunk'
-export { lruMemoize } from 'reselect'
-export type { OutputSelector } from 'reselect'
 export { createActionCreatorInvariantMiddleware } from './actionCreatorInvariantMiddleware'
 export type { ActionCreatorInvariantMiddlewareOptions } from './actionCreatorInvariantMiddleware'
 export {
@@ -114,8 +109,14 @@ export type {
   IdSelector,
   Update,
 } from './entities/index'
-export { createNextState, current, isDraft } from './immerImports'
-export type { Draft } from './immerImports'
+export {
+  createNextState,
+  current,
+  freeze,
+  isDraft,
+  original,
+} from './immerImports'
+export type { Draft, WritableDraft } from './immerImports'
 export {
   // js
   createImmutableStateInvariantMiddleware,
@@ -177,13 +178,18 @@ export type {
   ActionMatchingAnyOf,
 } from './matchers'
 export { nanoid } from './nanoid'
-export type { ThunkDispatch, ThunkMiddleware } from './reduxThunkImports'
+export type {
+  ThunkAction,
+  ThunkDispatch,
+  ThunkMiddleware,
+} from './reduxThunkImports'
 export {
   createSelector,
   createSelectorCreator,
+  lruMemoize,
   weakMapMemoize,
 } from './reselectImports'
-export type { Selector } from './reselectImports'
+export type { OutputSelector, Selector } from './reselectImports'
 export {
   // js
   createSerializableStateInvariantMiddleware,

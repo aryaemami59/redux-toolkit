@@ -1,4 +1,4 @@
-import type { Middleware } from './reduxImports'
+import type { Middleware } from 'redux'
 import type { IgnoredPaths } from './serializableStateInvariantMiddleware'
 import { getTimeMeasureUtils } from './utils'
 

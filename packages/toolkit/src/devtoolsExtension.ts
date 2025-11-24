@@ -1,4 +1,4 @@
-import type { Action, ActionCreator, StoreEnhancer } from './reduxImports'
+import type { Action, ActionCreator, StoreEnhancer } from 'redux'
 import { compose } from './reduxImports'
 
 /**

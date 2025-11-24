@@ -69,8 +69,8 @@ type QueryFulfilledRejectionReason<BaseQuery extends BaseQueryFn> =
 
 export type QueryLifecycleQueryExtraOptions<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
 > = {
   /**
@@ -113,10 +113,10 @@ export type QueryLifecycleQueryExtraOptions<
    * ```
    */
   onQueryStarted?(
-    queryArgument: QueryArgumentType,
+    queryArgument: QueryArg,
     queryLifeCycleApi: QueryLifecycleApi<
-      QueryArgumentType,
-      BaseQueryFunctionType,
+      QueryArg,
+      BaseQuery,
       ResultType,
       ReducerPath
     >,
@@ -125,20 +125,20 @@ export type QueryLifecycleQueryExtraOptions<
 
 export type QueryLifecycleInfiniteQueryExtraOptions<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
 > = QueryLifecycleQueryExtraOptions<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType,
+  QueryArg,
+  BaseQuery,
   ReducerPath
 >
 
 export type QueryLifecycleMutationExtraOptions<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
 > = {
   /**
@@ -190,10 +190,10 @@ export type QueryLifecycleMutationExtraOptions<
    * ```
    */
   onQueryStarted?(
-    queryArgument: QueryArgumentType,
+    queryArgument: QueryArg,
     mutationLifeCycleApi: MutationLifecycleApi<
-      QueryArgumentType,
-      BaseQueryFunctionType,
+      QueryArg,
+      BaseQuery,
       ResultType,
       ReducerPath
     >,
@@ -201,32 +201,22 @@ export type QueryLifecycleMutationExtraOptions<
 }
 
 export interface QueryLifecycleApi<
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
   ResultType,
   ReducerPath extends string = string,
 >
   extends
-    QueryBaseLifecycleApi<
-      QueryArgumentType,
-      BaseQueryFunctionType,
-      ResultType,
-      ReducerPath
-    >,
-    QueryLifecyclePromises<ResultType, BaseQueryFunctionType> {}
+    QueryBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath>,
+    QueryLifecyclePromises<ResultType, BaseQuery> {}
 
 export type MutationLifecycleApi<
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
   ResultType,
   ReducerPath extends string = string,
-> = MutationBaseLifecycleApi<
-  QueryArgumentType,
-  BaseQueryFunctionType,
-  ResultType,
-  ReducerPath
-> &
-  QueryLifecyclePromises<ResultType, BaseQueryFunctionType>
+> = MutationBaseLifecycleApi<QueryArg, BaseQuery, ResultType, ReducerPath> &
+  QueryLifecyclePromises<ResultType, BaseQuery>
 
 /**
  * Provides a way to define a strongly-typed version of
