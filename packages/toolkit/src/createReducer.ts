@@ -1,8 +1,8 @@
+import type { Action, Reducer, UnknownAction } from 'redux'
 import type { Draft } from './immerImports'
 import { createNextState, isDraft, isDraftable } from './immerImports'
 import type { ActionReducerMapBuilder } from './mapBuilders'
 import { executeReducerBuilderCallback } from './mapBuilders'
-import type { Action, Reducer, UnknownAction } from './reduxImports'
 import type { NoInfer, TypeGuard } from './tsHelpers'
 import { freezeDraftable } from './utils'
 
