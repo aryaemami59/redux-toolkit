@@ -1,11 +1,11 @@
 import type {
   AsyncThunkAction,
+  Dispatch,
   SafePromise,
   SerializedError,
   ThunkAction,
   UnknownAction,
 } from '@reduxjs/toolkit'
-import type { Dispatch } from 'redux'
 import { asSafePromise } from '../../tsHelpers'
 import type { Api, ApiContext } from '../apiTypes'
 import { getEndpointDefinition } from '../apiTypes'
