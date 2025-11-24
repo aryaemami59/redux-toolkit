@@ -25,15 +25,11 @@ export type RefetchConfigOptions = {
   refetchOnFocus: boolean
 }
 
-export type InfiniteQueryConfigOptions<
-  DataType,
-  PageParamType,
-  QueryArgumentType,
-> = {
+export type InfiniteQueryConfigOptions<DataType, PageParam, QueryArg> = {
   /**
    * The initial page parameter to use for the first page fetch.
    */
-  initialPageParam: PageParamType
+  initialPageParam: PageParam
   /**
    * This function is required to automatically get the next cursor for infinite queries.
    * The result will also be used to determine the value of `hasNextPage`.
@@ -41,10 +37,10 @@ export type InfiniteQueryConfigOptions<
   getNextPageParam: (
     lastPage: DataType,
     allPages: Array<DataType>,
-    lastPageParam: PageParamType,
-    allPageParams: Array<PageParamType>,
-    queryArg: QueryArgumentType,
-  ) => PageParamType | undefined | null
+    lastPageParam: PageParam,
+    allPageParams: Array<PageParam>,
+    queryArg: QueryArg,
+  ) => PageParam | undefined | null
   /**
    * This function can be set to automatically get the previous cursor for infinite queries.
    * The result will also be used to determine the value of `hasPreviousPage`.
@@ -52,10 +48,10 @@ export type InfiniteQueryConfigOptions<
   getPreviousPageParam?: (
     firstPage: DataType,
     allPages: Array<DataType>,
-    firstPageParam: PageParamType,
-    allPageParams: Array<PageParamType>,
-    queryArg: QueryArgumentType,
-  ) => PageParamType | undefined | null
+    firstPageParam: PageParam,
+    allPageParams: Array<PageParam>,
+    queryArg: QueryArg,
+  ) => PageParam | undefined | null
   /**
    * If specified, only keep this many pages in cache at once.
    * If additional pages are fetched, older pages in the other
@@ -71,9 +67,9 @@ export type InfiniteQueryConfigOptions<
   refetchCachedPages?: boolean
 }
 
-export type InfiniteData<DataType, PageParamType> = {
+export type InfiniteData<DataType, PageParam> = {
   pages: Array<DataType>
-  pageParams: Array<PageParamType>
+  pageParams: Array<PageParam>
 }
 
 // NOTE: DO NOT import and use this for runtime comparisons internally,

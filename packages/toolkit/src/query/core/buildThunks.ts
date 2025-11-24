@@ -170,15 +170,9 @@ export type QueryThunkArg = QuerySubstateIdentifier &
   }
 
 export type InfiniteQueryThunkArg<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
 > = QuerySubstateIdentifier &
-  StartInfiniteQueryActionCreatorOptions<InfiniteQueryDefinitionType> & {
+  StartInfiniteQueryActionCreatorOptions<D> & {
     type: `query`
     originalArgs: unknown
     endpointName: string
@@ -212,18 +206,8 @@ export type QueryThunk = AsyncThunk<
   ThunkApiMetaConfig
 >
 export type InfiniteQueryThunk<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
-> = AsyncThunk<
-  ThunkResult,
-  InfiniteQueryThunkArg<InfiniteQueryDefinitionType>,
-  ThunkApiMetaConfig
->
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
+> = AsyncThunk<ThunkResult, InfiniteQueryThunkArg<D>, ThunkApiMetaConfig>
 export type MutationThunk = AsyncThunk<
   ThunkResult,
   MutationThunkArg,
@@ -360,9 +344,9 @@ export const addShouldAutoBatch = <T extends Record<string, any>>(
 }
 
 export function buildThunks<
-  BaseQueryFunctionType extends BaseQueryFn,
-  ReducerPathType extends string,
-  DefinitionsType extends EndpointDefinitions,
+  BaseQuery extends BaseQueryFn,
+  ReducerPath extends string,
+  Definitions extends EndpointDefinitions,
 >({
   reducerPath,
   baseQuery,
@@ -375,18 +359,18 @@ export function buildThunks<
   catchSchemaFailure: globalCatchSchemaFailure,
   skipSchemaValidation: globalSkipSchemaValidation,
 }: {
-  baseQuery: BaseQueryFunctionType
-  reducerPath: ReducerPathType
-  context: ApiContext<DefinitionsType>
+  baseQuery: BaseQuery
+  reducerPath: ReducerPath
+  context: ApiContext<Definitions>
   serializeQueryArgs: InternalSerializeQueryArgs
-  api: Api<BaseQueryFunctionType, DefinitionsType, ReducerPathType, any>
+  api: Api<BaseQuery, Definitions, ReducerPath, any>
   assertTagType: AssertTagTypes
   selectors: AllSelectors
   onSchemaFailure: SchemaFailureHandler | undefined
-  catchSchemaFailure: SchemaFailureConverter<BaseQueryFunctionType> | undefined
+  catchSchemaFailure: SchemaFailureConverter<BaseQuery> | undefined
   skipSchemaValidation: boolean | SchemaType[] | undefined
 }) {
-  type State = RootState<any, string, ReducerPathType>
+  type State = RootState<any, string, ReducerPath>
 
   const patchQueryData: PatchQueryDataThunk<EndpointDefinitions, State> =
     (endpointName, arg, patches, updateProvided) => (dispatch, getState) => {
@@ -493,21 +477,21 @@ export function buildThunks<
       return ret
     }
 
-  const upsertQueryData: UpsertQueryDataThunk<DefinitionsType, State> =
+  const upsertQueryData: UpsertQueryDataThunk<Definitions, State> =
     (endpointName, arg, value) => (dispatch) => {
       type EndpointName = typeof endpointName
       const res = dispatch(
         (
           api.endpoints[endpointName] as ApiEndpointQuery<
             QueryDefinition<any, any, any, any, any>,
-            DefinitionsType
+            Definitions
           >
         ).initiate(arg, {
           subscribe: false,
           forceRefetch: true,
           [forceQueryFnSymbol]: () => ({ data: value }),
         }),
-      ) as UpsertThunkResult<DefinitionsType, EndpointName>
+      ) as UpsertThunkResult<Definitions, EndpointName>
 
       return res
     }
@@ -525,7 +509,7 @@ export function buildThunks<
   const executeEndpoint: AsyncThunkPayloadCreator<
     ThunkResult,
     QueryThunkArg | MutationThunkArg | InfiniteQueryThunkArg<any>,
-    ThunkApiMetaConfig & { state: RootState<any, string, ReducerPathType> }
+    ThunkApiMetaConfig & { state: RootState<any, string, ReducerPath> }
   > = async (
     arg,
     {
@@ -915,7 +899,7 @@ In the case of an unhandled error, no tags will be "provided" or "invalidated".`
 
   function isForcedQuery(
     arg: QueryThunkArg,
-    state: RootState<any, string, ReducerPathType>,
+    state: RootState<any, string, ReducerPath>,
   ) {
     const requestState = selectors.selectQueryEntry(state, arg.queryCacheKey)
     const baseFetchOnMountOrArgChange =
@@ -941,7 +925,7 @@ In the case of an unhandled error, no tags will be "provided" or "invalidated".`
     const generatedQueryThunk = createAsyncThunk<
       ThunkResult,
       ThunkArgType,
-      ThunkApiMetaConfig & { state: RootState<any, string, ReducerPathType> }
+      ThunkApiMetaConfig & { state: RootState<any, string, ReducerPath> }
     >(`${reducerPath}/executeQuery`, executeEndpoint, {
       getPendingMeta({ arg }) {
         const endpointDefinition = endpointDefinitions[arg.endpointName]
@@ -1014,7 +998,7 @@ In the case of an unhandled error, no tags will be "provided" or "invalidated".`
   const mutationThunk = createAsyncThunk<
     ThunkResult,
     MutationThunkArg,
-    ThunkApiMetaConfig & { state: RootState<any, string, ReducerPathType> }
+    ThunkApiMetaConfig & { state: RootState<any, string, ReducerPath> }
   >(`${reducerPath}/executeMutation`, executeEndpoint, {
     getPendingMeta() {
       return addShouldAutoBatch({ startedTimeStamp: Date.now() })
@@ -1028,7 +1012,7 @@ In the case of an unhandled error, no tags will be "provided" or "invalidated".`
   ): options is { ifOlderThan: false | number } => 'ifOlderThan' in options
 
   const prefetch =
-    <EndpointName extends QueryKeys<DefinitionsType>>(
+    <EndpointName extends QueryKeys<Definitions>>(
       endpointName: EndpointName,
       arg: any,
       options: PrefetchOptions = {},

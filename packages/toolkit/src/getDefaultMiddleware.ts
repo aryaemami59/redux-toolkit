@@ -1,8 +1,8 @@
+import type { Middleware, UnknownAction } from 'redux'
 import type { ActionCreatorInvariantMiddlewareOptions } from './actionCreatorInvariantMiddleware'
 import { createActionCreatorInvariantMiddleware } from './actionCreatorInvariantMiddleware'
 import type { ImmutableStateInvariantMiddlewareOptions } from './immutableStateInvariantMiddleware'
 import { createImmutableStateInvariantMiddleware } from './immutableStateInvariantMiddleware'
-import type { Middleware, UnknownAction } from './reduxImports'
 import type { ThunkMiddleware } from './reduxThunkImports'
 import {
   thunk as thunkMiddleware,

@@ -1,3 +1,12 @@
+import type {
+  Action,
+  Middleware,
+  Reducer,
+  ReducersMapObject,
+  Store,
+  StoreEnhancer,
+  UnknownAction,
+} from 'redux'
 import type { DevToolsEnhancerOptions as DevToolsOptions } from './devtoolsExtension'
 import { composeWithDevTools } from './devtoolsExtension'
 import type { GetDefaultEnhancers } from './getDefaultEnhancers'
@@ -7,15 +16,6 @@ import type {
   ThunkMiddlewareFor,
 } from './getDefaultMiddleware'
 import { buildGetDefaultMiddleware } from './getDefaultMiddleware'
-import type {
-  Action,
-  Middleware,
-  Reducer,
-  ReducersMapObject,
-  Store,
-  StoreEnhancer,
-  UnknownAction,
-} from './reduxImports'
 import {
   applyMiddleware,
   combineReducers,

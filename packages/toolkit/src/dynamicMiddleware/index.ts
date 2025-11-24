@@ -1,7 +1,7 @@
+import type { Dispatch, Middleware, UnknownAction } from 'redux'
 import { createAction } from '../createAction'
 import { isAllOf } from '../matchers'
 import { nanoid } from '../nanoid'
-import type { Dispatch, Middleware, UnknownAction } from '../reduxImports'
 import { compose } from '../reduxImports'
 import { getOrInsertComputed } from '../utils'
 import type {
