@@ -209,13 +209,13 @@ export type MutationKeys<Definitions extends EndpointDefinitions> = {
 }[keyof Definitions]
 
 type BaseQuerySubState<
-  BaseEndpointDefinitionType extends BaseEndpointDefinition<any, any, any, any>,
-  DataType = ResultTypeFrom<BaseEndpointDefinitionType>,
+  D extends BaseEndpointDefinition<any, any, any, any>,
+  DataType = ResultTypeFrom<D>,
 > = {
   /**
    * The argument originally passed into the hook or `initiate` action call
    */
-  originalArgs: QueryArgFromAnyQuery<BaseEndpointDefinitionType>
+  originalArgs: QueryArgFromAnyQuery<D>
   /**
    * A unique ID associated with the request
    */
@@ -229,7 +229,7 @@ type BaseQuerySubState<
    */
   error?:
     | SerializedError
-    | (BaseEndpointDefinitionType extends QueryDefinition<
+    | (D extends QueryDefinition<
         any,
         infer InferredBaseQueryFunctionType,
         any,
@@ -252,19 +252,16 @@ type BaseQuerySubState<
 }
 
 export type QuerySubState<
-  BaseEndpointDefinitionType extends BaseEndpointDefinition<any, any, any, any>,
-  DataType = ResultTypeFrom<BaseEndpointDefinitionType>,
+  D extends BaseEndpointDefinition<any, any, any, any>,
+  DataType = ResultTypeFrom<D>,
 > = Id<
   | ({ status: QueryStatus.fulfilled } & WithRequiredProp<
-      BaseQuerySubState<BaseEndpointDefinitionType, DataType>,
+      BaseQuerySubState<D, DataType>,
       'data' | 'fulfilledTimeStamp'
     > & { error: undefined })
-  | ({ status: QueryStatus.pending } & BaseQuerySubState<
-      BaseEndpointDefinitionType,
-      DataType
-    >)
+  | ({ status: QueryStatus.pending } & BaseQuerySubState<D, DataType>)
   | ({ status: QueryStatus.rejected } & WithRequiredProp<
-      BaseQuerySubState<BaseEndpointDefinitionType, DataType>,
+      BaseQuerySubState<D, DataType>,
       'error'
     >)
   | {
@@ -282,34 +279,22 @@ export type QuerySubState<
 export type InfiniteQueryDirection = 'forward' | 'backward'
 
 export type InfiniteQuerySubState<
-  BaseEndpointDefinitionType extends BaseEndpointDefinition<any, any, any, any>,
+  D extends BaseEndpointDefinition<any, any, any, any>,
 > =
-  BaseEndpointDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >
-    ? QuerySubState<
-        BaseEndpointDefinitionType,
-        InfiniteData<
-          ResultTypeFrom<BaseEndpointDefinitionType>,
-          PageParamFrom<BaseEndpointDefinitionType>
-        >
-      > & {
+  D extends InfiniteQueryDefinition<any, any, any, any, any>
+    ? QuerySubState<D, InfiniteData<ResultTypeFrom<D>, PageParamFrom<D>>> & {
         direction?: InfiniteQueryDirection
       }
     : never
 
 type BaseMutationSubState<
-  BaseEndpointDefinitionType extends BaseEndpointDefinition<any, any, any, any>,
+  D extends BaseEndpointDefinition<any, any, any, any>,
 > = {
   requestId: string
-  data?: ResultTypeFrom<BaseEndpointDefinitionType>
+  data?: ResultTypeFrom<D>
   error?:
     | SerializedError
-    | (BaseEndpointDefinitionType extends MutationDefinition<
+    | (D extends MutationDefinition<
         any,
         infer InferredBaseQueryFunctionType,
         any,
@@ -323,21 +308,19 @@ type BaseMutationSubState<
 }
 
 export type MutationSubState<
-  BaseEndpointDefinitionType extends BaseEndpointDefinition<any, any, any, any>,
+  D extends BaseEndpointDefinition<any, any, any, any>,
 > =
   | (({
       status: QueryStatus.fulfilled
     } & WithRequiredProp<
-      BaseMutationSubState<BaseEndpointDefinitionType>,
+      BaseMutationSubState<D>,
       'data' | 'fulfilledTimeStamp'
     >) & { error: undefined })
-  | (({
-      status: QueryStatus.pending
-    } & BaseMutationSubState<BaseEndpointDefinitionType>) & {
+  | (({ status: QueryStatus.pending } & BaseMutationSubState<D>) & {
       data?: undefined
     })
   | ({ status: QueryStatus.rejected } & WithRequiredProp<
-      BaseMutationSubState<BaseEndpointDefinitionType>,
+      BaseMutationSubState<D>,
       'error'
     >)
   | {
@@ -351,13 +334,13 @@ export type MutationSubState<
     }
 
 export type CombinedState<
-  EndpointDefinitionsType extends EndpointDefinitions,
-  TagTypes extends string,
+  D extends EndpointDefinitions,
+  E extends string,
   ReducerPath extends string,
 > = {
-  queries: QueryState<EndpointDefinitionsType>
-  mutations: MutationState<EndpointDefinitionsType>
-  provided: InvalidationState<TagTypes>
+  queries: QueryState<D>
+  mutations: MutationState<D>
+  provided: InvalidationState<E>
   subscriptions: SubscriptionState
   config: ConfigState<ReducerPath>
 }
@@ -372,10 +355,10 @@ export type InvalidationState<TagTypes extends string> = {
   keys: Record<QueryCacheKey, Array<FullTagDescription<any>>>
 }
 
-export type QueryState<EndpointDefinitionsType extends EndpointDefinitions> = {
+export type QueryState<D extends EndpointDefinitions> = {
   [queryCacheKey: string]:
-    | QuerySubState<EndpointDefinitionsType[string]>
-    | InfiniteQuerySubState<EndpointDefinitionsType[string]>
+    | QuerySubState<D[string]>
+    | InfiniteQuerySubState<D[string]>
     | undefined
 }
 
@@ -397,17 +380,12 @@ export type ModifiableConfigState = {
   invalidationBehavior: 'delayed' | 'immediately'
 } & RefetchConfigOptions
 
-export type MutationState<EndpointDefinitionsType extends EndpointDefinitions> =
-  {
-    [requestId: string]:
-      | MutationSubState<EndpointDefinitionsType[string]>
-      | undefined
-  }
+export type MutationState<D extends EndpointDefinitions> = {
+  [requestId: string]: MutationSubState<D[string]> | undefined
+}
 
 export type RootState<
   Definitions extends EndpointDefinitions,
   TagTypes extends string,
   ReducerPath extends string,
-> = {
-  [P in ReducerPath]: CombinedState<Definitions, TagTypes, P>
-}
+> = { [P in ReducerPath]: CombinedState<Definitions, TagTypes, P> }

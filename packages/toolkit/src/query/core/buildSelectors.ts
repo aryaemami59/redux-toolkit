@@ -59,78 +59,64 @@ export type SkipToken = typeof skipToken
 export const skipToken = /* @__PURE__ */ Symbol.for('RTKQ/skipToken')
 
 export type BuildSelectorsApiEndpointQuery<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any, any>,
+  Definition extends QueryDefinition<any, any, any, any, any>,
   Definitions extends EndpointDefinitions,
 > = {
   select: QueryResultSelectorFactory<
-    QueryDefinitionType,
+    Definition,
     _RootState<
       Definitions,
-      TagTypesFrom<QueryDefinitionType>,
-      ReducerPathFrom<QueryDefinitionType>
+      TagTypesFrom<Definition>,
+      ReducerPathFrom<Definition>
     >
   >
 }
 
 export type BuildSelectorsApiEndpointInfiniteQuery<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
+  Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
   Definitions extends EndpointDefinitions,
 > = {
   select: InfiniteQueryResultSelectorFactory<
-    InfiniteQueryDefinitionType,
+    Definition,
     _RootState<
       Definitions,
-      TagTypesFrom<InfiniteQueryDefinitionType>,
-      ReducerPathFrom<InfiniteQueryDefinitionType>
+      TagTypesFrom<Definition>,
+      ReducerPathFrom<Definition>
     >
   >
 }
 
 export type BuildSelectorsApiEndpointMutation<
-  MutationDefinitionType extends MutationDefinition<any, any, any, any, any>,
+  Definition extends MutationDefinition<any, any, any, any, any>,
   Definitions extends EndpointDefinitions,
 > = {
   select: MutationResultSelectorFactory<
-    MutationDefinitionType,
+    Definition,
     _RootState<
       Definitions,
-      TagTypesFrom<MutationDefinitionType>,
-      ReducerPathFrom<MutationDefinitionType>
+      TagTypesFrom<Definition>,
+      ReducerPathFrom<Definition>
     >
   >
 }
 
 type QueryResultSelectorFactory<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
+  Definition extends QueryDefinition<any, any, any, any>,
   RootStateType,
 > = (
-  queryArg: QueryArgFrom<QueryDefinitionType> | SkipToken,
-) => (state: RootStateType) => QueryResultSelectorResult<QueryDefinitionType>
+  queryArg: QueryArgFrom<Definition> | SkipToken,
+) => (state: RootStateType) => QueryResultSelectorResult<Definition>
 
 export type QueryResultSelectorResult<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
-> = QuerySubState<QueryDefinitionType> & RequestStatusFlags
+  Definition extends QueryDefinition<any, any, any, any>,
+> = QuerySubState<Definition> & RequestStatusFlags
 
 type InfiniteQueryResultSelectorFactory<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
+  Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
   RootStateType,
 > = (
-  queryArg: InfiniteQueryArgFrom<InfiniteQueryDefinitionType> | SkipToken,
-) => (
-  state: RootStateType,
-) => InfiniteQueryResultSelectorResult<InfiniteQueryDefinitionType>
+  queryArg: InfiniteQueryArgFrom<Definition> | SkipToken,
+) => (state: RootStateType) => InfiniteQueryResultSelectorResult<Definition>
 
 export type InfiniteQueryResultFlags = {
   hasNextPage: boolean
@@ -142,14 +128,8 @@ export type InfiniteQueryResultFlags = {
 }
 
 export type InfiniteQueryResultSelectorResult<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
-> = InfiniteQuerySubState<InfiniteQueryDefinitionType> &
+  Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
+> = InfiniteQuerySubState<Definition> &
   RequestStatusFlags &
   InfiniteQueryResultFlags
 
@@ -166,8 +146,8 @@ type MutationResultSelectorFactory<
 ) => MutationResultSelectorResult<MutationDefinitionType>
 
 export type MutationResultSelectorResult<
-  MutationDefinitionType extends MutationDefinition<any, any, any, any>,
-> = MutationSubState<MutationDefinitionType> & RequestStatusFlags
+  Definition extends MutationDefinition<any, any, any, any>,
+> = MutationSubState<Definition> & RequestStatusFlags
 
 const initialSubState: QuerySubState<any> = {
   status: STATUS_UNINITIALIZED,
