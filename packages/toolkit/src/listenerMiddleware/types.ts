@@ -1,12 +1,12 @@
-import type { BaseActionCreator, PayloadAction } from '../createAction'
-import type { TypedActionCreator } from '../mapBuilders'
 import type {
   Action,
   Dispatch,
   Middleware,
   MiddlewareAPI,
   UnknownAction,
-} from '../reduxImports'
+} from 'redux'
+import type { BaseActionCreator, PayloadAction } from '../createAction'
+import type { TypedActionCreator } from '../mapBuilders'
 import type { ThunkDispatch } from '../reduxThunkImports'
 import type { TaskAbortError } from './exceptions'
 

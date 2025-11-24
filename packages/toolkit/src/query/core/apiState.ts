@@ -25,15 +25,11 @@ export type RefetchConfigOptions = {
   refetchOnFocus: boolean
 }
 
-export type InfiniteQueryConfigOptions<
-  DataType,
-  PageParamType,
-  QueryArgumentType,
-> = {
+export type InfiniteQueryConfigOptions<DataType, PageParam, QueryArg> = {
   /**
    * The initial page parameter to use for the first page fetch.
    */
-  initialPageParam: PageParamType
+  initialPageParam: PageParam
   /**
    * This function is required to automatically get the next cursor for infinite queries.
    * The result will also be used to determine the value of `hasNextPage`.
@@ -41,10 +37,10 @@ export type InfiniteQueryConfigOptions<
   getNextPageParam: (
     lastPage: DataType,
     allPages: Array<DataType>,
-    lastPageParam: PageParamType,
-    allPageParams: Array<PageParamType>,
-    queryArg: QueryArgumentType,
-  ) => PageParamType | undefined | null
+    lastPageParam: PageParam,
+    allPageParams: Array<PageParam>,
+    queryArg: QueryArg,
+  ) => PageParam | undefined | null
   /**
    * This function can be set to automatically get the previous cursor for infinite queries.
    * The result will also be used to determine the value of `hasPreviousPage`.
@@ -52,10 +48,10 @@ export type InfiniteQueryConfigOptions<
   getPreviousPageParam?: (
     firstPage: DataType,
     allPages: Array<DataType>,
-    firstPageParam: PageParamType,
-    allPageParams: Array<PageParamType>,
-    queryArg: QueryArgumentType,
-  ) => PageParamType | undefined | null
+    firstPageParam: PageParam,
+    allPageParams: Array<PageParam>,
+    queryArg: QueryArg,
+  ) => PageParam | undefined | null
   /**
    * If specified, only keep this many pages in cache at once.
    * If additional pages are fetched, older pages in the other
@@ -63,17 +59,19 @@ export type InfiniteQueryConfigOptions<
    */
   maxPages?: number
   /**
-   * Defaults to `true`. When this is `true` and an infinite query endpoint is refetched
-   * (due to tag invalidation, polling, arg change configuration, or manual refetching),
-   * RTK Query will try to sequentially refetch all pages currently in the cache.
-   * When `false` only the first page will be refetched.
+   * When this is `true` and an infinite query endpoint is refetched
+   * (due to tag invalidation, polling, arg change configuration, or manual
+   * refetching), RTK Query will try to sequentially refetch all pages
+   * currently in the cache. When `false` only the first page will be refetched.
+   *
+   * @default true
    */
   refetchCachedPages?: boolean
 }
 
-export type InfiniteData<DataType, PageParamType> = {
+export type InfiniteData<DataType, PageParam> = {
   pages: Array<DataType>
-  pageParams: Array<PageParamType>
+  pageParams: Array<PageParam>
 }
 
 // NOTE: DO NOT import and use this for runtime comparisons internally,
@@ -144,81 +142,92 @@ export function getRequestStatusFlags(status: QueryStatus): RequestStatusFlags {
  */
 export type SubscriptionOptions = {
   /**
-   * How frequently to automatically re-fetch data (in milliseconds). Defaults to `0` (off).
+   * How frequently to automatically re-fetch data (in milliseconds).
+   * Defaults to `0` (off).
+   *
+   * @default 0
    */
   pollingInterval?: number
   /**
-   *  Defaults to 'false'. This setting allows you to control whether RTK Query will continue polling if the window is not focused.
+   * This setting allows you to control whether RTK Query will continue polling
+   * if the window is not focused. If
+   * {@linkcode SubscriptionOptions.pollingInterval | pollingInterval} is not
+   * set or set to `0`, this **will not be evaluated** until
+   * {@linkcode SubscriptionOptions.pollingInterval | pollingInterval} is
+   * greater than `0`.
    *
-   *  If pollingInterval is not set or set to 0, this **will not be evaluated** until pollingInterval is greater than 0.
+   * Note: requires {@linkcode setupListeners} to have been called.
    *
-   *  Note: requires [`setupListeners`](./setupListeners) to have been called.
+   * @default false
    */
   skipPollingIfUnfocused?: boolean
   /**
-   * Defaults to `false`. This setting allows you to control whether RTK Query will try to refetch all subscribed queries after regaining a network connection.
+   * This setting allows you to control whether RTK Query will try to refetch
+   * all subscribed queries after regaining a network connection. If you
+   * specify this option alongside `skip: true`, this **will not be evaluated**
+   * until `skip` is `false`.
    *
-   * If you specify this option alongside `skip: true`, this **will not be evaluated** until `skip` is false.
+   * Note: requires {@linkcode setupListeners} to have been called.
    *
-   * Note: requires [`setupListeners`](./setupListeners) to have been called.
+   * @default false
    */
   refetchOnReconnect?: boolean
   /**
-   * Defaults to `false`. This setting allows you to control whether RTK Query will try to refetch all subscribed queries after the application window regains focus.
+   * This setting allows you to control whether RTK Query will try to refetch
+   * all subscribed queries after the application window regains focus. If you
+   * specify this option alongside `skip: true`, this **will not be evaluated**
+   * until `skip` is `false`.
    *
-   * If you specify this option alongside `skip: true`, this **will not be evaluated** until `skip` is false.
+   * Note: requires {@linkcode setupListeners} to have been called.
    *
-   * Note: requires [`setupListeners`](./setupListeners) to have been called.
+   * @default false
    */
   refetchOnFocus?: boolean
 }
 export type SubscribersInternal = Map<string, SubscriptionOptions>
 export type Subscribers = { [requestId: string]: SubscriptionOptions }
-export type QueryKeys<EndpointDefinitionsType extends EndpointDefinitions> = {
-  [EndpointDefinitionsKeyType in keyof EndpointDefinitionsType]: EndpointDefinitionsType[EndpointDefinitionsKeyType] extends QueryDefinition<
+export type QueryKeys<Definitions extends EndpointDefinitions> = {
+  [K in keyof Definitions]: Definitions[K] extends QueryDefinition<
     any,
     any,
     any,
     any
   >
-    ? EndpointDefinitionsKeyType
+    ? K
     : never
-}[keyof EndpointDefinitionsType]
+}[keyof Definitions]
 
-export type InfiniteQueryKeys<
-  EndpointDefinitionsType extends EndpointDefinitions,
-> = {
-  [EndpointDefinitionsKeyType in keyof EndpointDefinitionsType]: EndpointDefinitionsType[EndpointDefinitionsKeyType] extends InfiniteQueryDefinition<
+export type InfiniteQueryKeys<Definitions extends EndpointDefinitions> = {
+  [K in keyof Definitions]: Definitions[K] extends InfiniteQueryDefinition<
     any,
     any,
     any,
     any,
     any
   >
-    ? EndpointDefinitionsKeyType
+    ? K
     : never
-}[keyof EndpointDefinitionsType]
+}[keyof Definitions]
 
-export type MutationKeys<EndpointDefinitionsType extends EndpointDefinitions> =
-  {
-    [EndpointDefinitionsKeyType in keyof EndpointDefinitionsType]: EndpointDefinitionsType[EndpointDefinitionsKeyType] extends MutationDefinition<
-      any,
-      any,
-      any,
-      any
-    >
-      ? EndpointDefinitionsKeyType
-      : never
-  }[keyof EndpointDefinitionsType]
+export type MutationKeys<Definitions extends EndpointDefinitions> = {
+  [K in keyof Definitions]: Definitions[K] extends MutationDefinition<
+    any,
+    any,
+    any,
+    any
+  >
+    ? K
+    : never
+}[keyof Definitions]
 
 type BaseQuerySubState<
-  BaseEndpointDefinitionType extends BaseEndpointDefinition<any, any, any, any>,
-  DataType = ResultTypeFrom<BaseEndpointDefinitionType>,
+  D extends BaseEndpointDefinition<any, any, any, any>,
+  DataType = ResultTypeFrom<D>,
 > = {
   /**
    * The argument originally passed into the hook or `initiate` action call
    */
-  originalArgs: QueryArgFromAnyQuery<BaseEndpointDefinitionType>
+  originalArgs: QueryArgFromAnyQuery<D>
   /**
    * A unique ID associated with the request
    */
@@ -232,7 +241,7 @@ type BaseQuerySubState<
    */
   error?:
     | SerializedError
-    | (BaseEndpointDefinitionType extends QueryDefinition<
+    | (D extends QueryDefinition<
         any,
         infer InferredBaseQueryFunctionType,
         any,
@@ -255,19 +264,16 @@ type BaseQuerySubState<
 }
 
 export type QuerySubState<
-  BaseEndpointDefinitionType extends BaseEndpointDefinition<any, any, any, any>,
-  DataType = ResultTypeFrom<BaseEndpointDefinitionType>,
+  D extends BaseEndpointDefinition<any, any, any, any>,
+  DataType = ResultTypeFrom<D>,
 > = Id<
   | ({ status: QueryStatus.fulfilled } & WithRequiredProp<
-      BaseQuerySubState<BaseEndpointDefinitionType, DataType>,
+      BaseQuerySubState<D, DataType>,
       'data' | 'fulfilledTimeStamp'
     > & { error: undefined })
-  | ({ status: QueryStatus.pending } & BaseQuerySubState<
-      BaseEndpointDefinitionType,
-      DataType
-    >)
+  | ({ status: QueryStatus.pending } & BaseQuerySubState<D, DataType>)
   | ({ status: QueryStatus.rejected } & WithRequiredProp<
-      BaseQuerySubState<BaseEndpointDefinitionType, DataType>,
+      BaseQuerySubState<D, DataType>,
       'error'
     >)
   | {
@@ -285,34 +291,22 @@ export type QuerySubState<
 export type InfiniteQueryDirection = 'forward' | 'backward'
 
 export type InfiniteQuerySubState<
-  BaseEndpointDefinitionType extends BaseEndpointDefinition<any, any, any, any>,
+  D extends BaseEndpointDefinition<any, any, any, any>,
 > =
-  BaseEndpointDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >
-    ? QuerySubState<
-        BaseEndpointDefinitionType,
-        InfiniteData<
-          ResultTypeFrom<BaseEndpointDefinitionType>,
-          PageParamFrom<BaseEndpointDefinitionType>
-        >
-      > & {
+  D extends InfiniteQueryDefinition<any, any, any, any, any>
+    ? QuerySubState<D, InfiniteData<ResultTypeFrom<D>, PageParamFrom<D>>> & {
         direction?: InfiniteQueryDirection
       }
     : never
 
 type BaseMutationSubState<
-  BaseEndpointDefinitionType extends BaseEndpointDefinition<any, any, any, any>,
+  D extends BaseEndpointDefinition<any, any, any, any>,
 > = {
   requestId: string
-  data?: ResultTypeFrom<BaseEndpointDefinitionType>
+  data?: ResultTypeFrom<D>
   error?:
     | SerializedError
-    | (BaseEndpointDefinitionType extends MutationDefinition<
+    | (D extends MutationDefinition<
         any,
         infer InferredBaseQueryFunctionType,
         any,
@@ -326,21 +320,19 @@ type BaseMutationSubState<
 }
 
 export type MutationSubState<
-  BaseEndpointDefinitionType extends BaseEndpointDefinition<any, any, any, any>,
+  D extends BaseEndpointDefinition<any, any, any, any>,
 > =
   | (({
       status: QueryStatus.fulfilled
     } & WithRequiredProp<
-      BaseMutationSubState<BaseEndpointDefinitionType>,
+      BaseMutationSubState<D>,
       'data' | 'fulfilledTimeStamp'
     >) & { error: undefined })
-  | (({
-      status: QueryStatus.pending
-    } & BaseMutationSubState<BaseEndpointDefinitionType>) & {
+  | (({ status: QueryStatus.pending } & BaseMutationSubState<D>) & {
       data?: undefined
     })
   | ({ status: QueryStatus.rejected } & WithRequiredProp<
-      BaseMutationSubState<BaseEndpointDefinitionType>,
+      BaseMutationSubState<D>,
       'error'
     >)
   | {
@@ -354,15 +346,15 @@ export type MutationSubState<
     }
 
 export type CombinedState<
-  EndpointDefinitionsType extends EndpointDefinitions,
-  TagType extends string,
-  ReducerPathType extends string,
+  D extends EndpointDefinitions,
+  E extends string,
+  ReducerPath extends string,
 > = {
-  queries: QueryState<EndpointDefinitionsType>
-  mutations: MutationState<EndpointDefinitionsType>
-  provided: InvalidationState<TagType>
+  queries: QueryState<D>
+  mutations: MutationState<D>
+  provided: InvalidationState<E>
   subscriptions: SubscriptionState
-  config: ConfigState<ReducerPathType>
+  config: ConfigState<ReducerPath>
 }
 
 export type InvalidationState<TagTypes extends string> = {
@@ -375,10 +367,10 @@ export type InvalidationState<TagTypes extends string> = {
   keys: Record<QueryCacheKey, Array<FullTagDescription<any>>>
 }
 
-export type QueryState<EndpointDefinitionsType extends EndpointDefinitions> = {
+export type QueryState<D extends EndpointDefinitions> = {
   [queryCacheKey: string]:
-    | QuerySubState<EndpointDefinitionsType[string]>
-    | InfiniteQuerySubState<EndpointDefinitionsType[string]>
+    | QuerySubState<D[string]>
+    | InfiniteQuerySubState<D[string]>
     | undefined
 }
 
@@ -388,8 +380,8 @@ export type SubscriptionState = {
   [queryCacheKey: string]: Subscribers | undefined
 }
 
-export type ConfigState<ReducerPathType> = RefetchConfigOptions & {
-  reducerPath: ReducerPathType
+export type ConfigState<ReducerPath> = RefetchConfigOptions & {
+  reducerPath: ReducerPath
   online: boolean
   focused: boolean
   middlewareRegistered: boolean | 'conflict'
@@ -400,17 +392,12 @@ export type ModifiableConfigState = {
   invalidationBehavior: 'delayed' | 'immediately'
 } & RefetchConfigOptions
 
-export type MutationState<EndpointDefinitionsType extends EndpointDefinitions> =
-  {
-    [requestId: string]:
-      | MutationSubState<EndpointDefinitionsType[string]>
-      | undefined
-  }
+export type MutationState<D extends EndpointDefinitions> = {
+  [requestId: string]: MutationSubState<D[string]> | undefined
+}
 
 export type RootState<
-  EndpointDefinitionsType extends EndpointDefinitions,
-  TagType extends string,
-  ReducerPathType extends string,
-> = {
-  [P in ReducerPathType]: CombinedState<EndpointDefinitionsType, TagType, P>
-}
+  Definitions extends EndpointDefinitions,
+  TagTypes extends string,
+  ReducerPath extends string,
+> = { [P in ReducerPath]: CombinedState<Definitions, TagTypes, P> }

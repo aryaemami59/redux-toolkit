@@ -1,5 +1,5 @@
-import type { Draft } from 'immer'
 import type { Action, Reducer, UnknownAction } from 'redux'
+import type { Draft } from './immerImports'
 import { createNextState, isDraft, isDraftable } from './immerImports'
 import type { ActionReducerMapBuilder } from './mapBuilders'
 import { executeReducerBuilderCallback } from './mapBuilders'
@@ -94,7 +94,7 @@ export type ReducerWithInitialState<S extends NotFunction<any>> = Reducer<S> & {
  * called to define what actions this reducer will handle.
  *
  * @param initialState - `State | (() => State)`: The initial state that should be used when the reducer is called the first time. This may also be a "lazy initializer" function, which should return an initial state value when called. This will be used whenever the reducer is called with `undefined` as its state value, and is primarily useful for cases like reading initial state from `localStorage`.
- * @param builderCallback - `(builder: Builder) => void` A callback that receives a *builder* object to define
+ * @param mapOrBuilderCallback - `(builder: Builder) => void` A callback that receives a *builder* object to define
  *   case reducers via calls to `builder.addCase(actionCreatorOrType, reducer)`.
  * @example
  * ```ts
@@ -147,7 +147,7 @@ export function createReducer<S extends NotFunction<any>>(
     }
   }
 
-  let [actionsMap, finalActionMatchers, finalDefaultCaseReducer] =
+  const [actionsMap, finalActionMatchers, finalDefaultCaseReducer] =
     executeReducerBuilderCallback(mapOrBuilderCallback)
 
   // Ensure the initial state gets frozen either way (if draftable)

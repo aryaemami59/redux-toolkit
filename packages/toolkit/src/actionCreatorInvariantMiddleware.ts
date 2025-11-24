@@ -1,5 +1,5 @@
+import type { Middleware } from 'redux'
 import { isActionCreator as isRTKAction } from './createAction'
-import type { Middleware } from './reduxImports'
 
 export interface ActionCreatorInvariantMiddlewareOptions {
   /**

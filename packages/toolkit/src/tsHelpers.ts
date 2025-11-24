@@ -1,9 +1,9 @@
-import type { Middleware, StoreEnhancer } from './reduxImports'
+import type { Middleware, StoreEnhancer } from 'redux'
 import type { Tuple } from './utils'
 
-export function safeAssign<TargetType extends object>(
-  target: TargetType,
-  ...args: Array<Partial<NoInfer<TargetType>>>
+export function safeAssign<T extends object>(
+  target: T,
+  ...args: Array<Partial<NoInfer<T>>>
 ) {
   Object.assign(target, ...args)
 }
@@ -86,29 +86,20 @@ export type UnionToIntersection<U> = (
 
 // Appears to have a convenient side effect of ignoring `never` even if that's not what you specified
 export type ExcludeFromTuple<T, E, Acc extends unknown[] = []> = T extends [
-  infer InferredHeadType,
-  ...infer InferredTailType,
+  infer Head,
+  ...infer Tail,
 ]
-  ? ExcludeFromTuple<
-      InferredTailType,
-      E,
-      [...Acc, ...([InferredHeadType] extends [E] ? [] : [InferredHeadType])]
-    >
+  ? ExcludeFromTuple<Tail, E, [...Acc, ...([Head] extends [E] ? [] : [Head])]>
   : Acc
 
 type ExtractDispatchFromMiddlewareTuple<
   MiddlewareTupleType extends readonly any[],
   Acc extends {},
-> = MiddlewareTupleType extends [
-  infer InferredHeadType,
-  ...infer InferredTailType,
-]
+> = MiddlewareTupleType extends [infer Head, ...infer Tail]
   ? ExtractDispatchFromMiddlewareTuple<
-      InferredTailType,
+      Tail,
       Acc &
-        (InferredHeadType extends Middleware<
-          infer InferredDispatchExtensionType
-        >
+        (Head extends Middleware<infer InferredDispatchExtensionType>
           ? IsAny<
               InferredDispatchExtensionType,
               {},
@@ -128,16 +119,11 @@ export type ExtractDispatchExtensions<MiddlewareTupleType> =
 type ExtractStoreExtensionsFromEnhancerTuple<
   EnhancerTupleType extends readonly any[],
   Acc extends {},
-> = EnhancerTupleType extends [
-  infer InferredHeadType,
-  ...infer InferredTailType,
-]
+> = EnhancerTupleType extends [infer Head, ...infer Tail]
   ? ExtractStoreExtensionsFromEnhancerTuple<
-      InferredTailType,
+      Tail,
       Acc &
-        (InferredHeadType extends StoreEnhancer<
-          infer InferredStoreExtensionType
-        >
+        (Head extends StoreEnhancer<infer InferredStoreExtensionType>
           ? IsAny<InferredStoreExtensionType, {}, InferredStoreExtensionType>
           : {})
     >
@@ -165,17 +151,11 @@ export type ExtractStoreExtensions<EnhancerTupleType> =
 type ExtractStateExtensionsFromEnhancerTuple<
   EnhancerTupleType extends readonly any[],
   Acc extends {},
-> = EnhancerTupleType extends [
-  infer InferredHeadType,
-  ...infer InferredTailType,
-]
+> = EnhancerTupleType extends [infer Head, ...infer Tail]
   ? ExtractStateExtensionsFromEnhancerTuple<
-      InferredTailType,
+      Tail,
       Acc &
-        (InferredHeadType extends StoreEnhancer<
-          any,
-          infer InferredStateExtensionType
-        >
+        (Head extends StoreEnhancer<any, infer InferredStateExtensionType>
           ? IsAny<InferredStateExtensionType, {}, InferredStateExtensionType>
           : {})
     >
@@ -215,11 +195,9 @@ export type WithOptionalProp<T, OptionalKeys extends keyof T> = Omit<
 > &
   Partial<Pick<T, OptionalKeys>>
 
-export interface TypeGuard<T> {
-  (value: any): value is T
-}
+export type TypeGuard<T> = (value: any) => value is T
 
-export interface HasMatchFunction<T> {
+export type HasMatchFunction<T> = {
   match: TypeGuard<T>
 }
 
@@ -229,10 +207,14 @@ export const hasMatchFunction = <T>(
   return v && typeof (v as HasMatchFunction<T>).match === 'function'
 }
 
-/** @public */
+/**
+ * @public
+ */
 export type Matcher<T> = HasMatchFunction<T> | TypeGuard<T>
 
-/** @public */
+/**
+ * @public
+ */
 export type ActionFromMatcher<MatcherType extends Matcher<any>> =
   MatcherType extends Matcher<infer InferredMatchedActionType>
     ? InferredMatchedActionType
@@ -255,14 +237,4 @@ export type UnknownIfNonSpecific<T> = {} extends T ? unknown : T
  */
 export type SafePromise<T> = Promise<T> & {
   __linterBrands: 'SafePromise'
-}
-
-/**
- * Properly wraps a Promise as a {@link SafePromise} with .catch(fallback).
- */
-export function asSafePromise<Resolved, Rejected>(
-  promise: Promise<Resolved>,
-  fallback: (error: unknown) => Rejected,
-) {
-  return promise.catch(fallback) as SafePromise<Resolved | Rejected>
 }
