@@ -45,16 +45,16 @@ export type {
 export type { InternalMiddlewareState, SubscriptionSelectors } from './types'
 
 export function buildMiddleware<
-  DefinitionsType extends EndpointDefinitions,
-  ReducerPathType extends string,
-  ApiTagTypes extends string,
->(input: BuildMiddlewareInput<DefinitionsType, ReducerPathType, ApiTagTypes>) {
+  Definitions extends EndpointDefinitions,
+  ReducerPath extends string,
+  TagTypes extends string,
+>(input: BuildMiddlewareInput<Definitions, ReducerPath, TagTypes>) {
   const { reducerPath, queryThunk, api, context, getInternalState } = input
   const { apiUid } = context
 
   const actions = {
     invalidateTags: createAction<
-      Array<ApiTagTypes | FullTagDescription<ApiTagTypes> | null | undefined>
+      Array<TagTypes | FullTagDescription<TagTypes> | null | undefined>
     >(`${reducerPath}/invalidateTags`),
   }
 
@@ -72,7 +72,7 @@ export function buildMiddleware<
 
   const middleware: Middleware<
     {},
-    RootState<DefinitionsType, string, ReducerPathType>,
+    RootState<Definitions, string, ReducerPath>,
     ThunkDispatch<any, any, UnknownAction>
   > = (mwApi) => {
     let initialized = false
