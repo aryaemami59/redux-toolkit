@@ -134,16 +134,14 @@ export type InfiniteQueryResultSelectorResult<
   InfiniteQueryResultFlags
 
 type MutationResultSelectorFactory<
-  MutationDefinitionType extends MutationDefinition<any, any, any, any>,
+  Definition extends MutationDefinition<any, any, any, any>,
   RootStateType,
 > = (
   requestId:
     | string
     | { requestId: string | undefined; fixedCacheKey: string | undefined }
     | SkipToken,
-) => (
-  state: RootStateType,
-) => MutationResultSelectorResult<MutationDefinitionType>
+) => (state: RootStateType) => MutationResultSelectorResult<Definition>
 
 export type MutationResultSelectorResult<
   Definition extends MutationDefinition<any, any, any, any>,
@@ -166,18 +164,18 @@ const defaultMutationSubState = /* @__PURE__ */ createNextState(
 export type AllSelectors = ReturnType<typeof buildSelectors>
 
 export function buildSelectors<
-  DefinitionsType extends EndpointDefinitions,
-  ReducerPathType extends string,
+  Definitions extends EndpointDefinitions,
+  ReducerPath extends string,
 >({
   serializeQueryArgs,
   reducerPath,
   createSelector,
 }: {
   serializeQueryArgs: InternalSerializeQueryArgs
-  reducerPath: ReducerPathType
+  reducerPath: ReducerPath
   createSelector: typeof _createSelector
 }) {
-  type RootState = _RootState<DefinitionsType, string, string>
+  type RootState = _RootState<Definitions, string, string>
 
   const selectSkippedQuery = (state: RootState) => defaultQuerySubState
   const selectSkippedMutation = (state: RootState) => defaultMutationSubState
@@ -373,17 +371,17 @@ export function buildSelectors<
   }
 
   function selectCachedArgsForQuery<
-    QueryName extends AllQueryKeys<DefinitionsType>,
+    QueryName extends AllQueryKeys<Definitions>,
   >(
     state: RootState,
     queryName: QueryName,
-  ): Array<QueryArgFromAnyQuery<DefinitionsType[QueryName]>> {
+  ): Array<QueryArgFromAnyQuery<Definitions[QueryName]>> {
     return filterMap(
       Object.values(selectQueries(state) as QueryState<any>),
       (
         entry,
       ): entry is Exclude<
-        QuerySubState<DefinitionsType[QueryName]>,
+        QuerySubState<Definitions[QueryName]>,
         { status: QueryStatus.uninitialized }
       > =>
         entry?.endpointName === queryName &&
