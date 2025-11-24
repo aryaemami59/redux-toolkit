@@ -58,16 +58,16 @@ export interface SubscriptionSelectors {
 }
 
 export interface BuildMiddlewareInput<
-  EndpointDefinitionsType extends EndpointDefinitions,
-  ReducerPathType extends string,
-  TagType extends string,
+  Definitions extends EndpointDefinitions,
+  ReducerPath extends string,
+  TagTypes extends string,
 > {
-  reducerPath: ReducerPathType
-  context: ApiContext<EndpointDefinitionsType>
+  reducerPath: ReducerPath
+  context: ApiContext<Definitions>
   queryThunk: QueryThunk
   mutationThunk: MutationThunk
   infiniteQueryThunk: InfiniteQueryThunk<any>
-  api: Api<any, EndpointDefinitionsType, ReducerPathType, TagType>
+  api: Api<any, Definitions, ReducerPath, TagTypes>
   assertTagType: AssertTagTypes
   selectors: AllSelectors
   getRunningQueryThunk: (
@@ -82,8 +82,11 @@ export type SubMiddlewareApi = MiddlewareAPI<
   RootState<EndpointDefinitions, string, string>
 >
 
-export interface BuildSubMiddlewareInput
-  extends BuildMiddlewareInput<EndpointDefinitions, string, string> {
+export interface BuildSubMiddlewareInput extends BuildMiddlewareInput<
+  EndpointDefinitions,
+  string,
+  string
+> {
   internalState: InternalMiddlewareState
   refetchQuery(
     querySubState: Exclude<
@@ -115,9 +118,9 @@ export type ApiMiddlewareInternalHandler<Return = void> = (
   prevState: RootState<EndpointDefinitions, string, string>,
 ) => Return
 
-export type InternalHandlerBuilder<ReturnType = void> = (
+export type InternalHandlerBuilder<MiddlewareReturnType = void> = (
   input: BuildSubMiddlewareInput,
-) => ApiMiddlewareInternalHandler<ReturnType>
+) => ApiMiddlewareInternalHandler<MiddlewareReturnType>
 
 export interface PromiseConstructorWithKnownReason {
   /**

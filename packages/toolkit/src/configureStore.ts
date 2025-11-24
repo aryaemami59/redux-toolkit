@@ -1,3 +1,12 @@
+import type {
+  Action,
+  Middleware,
+  Reducer,
+  ReducersMapObject,
+  Store,
+  StoreEnhancer,
+  UnknownAction,
+} from 'redux'
 import type { DevToolsEnhancerOptions as DevToolsOptions } from './devtoolsExtension'
 import { composeWithDevTools } from './devtoolsExtension'
 import type { GetDefaultEnhancers } from './getDefaultEnhancers'
@@ -7,15 +16,6 @@ import type {
   ThunkMiddlewareFor,
 } from './getDefaultMiddleware'
 import { buildGetDefaultMiddleware } from './getDefaultMiddleware'
-import type {
-  Action,
-  Middleware,
-  Reducer,
-  ReducersMapObject,
-  Store,
-  StoreEnhancer,
-  UnknownAction,
-} from './reduxImports'
 import {
   applyMiddleware,
   combineReducers,
@@ -54,19 +54,23 @@ export interface ConfigureStoreOptions<
    * If not supplied, defaults to the set of middleware returned by `getDefaultMiddleware()`.
    *
    * @example `middleware: (gDM) => gDM().concat(logger, apiMiddleware, yourCustomMiddleware)`
-   * @see https://redux-toolkit.js.org/api/getDefaultMiddleware#intended-usage
+   * @see {@link https://redux-toolkit.js.org/api/getDefaultMiddleware#intended-usage}
    */
   middleware?: (getDefaultMiddleware: GetDefaultMiddleware<S>) => M
 
   /**
-   * Whether to enable Redux DevTools integration. Defaults to `true`.
+   * Whether to enable Redux DevTools integration.
    *
    * Additional configuration can be done by passing Redux DevTools options
+   *
+   * @default true
    */
   devTools?: boolean | DevToolsOptions
 
   /**
-   * Whether to check for duplicate middleware instances. Defaults to `true`.
+   * Whether to check for duplicate middleware instances.
+   *
+   * @default true
    */
   duplicateMiddlewareCheck?: boolean
 
@@ -103,15 +107,11 @@ type Enhancers = ReadonlyArray<StoreEnhancer>
  * @public
  */
 export type EnhancedStore<
-  StateType = any,
-  ActionType extends Action = UnknownAction,
-  EnhancersType extends Enhancers = Enhancers,
-> = ExtractStoreExtensions<EnhancersType> &
-  Store<
-    StateType,
-    ActionType,
-    UnknownIfNonSpecific<ExtractStateExtensions<EnhancersType>>
-  >
+  S = any,
+  A extends Action = UnknownAction,
+  E extends Enhancers = Enhancers,
+> = ExtractStoreExtensions<E> &
+  Store<S, A, UnknownIfNonSpecific<ExtractStateExtensions<E>>>
 
 /**
  * A friendly abstraction over the standard Redux `createStore()` function.

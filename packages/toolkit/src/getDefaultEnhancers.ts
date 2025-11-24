@@ -1,7 +1,7 @@
+import type { StoreEnhancer } from 'redux'
 import type { AutoBatchOptions } from './autoBatchEnhancer'
 import { autoBatchEnhancer } from './autoBatchEnhancer'
 import type { Middlewares } from './configureStore'
-import type { StoreEnhancer } from './reduxImports'
 import type { ExtractDispatchExtensions } from './tsHelpers'
 import { Tuple } from './utils'
 

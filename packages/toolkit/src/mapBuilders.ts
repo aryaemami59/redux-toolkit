@@ -1,10 +1,10 @@
+import type { Action } from 'redux'
 import type { AsyncThunk, AsyncThunkConfig } from './createAsyncThunk'
 import type {
   ActionMatcherDescriptionCollection,
   CaseReducer,
   CaseReducers,
 } from './createReducer'
-import type { Action } from './reduxImports'
 import type { TypeGuard } from './tsHelpers'
 
 export type AsyncThunkReducers<

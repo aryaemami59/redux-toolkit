@@ -1,13 +1,10 @@
+import type { Middleware, UnknownAction } from 'redux'
 import type { ActionCreatorInvariantMiddlewareOptions } from './actionCreatorInvariantMiddleware'
 import { createActionCreatorInvariantMiddleware } from './actionCreatorInvariantMiddleware'
 import type { ImmutableStateInvariantMiddlewareOptions } from './immutableStateInvariantMiddleware'
 import { createImmutableStateInvariantMiddleware } from './immutableStateInvariantMiddleware'
-import type { Middleware, UnknownAction } from './reduxImports'
 import type { ThunkMiddleware } from './reduxThunkImports'
-import {
-  thunk as thunkMiddleware,
-  withExtraArgument,
-} from './reduxThunkImports'
+import { thunkMiddleware, withExtraArgument } from './reduxThunkImports'
 import type { SerializableStateInvariantMiddlewareOptions } from './serializableStateInvariantMiddleware'
 import { createSerializableStateInvariantMiddleware } from './serializableStateInvariantMiddleware'
 import type { ExcludeFromTuple } from './tsHelpers'
@@ -17,49 +14,57 @@ function isBoolean(x: any): x is boolean {
   return typeof x === 'boolean'
 }
 
-type ThunkOptions<ExtraArgumentType = any> = {
-  extraArgument: ExtraArgumentType
+interface ThunkOptions<E = any> {
+  extraArgument: E
 }
 
 interface GetDefaultMiddlewareOptions {
+  /**
+   * @default true
+   */
   thunk?: boolean | ThunkOptions
+
+  /**
+   * @default true
+   */
   immutableCheck?: boolean | ImmutableStateInvariantMiddlewareOptions
+
+  /**
+   * @default true
+   */
   serializableCheck?: boolean | SerializableStateInvariantMiddlewareOptions
+
+  /**
+   * @default true
+   */
   actionCreatorCheck?: boolean | ActionCreatorInvariantMiddlewareOptions
 }
 
 export type ThunkMiddlewareFor<
-  StateType,
-  DefaultMiddlewareOptionsType extends GetDefaultMiddlewareOptions = {},
-> = DefaultMiddlewareOptionsType extends {
+  S,
+  O extends GetDefaultMiddlewareOptions = {},
+> = O extends {
   thunk: false
 }
   ? never
-  : DefaultMiddlewareOptionsType extends {
+  : O extends {
         thunk: { extraArgument: infer InferredExtraArgumentType }
       }
-    ? ThunkMiddleware<StateType, UnknownAction, InferredExtraArgumentType>
-    : ThunkMiddleware<StateType, UnknownAction>
+    ? ThunkMiddleware<S, UnknownAction, InferredExtraArgumentType>
+    : ThunkMiddleware<S, UnknownAction>
 
-export type GetDefaultMiddleware<StateType = any> = <
-  DefaultMiddlewareOptionsType extends GetDefaultMiddlewareOptions = {
+export type GetDefaultMiddleware<S = any> = <
+  O extends GetDefaultMiddlewareOptions = {
     thunk: true
     immutableCheck: true
     serializableCheck: true
     actionCreatorCheck: true
   },
 >(
-  options?: DefaultMiddlewareOptionsType,
-) => Tuple<
-  ExcludeFromTuple<
-    [ThunkMiddlewareFor<StateType, DefaultMiddlewareOptionsType>],
-    never
-  >
->
+  options?: O,
+) => Tuple<ExcludeFromTuple<[ThunkMiddlewareFor<S, O>], never>>
 
-export const buildGetDefaultMiddleware = <
-  StateType = any,
->(): GetDefaultMiddleware<StateType> =>
+export const buildGetDefaultMiddleware = <S = any>(): GetDefaultMiddleware<S> =>
   function getDefaultMiddleware(options) {
     const {
       thunk = true,
