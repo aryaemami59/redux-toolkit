@@ -431,57 +431,42 @@ export interface ApiModules<
 }
 
 export interface ApiEndpointQuery<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any, any>,
-  EndpointDefinitionsType extends EndpointDefinitions,
-> extends BuildThunksApiEndpointQuery<QueryDefinitionType>,
-    BuildInitiateApiEndpointQuery<QueryDefinitionType>,
-    BuildSelectorsApiEndpointQuery<
-      QueryDefinitionType,
-      EndpointDefinitionsType
-    > {
+  Definition extends QueryDefinition<any, any, any, any, any>,
+  Definitions extends EndpointDefinitions,
+> extends BuildThunksApiEndpointQuery<Definition>,
+    BuildInitiateApiEndpointQuery<Definition>,
+    BuildSelectorsApiEndpointQuery<Definition, Definitions> {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
-  Types: NonNullable<QueryDefinitionType['Types']>
+  Types: NonNullable<Definition['Types']>
 }
 
 export interface ApiEndpointInfiniteQuery<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
-  EndpointDefinitionsType extends EndpointDefinitions,
-> extends BuildThunksApiEndpointInfiniteQuery<InfiniteQueryDefinitionType>,
-    BuildInitiateApiEndpointInfiniteQuery<InfiniteQueryDefinitionType>,
-    BuildSelectorsApiEndpointInfiniteQuery<
-      InfiniteQueryDefinitionType,
-      EndpointDefinitionsType
-    > {
+  Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
+  Definitions extends EndpointDefinitions,
+> extends BuildThunksApiEndpointInfiniteQuery<Definition>,
+    BuildInitiateApiEndpointInfiniteQuery<Definition>,
+    BuildSelectorsApiEndpointInfiniteQuery<Definition, Definitions> {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
-  Types: NonNullable<InfiniteQueryDefinitionType['Types']>
+  Types: NonNullable<Definition['Types']>
 }
 
 export interface ApiEndpointMutation<
-  MutationDefinitionType extends MutationDefinition<any, any, any, any, any>,
-  EndpointDefinitionsType extends EndpointDefinitions,
-> extends BuildThunksApiEndpointMutation<MutationDefinitionType>,
-    BuildInitiateApiEndpointMutation<MutationDefinitionType>,
-    BuildSelectorsApiEndpointMutation<
-      MutationDefinitionType,
-      EndpointDefinitionsType
-    > {
+  Definition extends MutationDefinition<any, any, any, any, any>,
+  Definitions extends EndpointDefinitions,
+> extends BuildThunksApiEndpointMutation<Definition>,
+    BuildInitiateApiEndpointMutation<Definition>,
+    BuildSelectorsApiEndpointMutation<Definition, Definitions> {
   name: string
   /**
    * All of these are `undefined` at runtime, purely to be used in TypeScript declarations!
    */
-  Types: NonNullable<MutationDefinitionType['Types']>
+  Types: NonNullable<Definition['Types']>
 }
 
 export type ListenerActions = {
