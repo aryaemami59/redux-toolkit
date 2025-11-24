@@ -1,4 +1,7 @@
-import type { ThunkDispatch } from '@reduxjs/toolkit'
+import type {
+  ActionCreatorWithoutPayload,
+  ThunkDispatch,
+} from '@reduxjs/toolkit'
 import { createAction } from './rtkImports'
 
 export const INTERNAL_PREFIX = '__rtkq/'
@@ -9,9 +12,10 @@ const FOCUS = 'focus'
 const FOCUSED = 'focused'
 const VISIBILITYCHANGE = 'visibilitychange'
 
-export const onFocus = /* @__PURE__ */ createAction(
-  `${INTERNAL_PREFIX}${FOCUSED}`,
-)
+export const onFocus: ActionCreatorWithoutPayload<'__rtkq/focused'> =
+  /* @__PURE__ */ createAction<void, '__rtkq/focused'>(
+    `${INTERNAL_PREFIX}${FOCUSED}`,
+  )
 export const onFocusLost = /* @__PURE__ */ createAction(
   `${INTERNAL_PREFIX}un${FOCUSED}`,
 )
