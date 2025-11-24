@@ -30,29 +30,29 @@ interface GetDefaultMiddlewareOptions {
 
 export type ThunkMiddlewareFor<
   StateType,
-  DefaultMiddlewareOptionsType extends GetDefaultMiddlewareOptions = {},
-> = DefaultMiddlewareOptionsType extends {
+  MiddlewareOptionsType extends GetDefaultMiddlewareOptions = {},
+> = MiddlewareOptionsType extends {
   thunk: false
 }
   ? never
-  : DefaultMiddlewareOptionsType extends {
+  : MiddlewareOptionsType extends {
         thunk: { extraArgument: infer InferredExtraArgumentType }
       }
     ? ThunkMiddleware<StateType, UnknownAction, InferredExtraArgumentType>
     : ThunkMiddleware<StateType, UnknownAction>
 
 export type GetDefaultMiddleware<StateType = any> = <
-  DefaultMiddlewareOptionsType extends GetDefaultMiddlewareOptions = {
+  MiddlewareOptionsType extends GetDefaultMiddlewareOptions = {
     thunk: true
     immutableCheck: true
     serializableCheck: true
     actionCreatorCheck: true
   },
 >(
-  options?: DefaultMiddlewareOptionsType,
+  options?: MiddlewareOptionsType,
 ) => Tuple<
   ExcludeFromTuple<
-    [ThunkMiddlewareFor<StateType, DefaultMiddlewareOptionsType>],
+    [ThunkMiddlewareFor<StateType, MiddlewareOptionsType>],
     never
   >
 >

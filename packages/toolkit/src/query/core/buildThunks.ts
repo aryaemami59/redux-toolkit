@@ -76,16 +76,16 @@ import {
 } from './rtkImports'
 
 export type BuildThunksApiEndpointQuery<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any, any>,
-> = Matchers<QueryThunk, QueryDefinitionType>
+  Definition extends QueryDefinition<any, any, any, any, any>,
+> = Matchers<QueryThunk, Definition>
 
 export type BuildThunksApiEndpointInfiniteQuery<
-  QueryDefinitionType extends InfiniteQueryDefinition<any, any, any, any, any>,
-> = Matchers<InfiniteQueryThunk<any>, QueryDefinitionType>
+  Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
+> = Matchers<InfiniteQueryThunk<any>, Definition>
 
 export type BuildThunksApiEndpointMutation<
-  QueryDefinitionType extends MutationDefinition<any, any, any, any, any>,
-> = Matchers<MutationThunk, QueryDefinitionType>
+  Definition extends MutationDefinition<any, any, any, any, any>,
+> = Matchers<MutationThunk, Definition>
 
 type EndpointThunk<
   Thunk extends QueryThunk | MutationThunk | InfiniteQueryThunk<any>,

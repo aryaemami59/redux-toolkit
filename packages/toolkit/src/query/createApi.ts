@@ -22,10 +22,10 @@ import {
 } from './endpointDefinitions'
 import type { NoInfer } from './tsHelpers'
 export interface CreateApiOptions<
-  BaseQueryFunctionType extends BaseQueryFn,
-  EndpointDefinitionsType extends EndpointDefinitions,
-  ReducerPathType extends string = 'api',
-  TagType extends string = never,
+  BaseQuery extends BaseQueryFn,
+  Definitions extends EndpointDefinitions,
+  ReducerPath extends string = 'api',
+  TagTypes extends string = never,
 > {
   /**
    * The base query used by each endpoint if no `queryFn` option is specified. RTK Query exports a utility called [fetchBaseQuery](./fetchBaseQuery) as a lightweight wrapper around `fetch` for common use-cases. See [Customizing Queries](../../rtk-query/usage/customizing-queries) if `fetchBaseQuery` does not handle your requirements.
@@ -45,7 +45,7 @@ export interface CreateApiOptions<
    * })
    * ```
    */
-  baseQuery: BaseQueryFunctionType
+  baseQuery: BaseQuery
   /**
    * An array of string tag type names. Specifying tag types is optional, but you should define them so that they can be used for caching and invalidation. When defining a tag type, you will be able to [provide](../../rtk-query/usage/automated-refetching#providing-tags) them with `providesTags` and [invalidate](../../rtk-query/usage/automated-refetching#invalidating-tags) them with `invalidatesTags` when configuring [endpoints](#endpoints).
    *
@@ -65,7 +65,7 @@ export interface CreateApiOptions<
    * })
    * ```
    */
-  tagTypes?: readonly TagType[]
+  tagTypes?: readonly TagTypes[]
   /**
    * The `reducerPath` is a _unique_ key that your service will be mounted to in your store. If you call `createApi` more than once in your application, you will need to provide a unique value each time. Defaults to `'api'`.
    *
@@ -96,7 +96,7 @@ export interface CreateApiOptions<
    * });
    * ```
    */
-  reducerPath?: ReducerPathType
+  reducerPath?: ReducerPath
   /**
    * Accepts a custom function if you have a need to change the creation of cache keys for any reason.
    */
@@ -105,8 +105,8 @@ export interface CreateApiOptions<
    * Endpoints are a set of operations that you want to perform against your server. You define them as an object using the builder syntax. There are three endpoint types: [`query`](../../rtk-query/usage/queries), [`infiniteQuery`](../../rtk-query/usage/infinite-queries) and [`mutation`](../../rtk-query/usage/mutations).
    */
   endpoints(
-    build: EndpointBuilder<BaseQueryFunctionType, TagType, ReducerPathType>,
-  ): EndpointDefinitionsType
+    build: EndpointBuilder<BaseQuery, TagTypes, ReducerPath>,
+  ): Definitions
   /**
    * Defaults to `60` _(this value is in seconds)_. This is how long RTK Query will keep your data cached for **after** the last component unsubscribes. For example, if you query an endpoint, then unmount the component, then mount another component that makes the same request within the given time frame, the most recent value will be served from the cache.
    *
@@ -207,14 +207,14 @@ export interface CreateApiOptions<
     {
       reducerPath,
     }: {
-      reducerPath: ReducerPathType
+      reducerPath: ReducerPath
     },
   ) =>
     | undefined
     | CombinedState<
-        NoInfer<EndpointDefinitionsType>,
-        NoInfer<TagType>,
-        NoInfer<ReducerPathType>
+        NoInfer<Definitions>,
+        NoInfer<TagTypes>,
+        NoInfer<ReducerPath>
       >
 
   /**
@@ -275,7 +275,7 @@ export interface CreateApiOptions<
    * })
    * ```
    */
-  catchSchemaFailure?: SchemaFailureConverter<BaseQueryFunctionType>
+  catchSchemaFailure?: SchemaFailureConverter<BaseQuery>
 
   /**
    * Defaults to `false`.
@@ -312,24 +312,13 @@ export type CreateApi<Modules extends ModuleName> = {
    * @link https://redux-toolkit.js.org/rtk-query/api/createApi
    */
   <
-    BaseQueryFunctionType extends BaseQueryFn,
-    EndpointDefinitionsType extends EndpointDefinitions,
-    ReducerPathType extends string = 'api',
-    TagType extends string = never,
+    BaseQuery extends BaseQueryFn,
+    Definitions extends EndpointDefinitions,
+    ReducerPath extends string = 'api',
+    TagTypes extends string = never,
   >(
-    options: CreateApiOptions<
-      BaseQueryFunctionType,
-      EndpointDefinitionsType,
-      ReducerPathType,
-      TagType
-    >,
-  ): Api<
-    BaseQueryFunctionType,
-    EndpointDefinitionsType,
-    ReducerPathType,
-    TagType,
-    Modules
-  >
+    options: CreateApiOptions<BaseQuery, Definitions, ReducerPath, TagTypes>,
+  ): Api<BaseQuery, Definitions, ReducerPath, TagTypes, Modules>
 }
 
 /**

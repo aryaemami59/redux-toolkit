@@ -174,42 +174,39 @@ export type SubscriptionOptions = {
 }
 export type SubscribersInternal = Map<string, SubscriptionOptions>
 export type Subscribers = { [requestId: string]: SubscriptionOptions }
-export type QueryKeys<EndpointDefinitionsType extends EndpointDefinitions> = {
-  [EndpointDefinitionsKeyType in keyof EndpointDefinitionsType]: EndpointDefinitionsType[EndpointDefinitionsKeyType] extends QueryDefinition<
+export type QueryKeys<Definitions extends EndpointDefinitions> = {
+  [K in keyof Definitions]: Definitions[K] extends QueryDefinition<
     any,
     any,
     any,
     any
   >
-    ? EndpointDefinitionsKeyType
+    ? K
     : never
-}[keyof EndpointDefinitionsType]
+}[keyof Definitions]
 
-export type InfiniteQueryKeys<
-  EndpointDefinitionsType extends EndpointDefinitions,
-> = {
-  [EndpointDefinitionsKeyType in keyof EndpointDefinitionsType]: EndpointDefinitionsType[EndpointDefinitionsKeyType] extends InfiniteQueryDefinition<
+export type InfiniteQueryKeys<Definitions extends EndpointDefinitions> = {
+  [K in keyof Definitions]: Definitions[K] extends InfiniteQueryDefinition<
     any,
     any,
     any,
     any,
     any
   >
-    ? EndpointDefinitionsKeyType
+    ? K
     : never
-}[keyof EndpointDefinitionsType]
+}[keyof Definitions]
 
-export type MutationKeys<EndpointDefinitionsType extends EndpointDefinitions> =
-  {
-    [EndpointDefinitionsKeyType in keyof EndpointDefinitionsType]: EndpointDefinitionsType[EndpointDefinitionsKeyType] extends MutationDefinition<
-      any,
-      any,
-      any,
-      any
-    >
-      ? EndpointDefinitionsKeyType
-      : never
-  }[keyof EndpointDefinitionsType]
+export type MutationKeys<Definitions extends EndpointDefinitions> = {
+  [K in keyof Definitions]: Definitions[K] extends MutationDefinition<
+    any,
+    any,
+    any,
+    any
+  >
+    ? K
+    : never
+}[keyof Definitions]
 
 type BaseQuerySubState<
   BaseEndpointDefinitionType extends BaseEndpointDefinition<any, any, any, any>,
@@ -355,14 +352,14 @@ export type MutationSubState<
 
 export type CombinedState<
   EndpointDefinitionsType extends EndpointDefinitions,
-  TagType extends string,
-  ReducerPathType extends string,
+  TagTypes extends string,
+  ReducerPath extends string,
 > = {
   queries: QueryState<EndpointDefinitionsType>
   mutations: MutationState<EndpointDefinitionsType>
-  provided: InvalidationState<TagType>
+  provided: InvalidationState<TagTypes>
   subscriptions: SubscriptionState
-  config: ConfigState<ReducerPathType>
+  config: ConfigState<ReducerPath>
 }
 
 export type InvalidationState<TagTypes extends string> = {
@@ -388,8 +385,8 @@ export type SubscriptionState = {
   [queryCacheKey: string]: Subscribers | undefined
 }
 
-export type ConfigState<ReducerPathType> = RefetchConfigOptions & {
-  reducerPath: ReducerPathType
+export type ConfigState<ReducerPath> = RefetchConfigOptions & {
+  reducerPath: ReducerPath
   online: boolean
   focused: boolean
   middlewareRegistered: boolean | 'conflict'
@@ -408,9 +405,9 @@ export type MutationState<EndpointDefinitionsType extends EndpointDefinitions> =
   }
 
 export type RootState<
-  EndpointDefinitionsType extends EndpointDefinitions,
-  TagType extends string,
-  ReducerPathType extends string,
+  Definitions extends EndpointDefinitions,
+  TagTypes extends string,
+  ReducerPath extends string,
 > = {
-  [P in ReducerPathType]: CombinedState<EndpointDefinitionsType, TagType, P>
+  [P in ReducerPath]: CombinedState<Definitions, TagTypes, P>
 }
