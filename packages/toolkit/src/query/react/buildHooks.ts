@@ -87,33 +87,27 @@ export const useIsomorphicLayoutEffect =
   /* @__PURE__ */ getUseIsomorphicLayoutEffect()
 
 export type QueryHooks<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any, any>,
+  Definition extends QueryDefinition<any, any, any, any, any>,
 > = {
-  useQuery: UseQuery<QueryDefinitionType>
-  useLazyQuery: UseLazyQuery<QueryDefinitionType>
-  useQuerySubscription: UseQuerySubscription<QueryDefinitionType>
-  useLazyQuerySubscription: UseLazyQuerySubscription<QueryDefinitionType>
-  useQueryState: UseQueryState<QueryDefinitionType>
+  useQuery: UseQuery<Definition>
+  useLazyQuery: UseLazyQuery<Definition>
+  useQuerySubscription: UseQuerySubscription<Definition>
+  useLazyQuerySubscription: UseLazyQuerySubscription<Definition>
+  useQueryState: UseQueryState<Definition>
 }
 
 export type InfiniteQueryHooks<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
+  Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
 > = {
-  useInfiniteQuery: UseInfiniteQuery<InfiniteQueryDefinitionType>
-  useInfiniteQuerySubscription: UseInfiniteQuerySubscription<InfiniteQueryDefinitionType>
-  useInfiniteQueryState: UseInfiniteQueryState<InfiniteQueryDefinitionType>
+  useInfiniteQuery: UseInfiniteQuery<Definition>
+  useInfiniteQuerySubscription: UseInfiniteQuerySubscription<Definition>
+  useInfiniteQueryState: UseInfiniteQueryState<Definition>
 }
 
 export type MutationHooks<
-  MutationDefinitionType extends MutationDefinition<any, any, any, any, any>,
+  Definition extends MutationDefinition<any, any, any, any, any>,
 > = {
-  useMutation: UseMutation<MutationDefinitionType>
+  useMutation: UseMutation<Definition>
 }
 
 /**
@@ -131,38 +125,23 @@ export type MutationHooks<
  * - Returns the latest request status and cached data from the Redux store
  * - Re-renders as the request status changes and data becomes available
  */
-export type UseQuery<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
-> = <
-  R extends Record<
-    string,
-    any
-  > = UseQueryStateDefaultResult<QueryDefinitionType>,
+export type UseQuery<D extends QueryDefinition<any, any, any, any>> = <
+  R extends Record<string, any> = UseQueryStateDefaultResult<D>,
 >(
-  arg: QueryArgFrom<QueryDefinitionType> | SkipToken,
-  options?: UseQuerySubscriptionOptions &
-    UseQueryStateOptions<QueryDefinitionType, R>,
-) => UseQueryHookResult<QueryDefinitionType, R>
+  arg: QueryArgFrom<D> | SkipToken,
+  options?: UseQuerySubscriptionOptions & UseQueryStateOptions<D, R>,
+) => UseQueryHookResult<D, R>
 
 export type TypedUseQuery<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
-> = UseQuery<
-  QueryDefinition<
-    QueryArgumentType,
-    BaseQueryFunctionType,
-    string,
-    ResultType,
-    string
-  >
->
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
+> = UseQuery<QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>>
 
 export type UseQueryHookResult<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
-  R = UseQueryStateDefaultResult<QueryDefinitionType>,
-> = UseQueryStateResult<QueryDefinitionType, R> &
-  UseQuerySubscriptionResult<QueryDefinitionType>
+  D extends QueryDefinition<any, any, any, any>,
+  R = UseQueryStateDefaultResult<D>,
+> = UseQueryStateResult<D, R> & UseQuerySubscriptionResult<D>
 
 /**
  * Helper type to manually type the result
@@ -170,28 +149,13 @@ export type UseQueryHookResult<
  */
 export type TypedUseQueryHookResult<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
   R = UseQueryStateDefaultResult<
-    QueryDefinition<
-      QueryArgumentType,
-      BaseQueryFunctionType,
-      string,
-      ResultType,
-      string
-    >
+    QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
   >,
-> = TypedUseQueryStateResult<
-  ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType,
-  R
-> &
-  TypedUseQuerySubscriptionResult<
-    ResultType,
-    QueryArgumentType,
-    BaseQueryFunctionType
-  >
+> = TypedUseQueryStateResult<ResultType, QueryArg, BaseQuery, R> &
+  TypedUseQuerySubscriptionResult<ResultType, QueryArg, BaseQuery>
 
 export type UseQuerySubscriptionOptions = SubscriptionOptions & {
   /**
@@ -252,29 +216,23 @@ export type UseQuerySubscriptionOptions = SubscriptionOptions & {
  * - Accepts polling/re-fetching options to trigger automatic re-fetches when the corresponding criteria is met
  */
 export type UseQuerySubscription<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
+  D extends QueryDefinition<any, any, any, any>,
 > = (
-  arg: QueryArgFrom<QueryDefinitionType> | SkipToken,
+  arg: QueryArgFrom<D> | SkipToken,
   options?: UseQuerySubscriptionOptions,
-) => UseQuerySubscriptionResult<QueryDefinitionType>
+) => UseQuerySubscriptionResult<D>
 
 export type TypedUseQuerySubscription<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
 > = UseQuerySubscription<
-  QueryDefinition<
-    QueryArgumentType,
-    BaseQueryFunctionType,
-    string,
-    ResultType,
-    string
-  >
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 export type UseQuerySubscriptionResult<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
-> = Pick<QueryActionCreatorResult<QueryDefinitionType>, 'refetch'>
+  D extends QueryDefinition<any, any, any, any>,
+> = Pick<QueryActionCreatorResult<D>, 'refetch'>
 
 /**
  * Helper type to manually type the result
@@ -282,22 +240,16 @@ export type UseQuerySubscriptionResult<
  */
 export type TypedUseQuerySubscriptionResult<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
 > = UseQuerySubscriptionResult<
-  QueryDefinition<
-    QueryArgumentType,
-    BaseQueryFunctionType,
-    string,
-    ResultType,
-    string
-  >
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 export type UseLazyQueryLastPromiseInfo<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
+  D extends QueryDefinition<any, any, any, any>,
 > = {
-  lastArg: QueryArgFrom<QueryDefinitionType>
+  lastArg: QueryArgFrom<D>
 }
 
 /**
@@ -329,22 +281,16 @@ export type UseLazyQuery<D extends QueryDefinition<any, any, any, any>> = <
 
 export type TypedUseLazyQuery<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
 > = UseLazyQuery<
-  QueryDefinition<
-    QueryArgumentType,
-    BaseQueryFunctionType,
-    string,
-    ResultType,
-    string
-  >
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 export type UseLazyQueryStateResult<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
-  R = UseQueryStateDefaultResult<QueryDefinitionType>,
-> = UseQueryStateResult<QueryDefinitionType, R> & {
+  D extends QueryDefinition<any, any, any, any>,
+  R = UseQueryStateDefaultResult<D>,
+> = UseQueryStateResult<D, R> & {
   /**
    * Resets the hook state to its initial `uninitialized` state.
    * This will also remove the last result from the cache.
@@ -358,25 +304,13 @@ export type UseLazyQueryStateResult<
  */
 export type TypedUseLazyQueryStateResult<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
   R = UseQueryStateDefaultResult<
-    QueryDefinition<
-      QueryArgumentType,
-      BaseQueryFunctionType,
-      string,
-      ResultType,
-      string
-    >
+    QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
   >,
 > = UseLazyQueryStateResult<
-  QueryDefinition<
-    QueryArgumentType,
-    BaseQueryFunctionType,
-    string,
-    ResultType,
-    string
-  >,
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>,
   R
 >
 
@@ -409,16 +343,10 @@ export type LazyQueryTrigger<D extends QueryDefinition<any, any, any, any>> = {
 
 export type TypedLazyQueryTrigger<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
 > = LazyQueryTrigger<
-  QueryDefinition<
-    QueryArgumentType,
-    BaseQueryFunctionType,
-    string,
-    ResultType,
-    string
-  >
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 /**
@@ -433,27 +361,21 @@ export type TypedLazyQueryTrigger<
  * - Accepts polling/re-fetching options to trigger automatic re-fetches when the corresponding criteria is met and the fetch has been manually called at least once
  */
 export type UseLazyQuerySubscription<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
+  D extends QueryDefinition<any, any, any, any>,
 > = (
   options?: SubscriptionOptions,
 ) => readonly [
-  LazyQueryTrigger<QueryDefinitionType>,
-  QueryArgFrom<QueryDefinitionType> | UninitializedValue,
+  LazyQueryTrigger<D>,
+  QueryArgFrom<D> | UninitializedValue,
   { reset: () => void },
 ]
 
 export type TypedUseLazyQuerySubscription<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
 > = UseLazyQuerySubscription<
-  QueryDefinition<
-    QueryArgumentType,
-    BaseQueryFunctionType,
-    string,
-    ResultType,
-    string
-  >
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 /**
@@ -461,8 +383,8 @@ export type TypedUseLazyQuerySubscription<
  */
 export type QueryStateSelector<
   R extends Record<string, any>,
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
-> = (state: UseQueryStateDefaultResult<QueryDefinitionType>) => R
+  D extends QueryDefinition<any, any, any, any>,
+> = (state: UseQueryStateDefaultResult<D>) => R
 
 /**
  * Provides a way to define a strongly-typed version of
@@ -587,37 +509,26 @@ export type TypedQueryStateSelector<
  * - Returns the latest request status and cached data from the Redux store
  * - Re-renders as the request status changes and data becomes available
  */
-export type UseQueryState<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
-> = <
-  R extends Record<
-    string,
-    any
-  > = UseQueryStateDefaultResult<QueryDefinitionType>,
+export type UseQueryState<D extends QueryDefinition<any, any, any, any>> = <
+  R extends Record<string, any> = UseQueryStateDefaultResult<D>,
 >(
-  arg: QueryArgFrom<QueryDefinitionType> | SkipToken,
-  options?: UseQueryStateOptions<QueryDefinitionType, R>,
-) => UseQueryStateResult<QueryDefinitionType, R>
+  arg: QueryArgFrom<D> | SkipToken,
+  options?: UseQueryStateOptions<D, R>,
+) => UseQueryStateResult<D, R>
 
 export type TypedUseQueryState<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
 > = UseQueryState<
-  QueryDefinition<
-    QueryArgumentType,
-    BaseQueryFunctionType,
-    string,
-    ResultType,
-    string
-  >
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 /**
  * @internal
  */
 export type UseQueryStateOptions<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
+  D extends QueryDefinition<any, any, any, any>,
   R extends Record<string, any>,
 > = {
   /**
@@ -683,7 +594,7 @@ export type UseQueryStateOptions<
    * }
    * ```
    */
-  selectFromResult?: QueryStateSelector<R, QueryDefinitionType>
+  selectFromResult?: QueryStateSelector<R, D>
 }
 
 /**
@@ -740,8 +651,8 @@ export type UseQueryStateOptions<
  * ```
  *
  * @template ResultType - The type of the result `data` returned by the query.
- * @template QueryArgumentType - The type of the argument passed into the query.
- * @template BaseQueryFunctionType - The type of the base query function being used.
+ * @template QueryArg - The type of the argument passed into the query.
+ * @template BaseQuery - The type of the base query function being used.
  * @template SelectedResult - The type of the selected result returned by the __`selectFromResult`__ function.
  *
  * @since 2.2.8
@@ -749,25 +660,13 @@ export type UseQueryStateOptions<
  */
 export type TypedUseQueryStateOptions<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
   SelectedResult extends Record<string, any> = UseQueryStateDefaultResult<
-    QueryDefinition<
-      QueryArgumentType,
-      BaseQueryFunctionType,
-      string,
-      ResultType,
-      string
-    >
+    QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
   >,
 > = UseQueryStateOptions<
-  QueryDefinition<
-    QueryArgumentType,
-    BaseQueryFunctionType,
-    string,
-    ResultType,
-    string
-  >,
+  QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>,
   SelectedResult
 >
 
@@ -782,132 +681,106 @@ export type UseQueryStateResult<
  */
 export type TypedUseQueryStateResult<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
   R = UseQueryStateDefaultResult<
-    QueryDefinition<
-      QueryArgumentType,
-      BaseQueryFunctionType,
-      string,
-      ResultType,
-      string
-    >
+    QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
   >,
 > = TSHelpersNoInfer<R>
 
-type UseQueryStateBaseResult<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
-> = QuerySubState<QueryDefinitionType> & {
-  /**
-   * Where `data` tries to hold data as much as possible, also re-using
-   * data from the last arguments passed into the hook, this property
-   * will always contain the received data from the query, for the current query arguments.
-   */
-  currentData?: ResultTypeFrom<QueryDefinitionType>
-  /**
-   * Query has not started yet.
-   */
-  isUninitialized: false
-  /**
-   * Query is currently loading for the first time. No data yet.
-   */
-  isLoading: false
-  /**
-   * Query is currently fetching, but might have data from an earlier request.
-   */
-  isFetching: false
-  /**
-   * Query has data from a successful load.
-   */
-  isSuccess: false
-  /**
-   * Query is currently in "error" state.
-   */
-  isError: false
-}
+type UseQueryStateBaseResult<D extends QueryDefinition<any, any, any, any>> =
+  QuerySubState<D> & {
+    /**
+     * Where `data` tries to hold data as much as possible, also re-using
+     * data from the last arguments passed into the hook, this property
+     * will always contain the received data from the query, for the current query arguments.
+     */
+    currentData?: ResultTypeFrom<D>
+    /**
+     * Query has not started yet.
+     */
+    isUninitialized: false
+    /**
+     * Query is currently loading for the first time. No data yet.
+     */
+    isLoading: false
+    /**
+     * Query is currently fetching, but might have data from an earlier request.
+     */
+    isFetching: false
+    /**
+     * Query has data from a successful load.
+     */
+    isSuccess: false
+    /**
+     * Query is currently in "error" state.
+     */
+    isError: false
+  }
 
-type UseQueryStateUninitialized<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
-> = TSHelpersOverride<
-  Extract<
-    UseQueryStateBaseResult<QueryDefinitionType>,
-    { status: QueryStatus.uninitialized }
-  >,
-  { isUninitialized: true }
->
+type UseQueryStateUninitialized<D extends QueryDefinition<any, any, any, any>> =
+  TSHelpersOverride<
+    Extract<UseQueryStateBaseResult<D>, { status: QueryStatus.uninitialized }>,
+    { isUninitialized: true }
+  >
 
-type UseQueryStateLoading<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
-> = TSHelpersOverride<
-  UseQueryStateBaseResult<QueryDefinitionType>,
-  { isLoading: true; isFetching: boolean; data: undefined }
->
+type UseQueryStateLoading<D extends QueryDefinition<any, any, any, any>> =
+  TSHelpersOverride<
+    UseQueryStateBaseResult<D>,
+    { isLoading: true; isFetching: boolean; data: undefined }
+  >
 
 type UseQueryStateSuccessFetching<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
+  D extends QueryDefinition<any, any, any, any>,
 > = TSHelpersOverride<
-  UseQueryStateBaseResult<QueryDefinitionType>,
+  UseQueryStateBaseResult<D>,
   {
     isSuccess: true
     isFetching: true
     error: undefined
   } & {
-    data: ResultTypeFrom<QueryDefinitionType>
-  } & Required<
-      Pick<UseQueryStateBaseResult<QueryDefinitionType>, 'fulfilledTimeStamp'>
-    >
+    data: ResultTypeFrom<D>
+  } & Required<Pick<UseQueryStateBaseResult<D>, 'fulfilledTimeStamp'>>
 >
 
 type UseQueryStateSuccessNotFetching<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
+  D extends QueryDefinition<any, any, any, any>,
 > = TSHelpersOverride<
-  UseQueryStateBaseResult<QueryDefinitionType>,
+  UseQueryStateBaseResult<D>,
   {
     isSuccess: true
     isFetching: false
     error: undefined
   } & {
-    data: ResultTypeFrom<QueryDefinitionType>
-    currentData: ResultTypeFrom<QueryDefinitionType>
-  } & Required<
-      Pick<UseQueryStateBaseResult<QueryDefinitionType>, 'fulfilledTimeStamp'>
-    >
+    data: ResultTypeFrom<D>
+    currentData: ResultTypeFrom<D>
+  } & Required<Pick<UseQueryStateBaseResult<D>, 'fulfilledTimeStamp'>>
 >
 
-type UseQueryStateError<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
-> = TSHelpersOverride<
-  UseQueryStateBaseResult<QueryDefinitionType>,
-  { isError: true } & Required<
-    Pick<UseQueryStateBaseResult<QueryDefinitionType>, 'error'>
+type UseQueryStateError<D extends QueryDefinition<any, any, any, any>> =
+  TSHelpersOverride<
+    UseQueryStateBaseResult<D>,
+    { isError: true } & Required<Pick<UseQueryStateBaseResult<D>, 'error'>>
   >
->
 
-type UseQueryStateDefaultResult<
-  QueryDefinitionType extends QueryDefinition<any, any, any, any>,
-> = TSHelpersId<
-  | UseQueryStateUninitialized<QueryDefinitionType>
-  | UseQueryStateLoading<QueryDefinitionType>
-  | UseQueryStateSuccessFetching<QueryDefinitionType>
-  | UseQueryStateSuccessNotFetching<QueryDefinitionType>
-  | UseQueryStateError<QueryDefinitionType>
-> & {
-  /**
-   * @deprecated Included for completeness, but discouraged.
-   * Please use the `isLoading`, `isFetching`, `isSuccess`, `isError`
-   * and `isUninitialized` flags instead
-   */
-  status: QueryStatus
-}
+type UseQueryStateDefaultResult<D extends QueryDefinition<any, any, any, any>> =
+  TSHelpersId<
+    | UseQueryStateUninitialized<D>
+    | UseQueryStateLoading<D>
+    | UseQueryStateSuccessFetching<D>
+    | UseQueryStateSuccessNotFetching<D>
+    | UseQueryStateError<D>
+  > & {
+    /**
+     * @deprecated Included for completeness, but discouraged.
+     * Please use the `isLoading`, `isFetching`, `isSuccess`, `isError`
+     * and `isUninitialized` flags instead
+     */
+    status: QueryStatus
+  }
 
 export type LazyInfiniteQueryTrigger<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
 > = {
   /**
    * Triggers a lazy query.
@@ -930,21 +803,21 @@ export type LazyInfiniteQueryTrigger<
    * ```
    */
   (
-    arg: QueryArgFrom<InfiniteQueryDefinitionType>,
+    arg: QueryArgFrom<D>,
     direction: InfiniteQueryDirection,
-  ): InfiniteQueryActionCreatorResult<InfiniteQueryDefinitionType>
+  ): InfiniteQueryActionCreatorResult<D>
 }
 
 export type TypedLazyInfiniteQueryTrigger<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
-  BaseQueryFunctionType extends BaseQueryFn,
+  BaseQuery extends BaseQueryFn,
 > = LazyInfiniteQueryTrigger<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
-    BaseQueryFunctionType,
+    BaseQuery,
     string,
     ResultType,
     string
@@ -952,13 +825,7 @@ export type TypedLazyInfiniteQueryTrigger<
 >
 
 export type UseInfiniteQuerySubscriptionOptions<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
 > = SubscriptionOptions & {
   /**
    * Prevents a query from automatically running.
@@ -1002,7 +869,7 @@ export type UseInfiniteQuerySubscriptionOptions<
    * If you specify this option alongside `skip: true`, this **will not be evaluated** until `skip` is false.
    */
   refetchOnMountOrArgChange?: boolean | number
-  initialPageParam?: PageParamFrom<InfiniteQueryDefinitionType>
+  initialPageParam?: PageParamFrom<D>
   /**
    * Defaults to `true`. When this is `true` and an infinite query endpoint is refetched
    * (due to tag invalidation, polling, arg change configuration, or manual refetching),
@@ -1017,14 +884,14 @@ export type UseInfiniteQuerySubscriptionOptions<
 
 export type TypedUseInfiniteQuerySubscription<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
-  BaseQueryFunctionType extends BaseQueryFn,
+  BaseQuery extends BaseQueryFn,
 > = UseInfiniteQuerySubscription<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
-    BaseQueryFunctionType,
+    BaseQuery,
     string,
     ResultType,
     string
@@ -1032,23 +899,17 @@ export type TypedUseInfiniteQuerySubscription<
 >
 
 export type UseInfiniteQuerySubscriptionResult<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
 > = {
   refetch: (
     options?: Pick<
-      UseInfiniteQuerySubscriptionOptions<InfiniteQueryDefinitionType>,
+      UseInfiniteQuerySubscriptionOptions<D>,
       'refetchCachedPages'
     >,
-  ) => InfiniteQueryActionCreatorResult<InfiniteQueryDefinitionType>
-  trigger: LazyInfiniteQueryTrigger<InfiniteQueryDefinitionType>
-  fetchNextPage: () => InfiniteQueryActionCreatorResult<InfiniteQueryDefinitionType>
-  fetchPreviousPage: () => InfiniteQueryActionCreatorResult<InfiniteQueryDefinitionType>
+  ) => InfiniteQueryActionCreatorResult<D>
+  trigger: LazyInfiniteQueryTrigger<D>
+  fetchNextPage: () => InfiniteQueryActionCreatorResult<D>
+  fetchPreviousPage: () => InfiniteQueryActionCreatorResult<D>
 }
 
 /**
@@ -1057,14 +918,14 @@ export type UseInfiniteQuerySubscriptionResult<
  */
 export type TypedUseInfiniteQuerySubscriptionResult<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
-  BaseQueryFunctionType extends BaseQueryFn,
+  BaseQuery extends BaseQueryFn,
 > = UseInfiniteQuerySubscriptionResult<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
-    BaseQueryFunctionType,
+    BaseQuery,
     string,
     ResultType,
     string
@@ -1073,30 +934,22 @@ export type TypedUseInfiniteQuerySubscriptionResult<
 
 export type InfiniteQueryStateSelector<
   R extends Record<string, any>,
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
-> = (
-  state: UseInfiniteQueryStateDefaultResult<InfiniteQueryDefinitionType>,
-) => R
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
+> = (state: UseInfiniteQueryStateDefaultResult<D>) => R
 
 export type TypedInfiniteQueryStateSelector<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
-  BaseQueryFunctionType extends BaseQueryFn,
+  BaseQuery extends BaseQueryFn,
   SelectedResult extends Record<
     string,
     any
   > = UseInfiniteQueryStateDefaultResult<
     InfiniteQueryDefinition<
-      QueryArgumentType,
+      QueryArg,
       PageParam,
-      BaseQueryFunctionType,
+      BaseQuery,
       string,
       ResultType,
       string
@@ -1105,9 +958,9 @@ export type TypedInfiniteQueryStateSelector<
 > = InfiniteQueryStateSelector<
   SelectedResult,
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
-    BaseQueryFunctionType,
+    BaseQuery,
     string,
     ResultType,
     string
@@ -1140,38 +993,27 @@ export type TypedInfiniteQueryStateSelector<
  * - Re-renders as the request status changes and data becomes available
  */
 export type UseInfiniteQuery<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
-> = <
-  R extends Record<
-    string,
-    any
-  > = UseInfiniteQueryStateDefaultResult<InfiniteQueryDefinitionType>,
->(
-  arg: InfiniteQueryArgFrom<InfiniteQueryDefinitionType> | SkipToken,
-  options?: UseInfiniteQuerySubscriptionOptions<InfiniteQueryDefinitionType> &
-    UseInfiniteQueryStateOptions<InfiniteQueryDefinitionType, R>,
-) => UseInfiniteQueryHookResult<InfiniteQueryDefinitionType, R> &
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
+> = <R extends Record<string, any> = UseInfiniteQueryStateDefaultResult<D>>(
+  arg: InfiniteQueryArgFrom<D> | SkipToken,
+  options?: UseInfiniteQuerySubscriptionOptions<D> &
+    UseInfiniteQueryStateOptions<D, R>,
+) => UseInfiniteQueryHookResult<D, R> &
   Pick<
-    UseInfiniteQuerySubscriptionResult<InfiniteQueryDefinitionType>,
+    UseInfiniteQuerySubscriptionResult<D>,
     'fetchNextPage' | 'fetchPreviousPage'
   >
 
 export type TypedUseInfiniteQuery<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
-  BaseQueryFunctionType extends BaseQueryFn,
+  BaseQuery extends BaseQueryFn,
 > = UseInfiniteQuery<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
-    BaseQueryFunctionType,
+    BaseQuery,
     string,
     ResultType,
     string
@@ -1189,33 +1031,22 @@ export type TypedUseInfiniteQuery<
  * - Re-renders as the request status changes and data becomes available
  */
 export type UseInfiniteQueryState<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
-> = <
-  R extends Record<
-    string,
-    any
-  > = UseInfiniteQueryStateDefaultResult<InfiniteQueryDefinitionType>,
->(
-  arg: InfiniteQueryArgFrom<InfiniteQueryDefinitionType> | SkipToken,
-  options?: UseInfiniteQueryStateOptions<InfiniteQueryDefinitionType, R>,
-) => UseInfiniteQueryStateResult<InfiniteQueryDefinitionType, R>
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
+> = <R extends Record<string, any> = UseInfiniteQueryStateDefaultResult<D>>(
+  arg: InfiniteQueryArgFrom<D> | SkipToken,
+  options?: UseInfiniteQueryStateOptions<D, R>,
+) => UseInfiniteQueryStateResult<D, R>
 
 export type TypedUseInfiniteQueryState<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
-  BaseQueryFunctionType extends BaseQueryFn,
+  BaseQuery extends BaseQueryFn,
 > = UseInfiniteQueryState<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
-    BaseQueryFunctionType,
+    BaseQuery,
     string,
     ResultType,
     string
@@ -1237,43 +1068,28 @@ export type TypedUseInfiniteQueryState<
  * - Accepts polling/re-fetching options to trigger automatic re-fetches when the corresponding criteria is met
  */
 export type UseInfiniteQuerySubscription<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
 > = (
-  arg: InfiniteQueryArgFrom<InfiniteQueryDefinitionType> | SkipToken,
-  options?: UseInfiniteQuerySubscriptionOptions<InfiniteQueryDefinitionType>,
-) => UseInfiniteQuerySubscriptionResult<InfiniteQueryDefinitionType>
+  arg: InfiniteQueryArgFrom<D> | SkipToken,
+  options?: UseInfiniteQuerySubscriptionOptions<D>,
+) => UseInfiniteQuerySubscriptionResult<D>
 
 export type UseInfiniteQueryHookResult<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
-  R = UseInfiniteQueryStateDefaultResult<InfiniteQueryDefinitionType>,
-> = UseInfiniteQueryStateResult<InfiniteQueryDefinitionType, R> &
-  Pick<
-    UseInfiniteQuerySubscriptionResult<InfiniteQueryDefinitionType>,
-    'refetch'
-  >
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
+  R = UseInfiniteQueryStateDefaultResult<D>,
+> = UseInfiniteQueryStateResult<D, R> &
+  Pick<UseInfiniteQuerySubscriptionResult<D>, 'refetch'>
 
 export type TypedUseInfiniteQueryHookResult<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
-  BaseQueryFunctionType extends BaseQueryFn,
+  BaseQuery extends BaseQueryFn,
   R extends Record<string, any> = UseInfiniteQueryStateDefaultResult<
     InfiniteQueryDefinition<
-      QueryArgumentType,
+      QueryArg,
       PageParam,
-      BaseQueryFunctionType,
+      BaseQuery,
       string,
       ResultType,
       string
@@ -1281,9 +1097,9 @@ export type TypedUseInfiniteQueryHookResult<
   >,
 > = UseInfiniteQueryHookResult<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
-    BaseQueryFunctionType,
+    BaseQuery,
     string,
     ResultType,
     string
@@ -1292,13 +1108,7 @@ export type TypedUseInfiniteQueryHookResult<
 >
 
 export type UseInfiniteQueryStateOptions<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
   R extends Record<string, any>,
 > = {
   /**
@@ -1365,22 +1175,22 @@ export type UseInfiniteQueryStateOptions<
    * }
    * ```
    */
-  selectFromResult?: InfiniteQueryStateSelector<R, InfiniteQueryDefinitionType>
+  selectFromResult?: InfiniteQueryStateSelector<R, D>
 }
 
 export type TypedUseInfiniteQueryStateOptions<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
-  BaseQueryFunctionType extends BaseQueryFn,
+  BaseQuery extends BaseQueryFn,
   SelectedResult extends Record<
     string,
     any
   > = UseInfiniteQueryStateDefaultResult<
     InfiniteQueryDefinition<
-      QueryArgumentType,
+      QueryArg,
       PageParam,
-      BaseQueryFunctionType,
+      BaseQuery,
       string,
       ResultType,
       string
@@ -1388,9 +1198,9 @@ export type TypedUseInfiniteQueryStateOptions<
   >,
 > = UseInfiniteQueryStateOptions<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
-    BaseQueryFunctionType,
+    BaseQuery,
     string,
     ResultType,
     string
@@ -1399,26 +1209,20 @@ export type TypedUseInfiniteQueryStateOptions<
 >
 
 export type UseInfiniteQueryStateResult<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
-  R = UseInfiniteQueryStateDefaultResult<InfiniteQueryDefinitionType>,
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
+  R = UseInfiniteQueryStateDefaultResult<D>,
 > = TSHelpersNoInfer<R>
 
 export type TypedUseInfiniteQueryStateResult<
   ResultType,
-  QueryArgumentType,
+  QueryArg,
   PageParam,
-  BaseQueryFunctionType extends BaseQueryFn,
+  BaseQuery extends BaseQueryFn,
   R = UseInfiniteQueryStateDefaultResult<
     InfiniteQueryDefinition<
-      QueryArgumentType,
+      QueryArg,
       PageParam,
-      BaseQueryFunctionType,
+      BaseQuery,
       string,
       ResultType,
       string
@@ -1426,9 +1230,9 @@ export type TypedUseInfiniteQueryStateResult<
   >,
 > = UseInfiniteQueryStateResult<
   InfiniteQueryDefinition<
-    QueryArgumentType,
+    QueryArg,
     PageParam,
-    BaseQueryFunctionType,
+    BaseQuery,
     string,
     ResultType,
     string
@@ -1437,23 +1241,14 @@ export type TypedUseInfiniteQueryStateResult<
 >
 
 type UseInfiniteQueryStateBaseResult<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
-> = InfiniteQuerySubState<InfiniteQueryDefinitionType> & {
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
+> = InfiniteQuerySubState<D> & {
   /**
    * Where `data` tries to hold data as much as possible, also re-using
    * data from the last arguments passed into the hook, this property
    * will always contain the received data from the query, for the current query arguments.
    */
-  currentData?: InfiniteData<
-    ResultTypeFrom<InfiniteQueryDefinitionType>,
-    PageParamFrom<InfiniteQueryDefinitionType>
-  >
+  currentData?: InfiniteData<ResultTypeFrom<D>, PageParamFrom<D>>
   /**
    * Query has not started yet.
    */
@@ -1481,23 +1276,17 @@ type UseInfiniteQueryStateBaseResult<
 }
 
 type UseInfiniteQueryStateDefaultResult<
-  InfiniteQueryDefinitionType extends InfiniteQueryDefinition<
-    any,
-    any,
-    any,
-    any,
-    any
-  >,
+  D extends InfiniteQueryDefinition<any, any, any, any, any>,
 > = TSHelpersId<
   | TSHelpersOverride<
       Extract<
-        UseInfiniteQueryStateBaseResult<InfiniteQueryDefinitionType>,
+        UseInfiniteQueryStateBaseResult<D>,
         { status: QueryStatus.uninitialized }
       >,
       { isUninitialized: true }
     >
   | TSHelpersOverride<
-      UseInfiniteQueryStateBaseResult<InfiniteQueryDefinitionType>,
+      UseInfiniteQueryStateBaseResult<D>,
       | { isLoading: true; isFetching: boolean; data: undefined }
       | ({
           isSuccess: true
@@ -1505,7 +1294,7 @@ type UseInfiniteQueryStateDefaultResult<
           error: undefined
         } & Required<
           Pick<
-            UseInfiniteQueryStateBaseResult<InfiniteQueryDefinitionType>,
+            UseInfiniteQueryStateBaseResult<D>,
             'data' | 'fulfilledTimeStamp'
           >
         >)
@@ -1515,15 +1304,12 @@ type UseInfiniteQueryStateDefaultResult<
           error: undefined
         } & Required<
           Pick<
-            UseInfiniteQueryStateBaseResult<InfiniteQueryDefinitionType>,
+            UseInfiniteQueryStateBaseResult<D>,
             'data' | 'fulfilledTimeStamp' | 'currentData'
           >
         >)
       | ({ isError: true } & Required<
-          Pick<
-            UseInfiniteQueryStateBaseResult<InfiniteQueryDefinitionType>,
-            'error'
-          >
+          Pick<UseInfiniteQueryStateBaseResult<D>, 'error'>
         >)
     >
 > & {
@@ -1537,22 +1323,22 @@ type UseInfiniteQueryStateDefaultResult<
 
 export type MutationStateSelector<
   R extends Record<string, any>,
-  MutationDefinitionType extends MutationDefinition<any, any, any, any>,
-> = (state: MutationResultSelectorResult<MutationDefinitionType>) => R
+  D extends MutationDefinition<any, any, any, any>,
+> = (state: MutationResultSelectorResult<D>) => R
 
 export type UseMutationStateOptions<
-  MutationDefinitionType extends MutationDefinition<any, any, any, any>,
+  D extends MutationDefinition<any, any, any, any>,
   R extends Record<string, any>,
 > = {
-  selectFromResult?: MutationStateSelector<R, MutationDefinitionType>
+  selectFromResult?: MutationStateSelector<R, D>
   fixedCacheKey?: string
 }
 
 export type UseMutationStateResult<
-  MutationDefinitionType extends MutationDefinition<any, any, any, any>,
+  D extends MutationDefinition<any, any, any, any>,
   R,
 > = TSHelpersNoInfer<R> & {
-  originalArgs?: QueryArgFrom<MutationDefinitionType>
+  originalArgs?: QueryArgFrom<D>
   /**
    * Resets the hook state to its initial `uninitialized` state.
    * This will also remove the last result from the cache.
@@ -1566,25 +1352,13 @@ export type UseMutationStateResult<
  */
 export type TypedUseMutationResult<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
   R = MutationResultSelectorResult<
-    MutationDefinition<
-      QueryArgumentType,
-      BaseQueryFunctionType,
-      string,
-      ResultType,
-      string
-    >
+    MutationDefinition<QueryArg, BaseQuery, string, ResultType, string>
   >,
 > = UseMutationStateResult<
-  MutationDefinition<
-    QueryArgumentType,
-    BaseQueryFunctionType,
-    string,
-    ResultType,
-    string
-  >,
+  MutationDefinition<QueryArg, BaseQuery, string, ResultType, string>,
   R
 >
 
@@ -1598,70 +1372,47 @@ export type TypedUseMutationResult<
  * - Returns the latest request status and cached data from the Redux store
  * - Re-renders as the request status changes and data becomes available
  */
-export type UseMutation<
-  MutationDefinitionType extends MutationDefinition<any, any, any, any>,
-> = <
-  R extends Record<
-    string,
-    any
-  > = MutationResultSelectorResult<MutationDefinitionType>,
+export type UseMutation<D extends MutationDefinition<any, any, any, any>> = <
+  R extends Record<string, any> = MutationResultSelectorResult<D>,
 >(
-  options?: UseMutationStateOptions<MutationDefinitionType, R>,
-) => readonly [
-  MutationTrigger<MutationDefinitionType>,
-  UseMutationStateResult<MutationDefinitionType, R>,
-]
+  options?: UseMutationStateOptions<D, R>,
+) => readonly [MutationTrigger<D>, UseMutationStateResult<D, R>]
 
 export type TypedUseMutation<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
 > = UseMutation<
-  MutationDefinition<
-    QueryArgumentType,
-    BaseQueryFunctionType,
-    string,
-    ResultType,
-    string
-  >
+  MutationDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
-export type MutationTrigger<
-  MutationDefinitionType extends MutationDefinition<any, any, any, any>,
-> = {
-  /**
-   * Triggers the mutation and returns a Promise.
-   * @remarks
-   * If you need to access the error or success payload immediately after a mutation, you can chain .unwrap().
-   *
-   * @example
-   * ```ts
-   * // codeblock-meta title="Using .unwrap with async await"
-   * try {
-   *   const payload = await addPost({ id: 1, name: 'Example' }).unwrap();
-   *   console.log('fulfilled', payload)
-   * } catch (error) {
-   *   console.error('rejected', error);
-   * }
-   * ```
-   */
-  (
-    arg: QueryArgFrom<MutationDefinitionType>,
-  ): MutationActionCreatorResult<MutationDefinitionType>
-}
+export type MutationTrigger<D extends MutationDefinition<any, any, any, any>> =
+  {
+    /**
+     * Triggers the mutation and returns a Promise.
+     * @remarks
+     * If you need to access the error or success payload immediately after a mutation, you can chain .unwrap().
+     *
+     * @example
+     * ```ts
+     * // codeblock-meta title="Using .unwrap with async await"
+     * try {
+     *   const payload = await addPost({ id: 1, name: 'Example' }).unwrap();
+     *   console.log('fulfilled', payload)
+     * } catch (error) {
+     *   console.error('rejected', error);
+     * }
+     * ```
+     */
+    (arg: QueryArgFrom<D>): MutationActionCreatorResult<D>
+  }
 
 export type TypedMutationTrigger<
   ResultType,
-  QueryArgumentType,
-  BaseQueryFunctionType extends BaseQueryFn,
+  QueryArg,
+  BaseQuery extends BaseQueryFn,
 > = MutationTrigger<
-  MutationDefinition<
-    QueryArgumentType,
-    BaseQueryFunctionType,
-    string,
-    ResultType,
-    string
-  >
+  MutationDefinition<QueryArg, BaseQuery, string, ResultType, string>
 >
 
 /**
@@ -1718,7 +1469,7 @@ type GenericPrefetchThunk = (
  * @param opts.moduleOptions.useSelector - The version of the `useSelector` hook to be used
  * @returns An object containing functions to generate hooks based on an endpoint
  */
-export function buildHooks<DefinitionsType extends EndpointDefinitions>({
+export function buildHooks<Definitions extends EndpointDefinitions>({
   api,
   moduleOptions: {
     batch,
@@ -1729,10 +1480,10 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
   serializeQueryArgs,
   context,
 }: {
-  api: Api<any, DefinitionsType, any, any, CoreModule>
+  api: Api<any, Definitions, any, any, CoreModule>
   moduleOptions: Required<ReactHooksModuleOptions>
   serializeQueryArgs: SerializeQueryArgs<any>
-  context: ApiContext<DefinitionsType>
+  context: ApiContext<Definitions>
 }) {
   const usePossiblyImmediateEffect: (
     effect: () => void | undefined,
@@ -1868,7 +1619,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
     } as UseInfiniteQueryStateDefaultResult<any>
   }
 
-  function usePrefetch<EndpointName extends QueryKeys<DefinitionsType>>(
+  function usePrefetch<EndpointName extends QueryKeys<Definitions>>(
     endpointName: EndpointName,
     defaultOptions?: PrefetchOptions,
   ) {
@@ -1906,7 +1657,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
   ) {
     const { initiate } = api.endpoints[endpointName] as ApiEndpointQuery<
       QueryDefinition<any, any, any, any, any>,
-      DefinitionsType
+      Definitions
     >
     const dispatch = useDispatch<ThunkDispatch<any, any, UnknownAction>>()
 
@@ -2041,7 +1792,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
     ) => {
       const { select } = api.endpoints[endpointName] as ApiEndpointQuery<
         QueryDefinition<any, any, any, any, any>,
-        DefinitionsType
+        Definitions
       >
       const stableArg = useStableQueryArgs(skip ? skipToken : arg)
 
@@ -2082,12 +1833,12 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
       )
 
       const currentState = useSelector(
-        (state: RootState<DefinitionsType, any, any>) =>
+        (state: RootState<Definitions, any, any>) =>
           querySelector(state, lastValue.current),
         shallowEqual,
       )
 
-      const store = useStore<RootState<DefinitionsType, any, any>>()
+      const store = useStore<RootState<Definitions, any, any>>()
       const newLastValue = selectDefaultResult(
         store.getState(),
         lastValue.current,
@@ -2154,7 +1905,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
     } = {}) => {
       const { initiate } = api.endpoints[endpointName] as ApiEndpointQuery<
         QueryDefinition<any, any, any, any, any>,
-        DefinitionsType
+        Definitions
       >
       const dispatch = useDispatch<ThunkDispatch<any, any, UnknownAction>>()
 
@@ -2420,7 +2171,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
     return ({ selectFromResult, fixedCacheKey } = {}) => {
       const { select, initiate } = api.endpoints[name] as ApiEndpointMutation<
         MutationDefinition<any, any, any, any, any>,
-        DefinitionsType
+        Definitions
       >
       const dispatch = useDispatch<ThunkDispatch<any, any, UnknownAction>>()
       const [promise, setPromise] = useState<MutationActionCreatorResult<any>>()
@@ -2449,7 +2200,7 @@ export function buildHooks<DefinitionsType extends EndpointDefinitions>({
         [fixedCacheKey, promise, select],
       )
       const mutationSelector = useMemo(
-        (): Selector<RootState<DefinitionsType, any, any>, any> =>
+        (): Selector<RootState<Definitions, any, any>, any> =>
           selectFromResult
             ? createSelector([selectDefaultResult], selectFromResult)
             : selectDefaultResult,

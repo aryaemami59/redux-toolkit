@@ -1,10 +1,10 @@
-import { nanoid } from './nanoid'
 import type {
   PreloadedStateShapeFromReducersMapObject,
   Reducer,
   StateFromReducersMapObject,
   UnknownAction,
-} from './reduxImports'
+} from 'redux'
+import { nanoid } from './nanoid'
 import { combineReducers } from './reduxImports'
 import type {
   Id,
