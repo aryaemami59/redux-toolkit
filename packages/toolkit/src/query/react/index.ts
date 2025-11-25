@@ -1,12 +1,12 @@
 import { reactHooksModule, reactHooksModuleName } from './module'
 import { buildCreateApi, coreModule } from './rtkqImports'
-export * from '@reduxjs/toolkit/query'
 
 const createApi = /* @__PURE__ */ buildCreateApi(
   coreModule(),
   reactHooksModule(),
 )
 
+export * from '@reduxjs/toolkit/query'
 export { ApiProvider } from './ApiProvider'
 export type {
   TypedInfiniteQueryStateSelector,
