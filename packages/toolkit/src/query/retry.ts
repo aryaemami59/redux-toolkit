@@ -115,7 +115,7 @@ const retryWithBackoff: BaseQueryEnhancer<
   unknown,
   RetryOptions,
   RetryOptions | void
-> = (baseQueryFunction, defaultOptions) => async (args, api, extraOptions) => {
+> = (baseQuery, defaultOptions) => async (args, api, extraOptions) => {
   // We need to figure out `maxRetries` before we define `defaultRetryCondition.
   // This is probably goofy, but ought to work.
   // Put our defaults in one array, filter out undefineds, grab the last value.
@@ -147,7 +147,7 @@ const retryWithBackoff: BaseQueryEnhancer<
     failIfAborted(api.signal)
 
     try {
-      const result = await baseQueryFunction(args, api, extraOptions)
+      const result = await baseQuery(args, api, extraOptions)
       // baseQueries _should_ return an error property, so we should check for that and throw it to continue retrying
       if (result.error) {
         throw new HandledError(result)
