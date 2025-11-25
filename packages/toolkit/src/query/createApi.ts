@@ -231,7 +231,7 @@ export interface CreateApiOptions<
    * ```ts
    * // codeblock-meta no-transpile
    * import { createApi } from '@reduxjs/toolkit/query/react'
-   * import * as v from "valibot"
+   * import * as v from 'valibot'
    *
    * const api = createApi({
    *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
@@ -257,7 +257,7 @@ export interface CreateApiOptions<
    * ```ts
    * // codeblock-meta no-transpile
    * import { createApi } from '@reduxjs/toolkit/query/react'
-   * import * as v from "valibot"
+   * import * as v from 'valibot'
    *
    * const api = createApi({
    *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
@@ -268,8 +268,8 @@ export interface CreateApiOptions<
    *     }),
    *   }),
    *   catchSchemaFailure: (error, info) => ({
-   *     status: "CUSTOM_ERROR",
-   *     error: error.schemaName + " failed validation",
+   *     status: 'CUSTOM_ERROR',
+   *     error: error.schemaName + ' failed validation',
    *     data: error.issues,
    *   }),
    * })
@@ -288,11 +288,11 @@ export interface CreateApiOptions<
    * ```ts
    * // codeblock-meta no-transpile
    * import { createApi } from '@reduxjs/toolkit/query/react'
-   * import * as v from "valibot"
+   * import * as v from 'valibot'
    *
    * const api = createApi({
    *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-   *   skipSchemaValidation: process.env.NODE_ENV === "test" ? ["response"] : false, // skip schema validation for response in tests, since we'll be mocking the response
+   *   skipSchemaValidation: process.env.NODE_ENV === 'test' ? ['response'] : false, // skip schema validation for response in tests, since we'll be mocking the response
    *   endpoints: (build) => ({
    *     getPost: build.query<Post, { id: number }>({
    *       query: ({ id }) => `/post/${id}`,
