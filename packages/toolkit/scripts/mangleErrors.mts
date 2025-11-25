@@ -8,6 +8,13 @@ type Babel = typeof import('@babel/core')
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
+const formatProdErrorMessageAbsoluteFilePath = path.join(
+  __dirname,
+  '..',
+  'src',
+  'formatProdErrorMessage.ts',
+)
+
 /**
  * Represents the options for the {@linkcode mangleErrorsPlugin}.
  *
@@ -127,14 +134,14 @@ export const mangleErrorsPlugin = (
       changeInArray = false
     },
     visitor: {
-      ThrowStatement(nodePath) {
+      ThrowStatement(path) {
         if (
-          !('arguments' in nodePath.node.argument) ||
-          !t.isNewExpression(nodePath.node.argument)
+          !('arguments' in path.node.argument) ||
+          !t.isNewExpression(path.node.argument)
         ) {
           return
         }
-        const args = nodePath.node.argument.arguments
+        const args = path.node.argument.arguments
         const { minify = false } = options
 
         if (args && args[0]) {
@@ -142,24 +149,21 @@ export const mangleErrorsPlugin = (
           //  Identifier comes up when a variable is thrown (E.g. throw new error(message))
           //  NumericLiteral, CallExpression, and ConditionalExpression is code we have already processed
           if (
-            nodePath.node.argument.arguments[0].type === 'Identifier' ||
-            nodePath.node.argument.arguments[0].type === 'NumericLiteral' ||
-            nodePath.node.argument.arguments[0].type ===
-              'ConditionalExpression' ||
-            nodePath.node.argument.arguments[0].type === 'CallExpression' ||
-            nodePath.node.argument.arguments[0].type === 'ObjectExpression' ||
-            nodePath.node.argument.arguments[0].type === 'MemberExpression' ||
-            !t.isExpression(nodePath.node.argument.arguments[0]) ||
-            !t.isIdentifier(nodePath.node.argument.callee)
+            path.node.argument.arguments[0].type === 'Identifier' ||
+            path.node.argument.arguments[0].type === 'NumericLiteral' ||
+            path.node.argument.arguments[0].type === 'ConditionalExpression' ||
+            path.node.argument.arguments[0].type === 'CallExpression' ||
+            path.node.argument.arguments[0].type === 'ObjectExpression' ||
+            path.node.argument.arguments[0].type === 'MemberExpression' ||
+            !t.isExpression(path.node.argument.arguments[0]) ||
+            !t.isIdentifier(path.node.argument.callee)
           ) {
             return
           }
 
-          const errorName = nodePath.node.argument.callee.name
+          const errorName = path.node.argument.callee.name
 
-          const errorMsgLiteral = evalToString(
-            nodePath.node.argument.arguments[0],
-          )
+          const errorMsgLiteral = evalToString(path.node.argument.arguments[0])
 
           if (errorMsgLiteral.includes('Super expression')) {
             // ignore Babel runtime error message
@@ -176,9 +180,9 @@ export const mangleErrorsPlugin = (
 
           // Import the error message function
           const formatProdErrorMessageIdentifier = helperModuleImports.addNamed(
-            nodePath,
+            path,
             'formatProdErrorMessage',
-            path.join(__dirname, '..', 'src', 'formatProdErrorMessage.ts'),
+            formatProdErrorMessageAbsoluteFilePath,
             { nameHint: 'formatProdErrorMessage' },
           )
 
@@ -193,13 +197,13 @@ export const mangleErrorsPlugin = (
           )
 
           if (minify) {
-            nodePath.replaceWith(
+            path.replaceWith(
               t.throwStatement(
                 t.newExpression(t.identifier(errorName), [prodMessage]),
               ),
             )
           } else {
-            nodePath.replaceWith(
+            path.replaceWith(
               t.throwStatement(
                 t.newExpression(t.identifier(errorName), [
                   t.conditionalExpression(
@@ -209,7 +213,7 @@ export const mangleErrorsPlugin = (
                       t.stringLiteral('production'),
                     ),
                     prodMessage,
-                    nodePath.node.argument.arguments[0],
+                    path.node.argument.arguments[0],
                   ),
                 ]),
               ),
