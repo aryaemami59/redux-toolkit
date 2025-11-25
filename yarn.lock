@@ -8431,7 +8431,7 @@ __metadata:
     rimraf: "npm:^6.1.2"
     rolldown: "npm:1.0.0-beta.51"
     size-limit: "npm:^11.0.1"
-    tsdown: "npm:^0.16.6"
+    tsdown: "npm:^0.16.7"
     tsx: "npm:^4.20.6"
     typescript: "npm:^5.8.2"
     valibot: "npm:^1.0.0"
@@ -25394,7 +25394,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"obug@npm:^2.1.0, obug@npm:^2.1.1":
+"obug@npm:^2.1.1":
   version: 2.1.1
   resolution: "obug@npm:2.1.1"
   checksum: 10/bdcf9213361786688019345f3452b95a1dc73710e4b403c82a1994b98bad6abc31b26cb72a482128c5fd53ea9daf6fbb7d0e0e7b2b7e9c8be6d779deeccee07f
@@ -29991,7 +29991,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rolldown-plugin-dts@npm:^0.18.0":
+"rolldown-plugin-dts@npm:^0.18.1":
   version: 0.18.1
   resolution: "rolldown-plugin-dts@npm:0.18.1"
   dependencies:
@@ -32723,9 +32723,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsdown@npm:^0.16.6":
-  version: 0.16.6
-  resolution: "tsdown@npm:0.16.6"
+"tsdown@npm:^0.16.7":
+  version: 0.16.7
+  resolution: "tsdown@npm:0.16.7"
   dependencies:
     ansis: "npm:^4.2.0"
     cac: "npm:^6.7.14"
@@ -32733,9 +32733,9 @@ __metadata:
     diff: "npm:^8.0.2"
     empathic: "npm:^2.0.0"
     hookable: "npm:^5.5.3"
-    obug: "npm:^2.1.0"
+    obug: "npm:^2.1.1"
     rolldown: "npm:1.0.0-beta.51"
-    rolldown-plugin-dts: "npm:^0.18.0"
+    rolldown-plugin-dts: "npm:^0.18.1"
     semver: "npm:^7.7.3"
     tinyexec: "npm:^1.0.2"
     tinyglobby: "npm:^0.2.15"
@@ -32744,7 +32744,7 @@ __metadata:
     unrun: "npm:^0.2.11"
   peerDependencies:
     "@arethetypeswrong/core": ^0.18.1
-    "@vitejs/devtools": ^0.0.0-alpha.17
+    "@vitejs/devtools": ^0.0.0-alpha.18
     publint: ^0.3.0
     typescript: ^5.0.0
     unplugin-lightningcss: ^0.4.0
@@ -32764,7 +32764,7 @@ __metadata:
       optional: true
   bin:
     tsdown: dist/run.mjs
-  checksum: 10/e513c1002c1667e13d9d88101b69797bbc084183665c5b7519066353fb30bd8363a06e0f71d6e4c93d3ce2f4483f20d2fe0344d6814d44e626c86368c073311e
+  checksum: 10/8614f3835b8f90652c0a5863c942029e6ac2f7913ebfd7934c81b2475926a5e0080c4fb07bb66170af05758fb583dff5e3c3140d9463eb65024008d03dae5970
   languageName: node
   linkType: hard
 
