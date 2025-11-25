@@ -48,7 +48,7 @@ import { isInfiniteQueryDefinition } from '../endpointDefinitions'
 import type { UninitializedValue } from './constants'
 import { UNINITIALIZED_VALUE } from './constants'
 import type { ReactHooksModuleOptions } from './module'
-import type { DependencyList } from './reactImports'
+import type { DependencyList, RefObject } from './reactImports'
 import {
   useCallback,
   useDebugValue,
@@ -1530,7 +1530,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
     deps?: DependencyList,
   ) => void = unstable__sideEffectsInRender ? (cb) => cb() : useEffect
 
-  type UnsubscribePromiseRef = React.RefObject<
+  type UnsubscribePromiseRef = RefObject<
     { unsubscribe?: () => void } | undefined
   >
 
@@ -1909,7 +1909,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
     T extends
       | QueryActionCreatorResult<any>
       | InfiniteQueryActionCreatorResult<any>,
-  >(promiseRef: React.RefObject<T | undefined>): T {
+  >(promiseRef: RefObject<T | undefined>): T {
     if (!promiseRef.current)
       throw new Error('Cannot refetch a query that has not been started yet.')
     return promiseRef.current.refetch() as T
