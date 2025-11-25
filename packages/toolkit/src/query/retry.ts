@@ -14,14 +14,15 @@ import { HandledError } from './HandledError'
  * Exponential backoff based on the attempt number.
  *
  * @remarks
- * 1. 600ms * random(0.4, 1.4)
- * 2. 1200ms * random(0.4, 1.4)
- * 3. 2400ms * random(0.4, 1.4)
- * 4. 4800ms * random(0.4, 1.4)
- * 5. 9600ms * random(0.4, 1.4)
+ * 1. `600ms * random(0.4, 1.4)`
+ * 2. `1200ms * random(0.4, 1.4)`
+ * 3. `2400ms * random(0.4, 1.4)`
+ * 4. `4800ms * random(0.4, 1.4)`
+ * 5. `9600ms * random(0.4, 1.4)`
  *
- * @param attempt - Current attempt
- * @param maxRetries - Maximum number of retries
+ * @param [attempt=0] - Current attempt. (default: `0`)
+ * @param [maxRetries=5] - Maximum number of retries. (default: `5`)
+ * @param [signal] - Optional {@linkcode AbortSignal} to cancel the backoff delay
  */
 async function defaultBackoff(
   attempt: number = 0,
@@ -75,7 +76,9 @@ export type RetryOptions = {
 } & (
   | {
       /**
-       * How many times the query will be retried (default: 5)
+       * How many times the query will be retried.
+       *
+       * @default 5
        */
       maxRetries?: number
       retryCondition?: undefined
@@ -83,7 +86,7 @@ export type RetryOptions = {
   | {
       /**
        * Callback to determine if a retry should be attempted.
-       * Return `true` for another retry and `false` to quit trying prematurely.
+       * @returns `true` for another retry and `false` to quit trying prematurely.
        */
       retryCondition?: RetryConditionFunction
       maxRetries?: undefined
@@ -115,7 +118,7 @@ const retryWithBackoff: BaseQueryEnhancer<
   unknown,
   RetryOptions,
   RetryOptions | void
-> = (baseQueryFunction, defaultOptions) => async (args, api, extraOptions) => {
+> = (baseQuery, defaultOptions) => async (args, api, extraOptions) => {
   // We need to figure out `maxRetries` before we define `defaultRetryCondition.
   // This is probably goofy, but ought to work.
   // Put our defaults in one array, filter out undefineds, grab the last value.
@@ -147,7 +150,7 @@ const retryWithBackoff: BaseQueryEnhancer<
     failIfAborted(api.signal)
 
     try {
-      const result = await baseQueryFunction(args, api, extraOptions)
+      const result = await baseQuery(args, api, extraOptions)
       // baseQueries _should_ return an error property, so we should check for that and throw it to continue retrying
       if (result.error) {
         throw new HandledError(result)
@@ -205,15 +208,20 @@ const retryWithBackoff: BaseQueryEnhancer<
  *
  * ```ts
  * // codeblock-meta title="Retry every request 5 times by default"
- * import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react'
+ * import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react';
+ *
  * interface Post {
- *   id: number
- *   name: string
+ *   id: number;
+ *   name: string;
  * }
- * type PostsResponse = Post[]
+ *
+ * type PostsResponse = Post[];
  *
  * // maxRetries: 5 is the default, and can be omitted. Shown for documentation purposes.
- * const staggeredBaseQuery = retry(fetchBaseQuery({ baseUrl: '/' }), { maxRetries: 5 });
+ * const staggeredBaseQuery = retry(fetchBaseQuery({ baseUrl: '/' }), {
+ *   maxRetries: 5,
+ * });
+ *
  * export const api = createApi({
  *   baseQuery: staggeredBaseQuery,
  *   endpoints: (build) => ({
