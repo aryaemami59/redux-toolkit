@@ -374,16 +374,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ampproject/remapping@npm:^2.2.1":
-  version: 2.3.0
-  resolution: "@ampproject/remapping@npm:2.3.0"
-  dependencies:
-    "@jridgewell/gen-mapping": "npm:^0.3.5"
-    "@jridgewell/trace-mapping": "npm:^0.3.24"
-  checksum: 10/f3451525379c68a73eb0a1e65247fbf28c0cccd126d93af21c75fceff77773d43c0d4a2d51978fb131aff25b5f2cb41a9fe48cc296e61ae65e679c4f6918b0ab
-  languageName: node
-  linkType: hard
-
 "@andrewbranch/untar.js@npm:^1.0.3":
   version: 1.0.3
   resolution: "@andrewbranch/untar.js@npm:1.0.3"
@@ -8415,7 +8405,6 @@ __metadata:
     "@typescript-eslint/parser": "npm:^6"
     axios: "npm:^0.19.2"
     esbuild: "npm:^0.27.0"
-    esbuild-extra: "npm:^0.4.0"
     eslint: "npm:^7.25.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-config-react-app: "npm:^7.0.1"
@@ -9012,7 +9001,7 @@ __metadata:
     semver: "npm:^7.3.5"
     swagger2openapi: "npm:^7.0.4"
     ts-node: "npm:^10.9.2"
-    tsup: "npm:^8.5.0"
+    tsup: "npm:^8.4.0"
     typescript: "npm:^5.8.2"
     vite-tsconfig-paths: "npm:^5.0.1"
     vitest: "npm:^2.0.5"
@@ -16158,9 +16147,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.5.249":
-  version: 1.5.259
-  resolution: "electron-to-chromium@npm:1.5.259"
-  checksum: 10/259aa8b9c2a82e54c60b2c9af283aa9f618f42aad3c54613fcea61d8e12e4c8f0641d625ba2e6687fe69eda1fc2f3c747e8dafad1c789ac59ac47d4afceeaa23
+  version: 1.5.260
+  resolution: "electron-to-chromium@npm:1.5.260"
+  checksum: 10/cabd2a1ceb4693f45fd85c116b45ff3c2f499419420fc560675bc22931713de3a543e847bbb3bd3648746df764035407163c88ba317518ef000c80297aa9034a
   languageName: node
   linkType: hard
 
@@ -16259,7 +16248,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.15.0, enhanced-resolve@npm:^5.17.3":
+"enhanced-resolve@npm:^5.17.3":
   version: 5.18.3
   resolution: "enhanced-resolve@npm:5.18.3"
   dependencies:
@@ -16539,20 +16528,6 @@ __metadata:
     esast-util-from-estree: "npm:^2.0.0"
     vfile-message: "npm:^4.0.0"
   checksum: 10/ad3ff18de45d981a19ae35ecd7f47a2954399c2d901f3d9f22ab58309c327215b6e2e39f9c0a8ff58d3fd0435fe81a3ff4257754e1a12bdc590a0b68c9d6e085
-  languageName: node
-  linkType: hard
-
-"esbuild-extra@npm:^0.4.0":
-  version: 0.4.2
-  resolution: "esbuild-extra@npm:0.4.2"
-  dependencies:
-    "@ampproject/remapping": "npm:^2.2.1"
-    convert-source-map: "npm:^2.0.0"
-    enhanced-resolve: "npm:^5.15.0"
-    tsconfck: "npm:^2.1.1"
-  peerDependencies:
-    esbuild: ">=0.15"
-  checksum: 10/16300a42233fa30bbabdcae4e389c302b4a03461677a2639c6857dfb28ab6369c09a4dfcc0225e534616f26019ec9e5510e799c32923d141c4bb8ce5b7a290d2
   languageName: node
   linkType: hard
 
@@ -32722,20 +32697,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsconfck@npm:^2.1.1":
-  version: 2.1.2
-  resolution: "tsconfck@npm:2.1.2"
-  peerDependencies:
-    typescript: ^4.3.5 || ^5.0.0
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  bin:
-    tsconfck: bin/tsconfck.js
-  checksum: 10/61df3b03b334a25eabb0a52e67a0c8d85770c631f2739db7703af8fdd102a2ebd598f1c851cc5fc6d6a59f2497a26c845be71c934ea16d838a3ff95a885034fb
-  languageName: node
-  linkType: hard
-
 "tsconfck@npm:^3.0.3":
   version: 3.1.6
   resolution: "tsconfck@npm:3.1.6"
@@ -32863,7 +32824,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsup@npm:^8.5.0":
+"tsup@npm:^8.4.0":
   version: 8.5.1
   resolution: "tsup@npm:8.5.1"
   dependencies:
@@ -33726,14 +33687,14 @@ __metadata:
   linkType: hard
 
 "valibot@npm:^1.0.0":
-  version: 1.1.0
-  resolution: "valibot@npm:1.1.0"
+  version: 1.2.0
+  resolution: "valibot@npm:1.2.0"
   peerDependencies:
     typescript: ">=5"
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10/667c99e3ec2825ea97c20f37add7fe7eb9d15fb338c5f49c166ffba13a6f4516c77c060083e1c6bda77a2275c4d37400b711d284bbea03fd4ae160bbca34112c
+  checksum: 10/5f9c15e6f5a2b8eae75332a3317e46e995a1763efe1b91e57bc5064e36f0feba734367c88013d53255bdf09fb9204bf3598d2ca0c3f468c8726095b1c3551926
   languageName: node
   linkType: hard
 
