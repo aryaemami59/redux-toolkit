@@ -6,7 +6,6 @@ import type {
   ThunkAction,
   UnknownAction,
 } from '@reduxjs/toolkit'
-import { asSafePromise } from '../../tsHelpers'
 import type { Api, ApiContext } from '../apiTypes'
 import { getEndpointDefinition } from '../apiTypes'
 import type { BaseQueryError, QueryReturnValue } from '../baseQueryTypes'
@@ -23,6 +22,7 @@ import type {
   ResultTypeFrom,
 } from '../endpointDefinitions'
 import { ENDPOINT_QUERY, isQueryDefinition } from '../endpointDefinitions'
+import { asSafePromise } from '../tsHelpers'
 import { filterNullishValues } from '../utils/index'
 import type {
   InfiniteData,

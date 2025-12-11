@@ -1377,7 +1377,7 @@ export type EndpointBuilder<
    * });
    * ```
    */
-  query<
+  query: <
     ResultType,
     QueryArg,
     RawResultType extends BaseQueryResult<BaseQuery> =
@@ -1394,7 +1394,7 @@ export type EndpointBuilder<
       >,
       'type'
     >,
-  ): QueryDefinition<
+  ) => QueryDefinition<
     QueryArg,
     BaseQuery,
     TagTypes,
@@ -1459,7 +1459,7 @@ export type EndpointBuilder<
    * });
    * ```
    */
-  mutation<
+  mutation: <
     ResultType,
     QueryArg,
     RawResultType extends BaseQueryResult<BaseQuery> =
@@ -1476,7 +1476,7 @@ export type EndpointBuilder<
       >,
       'type'
     >,
-  ): MutationDefinition<
+  ) => MutationDefinition<
     QueryArg,
     BaseQuery,
     TagTypes,
@@ -1485,7 +1485,7 @@ export type EndpointBuilder<
     RawResultType
   >
 
-  infiniteQuery<
+  infiniteQuery: <
     ResultType,
     QueryArg,
     PageParam,
@@ -1504,7 +1504,7 @@ export type EndpointBuilder<
       >,
       'type'
     >,
-  ): InfiniteQueryDefinition<
+  ) => InfiniteQueryDefinition<
     QueryArg,
     PageParam,
     BaseQuery,

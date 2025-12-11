@@ -19,7 +19,7 @@ export type ModuleName = keyof ApiModules<any, any, any, any>
 
 export type Module<Name extends ModuleName> = {
   name: Name
-  init<
+  init: <
     BaseQuery extends BaseQueryFn,
     Definitions extends EndpointDefinitions,
     ReducerPath extends string,
@@ -38,7 +38,7 @@ export type Module<Name extends ModuleName> = {
       | 'tagTypes'
     >,
     context: ApiContext<Definitions>,
-  ): {
+  ) => {
     injectEndpoint(
       endpointName: string,
       definition: EndpointDefinition<any, any, any, any>,
@@ -76,7 +76,7 @@ export type Api<
   /**
    * A function to inject the endpoints into the original API, but also give you that same API with correct types for these endpoints back. Useful with code-splitting.
    */
-  injectEndpoints<NewDefinitions extends EndpointDefinitions>(_: {
+  injectEndpoints: <NewDefinitions extends EndpointDefinitions>(_: {
     endpoints: (
       build: EndpointBuilder<BaseQuery, TagTypes, ReducerPath>,
     ) => NewDefinitions
@@ -88,7 +88,7 @@ export type Api<
      * If set to `false` (or unset), will not override existing endpoints with the new definition, and log a warning in development.
      */
     overrideExisting?: boolean | 'throw'
-  }): Api<
+  }) => Api<
     BaseQuery,
     Definitions & NewDefinitions,
     ReducerPath,
@@ -98,7 +98,7 @@ export type Api<
   /**
    *A function to enhance a generated API with additional information. Useful with code-generation.
    */
-  enhanceEndpoints<
+  enhanceEndpoints: <
     NewTagTypes extends string = never,
     NewDefinitions extends EndpointDefinitions = never,
   >(_: {
@@ -114,7 +114,7 @@ export type Api<
             | ((definition: InferredNewEndpointDefinitionsType[K]) => void)
         }
       : never
-  }): Api<
+  }) => Api<
     BaseQuery,
     UpdateDefinitions<Definitions, TagTypes | NewTagTypes, NewDefinitions>,
     ReducerPath,
