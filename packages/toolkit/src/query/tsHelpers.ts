@@ -56,11 +56,22 @@ export type IsAny<T, True, False = never> = true | false extends (
 export type CastAny<T, CastTo> = IsAny<T, CastTo, T>
 
 /**
- * Properly wraps a Promise as a {@linkcode SafePromise} with .catch(fallback).
+ * Properly wraps a {@linkcode Promise} as a {@linkcode SafePromise}
+ * with `.catch(fallback)`.
+ *
+ * @param promise - The promise to wrap.
+ * @param fallback - The fallback function to handle errors.
+ * @returns A {@linkcode SafePromise} that resolves to either the original resolved value or the fallback rejected value.
+ *
+ * @template Resolved - The type of the resolved value of the original promise.
+ * @template Rejected - The type of the value returned by the fallback function.
+ *
+ * @since 2.1.0
+ * @internal
  */
 export function asSafePromise<Resolved, Rejected>(
   promise: Promise<Resolved>,
   fallback: (error: unknown) => Rejected,
-) {
+): SafePromise<Resolved | Rejected> {
   return promise.catch(fallback) as SafePromise<Resolved | Rejected>
 }
