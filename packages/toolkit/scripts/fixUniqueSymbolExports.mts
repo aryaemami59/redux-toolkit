@@ -59,7 +59,7 @@ const main = async () => {
       return
     }
 
-    let newContent = `${lines.slice(0, -2).join('\n')}\nexport { ${allNamedExports?.filter((namedExport) => !exportedUniqueSymbols.has(namedExport)).join(', ')} };\n`
+    let newContent = `${lines.slice(0, -2).join('\n')}\nexport { ${allNamedExports?.filter((namedExport) => !exportedUniqueSymbols.has(namedExport)).join(', ')} };\n${lines.at(-1) ?? ''}`
 
     exportedUniqueSymbols.forEach((uniqueSymbol) => {
       console.log(`Exporting \`${uniqueSymbol}\` from ${filePath}`)
