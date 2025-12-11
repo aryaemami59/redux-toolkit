@@ -30,7 +30,7 @@ export const buildWindowEventHandler: InternalHandlerBuilder = ({
     type: 'refetchOnFocus' | 'refetchOnReconnect',
   ) {
     const state = api.getState()[reducerPath]
-    const queries = state.queries
+    const { queries } = state
     const subscriptions = internalState.currentSubscriptions
 
     context.batch(() => {
