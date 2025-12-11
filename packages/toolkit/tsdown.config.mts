@@ -79,34 +79,6 @@ const mangleErrorsTransform = (
   }
 }
 
-// const deDuplicateReExportsPlugin = (): Plugin => {
-//   return {
-//     name: 'de-duplicate-re-exports',
-//     resolveId: {
-//       filter: {
-//         id: {
-//           exclude: [/node_modules/],
-//           include: [/(redux|rtkq)Imports$/],
-//         },
-//       },
-//       async handler(source) {
-//         return {
-//           external: false,
-//           id: source.includes('reduxImports')
-//             ? 'redux'
-//             : source.includes('rtkqImports')
-//               ? `${packageJson.name}/query`
-//               : source,
-//           invalidate: true,
-//           meta: {},
-//           moduleSideEffects: false,
-//           packageJsonPath: path.join(import.meta.dirname, 'package.json'),
-//         }
-//       },
-//     },
-//   }
-// }
-
 const peerAndProductionDependencies = Object.keys({
   ...packageJson.dependencies,
   ...packageJson.peerDependencies,
