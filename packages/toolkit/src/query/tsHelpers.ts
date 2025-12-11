@@ -1,3 +1,5 @@
+import type { SafePromise } from '@reduxjs/toolkit'
+
 export type Id<T> = { [KeyType in keyof T]: T[KeyType] } & {}
 export type WithRequiredProp<T, RequiredKeys extends keyof T> = Omit<
   T,
@@ -52,3 +54,13 @@ export type IsAny<T, True, False = never> = true | false extends (
   : False
 
 export type CastAny<T, CastTo> = IsAny<T, CastTo, T>
+
+/**
+ * Properly wraps a Promise as a {@linkcode SafePromise} with .catch(fallback).
+ */
+export function asSafePromise<Resolved, Rejected>(
+  promise: Promise<Resolved>,
+  fallback: (error: unknown) => Rejected,
+) {
+  return promise.catch(fallback) as SafePromise<Resolved | Rejected>
+}
