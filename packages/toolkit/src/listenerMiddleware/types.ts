@@ -322,11 +322,8 @@ export type ListenerMiddleware<
 /** @public */
 export interface ListenerMiddlewareInstance<
   StateType = unknown,
-  DispatchType extends ThunkDispatch<
-    StateType,
-    unknown,
-    Action
-  > = ThunkDispatch<StateType, unknown, UnknownAction>,
+  DispatchType extends ThunkDispatch<StateType, unknown, Action> =
+    ThunkDispatch<StateType, unknown, UnknownAction>,
   ExtraArgument = unknown,
 > {
   middleware: ListenerMiddleware<StateType, DispatchType, ExtraArgument>
