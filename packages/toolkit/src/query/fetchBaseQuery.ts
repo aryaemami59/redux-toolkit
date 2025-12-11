@@ -1,8 +1,7 @@
 import type { BaseQueryApi, BaseQueryFn } from './baseQueryTypes'
 import { isPlainObject } from './core/rtkImports'
 import type { MaybePromise, Override } from './tsHelpers'
-import { joinUrls } from './utils/index'
-import { anySignal, timeoutSignal } from './utils/signals'
+import { anySignal, joinUrls, timeoutSignal } from './utils/index'
 
 export type ResponseHandler =
   | 'content-type'

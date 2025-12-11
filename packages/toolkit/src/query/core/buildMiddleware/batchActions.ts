@@ -61,7 +61,6 @@ export const buildBatchedActionsHandler: InternalHandlerBuilder<
       }
       return true
     }
-    let mutated = false
 
     if (queryThunk.rejected.match(action)) {
       const {
@@ -78,11 +77,11 @@ export const buildBatchedActionsHandler: InternalHandlerBuilder<
           arg.subscriptionOptions ?? substate.get(requestId) ?? {},
         )
 
-        mutated = true
+        return true
       }
     }
 
-    return mutated
+    return false
   }
 
   const getSubscriptions = () => internalState.currentSubscriptions

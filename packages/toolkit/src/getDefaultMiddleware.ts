@@ -4,10 +4,7 @@ import { createActionCreatorInvariantMiddleware } from './actionCreatorInvariant
 import type { ImmutableStateInvariantMiddlewareOptions } from './immutableStateInvariantMiddleware'
 import { createImmutableStateInvariantMiddleware } from './immutableStateInvariantMiddleware'
 import type { ThunkMiddleware } from './reduxThunkImports'
-import {
-  thunk as thunkMiddleware,
-  withExtraArgument,
-} from './reduxThunkImports'
+import { thunkMiddleware, withExtraArgument } from './reduxThunkImports'
 import type { SerializableStateInvariantMiddlewareOptions } from './serializableStateInvariantMiddleware'
 import { createSerializableStateInvariantMiddleware } from './serializableStateInvariantMiddleware'
 import type { ExcludeFromTuple } from './tsHelpers'
