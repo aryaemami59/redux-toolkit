@@ -82,8 +82,11 @@ export type SubMiddlewareApi = MiddlewareAPI<
   RootState<EndpointDefinitions, string, string>
 >
 
-export interface BuildSubMiddlewareInput
-  extends BuildMiddlewareInput<EndpointDefinitions, string, string> {
+export interface BuildSubMiddlewareInput extends BuildMiddlewareInput<
+  EndpointDefinitions,
+  string,
+  string
+> {
   internalState: InternalMiddlewareState
   refetchQuery(
     querySubState: Exclude<
