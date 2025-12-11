@@ -48,7 +48,12 @@ export const {
   middleware,
   reducer,
   reducerPath,
+  useAddPostMutation,
+  useDeletePostMutation,
+  useGetPostQuery,
+  useLazyGetPostQuery,
   usePrefetch,
+  useUpdatePostMutation,
   util,
 } = postApi
 
