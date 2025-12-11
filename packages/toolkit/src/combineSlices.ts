@@ -68,9 +68,8 @@ export type InjectConfig = {
 export interface CombinedSliceReducer<
   InitialSliceStateType,
   DeclaredState extends InitialSliceStateType = InitialSliceStateType,
-  PreloadedState extends Partial<
-    Record<keyof PreloadedState, any>
-  > = Partial<DeclaredState>,
+  PreloadedState extends Partial<Record<keyof PreloadedState, any>> =
+    Partial<DeclaredState>,
 > extends Reducer<DeclaredState, UnknownAction, PreloadedState> {
   /**
    * Provide a type for slices that will be injected lazily.
