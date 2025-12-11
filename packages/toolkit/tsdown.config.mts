@@ -79,33 +79,33 @@ const mangleErrorsTransform = (
   }
 }
 
-const deDuplicateReExportsPlugin = (): Plugin => {
-  return {
-    name: 'de-duplicate-re-exports',
-    resolveId: {
-      filter: {
-        id: {
-          exclude: [/node_modules/],
-          include: [/(redux|rtkq)Imports$/],
-        },
-      },
-      async handler(source) {
-        return {
-          external: false,
-          id: source.includes('reduxImports')
-            ? 'redux'
-            : source.includes('rtkqImports')
-              ? `${packageJson.name}/query`
-              : source,
-          invalidate: true,
-          meta: {},
-          moduleSideEffects: false,
-          packageJsonPath: path.join(import.meta.dirname, 'package.json'),
-        }
-      },
-    },
-  }
-}
+// const deDuplicateReExportsPlugin = (): Plugin => {
+//   return {
+//     name: 'de-duplicate-re-exports',
+//     resolveId: {
+//       filter: {
+//         id: {
+//           exclude: [/node_modules/],
+//           include: [/(redux|rtkq)Imports$/],
+//         },
+//       },
+//       async handler(source) {
+//         return {
+//           external: false,
+//           id: source.includes('reduxImports')
+//             ? 'redux'
+//             : source.includes('rtkqImports')
+//               ? `${packageJson.name}/query`
+//               : source,
+//           invalidate: true,
+//           meta: {},
+//           moduleSideEffects: false,
+//           packageJsonPath: path.join(import.meta.dirname, 'package.json'),
+//         }
+//       },
+//     },
+//   }
+// }
 
 const peerAndProductionDependencies = Object.keys({
   ...packageJson.dependencies,
@@ -216,7 +216,6 @@ export default defineConfig((cliOptions) => {
       commonjs: true,
     },
     outExtensions: () => ({ js: '.development.cjs' }),
-    plugins: [commonOptions.plugins, deDuplicateReExportsPlugin()],
     outputOptions: (options) => ({
       ...options,
       esModule: true,
@@ -284,7 +283,6 @@ export default defineConfig((cliOptions) => {
     onSuccess: async ({ outDir }) => {
       await writeCommonJSEntry(path.join(outDir, 'cjs'), 'redux-toolkit')
     },
-    plugins: [commonOptions.plugins, deDuplicateReExportsPlugin()],
   } as const satisfies InlineConfig
 
   const browserEsmConfig = {
