@@ -131,8 +131,21 @@ export default defineConfig((cliOptions) => {
     nodeProtocol: true,
     shims: true,
     outDir: 'dist',
-    inputOptions: (options) => ({
+    inputOptions: (options, format, context) => ({
       ...options,
+      experimental: {
+        ...options.experimental,
+        ...(format === 'cjs'
+          ? {
+              attachDebugInfo: 'none',
+              ...(context.cjsDts
+                ? {}
+                : {
+                    nativeMagicString: true,
+                  }),
+            }
+          : {}),
+      },
       transform: {
         ...options.transform,
         inject: {
@@ -140,6 +153,20 @@ export default defineConfig((cliOptions) => {
           React: ['react', '*'] as const,
         },
       },
+    }),
+    outputOptions: (options, format, context) => ({
+      ...options,
+      ...(format === 'cjs' && !context.cjsDts
+        ? {
+            externalLiveBindings: false,
+            intro: '"use strict";',
+          }
+        : {}),
+      ...(context.cjsDts
+        ? {}
+        : {
+            legalComments: 'none',
+          }),
     }),
     plugins: [mangleErrorsTransform()],
     sourcemap: true,
@@ -192,6 +219,18 @@ export default defineConfig((cliOptions) => {
      * to avoid producing additional unwanted artifacts.
      */
     sourcemap: false,
+    onSuccess: async ({ outDir, entry }) => {
+      const normalizedFolderSegments = (Object.keys(entry)[0] ?? 'index')
+        .replace(/(index)$/, '$1.cjs')
+        .split(path.posix.sep)
+
+      const outputEntryPath = path.join(outDir, ...normalizedFolderSegments)
+
+      await fs.rm(outputEntryPath, {
+        force: true,
+        recursive: true,
+      })
+    },
   } as const satisfies InlineConfig
 
   const modernEsmConfig = {
@@ -216,27 +255,6 @@ export default defineConfig((cliOptions) => {
       commonjs: true,
     },
     outExtensions: () => ({ js: '.development.cjs' }),
-    outputOptions: (options) => ({
-      ...options,
-      externalLiveBindings: false,
-      intro: '"use strict";',
-      legalComments: 'none',
-    }),
-    inputOptions: (options) => ({
-      ...options,
-      experimental: {
-        ...options.experimental,
-        attachDebugInfo: 'none',
-        nativeMagicString: true,
-      },
-      transform: {
-        ...options.transform,
-        inject: {
-          ...options.transform?.inject,
-          React: ['react', '*'] as const,
-        },
-      },
-    }),
   } as const satisfies InlineConfig
 
   const productionCjsConfig = {
@@ -255,27 +273,6 @@ export default defineConfig((cliOptions) => {
       commonjs: true,
     },
     outExtensions: () => ({ js: '.production.min.cjs' }),
-    outputOptions: (options) => ({
-      ...options,
-      externalLiveBindings: false,
-      intro: '"use strict";',
-      legalComments: 'none',
-    }),
-    inputOptions: (options) => ({
-      ...options,
-      experimental: {
-        ...options.experimental,
-        attachDebugInfo: 'none',
-        nativeMagicString: true,
-      },
-      transform: {
-        ...options.transform,
-        inject: {
-          ...options.transform?.inject,
-          React: ['react', '*'] as const,
-        },
-      },
-    }),
     onSuccess: async ({ outDir }) => {
       await writeCommonJSEntry(path.join(outDir, 'cjs'), 'redux-toolkit')
     },
