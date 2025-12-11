@@ -1694,9 +1694,8 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
       rest as UseInfiniteQuerySubscriptionOptions<any>
     const stableInitialPageParam = useShallowStableValue(initialPageParam)
 
-    const refetchCachedPages = (
+    const { refetchCachedPages } =
       rest as UseInfiniteQuerySubscriptionOptions<any>
-    ).refetchCachedPages
     const stableRefetchCachedPages = useShallowStableValue(refetchCachedPages)
 
     /**
