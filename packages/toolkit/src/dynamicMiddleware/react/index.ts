@@ -34,9 +34,9 @@ export type CreateDispatchWithMiddlewareHook<
   >(
     ...middlewares: Middlewares
   ): UseDispatchWithMiddlewareHook<Middlewares, State, DispatchType>
-  withTypes: <
+  withTypes<
     MiddlewareConfig extends MiddlewareApiConfig,
-  >() => CreateDispatchWithMiddlewareHook<
+  >(): CreateDispatchWithMiddlewareHook<
     GetState<MiddlewareConfig>,
     GetDispatch<MiddlewareConfig>
   >
