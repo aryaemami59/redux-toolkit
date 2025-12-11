@@ -245,13 +245,3 @@ export type UnknownIfNonSpecific<T> = {} extends T ? unknown : T
 export type SafePromise<T> = Promise<T> & {
   __linterBrands: 'SafePromise'
 }
-
-/**
- * Properly wraps a Promise as a {@link SafePromise} with .catch(fallback).
- */
-export function asSafePromise<Resolved, Rejected>(
-  promise: Promise<Resolved>,
-  fallback: (error: unknown) => Rejected,
-) {
-  return promise.catch(fallback) as SafePromise<Resolved | Rejected>
-}
