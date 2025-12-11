@@ -53,8 +53,8 @@ type InjectIntoConfig<NewReducerPath extends string> = InjectConfig & {
  */
 export interface Slice<
   State = any,
-  SliceCaseReducersType extends
-    SliceCaseReducers<State> = SliceCaseReducers<State>,
+  SliceCaseReducersType extends SliceCaseReducers<State> =
+    SliceCaseReducers<State>,
   Name extends string = string,
   ReducerPath extends string = Name,
   Selectors extends SliceSelectors<State> = SliceSelectors<State>,
@@ -148,8 +148,8 @@ export interface Slice<
  */
 type InjectedSlice<
   State = any,
-  SliceCaseReducersType extends
-    SliceCaseReducers<State> = SliceCaseReducers<State>,
+  SliceCaseReducersType extends SliceCaseReducers<State> =
+    SliceCaseReducers<State>,
   Name extends string = string,
   ReducerPath extends string = Name,
   Selectors extends SliceSelectors<State> = SliceSelectors<State>,
@@ -307,7 +307,9 @@ export type CaseReducerWithPrepare<
 export interface CaseReducerWithPrepareDefinition<
   State,
   Action extends PayloadAction,
-> extends CaseReducerWithPrepare<State, Action>,
+>
+  extends
+    CaseReducerWithPrepare<State, Action>,
     ReducerDefinition<ReducerType.reducerWithPrepare> {}
 
 type AsyncThunkSliceReducerConfig<
@@ -340,8 +342,8 @@ type PreventCircular<ThunkApiConfig> = {
 
 interface AsyncThunkCreator<
   State,
-  CurriedThunkApiConfig extends
-    PreventCircular<AsyncThunkConfig> = PreventCircular<AsyncThunkConfig>,
+  CurriedThunkApiConfig extends PreventCircular<AsyncThunkConfig> =
+    PreventCircular<AsyncThunkConfig>,
 > {
   <Returned, ThunkArg = void>(
     payloadCreator: AsyncThunkPayloadCreator<

@@ -567,7 +567,9 @@ export interface QueryExtraOptions<
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
   RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
-> extends CacheLifecycleQueryExtraOptions<
+>
+  extends
+    CacheLifecycleQueryExtraOptions<
       ResultType,
       QueryArg,
       BaseQuery,
@@ -874,7 +876,9 @@ export interface InfiniteQueryExtraOptions<
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
   RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
-> extends CacheLifecycleInfiniteQueryExtraOptions<
+>
+  extends
+    CacheLifecycleInfiniteQueryExtraOptions<
       InfiniteData<ResultType, PageParam>,
       QueryArg,
       BaseQuery,
@@ -1090,7 +1094,9 @@ export interface MutationExtraOptions<
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
   RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
-> extends CacheLifecycleMutationExtraOptions<
+>
+  extends
+    CacheLifecycleMutationExtraOptions<
       ResultType,
       QueryArg,
       BaseQuery,
@@ -1291,8 +1297,8 @@ export type EndpointBuilder<
   query<
     ResultType,
     QueryArg,
-    RawResultType extends
-      BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+    RawResultType extends BaseQueryResult<BaseQuery> =
+      BaseQueryResult<BaseQuery>,
   >(
     definition: OmitFromUnion<
       QueryDefinition<
@@ -1343,8 +1349,8 @@ export type EndpointBuilder<
   mutation<
     ResultType,
     QueryArg,
-    RawResultType extends
-      BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+    RawResultType extends BaseQueryResult<BaseQuery> =
+      BaseQueryResult<BaseQuery>,
   >(
     definition: OmitFromUnion<
       MutationDefinition<
@@ -1370,8 +1376,8 @@ export type EndpointBuilder<
     ResultType,
     QueryArg,
     PageParam,
-    RawResultType extends
-      BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+    RawResultType extends BaseQueryResult<BaseQuery> =
+      BaseQueryResult<BaseQuery>,
   >(
     definition: OmitFromUnion<
       InfiniteQueryDefinition<
