@@ -92,7 +92,9 @@ export default defineConfig((cliOptions) => {
      */
     clean: false,
     cwd: import.meta.dirname,
-    debug: {},
+    debug: {
+      clean: false,
+    },
     dts: false,
     external: peerAndProductionDependencies,
     failOnWarn: true,
@@ -165,6 +167,8 @@ export default defineConfig((cliOptions) => {
       eager: true,
       emitDtsOnly: true,
       emitJs: false,
+      enabled: true,
+      incremental: false,
       newContext: true,
       oxc: false,
       parallel: false,
@@ -191,14 +195,25 @@ export default defineConfig((cliOptions) => {
      * to avoid producing additional unwanted artifacts.
      */
     sourcemap: false,
-    onSuccess: async ({ outDir, entry }) => {
-      const normalizedFolderSegments = (Object.keys(entry)[0] ?? 'index')
+    onSuccess: async ({ entry, outDir }) => {
+      const entries = Object.keys(entry)
+
+      const relativeOutputEntryPath = entries[0] ?? 'index'
+
+      if (!relativeOutputEntryPath.endsWith('index')) {
+        return
+      }
+
+      const outputEntryPathSegments = relativeOutputEntryPath
         .replace(/(index)$/, '$1.cjs')
         .split(path.posix.sep)
 
-      const outputEntryPath = path.join(outDir, ...normalizedFolderSegments)
+      const absoluteOutputEntryPath = path.join(
+        outDir,
+        ...outputEntryPathSegments,
+      )
 
-      await fs.rm(outputEntryPath, {
+      await fs.rm(absoluteOutputEntryPath, {
         force: true,
         recursive: true,
       })
