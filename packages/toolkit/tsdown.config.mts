@@ -218,8 +218,6 @@ export default defineConfig((cliOptions) => {
     outExtensions: () => ({ js: '.development.cjs' }),
     outputOptions: (options) => ({
       ...options,
-      esModule: true,
-      exports: 'named',
       externalLiveBindings: false,
       intro: '"use strict";',
       legalComments: 'none',
@@ -259,8 +257,6 @@ export default defineConfig((cliOptions) => {
     outExtensions: () => ({ js: '.production.min.cjs' }),
     outputOptions: (options) => ({
       ...options,
-      esModule: true,
-      exports: 'named',
       externalLiveBindings: false,
       intro: '"use strict";',
       legalComments: 'none',
