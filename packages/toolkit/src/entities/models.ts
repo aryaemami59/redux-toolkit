@@ -189,7 +189,8 @@ export interface EntityStateFactory<T, EntityIdType extends EntityId> {
  * @public
  */
 export interface EntityAdapter<T, EntityIdType extends EntityId>
-  extends EntityStateAdapter<T, EntityIdType>,
+  extends
+    EntityStateAdapter<T, EntityIdType>,
     EntityStateFactory<T, EntityIdType>,
     Required<EntityAdapterOptions<T, EntityIdType>> {
   getSelectors(

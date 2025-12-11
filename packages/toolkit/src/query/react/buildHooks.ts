@@ -942,19 +942,17 @@ export type TypedInfiniteQueryStateSelector<
   QueryArg,
   PageParam,
   BaseQuery extends BaseQueryFn,
-  SelectedResult extends Record<
-    string,
-    any
-  > = UseInfiniteQueryStateDefaultResult<
-    InfiniteQueryDefinition<
-      QueryArg,
-      PageParam,
-      BaseQuery,
-      string,
-      ResultType,
-      string
-    >
-  >,
+  SelectedResult extends Record<string, any> =
+    UseInfiniteQueryStateDefaultResult<
+      InfiniteQueryDefinition<
+        QueryArg,
+        PageParam,
+        BaseQuery,
+        string,
+        ResultType,
+        string
+      >
+    >,
 > = InfiniteQueryStateSelector<
   SelectedResult,
   InfiniteQueryDefinition<
@@ -1183,19 +1181,17 @@ export type TypedUseInfiniteQueryStateOptions<
   QueryArg,
   PageParam,
   BaseQuery extends BaseQueryFn,
-  SelectedResult extends Record<
-    string,
-    any
-  > = UseInfiniteQueryStateDefaultResult<
-    InfiniteQueryDefinition<
-      QueryArg,
-      PageParam,
-      BaseQuery,
-      string,
-      ResultType,
-      string
-    >
-  >,
+  SelectedResult extends Record<string, any> =
+    UseInfiniteQueryStateDefaultResult<
+      InfiniteQueryDefinition<
+        QueryArg,
+        PageParam,
+        BaseQuery,
+        string,
+        ResultType,
+        string
+      >
+    >,
 > = UseInfiniteQueryStateOptions<
   InfiniteQueryDefinition<
     QueryArg,
