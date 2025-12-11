@@ -19,7 +19,7 @@ export type ModuleName = keyof ApiModules<any, any, any, any>
 
 export type Module<Name extends ModuleName> = {
   name: Name
-  init: <
+  init<
     BaseQuery extends BaseQueryFn,
     Definitions extends EndpointDefinitions,
     ReducerPath extends string,
@@ -38,7 +38,7 @@ export type Module<Name extends ModuleName> = {
       | 'tagTypes'
     >,
     context: ApiContext<Definitions>,
-  ) => {
+  ): {
     injectEndpoint(
       endpointName: string,
       definition: EndpointDefinition<any, any, any, any>,
