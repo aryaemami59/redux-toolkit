@@ -1,8 +1,7 @@
 import type { BaseQueryApi, BaseQueryFn } from './baseQueryTypes'
 import { isPlainObject } from './core/rtkImports'
 import type { MaybePromise, Override } from './tsHelpers'
-import { joinUrls } from './utils/index'
-import { anySignal, timeoutSignal } from './utils/signals'
+import { anySignal, joinUrls, timeoutSignal } from './utils/index'
 
 export type ResponseHandler =
   | 'content-type'
@@ -25,10 +24,20 @@ export interface FetchArgs extends CustomRequestInit {
   url: string
   params?: Record<string, any>
   body?: any
-  responseHandler?: ResponseHandler
-  validateStatus?: (response: Response, body: any) => boolean
+
   /**
-   * A number in milliseconds that represents that maximum time a request can take before timing out.
+   * @default 'json'
+   */
+  responseHandler?: ResponseHandler
+
+  /**
+   * @default (response: Response) => response.status >= 200 && response.status <= 299
+   */
+  validateStatus?: (response: Response, body: any) => boolean
+
+  /**
+   * A number in milliseconds that represents that maximum time a request can
+   * take before timing out.
    */
   timeout?: number
 }
@@ -114,7 +123,23 @@ const isJsonifiable = (body: any) =>
     typeof body.toJSON === 'function')
 
 export type FetchBaseQueryArgs = {
+  /**
+   * The base URL for an API service.
+   * Typically in the format of `https://example.com/`.
+   */
   baseUrl?: string
+
+  /**
+   * An optional function that can be used to inject headers on requests.
+   * Provides a Headers object, most of the {@linkcode BaseQueryApi}
+   * (`dispatch` is not available), and the arg passed into the query function.
+   * Useful for setting authentication or headers that need to be set
+   * conditionally.
+   *
+   * @default (headers: Headers) => headers
+   *
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Headers}
+   */
   prepareHeaders?: (
     headers: Headers,
     api: Pick<
@@ -122,27 +147,56 @@ export type FetchBaseQueryArgs = {
       'getState' | 'extra' | 'endpoint' | 'type' | 'forced'
     > & { arg: string | FetchArgs; extraOptions: unknown },
   ) => MaybePromise<Headers | void>
+
+  /**
+   * Accepts a custom `fetch` function if you do not want to use the default
+   * on the window. Useful in SSR environments if you need to use a library
+   * such as `isomorphic-fetch` or `cross-fetch`.
+   *
+   * @default fetch
+   */
   fetchFn?: (
     input: RequestInfo,
     init?: RequestInit | undefined,
   ) => Promise<Response>
-  paramsSerializer?: (params: Record<string, any>) => string
+
   /**
-   * By default, we only check for 'application/json' and 'application/vnd.api+json' as the content-types for json. If you need to support another format, you can pass
-   * in a predicate function for your given api to get the same automatic stringifying behavior
+   * An optional function that can be used to stringify querystring parameters.
+   */
+  paramsSerializer?: (params: Record<string, any>) => string
+
+  /**
+   * An optional predicate function to determine if `JSON.stringify()` should
+   * be called on the `body` arg of `FetchArgs`.
+   * By default, we only check for 'application/json' and
+   * 'application/vnd.api+json' as the content-types for json. If you need to
+   * support another format, you can pass in a predicate function for your
+   * given api to get the same automatic stringifying behavior.
+   *
+   * @default (headers: Headers) => /ion\/(vnd\.api\+)?json/.test(headers.get('content-type') || '')
+   *
    * @example
    * ```ts
-   * const isJsonContentType = (headers: Headers) => ["application/vnd.api+json", "application/json", "application/vnd.hal+json"].includes(headers.get("content-type")?.trim());
+   * const isJsonContentType = (headers: Headers) =>
+   *   [
+   *     'application/vnd.api+json',
+   *     'application/json',
+   *     'application/vnd.hal+json',
+   *   ].includes(headers.get('content-type')?.trim() ?? '');
    * ```
    */
   isJsonContentType?: (headers: Headers) => boolean
+
   /**
-   * Defaults to `application/json`;
+   * Used when automatically setting the content-type header for a request with
+   * a jsonifiable body that does not have an explicit content-type header.
+   *
+   * @default 'application/json'
    */
   jsonContentType?: string
 
   /**
-   * Custom replacer function used when calling `JSON.stringify()`;
+   * Custom replacer function used when calling `JSON.stringify()`.
    */
   jsonReplacer?: (this: any, key: string, value: any) => any
 } & RequestInit &
@@ -155,17 +209,25 @@ export type FetchBaseQueryMeta = { request: Request; response?: Response }
  *
  * @example
  * ```ts
+ * import { fetchBaseQuery } from '@reduxjs/toolkit/query';
+ *
+ * type RootState = {
+ *   auth: {
+ *     token: string | null;
+ *   };
+ * };
+ *
  * const baseQuery = fetchBaseQuery({
  *   baseUrl: 'https://api.your-really-great-app.com/v1/',
  *   prepareHeaders: (headers, { getState }) => {
- *     const token = (getState() as RootState).auth.token;
+ *     const { token } = (getState() as RootState).auth;
  *     // If we have a token set in state, let's assume that we should be passing it.
  *     if (token) {
  *       headers.set('authorization', `Bearer ${token}`);
  *     }
  *     return headers;
  *   },
- * })
+ * });
  * ```
  *
  * @param {string} baseUrl
@@ -298,7 +360,7 @@ export function fetchBaseQuery({
     const requestClone = new Request(url, config)
     meta = { request: requestClone }
 
-    let response
+    let response: Response
     try {
       response = await fetchFn(request)
     } catch (e) {
