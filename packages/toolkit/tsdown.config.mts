@@ -1,8 +1,7 @@
 import * as babel from '@babel/core'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
-import type { Plugin } from 'rolldown'
-import type { InlineConfig, UserConfig } from 'tsdown'
+import type { InlineConfig, Rolldown, UserConfig } from 'tsdown'
 import { defineConfig } from 'tsdown'
 import packageJson from './package.json' with { type: 'json' }
 import type { MangleErrorsPluginOptions } from './scripts/mangleErrors.mjs'
@@ -24,7 +23,7 @@ if (process.env.NODE_ENV === "production") {
 // Extract error strings, replace them with error codes, and write messages to a file
 const mangleErrorsTransform = (
   mangleErrorsPluginOptions: MangleErrorsPluginOptions = {},
-): Plugin => {
+): Rolldown.Plugin => {
   const { minify = false } = mangleErrorsPluginOptions
 
   return {
@@ -105,18 +104,14 @@ export default defineConfig((cliOptions) => {
     nodeProtocol: true,
     shims: true,
     outDir: 'dist',
-    inputOptions: (options, format, context) => ({
+    inputOptions: (options, format) => ({
       ...options,
       experimental: {
         ...options.experimental,
+        nativeMagicString: true,
         ...(format === 'cjs'
           ? {
               attachDebugInfo: 'none',
-              ...(context.cjsDts
-                ? {}
-                : {
-                    nativeMagicString: true,
-                  }),
             }
           : {}),
       },
