@@ -11,11 +11,11 @@ import { mangleErrorsPlugin } from './scripts/mangleErrors.mjs'
 async function writeCommonJSEntry(folder: string, prefix: string) {
   await fs.writeFile(
     path.join(folder, 'index.js'),
-    `'use strict';
-if (process.env.NODE_ENV === 'production') {
-  module.exports = require('./${prefix}.production.min.cjs');
+    `"use strict";
+if (process.env.NODE_ENV === "production") {
+  module.exports = require("./${prefix}.production.min.cjs");
 } else {
-  module.exports = require('./${prefix}.development.cjs');
+  module.exports = require("./${prefix}.development.cjs");
 }`,
     { encoding: 'utf-8' },
   )
