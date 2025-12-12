@@ -5156,7 +5156,7 @@ __metadata:
   resolution: "@examples-action-listener/counter@workspace:examples/action-listener/counter"
   dependencies:
     "@reduxjs/toolkit": "npm:^1.8.0"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^25.0.1"
     "@types/react": "npm:^19.0.1"
     "@types/react-dom": "npm:^19.0.1"
     clsx: "npm:1.1.1"
@@ -5355,7 +5355,7 @@ __metadata:
     "@testing-library/jest-dom": "npm:^5.11.5"
     "@testing-library/react": "npm:^16.1.0"
     "@types/jest": "npm:^26.0.23"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^25.0.1"
     "@types/react": "npm:^19.0.1"
     "@types/react-dom": "npm:^19.0.1"
     msw: "npm:^0.40.2"
@@ -5551,7 +5551,7 @@ __metadata:
   resolution: "@examples-type-portability/bundler@workspace:examples/type-portability/bundler"
   dependencies:
     "@reduxjs/toolkit": "workspace:^"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^25.0.1"
     "@types/react": "npm:^19.0.1"
     "@types/react-dom": "npm:^19.0.1"
     react: "npm:^19.0.0"
@@ -5568,7 +5568,7 @@ __metadata:
   resolution: "@examples-type-portability/nodenext-cjs@workspace:examples/type-portability/nodenext-cjs"
   dependencies:
     "@reduxjs/toolkit": "workspace:^"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^25.0.1"
     "@types/react": "npm:^19.0.1"
     "@types/react-dom": "npm:^19.0.1"
     react: "npm:^19.0.0"
@@ -5585,7 +5585,7 @@ __metadata:
   resolution: "@examples-type-portability/nodenext-esm@workspace:examples/type-portability/nodenext-esm"
   dependencies:
     "@reduxjs/toolkit": "workspace:^"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^25.0.1"
     "@types/react": "npm:^19.0.1"
     "@types/react-dom": "npm:^19.0.1"
     react: "npm:^19.0.0"
@@ -8246,7 +8246,7 @@ __metadata:
     "@types/babel__helper-module-imports": "npm:^7.18.3"
     "@types/json-stringify-safe": "npm:^5.0.0"
     "@types/nanoid": "npm:^2.1.0"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^25.0.1"
     "@types/query-string": "npm:^6.3.0"
     "@types/react": "npm:^19.0.1"
     "@types/react-dom": "npm:^19.0.1"
@@ -8281,7 +8281,7 @@ __metadata:
     rimraf: "npm:^6.1.2"
     rolldown: "npm:1.0.0-beta.54"
     size-limit: "npm:^11.0.1"
-    tsdown: "npm:^0.17.2"
+    tsdown: "npm:^0.17.3"
     tsx: "npm:^4.21.0"
     typescript: "npm:^5.8.2"
     valibot: "npm:^1.0.0"
@@ -8925,7 +8925,7 @@ __metadata:
     "@types/commander": "npm:^2.12.2"
     "@types/glob-to-regexp": "npm:^0.4.0"
     "@types/lodash.camelcase": "npm:^4.3.9"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^25.0.1"
     "@types/semver": "npm:^7.3.9"
     chalk: "npm:^4.1.0"
     commander: "npm:^6.2.0"
@@ -8971,7 +8971,7 @@ __metadata:
   resolution: "@rtk-query/graphql-request-base-query@workspace:packages/rtk-query-graphql-request-base-query"
   dependencies:
     "@reduxjs/toolkit": "npm:^1.6.0 || ^2.0.0"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^25.0.1"
     graphql: "npm:^16.5.0"
     graphql-request: "npm:^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0"
     microbundle: "npm:^0.13.3"
@@ -10506,12 +10506,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^25.0.0":
-  version: 25.0.0
-  resolution: "@types/node@npm:25.0.0"
+"@types/node@npm:*, @types/node@npm:^25.0.1":
+  version: 25.0.1
+  resolution: "@types/node@npm:25.0.1"
   dependencies:
     undici-types: "npm:~7.16.0"
-  checksum: 10/ea56dfde037d8c832ba0246066fcd0fb56204d35fc09b8eb2ae8b8a26cb16724f824a47557090b1b51a2c466964c5af700dd6897dd037c1868667cd96afecbd7
+  checksum: 10/a00ac3fc23fb94a06c23f4c9e422ad8f911cb31e4a51e72b7dc7349565b2142df6231f45ebdc4f856e1519f661d8b13074f05855f4b68ce050ac81173dbcbe0f
   languageName: node
   linkType: hard
 
@@ -15572,6 +15572,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"defu@npm:^6.1.4":
+  version: 6.1.4
+  resolution: "defu@npm:6.1.4"
+  checksum: 10/aeffdb47300f45b4fdef1c5bd3880ac18ea7a1fd5b8a8faf8df29350ff03bf16dd34f9800205cab513d476e4c0a3783aa0cff0a433aff0ac84a67ddc4c8a2d64
+  languageName: node
+  linkType: hard
+
 "degenerator@npm:^3.0.2":
   version: 3.0.4
   resolution: "degenerator@npm:3.0.4"
@@ -19808,7 +19815,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"import-without-cache@npm:^0.2.2":
+"import-without-cache@npm:^0.2.3":
   version: 0.2.3
   resolution: "import-without-cache@npm:0.2.3"
   checksum: 10/b53c9302d88dbf9caee3217b011d6439cc48fd8a90972e5ff50e2e3a11ac2084414516f011e3114387edffa503e10ba63d4cee5180c2b3b6738befe73c9c249c
@@ -28370,13 +28377,13 @@ __metadata:
   linkType: hard
 
 "react-dom@npm:^19.0.0":
-  version: 19.2.2
-  resolution: "react-dom@npm:19.2.2"
+  version: 19.2.3
+  resolution: "react-dom@npm:19.2.3"
   dependencies:
     scheduler: "npm:^0.27.0"
   peerDependencies:
-    react: ^19.2.2
-  checksum: 10/8f91301f6c3d7dfd8e6a7b1c10b13f6d4c6093fe8e0198d353d58bc399d03db6a55991064121719322ea450ef486841b917b59551afa43a1f6479c4b3dc12e4b
+    react: ^19.2.3
+  checksum: 10/5780f6d4c8e8ece09f82c5500ba2d55e01c30b5273f9281734d7d3b65013cd1fa52ec4e4436e5248c0a9e5bc340836044051168bbad8d7eac4d33ee6c2a867a1
   languageName: node
   linkType: hard
 
@@ -28915,9 +28922,9 @@ __metadata:
   linkType: hard
 
 "react@npm:^19.0.0":
-  version: 19.2.2
-  resolution: "react@npm:19.2.2"
-  checksum: 10/a78dfc4663fbdd19f5b05af0dab99f056661de556c783c6bafa4e5936d2e0f8b0ecd0fa06da2f38cb557a7439fd7649361ef41ffd15733bf3f605a2d35d3cbf3
+  version: 19.2.3
+  resolution: "react@npm:19.2.3"
+  checksum: 10/d16b7f35c0d35a56f63d9d1693819762e4abc479c57dd6310298920bed3820fcec7e17a99d44983416d8f5049143ea45b8005d3ab8324bae8973224400502b08
   languageName: node
   linkType: hard
 
@@ -32642,15 +32649,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsdown@npm:^0.17.2":
-  version: 0.17.2
-  resolution: "tsdown@npm:0.17.2"
+"tsdown@npm:^0.17.3":
+  version: 0.17.3
+  resolution: "tsdown@npm:0.17.3"
   dependencies:
     ansis: "npm:^4.2.0"
     cac: "npm:^6.7.14"
+    defu: "npm:^6.1.4"
     empathic: "npm:^2.0.0"
     hookable: "npm:^5.5.3"
-    import-without-cache: "npm:^0.2.2"
+    import-without-cache: "npm:^0.2.3"
     obug: "npm:^2.1.1"
     rolldown: "npm:1.0.0-beta.53"
     rolldown-plugin-dts: "npm:^0.18.3"
@@ -32682,7 +32690,7 @@ __metadata:
       optional: true
   bin:
     tsdown: dist/run.mjs
-  checksum: 10/7d04a05c5c12ca8f9175b21bb722a131b7b03ba3b6adc4ebebac319c495429876d21d24a14d2e7eac6c337cc61a9043c9ef85199a04cc9885127882aee09f897
+  checksum: 10/8b312b07562ab04d714df4defe7986cefeec0adc6f1b6574defa2a65d23eb922b7893486e73c48a5b40151a3ce8d15db7471fc402000060fccb3747bd12e928b
   languageName: node
   linkType: hard
 
