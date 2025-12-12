@@ -296,7 +296,7 @@ export default defineConfig((cliOptions) => {
       copy: ({ outDir }) => [
         {
           from: path.join(import.meta.dirname, 'src', 'uncheckedindexed.ts'),
-          to: path.join(outDir, 'uncheckedindexed.ts'),
+          to: outDir,
         },
       ],
     },
