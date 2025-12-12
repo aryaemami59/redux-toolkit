@@ -509,7 +509,7 @@ export const coreModule = ({
   init(
     api,
     {
-      baseQuery,
+      baseQuery: baseQueryFunction,
       tagTypes,
       reducerPath,
       serializeQueryArgs,
@@ -578,7 +578,7 @@ export const coreModule = ({
       prefetch,
       buildMatchThunkActions,
     } = buildThunks({
-      baseQuery,
+      baseQuery: baseQueryFunction,
       reducerPath,
       context,
       api,
