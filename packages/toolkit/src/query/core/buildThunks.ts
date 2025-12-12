@@ -349,7 +349,7 @@ export function buildThunks<
   Definitions extends EndpointDefinitions,
 >({
   reducerPath,
-  baseQuery,
+  baseQuery: baseQueryFunction,
   context: { endpointDefinitions },
   serializeQueryArgs,
   api,
@@ -608,7 +608,7 @@ export function buildThunks<
             'transformResponse',
           )
 
-          result = await baseQuery(
+          result = await baseQueryFunction(
             endpointDefinition.query(finalQueryArg as any),
             baseQueryApi,
             extraOptions as any,
@@ -618,7 +618,7 @@ export function buildThunks<
             finalQueryArg as any,
             baseQueryApi,
             extraOptions as any,
-            (arg) => baseQuery(arg, baseQueryApi, extraOptions as any),
+            (arg) => baseQueryFunction(arg, baseQueryApi, extraOptions as any),
           )
         }
 
