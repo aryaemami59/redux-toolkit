@@ -11,6 +11,7 @@ import type {
   QueryKeys,
 } from '@reduxjs/toolkit/query'
 import type { CreateSelectorFunction } from 'reselect'
+import { createSelector as _createSelector } from 'reselect'
 import {
   isInfiniteQueryDefinition,
   isMutationDefinition,
