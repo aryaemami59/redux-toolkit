@@ -78,6 +78,25 @@ const mangleErrorsTransform = (
   }
 }
 
+const removeCJSOutputsFromDTSBuilds = (): Rolldown.Plugin => {
+  return {
+    name: 'Remove CJS outputs from DTS builds',
+    generateBundle: {
+      handler(outputOptions, bundle, isWrite) {
+        Object.entries(bundle).forEach(([fileName]) => {
+          if (
+            outputOptions.format === 'cjs' &&
+            isWrite &&
+            fileName.endsWith('.cjs')
+          ) {
+            delete bundle[fileName]
+          }
+        })
+      },
+    },
+  }
+}
+
 const peerAndProductionDependencies = Object.keys({
   ...packageJson.dependencies,
   ...packageJson.peerDependencies,
@@ -181,6 +200,7 @@ export default defineConfig((cliOptions) => {
       },
     }),
 
+    plugins: [removeCJSOutputsFromDTSBuilds()],
     /**
      * @todo Investigate why an unexpected `index.js` file is still emitted
      * even with `emitDtsOnly: true`. The goal is to produce `.d.ts`
@@ -190,29 +210,6 @@ export default defineConfig((cliOptions) => {
      * to avoid producing additional unwanted artifacts.
      */
     sourcemap: false,
-    onSuccess: async ({ entry, outDir }) => {
-      const entries = Object.keys(entry)
-
-      const relativeOutputEntryPath = entries[0] ?? 'index'
-
-      if (!relativeOutputEntryPath.endsWith('index')) {
-        return
-      }
-
-      const outputEntryPathSegments = relativeOutputEntryPath
-        .replace(/(index)$/, '$1.cjs')
-        .split(path.posix.sep)
-
-      const absoluteOutputEntryPath = path.join(
-        outDir,
-        ...outputEntryPathSegments,
-      )
-
-      await fs.rm(absoluteOutputEntryPath, {
-        force: true,
-        recursive: true,
-      })
-    },
   } as const satisfies InlineConfig
 
   const modernEsmConfig = {
