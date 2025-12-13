@@ -111,7 +111,7 @@ describe('type tests', () => {
         // no-op simply for clearer type assertions
         res.then((result) => {
           if (result.isSuccess) {
-            expectTypeOf(result).toMatchTypeOf<{
+            expectTypeOf(result).toMatchObjectType<{
               data: {
                 name: string
               }
@@ -119,7 +119,7 @@ describe('type tests', () => {
           }
 
           if (result.isError) {
-            expectTypeOf(result).toMatchTypeOf<{
+            expectTypeOf(result).toExtend<{
               error: { status: number; data: unknown } | SerializedError
             }>()
           }
@@ -137,7 +137,7 @@ describe('type tests', () => {
           (options: SubscriptionOptions) => void
         >()
 
-        expectTypeOf(res.refetch).toMatchTypeOf<() => void>()
+        expectTypeOf(res.refetch).toExtend<() => void>()
 
         expectTypeOf(res.unwrap()).resolves.toEqualTypeOf<{ name: string }>()
       }
@@ -164,7 +164,7 @@ describe('type tests', () => {
       const handleClick = async () => {
         const res = updateUser({ name: 'Banana' })
 
-        expectTypeOf(res).resolves.toMatchTypeOf<
+        expectTypeOf(res).resolves.toExtend<
           | {
               error: { status: number; data: unknown } | SerializedError
             }
@@ -175,7 +175,7 @@ describe('type tests', () => {
             }
         >()
 
-        expectTypeOf(res.arg).toMatchTypeOf<{
+        expectTypeOf(res.arg).toMatchObjectType<{
           endpointName: string
           originalArgs: { name: string }
           track?: boolean

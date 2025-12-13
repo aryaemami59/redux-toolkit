@@ -111,7 +111,7 @@ describe('type tests', () => {
               },
             })
 
-            expectTypeOf(query).toMatchTypeOf<
+            expectTypeOf(query).toExtend<
               QueryDefinition<'Arg', any, any, 'RetVal'>
             >()
 
@@ -178,7 +178,7 @@ describe('type tests', () => {
               },
             })
 
-            expectTypeOf(query).toMatchTypeOf<
+            expectTypeOf(query).toExtend<
               MutationDefinition<'Arg', any, any, 'RetVal'>
             >()
 
@@ -362,15 +362,13 @@ describe('type tests', () => {
           enhancedApi.endpoints.query1.initiate(),
         )
 
-        expectTypeOf(queryResponse.data).toMatchTypeOf<
-          Transformed | undefined
-        >()
+        expectTypeOf(queryResponse.data).toExtend<Transformed | undefined>()
 
         const mutationResponse = await storeRef.store.dispatch(
           enhancedApi.endpoints.mutation1.initiate(),
         )
 
-        expectTypeOf(mutationResponse).toMatchTypeOf<
+        expectTypeOf(mutationResponse).toExtend<
           | { data: Transformed }
           | { error: FetchBaseQueryError | SerializedError }
         >()
