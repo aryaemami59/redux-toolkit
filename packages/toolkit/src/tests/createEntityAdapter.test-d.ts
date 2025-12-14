@@ -51,7 +51,7 @@ describe('type tests', () => {
       ActionCreatorWithPayload<Entity[] | Record<string, Entity>>
     >()
 
-    expectTypeOf(slice.actions.setAll).not.toMatchObjectType<
+    expectTypeOf(slice.actions.setAll).not.toExtend<
       ActionCreatorWithPayload<ReadonlyArray<Id>>
     >()
 
@@ -63,7 +63,7 @@ describe('type tests', () => {
       ActionCreatorWithPayload<ReadonlyArray<Id>>
     >()
 
-    expectTypeOf(slice.actions.removeMany).not.toMatchObjectType<
+    expectTypeOf(slice.actions.removeMany).not.toExtend<
       ActionCreatorWithPayload<EntityId[]>
     >()
 
@@ -75,7 +75,7 @@ describe('type tests', () => {
       ActionCreatorWithPayload<Update<Entity, Id>>
     >()
 
-    expectTypeOf(slice.actions.updateMany).not.toMatchObjectType<
+    expectTypeOf(slice.actions.updateMany).not.toExtend<
       ActionCreatorWithPayload<Update<Entity, Id>[]>
     >()
 
@@ -95,7 +95,7 @@ describe('type tests', () => {
       ActionCreatorWithPayload<ReadonlyArray<Entity> | Record<string, Entity>>
     >()
 
-    expectTypeOf(slice.actions.upsertMany).not.toMatchObjectType<
+    expectTypeOf(slice.actions.upsertMany).not.toExtend<
       ActionCreatorWithPayload<Entity[] | Record<string, Entity>>
     >()
   })

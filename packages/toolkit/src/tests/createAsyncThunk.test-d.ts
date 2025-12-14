@@ -1,7 +1,7 @@
-import type { AsyncThunkDispatchConfig } from '@internal/createAsyncThunk'
 import type { TSVersion } from '@phryneas/ts-version'
 import type {
   AsyncThunk,
+  AsyncThunkDispatchConfig,
   SerializedError,
   ThunkDispatch,
   UnknownAction,

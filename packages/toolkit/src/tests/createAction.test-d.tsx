@@ -26,7 +26,7 @@ describe('type tests', () => {
       expectTypeOf({
         type: '',
         payload: 5,
-      }).not.toMatchObjectType<PayloadAction>()
+      }).not.toExtend<PayloadAction>()
     })
 
     test('PayloadAction has a string type tag.', () => {
@@ -37,7 +37,7 @@ describe('type tests', () => {
       expectTypeOf({
         type: 1,
         payload: 5,
-      }).not.toMatchObjectType<PayloadAction>()
+      }).not.toExtend<PayloadAction>()
     })
 
     test('PayloadAction is compatible with Action<string>', () => {

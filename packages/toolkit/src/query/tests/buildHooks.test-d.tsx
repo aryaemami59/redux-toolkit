@@ -1,12 +1,7 @@
-import type {
-  QueryStateSelector,
-  UseMutation,
-  UseQuery,
-} from '@internal/query/react/buildHooks'
+import type { UseMutation, UseQuery } from '@internal/query/react/buildHooks'
 import { ANY } from '@internal/tests/utils/helpers'
 import type { SerializedError } from '@reduxjs/toolkit'
 import type {
-  QueryDefinition,
   SubscriptionOptions,
   TypedQueryStateSelector,
 } from '@reduxjs/toolkit/query/react'

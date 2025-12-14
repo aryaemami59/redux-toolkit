@@ -141,15 +141,11 @@ describe('type tests', () => {
 
     counter.actions.addTwo(1, 2)
 
-    expectTypeOf(counter.actions.multiply).parameters.not.toMatchObjectType<
-      []
-    >()
+    expectTypeOf(counter.actions.multiply).parameters.not.toExtend<[]>()
 
     expectTypeOf(counter.actions.multiply).parameter(0).not.toBeString()
 
-    expectTypeOf(counter.actions.addTwo).parameters.not.toMatchObjectType<
-      [number]
-    >()
+    expectTypeOf(counter.actions.addTwo).parameters.not.toExtend<[number]>()
 
     expectTypeOf(counter.actions.addTwo).parameters.toEqualTypeOf<
       [number, number]

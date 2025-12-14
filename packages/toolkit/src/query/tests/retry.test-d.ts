@@ -1,9 +1,9 @@
-import {
-  fetchBaseQuery,
-  type FetchBaseQueryError,
-  type FetchBaseQueryMeta,
-} from '@internal/query/fetchBaseQuery'
-import { retry, type RetryOptions } from '@internal/query/retry'
+import type {
+  FetchBaseQueryError,
+  FetchBaseQueryMeta,
+  RetryOptions,
+} from '@reduxjs/toolkit/query/react'
+import { fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react'
 
 describe('type tests', () => {
   test('RetryOptions only accepts one of maxRetries or retryCondition', () => {
@@ -20,7 +20,7 @@ describe('type tests', () => {
     }).not.toExtend<RetryOptions>()
   })
   test('fail can be pretyped to only accept correct error and meta', () => {
-    expectTypeOf(retry.fail).parameter(0).toEqualTypeOf<unknown>()
+    expectTypeOf(retry.fail).parameter(0).toBeUnknown()
     expectTypeOf(retry.fail).parameter(1).toEqualTypeOf<{} | undefined>()
     expectTypeOf(retry.fail).toBeCallableWith('Literally anything', {})
 

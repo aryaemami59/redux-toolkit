@@ -199,12 +199,10 @@ describe('type tests', () => {
     expectTypeOf(selector).toBeCallableWith(state, 0)
 
     // required argument
-    expectTypeOf(selector).parameters.not.toMatchObjectType<[typeof state]>()
+    expectTypeOf(selector).parameters.not.toExtend<[typeof state]>()
 
     // number not string
-    expectTypeOf(selector).parameters.not.toMatchObjectType<
-      [typeof state, '']
-    >()
+    expectTypeOf(selector).parameters.not.toExtend<[typeof state, '']>()
   })
 
   test('nested calls inferred correctly', () => {

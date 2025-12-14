@@ -506,7 +506,7 @@ describe('type tests', () => {
         ).toEqualTypeOf<Post>()
         expectTypeOf(api.endpoints.query2.Types.RawResultType).toBeAny()
 
-        expectTypeOf(api.endpoints.query3.Types.QueryArg).toEqualTypeOf<void>()
+        expectTypeOf(api.endpoints.query3.Types.QueryArg).toBeVoid()
         expectTypeOf(api.endpoints.query3.Types.ResultType).toEqualTypeOf<
           EntityState<Post, Post['id']>
         >()
