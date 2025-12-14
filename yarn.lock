@@ -8302,7 +8302,7 @@ __metadata:
     rimraf: "npm:^6.1.2"
     rolldown: "npm:1.0.0-beta.54"
     size-limit: "npm:^11.0.1"
-    tsdown: "npm:^0.17.3"
+    tsdown: "npm:^0.17.4"
     tsx: "npm:^4.21.0"
     typescript: "npm:^5.8.2"
     valibot: "npm:^1.0.0"
@@ -32460,9 +32460,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsdown@npm:^0.17.3":
-  version: 0.17.3
-  resolution: "tsdown@npm:0.17.3"
+"tsdown@npm:^0.17.4":
+  version: 0.17.4
+  resolution: "tsdown@npm:0.17.4"
   dependencies:
     ansis: "npm:^4.2.0"
     cac: "npm:^6.7.14"
@@ -32501,7 +32501,7 @@ __metadata:
       optional: true
   bin:
     tsdown: dist/run.mjs
-  checksum: 10/8b312b07562ab04d714df4defe7986cefeec0adc6f1b6574defa2a65d23eb922b7893486e73c48a5b40151a3ce8d15db7471fc402000060fccb3747bd12e928b
+  checksum: 10/1fe104c1e0297177774c9e46a0bdbaa17526509c74161b4fe3d7d30468eab509528055a2b24427b57ac8d0aad4e84e87388195b929aec6c1419d903829ba6d63
   languageName: node
   linkType: hard
 
