@@ -3,11 +3,11 @@
 // imported is only listed once, and there's only one mention of the `@reduxjs/toolkit` package.
 
 export {
+  createSelector as _createSelector,
   combineReducers,
   createAction,
   createAsyncThunk,
   createNextState,
-  createSelector,
   createSlice,
   isAction,
   isAllOf,
