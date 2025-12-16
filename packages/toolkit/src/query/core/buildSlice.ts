@@ -13,12 +13,14 @@ import {
   isInfiniteQueryDefinition,
 } from '../endpointDefinitions'
 import type { UnwrapPromise } from '../tsHelpers'
-import { applyPatches, isDraft, original } from '../utils/immerImports'
 import {
+  applyPatches,
   copyWithStructuralSharing,
   getCurrent,
   isDocumentVisible,
+  isDraft,
   isOnline,
+  original,
 } from '../utils/index'
 import type {
   ConfigState,
