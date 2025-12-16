@@ -11,7 +11,7 @@ import type {
   QueryKeys,
 } from '@reduxjs/toolkit/query'
 import type { CreateSelectorFunction } from 'reselect'
-import { createSelector as _createSelector } from 'reselect'
+import { _createSelector } from '../core/rtkImports'
 import {
   isInfiniteQueryDefinition,
   isMutationDefinition,
@@ -27,10 +27,10 @@ import type {
 import { buildHooks } from './buildHooks'
 import type { HooksWithUniqueNames } from './namedHooks'
 import {
-  batch as rrBatch,
-  useDispatch as rrUseDispatch,
-  useSelector as rrUseSelector,
-  useStore as rrUseStore,
+  rrBatch,
+  rrUseDispatch,
+  rrUseSelector,
+  rrUseStore,
 } from './reactReduxImports'
 
 export const reactHooksModuleName = /* @__PURE__ */ Symbol()
