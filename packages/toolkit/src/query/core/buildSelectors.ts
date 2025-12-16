@@ -30,7 +30,7 @@ import { STATUS_UNINITIALIZED, getRequestStatusFlags } from './apiState'
 import { getMutationCacheKey } from './buildSlice'
 import type { AllQueryKeys } from './buildThunks'
 import { getNextPageParam, getPreviousPageParam } from './buildThunks'
-import type { createSelector as _createSelector } from './rtkImports'
+import type { _createSelector } from './rtkImports'
 import { createNextState } from './rtkImports'
 
 export type SkipToken = typeof skipToken

@@ -1,9 +1,10 @@
-import type { CoreModule, CreateApi } from '@reduxjs/toolkit/query'
 import { reactHooksModule, reactHooksModuleName } from './module'
 import { buildCreateApi, coreModule } from './rtkqImports'
 
-const createApi: CreateApi<CoreModule | typeof reactHooksModuleName> =
-  /* @__PURE__ */ buildCreateApi(coreModule(), reactHooksModule())
+const createApi = /* @__PURE__ */ buildCreateApi(
+  coreModule(),
+  reactHooksModule(),
+)
 
 export * from '@reduxjs/toolkit/query'
 export { ApiProvider } from './ApiProvider'

@@ -1,10 +1,10 @@
 export {
-  batch,
   Provider,
   ReactReduxContext,
+  batch as rrBatch,
+  useDispatch as rrUseDispatch,
+  useSelector as rrUseSelector,
+  useStore as rrUseStore,
   shallowEqual,
-  useDispatch,
-  useSelector,
-  useStore,
 } from 'react-redux'
 export type { ReactReduxContextValue } from 'react-redux'

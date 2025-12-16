@@ -16,11 +16,10 @@ import {
 import type { Action, Dispatch, Middleware, UnknownAction } from 'redux'
 
 export type UseDispatchWithMiddlewareHook<
-  MiddlewaresArrayType extends Middleware<any, State, DispatchType>[] = [],
+  Middlewares extends Middleware<any, State, DispatchType>[] = [],
   State = any,
   DispatchType extends Dispatch<UnknownAction> = Dispatch<UnknownAction>,
-> = () => TSHelpersExtractDispatchExtensions<MiddlewaresArrayType> &
-  DispatchType
+> = () => TSHelpersExtractDispatchExtensions<Middlewares> & DispatchType
 
 export type CreateDispatchWithMiddlewareHook<
   State = any,
