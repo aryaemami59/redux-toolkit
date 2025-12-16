@@ -127,7 +127,7 @@ export type EndpointDefinitionWithQuery<
    * ```ts
    * // codeblock-meta no-transpile
    * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-   * import * as v from 'valibot'
+   * import * as v from "valibot"
    *
    * const postSchema = v.object({ id: v.number(), name: v.string() })
    * type Post = v.InferOutput<typeof postSchema>
@@ -153,8 +153,8 @@ export type EndpointDefinitionWithQuery<
    * ```ts
    * // codeblock-meta no-transpile
    * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-   * import * as v from 'valibot'
-   * import {customBaseQuery, baseQueryErrorSchema} from './customBaseQuery'
+   * import * as v from "valibot"
+   * import {customBaseQuery, baseQueryErrorSchema} from "./customBaseQuery"
    *
    * const api = createApi({
    *   baseQuery: customBaseQuery,
@@ -265,7 +265,7 @@ interface CommonEndpointDefinition<
    * ```ts
    * // codeblock-meta no-transpile
    * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-   * import * as v from 'valibot'
+   * import * as v from "valibot"
    *
    * const api = createApi({
    *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
@@ -287,7 +287,7 @@ interface CommonEndpointDefinition<
    * ```ts
    * // codeblock-meta no-transpile
    * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-   * import * as v from 'valibot'
+   * import * as v from "valibot"
    *
    * const postSchema = v.object({ id: v.number(), name: v.string() })
    * type Post = v.InferOutput<typeof postSchema>
@@ -312,7 +312,7 @@ interface CommonEndpointDefinition<
    * ```ts
    * // codeblock-meta no-transpile
    * import { createApi } from '@reduxjs/toolkit/query/react'
-   * import * as v from 'valibot'
+   * import * as v from "valibot"
    * import { customBaseQuery, baseQueryErrorSchema } from "./customBaseQuery"
    *
    * const api = createApi({
@@ -335,7 +335,7 @@ interface CommonEndpointDefinition<
    * ```ts
    * // codeblock-meta no-transpile
    * import { createApi } from '@reduxjs/toolkit/query/react'
-   * import * as v from 'valibot'
+   * import * as v from "valibot"
    * import { customBaseQuery, baseQueryMetaSchema } from "./customBaseQuery"
    *
    * const api = createApi({
@@ -379,7 +379,7 @@ interface CommonEndpointDefinition<
    * ```ts
    * // codeblock-meta no-transpile
    * import { createApi } from '@reduxjs/toolkit/query/react'
-   * import * as v from 'valibot'
+   * import * as v from "valibot"
    *
    * const api = createApi({
    *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
@@ -405,7 +405,7 @@ interface CommonEndpointDefinition<
    * ```ts
    * // codeblock-meta no-transpile
    * import { createApi } from '@reduxjs/toolkit/query/react'
-   * import * as v from 'valibot'
+   * import * as v from "valibot"
    *
    * const api = createApi({
    *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
@@ -414,8 +414,8 @@ interface CommonEndpointDefinition<
    *       query: ({ id }) => `/post/${id}`,
    *       responseSchema: v.object({ id: v.number(), name: v.string() }),
    *       catchSchemaFailure: (error, info) => ({
-   *         status: 'CUSTOM_ERROR',
-   *         error: error.schemaName + ' failed validation',
+   *         status: "CUSTOM_ERROR",
+   *         error: error.schemaName + " failed validation",
    *         data: error.issues,
    *       }),
    *     }),
@@ -437,7 +437,7 @@ interface CommonEndpointDefinition<
    * ```ts
    * // codeblock-meta no-transpile
    * import { createApi } from '@reduxjs/toolkit/query/react'
-   * import * as v from 'valibot'
+   * import * as v from "valibot"
    *
    * const api = createApi({
    *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
@@ -445,7 +445,7 @@ interface CommonEndpointDefinition<
    *     getPost: build.query<Post, { id: number }>({
    *       query: ({ id }) => `/post/${id}`,
    *       responseSchema: v.object({ id: v.number(), name: v.string() }),
-   *       skipSchemaValidation: process.env.NODE_ENV === 'test' ? ['response'] : false, // skip schema validation for response in tests, since we'll be mocking the response
+   *       skipSchemaValidation: process.env.NODE_ENV === "test" ? ["response"] : false, // skip schema validation for response in tests, since we'll be mocking the response
    *     }),
    *   })
    * })
