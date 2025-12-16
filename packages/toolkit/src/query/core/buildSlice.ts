@@ -13,12 +13,14 @@ import {
   isInfiniteQueryDefinition,
 } from '../endpointDefinitions'
 import type { UnwrapPromise } from '../tsHelpers'
-import { applyPatches, isDraft, original } from '../utils/immerImports'
 import {
+  applyPatches,
   copyWithStructuralSharing,
   getCurrent,
   isDocumentVisible,
+  isDraft,
   isOnline,
+  original,
 } from '../utils/index'
 import type {
   ConfigState,
@@ -67,7 +69,7 @@ import {
 import { onFocus, onFocusLost, onOffline, onOnline } from './setupListeners'
 
 /**
- * A typesafe single entry to be upserted into the cache
+ * A type-safe single entry to be upserted into the cache.
  */
 export type NormalizedQueryUpsertEntry<
   Definitions extends EndpointDefinitions,
@@ -79,7 +81,8 @@ export type NormalizedQueryUpsertEntry<
 }
 
 /**
- * The internal version that is not typesafe since we can't carry the generics through `createSlice`
+ * The internal version that is not type-safe since we can't carry the generics
+ * through `createSlice`.
  */
 type NormalizedQueryUpsertEntryPayload = {
   endpointName: string
@@ -93,7 +96,8 @@ export type ProcessedQueryUpsertEntry = {
 }
 
 /**
- * A typesafe representation of a util action creator that accepts cache entry descriptions to upsert
+ * A type-safe representation of a util action creator that accepts cache entry
+ * descriptions to upsert.
  */
 export type UpsertEntries<Definitions extends EndpointDefinitions> = (<
   EndpointNames extends Array<AllQueryKeys<Definitions>>,
