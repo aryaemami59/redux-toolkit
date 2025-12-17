@@ -34,19 +34,26 @@ const mangleErrorsTransform = (
           include: ['throw new'],
         },
         id: {
-          exclude: ['src/**/*.d.ts', /node_modules/],
+          exclude: [/node_modules/],
           include: ['src/**/*.ts', 'src/**/*.tsx'],
         },
-        moduleType: { include: ['ts', 'tsx'] },
+        moduleType: {
+          include: ['ts', 'tsx'],
+        },
       },
 
       async handler(code, id, meta) {
         try {
           const res = await babel.transformAsync(code, {
+            cwd: import.meta.dirname,
+            filename: id,
             sourceFileName: id,
+            sourceMaps: 'both',
+            sourceType: 'module',
             parserOpts: {
-              sourceFilename: id,
               plugins: ['typescript', 'jsx'],
+              sourceFilename: id,
+              sourceType: 'module',
             },
             plugins: [
               [
@@ -61,10 +68,10 @@ const mangleErrorsTransform = (
           }
 
           return {
-            code: res.code!,
-            map: res.map!,
+            code: res.code ?? code,
             invalidate: true,
-            meta: {},
+            map: res.map ?? this.getCombinedSourcemap(),
+            meta,
             moduleSideEffects: false,
             moduleType: meta.moduleType,
             packageJsonPath: path.join(import.meta.dirname, 'package.json'),
@@ -92,6 +99,64 @@ const removeCJSOutputsFromDTSBuilds = (): Rolldown.Plugin => {
             delete bundle[fileName]
           }
         })
+      },
+    },
+  }
+}
+
+const removeComments = (): Rolldown.Plugin => {
+  return {
+    name: 'remove-comments',
+    transform: {
+      filter: {
+        code: {
+          include: [/\/\*\*\n/],
+        },
+        id: {
+          exclude: [/node_modules/],
+          include: ['src/**/*.ts', 'src/**/*.tsx'],
+        },
+        moduleType: {
+          include: ['ts', 'tsx'],
+        },
+      },
+      async handler(code, id, meta) {
+        const transformResult = await babel.transformAsync(code, {
+          cwd: import.meta.dirname,
+          filename: id,
+          sourceFileName: id,
+          sourceMaps: 'both',
+          sourceType: 'module',
+          shouldPrintComment: (commentContents) => {
+            if (
+              commentContents.includes('\n') ||
+              !/^\s?[@#]__PURE__\s?$/.test(commentContents)
+            ) {
+              return false
+            }
+
+            return true
+          },
+          parserOpts: {
+            plugins: ['typescript', 'jsx'],
+            sourceFilename: id,
+            sourceType: 'module',
+          },
+        })
+
+        if (transformResult == null) {
+          return null
+        }
+
+        return {
+          code: transformResult.code ?? code,
+          meta,
+          invalidate: true,
+          map: transformResult.map ?? this.getCombinedSourcemap(),
+          moduleSideEffects: false,
+          moduleType: meta.moduleType,
+          packageJsonPath: path.join(import.meta.dirname, 'package.json'),
+        }
       },
     },
   }
@@ -156,7 +221,7 @@ export default defineConfig((cliOptions) => {
             legalComments: 'none',
           }),
     }),
-    plugins: [mangleErrorsTransform()],
+    plugins: [removeComments(), mangleErrorsTransform()],
     sourcemap: true,
     target: ['esnext'],
     platform: 'node',
