@@ -169,44 +169,44 @@ const peerAndProductionDependencies = Object.keys({
 
 export default defineConfig((cliOptions) => {
   const commonOptions = {
-    /**
-     * @todo Comply with
-     * {@link https://rolldown.rs/options/output-clean-dir#multiple-configurations | this}
-     */
     clean: false,
     cwd: import.meta.dirname,
     debug: {
       clean: false,
+      enabled: true,
     },
     dts: false,
     external: peerAndProductionDependencies,
     failOnWarn: true,
     fixedExtension: false,
-    format: ['es', 'cjs'],
+    format: ['cjs', 'es'],
     hash: false,
     inlineOnly: [],
-    nodeProtocol: true,
-    shims: true,
-    outDir: 'dist',
     inputOptions: (options, format) => ({
       ...options,
       experimental: {
         ...options.experimental,
-        nativeMagicString: true,
         ...(format === 'cjs'
           ? {
               attachDebugInfo: 'none',
             }
           : {}),
+        nativeMagicString: true,
       },
       transform: {
         ...options.transform,
         inject: {
           ...options.transform?.inject,
+          'Object.assign': [
+            path.join(import.meta.dirname, 'src', 'bundle-size-utils.ts'),
+            '__assign',
+          ] as const,
           React: ['react', '*'] as const,
         },
       },
     }),
+    nodeProtocol: true,
+    outDir: 'dist',
     outputOptions: (options, format, context) => ({
       ...options,
       ...(format === 'cjs' && !context.cjsDts
@@ -221,18 +221,23 @@ export default defineConfig((cliOptions) => {
             legalComments: 'none',
           }),
     }),
-    plugins: [removeComments(), mangleErrorsTransform()],
-    sourcemap: true,
-    target: ['esnext'],
-    platform: 'node',
-    tsconfig: path.join(import.meta.dirname, 'tsconfig.build.json'),
     outExtensions: ({ format, options }) => ({
       dts: format === 'es' ? '.d.mts' : '.d.ts',
       js:
         format === 'es'
-          ? `${options.platform === 'browser' ? '.browser' : ''}.mjs`
+          ? (Array.isArray(options.transform?.target) &&
+              options.transform?.target.includes('es2017')) ||
+            options.transform?.target === 'es2017'
+            ? '.legacy-esm.js'
+            : `${options.platform === 'browser' ? '.browser' : '.modern'}.mjs`
           : '.cjs',
     }),
+    platform: 'node',
+    plugins: [removeComments(), mangleErrorsTransform()],
+    shims: true,
+    sourcemap: true,
+    target: ['esnext'],
+    tsconfig: path.join(import.meta.dirname, 'tsconfig.build.json'),
     ...cliOptions,
   } as const satisfies InlineConfig
 
@@ -280,7 +285,6 @@ export default defineConfig((cliOptions) => {
   const modernEsmConfig = {
     ...commonOptions,
     format: ['es'],
-    outExtensions: () => ({ js: '.modern.mjs' }),
   } as const satisfies InlineConfig
 
   const developmentCjsConfig = {
@@ -293,12 +297,12 @@ export default defineConfig((cliOptions) => {
     },
     format: ['cjs'],
     minify: 'dce-only',
+    outExtensions: () => ({ js: '.development.cjs' }),
     treeshake: {
       annotations: true,
-      moduleSideEffects: false,
       commonjs: true,
+      moduleSideEffects: false,
     },
-    outExtensions: () => ({ js: '.development.cjs' }),
   } as const satisfies InlineConfig
 
   const productionCjsConfig = {
@@ -311,14 +315,14 @@ export default defineConfig((cliOptions) => {
     },
     format: ['cjs'],
     minify: true,
-    treeshake: {
-      annotations: true,
-      moduleSideEffects: false,
-      commonjs: true,
-    },
-    outExtensions: () => ({ js: '.production.min.cjs' }),
     onSuccess: async ({ outDir }) => {
       await writeCommonJSEntry(path.join(outDir, 'cjs'), 'redux-toolkit')
+    },
+    outExtensions: () => ({ js: '.production.min.cjs' }),
+    treeshake: {
+      annotations: true,
+      commonjs: true,
+      moduleSideEffects: false,
     },
   } as const satisfies InlineConfig
 
@@ -338,7 +342,6 @@ export default defineConfig((cliOptions) => {
 
   const legacyEsmConfig = {
     ...commonOptions,
-    outExtensions: () => ({ js: '.legacy-esm.js' }),
     format: ['es'],
     target: ['es2017'],
   } as const satisfies InlineConfig
@@ -354,6 +357,7 @@ export default defineConfig((cliOptions) => {
         {
           from: path.join(import.meta.dirname, 'src', 'uncheckedindexed.ts'),
           to: outDir,
+          verbose: true,
         },
       ],
     },

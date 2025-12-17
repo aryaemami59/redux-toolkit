@@ -195,7 +195,7 @@ const getListenerEntryPropsFrom = (options: FallbackAddListenerOptions) => {
   if (type) {
     predicate = createAction(type).match
   } else if (actionCreator) {
-    type = actionCreator!.type
+    type = actionCreator.type
     predicate = actionCreator.match
   } else if (matcher) {
     predicate = matcher
@@ -370,36 +370,34 @@ export const createListenerMiddleware = <
     }
   }
 
-  const startListening = ((options: FallbackAddListenerOptions) => {
-    const entry =
-      findListenerEntry(listenerMap, options) ??
-      createListenerEntry(options as any)
+  const startListening = /* @__PURE__ */ assign(
+    ((options: FallbackAddListenerOptions) => {
+      const entry =
+        findListenerEntry(listenerMap, options) ??
+        createListenerEntry(options as any)
 
-    return insertEntry(entry)
-  }) as AddListenerOverloads<any>
+      return insertEntry(entry)
+    }) as AddListenerOverloads<any, StateType, DispatchType>,
+    { withTypes: () => startListening },
+  )
 
-  assign(startListening, {
-    withTypes: () => startListening,
-  })
+  const stopListening = /* @__PURE__ */ assign(
+    (
+      options: FallbackAddListenerOptions & UnsubscribeListenerOptions,
+    ): boolean => {
+      const entry = findListenerEntry(listenerMap, options)
 
-  const stopListening = (
-    options: FallbackAddListenerOptions & UnsubscribeListenerOptions,
-  ): boolean => {
-    const entry = findListenerEntry(listenerMap, options)
-
-    if (entry) {
-      entry.unsubscribe()
-      if (options.cancelActive) {
-        cancelActiveListeners(entry)
+      if (entry) {
+        entry.unsubscribe()
+        if (options.cancelActive) {
+          cancelActiveListeners(entry)
+        }
       }
-    }
 
-    return !!entry
-  }
-
-  assign(stopListening, {
-    withTypes: () => stopListening,
-  })
+      return !!entry
+    },
+    { withTypes: () => stopListening },
+  )
 
   const notifyListener = async (
     entry: ListenerEntry<unknown, Dispatch<UnknownAction>>,
@@ -409,7 +407,7 @@ export const createListenerMiddleware = <
   ) => {
     const internalTaskController = new AbortController()
     const take = createTakePattern(
-      startListening as AddListenerOverloads<any>,
+      startListening,
       internalTaskController.signal,
     )
     const autoJoinPromises: Promise<any>[] = []
