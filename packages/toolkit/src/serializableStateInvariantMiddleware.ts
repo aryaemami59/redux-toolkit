@@ -205,7 +205,7 @@ export function createSerializableStateInvariantMiddleware(
   } = options
 
   const cache: WeakSet<object> | undefined =
-    !disableCache && WeakSet ? new WeakSet() : undefined
+    !disableCache && typeof WeakSet !== 'undefined' ? new WeakSet() : undefined
 
   return (storeAPI) => (next) => (action) => {
     if (!isAction(action)) {

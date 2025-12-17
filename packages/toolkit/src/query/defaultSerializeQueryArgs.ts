@@ -2,9 +2,8 @@ import type { QueryCacheKey } from './core/index'
 import { isPlainObject } from './core/rtkImports'
 import type { EndpointDefinition } from './endpointDefinitions'
 
-const cache: WeakMap<any, string> | undefined = WeakMap
-  ? new WeakMap()
-  : undefined
+const cache: WeakMap<any, string> | undefined =
+  typeof WeakMap === 'undefined' ? undefined : new WeakMap()
 
 export const defaultSerializeQueryArgs: SerializeQueryArgs<any> = ({
   endpointName,
