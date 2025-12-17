@@ -1,10 +1,9 @@
 import type { Node, PluginObj, PluginPass } from '@babel/core'
 import * as helperModuleImports from '@babel/helper-module-imports'
+import { declare } from '@babel/helper-plugin-utils'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
-type Babel = typeof import('@babel/core')
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -110,11 +109,11 @@ const evalToString = (
  * )
  * ```
  */
-export const mangleErrorsPlugin = (
-  babel: Babel,
-  options: MangleErrorsPluginOptions = {},
-): PluginObj<PluginPass & MangleErrorsPluginOptions> => {
-  const t = babel.types
+export const mangleErrorsPlugin = declare<
+  MangleErrorsPluginOptions,
+  PluginObj<PluginPass & { opts: MangleErrorsPluginOptions }>
+>((api, options = {}) => {
+  const t = api.types
   // When the plugin starts up, we'll load in the existing file. This allows us to continually add to it so that the
   // indexes do not change between builds.
   let errorsFiles = ''
@@ -229,4 +228,4 @@ export const mangleErrorsPlugin = (
       }
     },
   }
-}
+})
