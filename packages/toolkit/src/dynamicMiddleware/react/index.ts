@@ -33,9 +33,9 @@ export type CreateDispatchWithMiddlewareHook<
   >(
     ...middlewares: Middlewares
   ): UseDispatchWithMiddlewareHook<Middlewares, State, DispatchType>
-  withTypes<
+  withTypes: <
     MiddlewareConfig extends MiddlewareApiConfig,
-  >(): CreateDispatchWithMiddlewareHook<
+  >() => CreateDispatchWithMiddlewareHook<
     GetState<MiddlewareConfig>,
     GetDispatch<MiddlewareConfig>
   >
@@ -76,14 +76,15 @@ export const createDynamicMiddleware = <
       context === ReactReduxContext
         ? useDefaultDispatch
         : createDispatchHook(context)
-    function createDispatchWithMiddlewareHook<
-      Middlewares extends Middleware<any, State, DispatchType>[],
-    >(...middlewares: Middlewares) {
-      instance.addMiddleware(...middlewares)
-      return useDispatch
-    }
-    createDispatchWithMiddlewareHook.withTypes = () =>
-      createDispatchWithMiddlewareHook
+    const createDispatchWithMiddlewareHook = /* @__PURE__ */ Object.assign(
+      <Middlewares extends Middleware<any, State, DispatchType>[]>(
+        ...middlewares: Middlewares
+      ): UseDispatchWithMiddlewareHook<Middlewares, State, DispatchType> => {
+        instance.addMiddleware(...middlewares)
+        return useDispatch
+      },
+      { withTypes: () => createDispatchWithMiddlewareHook },
+    )
     return createDispatchWithMiddlewareHook as CreateDispatchWithMiddlewareHook<
       State,
       DispatchType
