@@ -1,10 +1,15 @@
+import type { Node, NodePath } from '@babel/core'
 import * as babel from '@babel/core'
+import { declare } from '@babel/helper-plugin-utils'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import type { InlineConfig, Rolldown, UserConfig } from 'tsdown'
 import { defineConfig } from 'tsdown'
 import packageJson from './package.json' with { type: 'json' }
-import type { MangleErrorsPluginOptions } from './scripts/mangleErrors.mjs'
+import type {
+  BabelPluginResult,
+  MangleErrorsPluginOptions,
+} from './scripts/mangleErrors.mjs'
 import { mangleErrorsPlugin } from './scripts/mangleErrors.mjs'
 
 async function writeCommonJSEntry(folder: string, prefix: string) {
@@ -162,6 +167,149 @@ const removeComments = (): Rolldown.Plugin => {
   }
 }
 
+const DEFAULT_PURE_ANNOTATION = '@__PURE__'
+
+const isPureAnnotated = ({ leadingComments }: Node): boolean =>
+  !!leadingComments &&
+  leadingComments.some((comment) => /[@#]__PURE__/.test(comment.value))
+
+export function annotateAsPure(nodePath: NodePath) {
+  if (isPureAnnotated(nodePath.node)) {
+    return
+  }
+
+  nodePath.addComment('leading', DEFAULT_PURE_ANNOTATION, false)
+}
+
+type AnnotateAsPurePluginOptions = {
+  /**
+   * A list of call expression method names to annotate as pure.
+   *
+   * @default []
+   */
+  callExpressions?: string[]
+}
+
+type AnnotateAsPurePluginResult = BabelPluginResult<AnnotateAsPurePluginOptions>
+
+const annotateAsPureBabelPlugin = declare<
+  AnnotateAsPurePluginOptions,
+  AnnotateAsPurePluginResult
+>((api, options = {}): AnnotateAsPurePluginResult => {
+  const t = api.types
+
+  const { callExpressions = [] } = options
+
+  return {
+    name: 'annotate-as-pure',
+    visitor: {
+      CallExpression(path) {
+        if (
+          t.isIdentifier(path.node.callee) &&
+          callExpressions.includes(path.node.callee.name) &&
+          path.isPure()
+        ) {
+          annotateAsPure(path)
+        }
+      },
+
+      MemberExpression(path) {
+        if (!t.isIdentifier(path.node.property)) {
+          return
+        }
+
+        const { name } = path.node.property
+
+        if (
+          callExpressions.some((callExpression) => {
+            if (t.isIdentifier(path.node.property) && callExpression === name) {
+              return true
+            }
+
+            if (callExpression.includes('.')) {
+              const segments = callExpression.split('.')
+              const ObjectName = segments.at(-2)
+              const methodName = segments.at(-1)
+
+              if (methodName == null || ObjectName == null) {
+                return false
+              }
+
+              return (
+                methodName === name &&
+                t.isIdentifier(path.node.object) &&
+                path.node.object.name === ObjectName
+              )
+            }
+
+            return path.isPure()
+          })
+        ) {
+          annotateAsPure(path)
+        }
+      },
+    },
+  }
+})
+
+const annotateAsPurePlugin = (
+  options: AnnotateAsPurePluginOptions = {},
+): Rolldown.Plugin => {
+  const { callExpressions = [] } = options
+
+  return {
+    name: 'annotate-as-pure',
+    transform: {
+      order: 'post',
+      filter: {
+        id: {
+          exclude: [/node_modules/],
+          include: ['src/**/*.ts', 'src/**/*.tsx'],
+        },
+        moduleType: {
+          include: ['ts', 'tsx'],
+        },
+      },
+      async handler(code, id, meta) {
+        const transformResult = await babel.transformAsync(code, {
+          cwd: import.meta.dirname,
+          filename: id,
+          sourceFileName: id,
+          sourceMaps: 'both',
+          sourceType: 'module',
+          plugins: [
+            [
+              annotateAsPureBabelPlugin,
+              {
+                callExpressions,
+              } as const satisfies AnnotateAsPurePluginOptions,
+            ],
+          ],
+          parserOpts: {
+            plugins: ['typescript', 'jsx'],
+            sourceFilename: id,
+            sourceType: 'module',
+          },
+        })
+
+        if (transformResult == null) {
+          return null
+        }
+
+        return {
+          code: transformResult.code ?? code,
+          invalidate: true,
+          map: transformResult.map ?? this.getCombinedSourcemap(),
+          meta,
+          moduleSideEffects: false,
+          moduleType: meta.moduleType,
+          packageJsonPath: path.join(import.meta.dirname, 'package.json'),
+        }
+      },
+    },
+  }
+}
+
 const peerAndProductionDependencies = Object.keys({
   ...packageJson.dependencies,
   ...packageJson.peerDependencies,
@@ -233,7 +381,11 @@ export default defineConfig((cliOptions) => {
           : '.cjs',
     }),
     platform: 'node',
-    plugins: [removeComments(), mangleErrorsTransform()],
+    plugins: [
+      removeComments(),
+      mangleErrorsTransform(),
+      annotateAsPurePlugin({ callExpressions: ['__assign', 'Object.assign'] }),
+    ],
     shims: true,
     sourcemap: true,
     target: ['esnext'],
