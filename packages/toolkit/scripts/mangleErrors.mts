@@ -4,6 +4,7 @@ import { declare } from '@babel/helper-plugin-utils'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import type { Id } from '../src/tsHelpers.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -13,6 +14,32 @@ const formatProdErrorMessageAbsoluteFilePath = path.join(
   'src',
   'formatProdErrorMessage.ts',
 )
+
+/**
+ * Represents a Babel plugin object with specific
+ * {@linkcode PluginOptions | plugin options}.
+ *
+ * @template PluginOptions - The options for the Babel plugin.
+ * @internal
+ */
+export type BabelPluginResult<PluginOptions extends Record<string, unknown>> =
+  Id<
+    PluginObj<
+      Id<
+        Omit<
+          {
+            [KeyType in keyof PluginPass as NonNullable<unknown> extends Record<
+              KeyType,
+              unknown
+            >
+              ? never
+              : KeyType]: PluginPass[KeyType]
+          },
+          'opts'
+        > & { opts: Id<PluginOptions> }
+      >
+    >
+  >
 
 /**
  * Represents the options for the {@linkcode mangleErrorsPlugin}.
@@ -29,6 +56,13 @@ export type MangleErrorsPluginOptions = {
    */
   minify?: boolean | undefined
 }
+
+/**
+ * Represents the result for the {@linkcode mangleErrorsPlugin}.
+ *
+ * @internal
+ */
+type MangleErrorsPluginResult = BabelPluginResult<MangleErrorsPluginOptions>
 
 /**
  * Converts an AST type into a JavaScript string so that it can be added to
@@ -111,8 +145,8 @@ const evalToString = (
  */
 export const mangleErrorsPlugin = declare<
   MangleErrorsPluginOptions,
-  PluginObj<PluginPass & { opts: MangleErrorsPluginOptions }>
->((api, options = {}) => {
+  MangleErrorsPluginResult
+>((api, options = {}): MangleErrorsPluginResult => {
   const t = api.types
   // When the plugin starts up, we'll load in the existing file. This allows us to continually add to it so that the
   // indexes do not change between builds.
@@ -147,14 +181,16 @@ export const mangleErrorsPlugin = declare<
           // Skip running this logic when certain types come up:
           //  Identifier comes up when a variable is thrown (E.g. throw new error(message))
           //  NumericLiteral, CallExpression, and ConditionalExpression is code we have already processed
+
+          const firstArgument = args[0]
           if (
-            path.node.argument.arguments[0].type === 'Identifier' ||
-            path.node.argument.arguments[0].type === 'NumericLiteral' ||
-            path.node.argument.arguments[0].type === 'ConditionalExpression' ||
-            path.node.argument.arguments[0].type === 'CallExpression' ||
-            path.node.argument.arguments[0].type === 'ObjectExpression' ||
-            path.node.argument.arguments[0].type === 'MemberExpression' ||
-            !t.isExpression(path.node.argument.arguments[0]) ||
+            firstArgument.type === 'Identifier' ||
+            firstArgument.type === 'NumericLiteral' ||
+            firstArgument.type === 'ConditionalExpression' ||
+            firstArgument.type === 'CallExpression' ||
+            firstArgument.type === 'ObjectExpression' ||
+            firstArgument.type === 'MemberExpression' ||
+            !t.isExpression(firstArgument) ||
             !t.isIdentifier(path.node.argument.callee)
           ) {
             return
@@ -162,7 +198,7 @@ export const mangleErrorsPlugin = declare<
 
           const errorName = path.node.argument.callee.name
 
-          const errorMsgLiteral = evalToString(path.node.argument.arguments[0])
+          const errorMsgLiteral = evalToString(firstArgument)
 
           if (errorMsgLiteral.includes('Super expression')) {
             // ignore Babel runtime error message
@@ -186,10 +222,13 @@ export const mangleErrorsPlugin = declare<
           )
 
           // Creates a function call to output the message to the error code page on the website
-          const prodMessage = t.addComment(
-            t.callExpression(formatProdErrorMessageIdentifier, [
-              t.numericLiteral(errorIndex),
-            ]),
+          const prodMessage = t.callExpression(
+            formatProdErrorMessageIdentifier,
+            [t.numericLiteral(errorIndex)],
+          )
+
+          const prodMessageWithPureAnnotation = t.addComment(
+            prodMessage,
             'leading',
             '@__PURE__',
             false,
@@ -198,7 +237,9 @@ export const mangleErrorsPlugin = declare<
           if (minify) {
             path.replaceWith(
               t.throwStatement(
-                t.newExpression(t.identifier(errorName), [prodMessage]),
+                t.newExpression(t.identifier(errorName), [
+                  prodMessageWithPureAnnotation,
+                ]),
               ),
             )
           } else {
@@ -211,8 +252,8 @@ export const mangleErrorsPlugin = declare<
                       t.identifier('process.env.NODE_ENV'),
                       t.stringLiteral('production'),
                     ),
-                    prodMessage,
-                    path.node.argument.arguments[0],
+                    prodMessageWithPureAnnotation,
+                    firstArgument,
                   ),
                 ]),
               ),
