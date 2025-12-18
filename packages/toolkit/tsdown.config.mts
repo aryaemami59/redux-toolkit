@@ -252,7 +252,7 @@ const annotateAsPureBabelPlugin = declare<
   }
 })
 
-const annotateAsPurePlugin = (
+export const annotateAsPurePlugin = (
   options: AnnotateAsPurePluginOptions = {},
 ): Rolldown.Plugin => {
   const { callExpressions = [] } = options
@@ -384,7 +384,7 @@ export default defineConfig((cliOptions) => {
     plugins: [
       removeComments(),
       mangleErrorsTransform(),
-      annotateAsPurePlugin({ callExpressions: ['__assign', 'Object.assign'] }),
+      // annotateAsPurePlugin({ callExpressions: ['__assign', 'Object.assign'] }),
     ],
     shims: true,
     sourcemap: true,
