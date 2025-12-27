@@ -1,5 +1,4 @@
 import { noop } from '@internal/listenerMiddleware/utils'
-import type { SubscriptionOptions } from '@internal/query/core/apiState'
 import type { SubscriptionSelectors } from '@internal/query/core/buildMiddleware/types'
 import { server } from '@internal/query/tests/mocks/server'
 import { countObjectKeys } from '@internal/query/utils/countObjectKeys'
@@ -17,6 +16,7 @@ import {
   createListenerMiddleware,
   createSlice,
 } from '@reduxjs/toolkit'
+import type { SubscriptionOptions } from '@reduxjs/toolkit/query/react'
 import {
   QueryStatus,
   createApi,
@@ -31,10 +31,10 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react'
-import { userEvent } from '@testing-library/user-event'
 import type { SyncScreen } from '@testing-library/react-render-stream/pure'
 import { createRenderStream } from '@testing-library/react-render-stream/pure'
-import { HttpResponse, http, delay } from 'msw'
+import { userEvent } from '@testing-library/user-event'
+import { HttpResponse, delay, http } from 'msw'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { InfiniteQueryResultFlags } from '../core/buildSelectors'
 
@@ -1765,6 +1765,10 @@ describe('hooks tests', () => {
     })
 
     test('useLazyQuery trigger promise returns the correctly updated data', async () => {
+      const consoleErrorSpy = vi
+        .spyOn(console, 'error')
+        .mockImplementation(noop)
+
       const user = userEvent.setup()
 
       const LazyUnwrapUseEffect = () => {
@@ -1786,7 +1790,7 @@ describe('hooks tests', () => {
 
             setDataFromTrigger(res) // adding client side state here will cause stale data
           } catch (error) {
-            console.error('Error handling increment trigger', error)
+            consoleErrorSpy('Error handling increment trigger', error)
           }
         }
 
@@ -1796,7 +1800,7 @@ describe('hooks tests', () => {
             // Force the lazy trigger to refetch
             await handleLoad()
           } catch (error) {
-            console.error('Error handling mutate trigger', error)
+            consoleErrorSpy('Error handling mutate trigger', error)
           }
         }
 
@@ -1846,6 +1850,13 @@ describe('hooks tests', () => {
       // If we mutate and then re-run the lazy trigger afterwards...
       await user.click(screen.getByText('Update Data'))
 
+      expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith(
+        expect.stringMatching(
+          /^Error encountered handling the endpoint triggerUpdatedAmount\.\n/,
+        ),
+        { data: undefined },
+      )
+
       // We should see both sets of data agree (ie, the lazy trigger promise
       // should not return stale data or be out of sync with the hook).
       // Prior to PR #4651, this would fail because the trigger never updated properly.
@@ -1853,6 +1864,8 @@ describe('hooks tests', () => {
         expect(screen.getByText('useEffect data: 2')).toBeTruthy()
         expect(screen.getByText('Unwrap data: 2')).toBeTruthy()
       })
+
+      consoleErrorSpy.mockRestore()
     })
 
     test('`reset` sets state back to original state', async () => {
@@ -3744,7 +3757,9 @@ describe('hooks with createApi defaults set', () => {
 
         return (
           <div>
-            {posts?.map((post) => <div key={post.id}>{post.name}</div>)}
+            {posts?.map((post) => (
+              <div key={post.id}>{post.name}</div>
+            ))}
           </div>
         )
       }
