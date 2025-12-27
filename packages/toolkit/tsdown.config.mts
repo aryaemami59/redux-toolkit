@@ -1,6 +1,12 @@
 import type { Node, NodePath } from '@babel/core'
 import * as babel from '@babel/core'
 import { declare } from '@babel/helper-plugin-utils'
+import type {
+  CallExpression,
+  Function,
+  MemberExpression,
+  Statement,
+} from '@babel/types'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
 import type { InlineConfig, Rolldown, UserConfig } from 'tsdown'
@@ -11,6 +17,13 @@ import type {
   MangleErrorsPluginOptions,
 } from './scripts/mangleErrors.mjs'
 import { mangleErrorsPlugin } from './scripts/mangleErrors.mjs'
+import type { Id } from './src/tsHelpers.js'
+
+const cwd = import.meta.dirname
+
+const packageJsonPath = path.join(cwd, 'package.json')
+
+const sourceRootDirectory = path.join(cwd, 'src')
 
 async function writeCommonJSEntry(folder: string, prefix: string) {
   await fs.writeFile(
@@ -32,7 +45,7 @@ const mangleErrorsTransform = (
   const { minify = false } = mangleErrorsPluginOptions
 
   return {
-    name: mangleErrorsPlugin.name,
+    name: 'mangle-errors-plugin',
     transform: {
       filter: {
         code: {
@@ -48,13 +61,14 @@ const mangleErrorsTransform = (
       },
 
       async handler(code, id, meta) {
+        const combinedSourcemap = this.getCombinedSourcemap()
+
         try {
           const res = await babel.transformAsync(code, {
-            cwd: import.meta.dirname,
+            cwd,
             filename: id,
-            sourceFileName: id,
-            sourceMaps: 'both',
-            sourceType: 'module',
+            filenameRelative: path.relative(sourceRootDirectory, id),
+            inputSourceMap: combinedSourcemap,
             parserOpts: {
               plugins: ['typescript', 'jsx'],
               sourceFilename: id,
@@ -66,6 +80,9 @@ const mangleErrorsTransform = (
                 { minify } satisfies MangleErrorsPluginOptions,
               ],
             ],
+            sourceFileName: id,
+            sourceMaps: 'both',
+            sourceType: 'module',
           })
 
           if (res == null) {
@@ -75,11 +92,11 @@ const mangleErrorsTransform = (
           return {
             code: res.code ?? code,
             invalidate: true,
-            map: res.map ?? this.getCombinedSourcemap(),
+            map: res.map ?? combinedSourcemap,
             meta,
             moduleSideEffects: false,
             moduleType: meta.moduleType,
-            packageJsonPath: path.join(import.meta.dirname, 'package.json'),
+            packageJsonPath,
           }
         } catch (err) {
           console.error('Babel mangleErrors error: ', err)
@@ -92,7 +109,7 @@ const mangleErrorsTransform = (
 
 const removeCJSOutputsFromDTSBuilds = (): Rolldown.Plugin => {
   return {
-    name: 'Remove CJS outputs from DTS builds',
+    name: 'remove-cjs-outputs-from-dts-builds',
     generateBundle: {
       handler(outputOptions, bundle, isWrite) {
         Object.entries(bundle).forEach(([fileName]) => {
@@ -126,12 +143,18 @@ const removeComments = (): Rolldown.Plugin => {
         },
       },
       async handler(code, id, meta) {
+        const combinedSourcemap = this.getCombinedSourcemap()
+
         const transformResult = await babel.transformAsync(code, {
-          cwd: import.meta.dirname,
+          cwd,
           filename: id,
-          sourceFileName: id,
-          sourceMaps: 'both',
-          sourceType: 'module',
+          filenameRelative: path.relative(sourceRootDirectory, id),
+          inputSourceMap: combinedSourcemap,
+          parserOpts: {
+            plugins: [['typescript', {}], 'jsx'],
+            sourceFilename: id,
+            sourceType: 'module',
+          },
           shouldPrintComment: (commentContents) => {
             if (
               commentContents.includes('\n') ||
@@ -142,11 +165,9 @@ const removeComments = (): Rolldown.Plugin => {
 
             return true
           },
-          parserOpts: {
-            plugins: ['typescript', 'jsx'],
-            sourceFilename: id,
-            sourceType: 'module',
-          },
+          sourceFileName: id,
+          sourceMaps: 'both',
+          sourceType: 'module',
         })
 
         if (transformResult == null) {
@@ -155,12 +176,12 @@ const removeComments = (): Rolldown.Plugin => {
 
         return {
           code: transformResult.code ?? code,
-          meta,
           invalidate: true,
-          map: transformResult.map ?? this.getCombinedSourcemap(),
+          map: transformResult.map ?? combinedSourcemap,
+          meta,
           moduleSideEffects: false,
           moduleType: meta.moduleType,
-          packageJsonPath: path.join(import.meta.dirname, 'package.json'),
+          packageJsonPath,
         }
       },
     },
@@ -170,10 +191,9 @@ const removeComments = (): Rolldown.Plugin => {
 const DEFAULT_PURE_ANNOTATION = '@__PURE__'
 
 const isPureAnnotated = ({ leadingComments }: Node): boolean =>
-  !!leadingComments &&
-  leadingComments.some((comment) => /[@#]__PURE__/.test(comment.value))
+  !!leadingComments?.some((comment) => /[@#]__PURE__/.test(comment.value))
 
-export function annotateAsPure(nodePath: NodePath) {
+const annotateAsPure = (nodePath: NodePath): void => {
   if (isPureAnnotated(nodePath.node)) {
     return
   }
@@ -181,48 +201,169 @@ export function annotateAsPure(nodePath: NodePath) {
   nodePath.addComment('leading', DEFAULT_PURE_ANNOTATION, false)
 }
 
-type AnnotateAsPurePluginOptions = {
+type TransformFilter = Id<
+  Exclude<
+    NonNullable<Required<Rolldown.HookFilterExtension<'transform'>>['filter']>,
+    unknown[]
+  >
+>
+
+type TransformObjectHook = Id<
+  Omit<
+    Extract<NonNullable<Rolldown.Plugin['transform']>, { handler: unknown }>,
+    'filter'
+  > & {
+    filter?:
+      | Id<{
+          [HookFilterKeyType in keyof TransformFilter]: {
+            [GeneralHookFilterKeyType in keyof Extract<
+              TransformFilter[HookFilterKeyType],
+              { include?: unknown }
+            >]: Extract<
+              Extract<
+                TransformFilter[HookFilterKeyType],
+                { include?: unknown }
+              >[GeneralHookFilterKeyType],
+              unknown[]
+            >
+          }
+        }>
+      | undefined
+  }
+>
+
+type AnnotateAsPurePluginOptions = Id<
+  Pick<TransformObjectHook, 'filter' | 'order'>
+> & {
   /**
    * A list of call expression method names to annotate as pure.
    *
    * @default []
    */
-  callExpressions?: string[]
+  callExpressions?: string[] | undefined
 }
 
-type AnnotateAsPurePluginResult = BabelPluginResult<AnnotateAsPurePluginOptions>
+type AnnotateAsPurePluginResult = BabelPluginResult<
+  AnnotateAsPurePluginOptions,
+  'annotate-as-pure'
+>
+
+const hasCallableParent = (
+  nodePath: NodePath<CallExpression | Function>,
+): nodePath is Omit<NodePath<CallExpression | Function>, 'parentPath'> & {
+  parentPath: NodePath<CallExpression>
+} =>
+  nodePath.parentPath != null &&
+  (nodePath.parentPath.isCallExpression() ||
+    nodePath.parentPath.isNewExpression())
+
+const isUsedAsCallee = (
+  nodePath: NodePath<CallExpression | Function>,
+): nodePath is Omit<NodePath<CallExpression | Function>, 'parentPath'> & {
+  parentPath: NodePath<CallExpression>
+} =>
+  hasCallableParent(nodePath) && nodePath.parentPath.get('callee') === nodePath
+
+function isInCallee(nodePath: NodePath<CallExpression>): boolean {
+  do {
+    nodePath = nodePath.parentPath as NodePath<CallExpression>
+
+    if (isUsedAsCallee(nodePath)) {
+      return true
+    }
+  } while (!nodePath?.isStatement() && !nodePath?.isFunction())
+
+  return false
+}
+
+const isExecutedDuringInitialization = (
+  nodePath: NodePath<CallExpression>,
+): boolean => {
+  let functionParent: NodePath<Function> | null = nodePath.getFunctionParent()
+
+  while (functionParent) {
+    if (!isUsedAsCallee(functionParent)) {
+      return false
+    }
+
+    functionParent = functionParent.getFunctionParent()
+  }
+
+  return true
+}
+
+const isInAssignmentContext = (nodePath: NodePath<CallExpression>): boolean => {
+  const statement: NodePath<Statement> | null = nodePath.getStatementParent()
+  let parentPath: NodePath | null = null
+
+  do {
+    ;({ parentPath } = parentPath || nodePath)
+
+    if (
+      parentPath != null &&
+      (parentPath.isVariableDeclaration() ||
+        parentPath.isAssignmentExpression() ||
+        parentPath.isClass())
+    ) {
+      return true
+    }
+  } while (parentPath !== statement)
+
+  return false
+}
+
+function callableExpressionVisitor(nodePath: NodePath<CallExpression>): void {
+  if (
+    isUsedAsCallee(nodePath) ||
+    isInCallee(nodePath) ||
+    !isExecutedDuringInitialization(nodePath) ||
+    (!isInAssignmentContext(nodePath) &&
+      !nodePath.getStatementParent()?.isExportDefaultDeclaration())
+  ) {
+    return
+  }
+
+  annotateAsPure(nodePath)
+}
 
 const annotateAsPureBabelPlugin = declare<
   AnnotateAsPurePluginOptions,
   AnnotateAsPurePluginResult
 >((api, options = {}): AnnotateAsPurePluginResult => {
-  const t = api.types
+  const { types: t } = api
 
   const { callExpressions = [] } = options
 
   return {
     name: 'annotate-as-pure',
     visitor: {
-      CallExpression(path) {
-        if (
-          t.isIdentifier(path.node.callee) &&
-          callExpressions.includes(path.node.callee.name) &&
-          path.isPure()
-        ) {
-          annotateAsPure(path)
-        }
-      },
-
-      MemberExpression(path) {
-        if (!t.isIdentifier(path.node.property)) {
+      CallExpression(path: NodePath<CallExpression>) {
+        if (callExpressions.length === 0) {
           return
         }
 
-        const { name } = path.node.property
+        if (
+          t.isIdentifier(path.node.callee) &&
+          callExpressions.includes(path.node.callee.name)
+        ) {
+          callableExpressionVisitor(path)
+          // annotateAsPure(path)
+        }
+      },
+
+      MemberExpression(path: NodePath<MemberExpression>) {
+        if (
+          callExpressions.length === 0 ||
+          !t.isIdentifier(path.node.property)
+        ) {
+          return
+        }
+
+        const { name: propertyName } = path.node.property
 
         if (
           callExpressions.some((callExpression) => {
-            if (t.isIdentifier(path.node.property) && callExpression === name) {
+            if (callExpression === propertyName) {
               return true
             }
 
@@ -236,60 +377,112 @@ const annotateAsPureBabelPlugin = declare<
               }
 
               return (
-                methodName === name &&
+                methodName === propertyName &&
                 t.isIdentifier(path.node.object) &&
                 path.node.object.name === ObjectName
               )
             }
 
-            return path.isPure()
+            return false
           })
         ) {
-          annotateAsPure(path)
+          const statementParent = path.getStatementParent()
+
+          if (statementParent == null) {
+            return
+          }
+
+          if (
+            t.isReturnStatement(statementParent.node) ||
+            t.isVariableDeclaration(statementParent.node, { kind: 'const' })
+          ) {
+            annotateAsPure(path)
+          }
         }
       },
     },
   }
 })
 
+const ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS = {
+  callExpressions: [],
+  filter: {
+    code: {
+      exclude: [],
+      include: [],
+    },
+    id: {
+      exclude: [/node_modules/],
+      include: ['src/**/*.ts', 'src/**/*.tsx'],
+    },
+    moduleType: {
+      include: ['ts', 'tsx'],
+    },
+  },
+  order: null,
+} as const satisfies Required<AnnotateAsPurePluginOptions>
+
 export const annotateAsPurePlugin = (
-  options: AnnotateAsPurePluginOptions = {},
+  annotateAsPurePluginOptions: AnnotateAsPurePluginOptions = {},
 ): Rolldown.Plugin => {
-  const { callExpressions = [] } = options
+  const pluginOptionsWithDefaults = {
+    ...ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS,
+    ...annotateAsPurePluginOptions,
+    filter: {
+      ...ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS.filter,
+      ...annotateAsPurePluginOptions.filter,
+      code: {
+        ...ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS.filter.code,
+        ...annotateAsPurePluginOptions.filter?.code,
+      },
+      id: {
+        ...ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS.filter.id,
+        ...annotateAsPurePluginOptions.filter?.id,
+      },
+      moduleType: {
+        ...ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS.filter.moduleType,
+        ...annotateAsPurePluginOptions.filter?.moduleType,
+      },
+    },
+  } as const satisfies Required<AnnotateAsPurePluginOptions>
+
+  const {
+    callExpressions = [],
+    filter = ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS.filter,
+    order = null,
+  } = pluginOptionsWithDefaults
 
   return {
     name: 'annotate-as-pure',
     transform: {
-      order: 'post',
-      filter: {
-        id: {
-          exclude: [/node_modules/],
-          include: ['src/**/*.ts', 'src/**/*.tsx'],
-        },
-        moduleType: {
-          include: ['ts', 'tsx'],
-        },
-      },
+      filter,
+      order,
       async handler(code, id, meta) {
+        const combinedSourcemap = this.getCombinedSourcemap()
+
         const transformResult = await babel.transformAsync(code, {
-          cwd: import.meta.dirname,
+          cwd,
           filename: id,
-          sourceFileName: id,
-          sourceMaps: 'both',
-          sourceType: 'module',
+          filenameRelative: path.relative(sourceRootDirectory, id),
+          inputSourceMap: combinedSourcemap,
+          parserOpts: {
+            plugins: [['typescript', {}], 'jsx'],
+            sourceFilename: id,
+            sourceType: 'module',
+          },
           plugins: [
             [
               annotateAsPureBabelPlugin,
               {
                 callExpressions,
-              } as const satisfies AnnotateAsPurePluginOptions,
+              } as const satisfies Required<
+                Pick<AnnotateAsPurePluginOptions, 'callExpressions'>
+              >,
             ],
           ],
-          parserOpts: {
-            plugins: ['typescript', 'jsx'],
-            sourceFilename: id,
-            sourceType: 'module',
-          },
+          sourceFileName: id,
+          sourceMaps: 'both',
+          sourceType: 'module',
         })
 
         if (transformResult == null) {
@@ -299,11 +492,11 @@ export const annotateAsPurePlugin = (
         return {
           code: transformResult.code ?? code,
           invalidate: true,
-          map: transformResult.map ?? this.getCombinedSourcemap(),
+          map: transformResult.map ?? combinedSourcemap,
           meta,
           moduleSideEffects: false,
           moduleType: meta.moduleType,
-          packageJsonPath: path.join(import.meta.dirname, 'package.json'),
+          packageJsonPath,
         }
       },
     },
@@ -318,7 +511,7 @@ const peerAndProductionDependencies = Object.keys({
 export default defineConfig((cliOptions) => {
   const commonOptions = {
     clean: false,
-    cwd: import.meta.dirname,
+    cwd,
     debug: {
       clean: false,
       enabled: true,
@@ -346,7 +539,7 @@ export default defineConfig((cliOptions) => {
         inject: {
           ...options.transform?.inject,
           'Object.assign': [
-            path.join(import.meta.dirname, 'src', 'bundle-size-utils.ts'),
+            path.join(sourceRootDirectory, 'bundle-size-utils.ts'),
             '__assign',
           ] as const,
           React: ['react', '*'] as const,
@@ -384,12 +577,14 @@ export default defineConfig((cliOptions) => {
     plugins: [
       removeComments(),
       mangleErrorsTransform(),
-      // annotateAsPurePlugin({ callExpressions: ['__assign', 'Object.assign'] }),
+      annotateAsPurePlugin({
+        callExpressions: ['__assign', 'Object.assign'],
+      }),
     ],
     shims: true,
     sourcemap: true,
     target: ['esnext'],
-    tsconfig: path.join(import.meta.dirname, 'tsconfig.build.json'),
+    tsconfig: path.join(cwd, 'tsconfig.build.json'),
     ...cliOptions,
   } as const satisfies InlineConfig
 
@@ -507,7 +702,7 @@ export default defineConfig((cliOptions) => {
       },
       copy: ({ outDir }) => [
         {
-          from: path.join(import.meta.dirname, 'src', 'uncheckedindexed.ts'),
+          from: path.join(sourceRootDirectory, 'uncheckedindexed.ts'),
           to: outDir,
           verbose: true,
         },
