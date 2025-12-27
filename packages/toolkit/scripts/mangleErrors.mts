@@ -161,7 +161,7 @@ export const mangleErrorsPlugin = declare<
   MangleErrorsPluginOptions,
   MangleErrorsPluginResult
 >((api, options = {}): MangleErrorsPluginResult => {
-  const t = api.types
+  const { types: t } = api
   // When the plugin starts up, we'll load in the existing file. This allows us to continually add to it so that the
   // indexes do not change between builds.
   let errorsFiles = ''
@@ -197,6 +197,7 @@ export const mangleErrorsPlugin = declare<
           //  NumericLiteral, CallExpression, and ConditionalExpression is code we have already processed
 
           const firstArgument = args[0]
+
           if (
             firstArgument.type === 'Identifier' ||
             firstArgument.type === 'NumericLiteral' ||
