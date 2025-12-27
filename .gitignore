@@ -43,3 +43,4 @@ docs/dev-plans
 *.pb.gz
 
 .rolldown/
+.vitest-dump/
