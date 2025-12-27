@@ -20,10 +20,14 @@ const formatProdErrorMessageAbsoluteFilePath = path.join(
  * {@linkcode PluginOptions | plugin options}.
  *
  * @template PluginOptions - The options for the Babel plugin.
+ * @template PluginNameType - The name type for the Babel plugin.
  * @internal
  */
-export type BabelPluginResult<PluginOptions extends Record<string, unknown>> =
-  Id<
+export type BabelPluginResult<
+  PluginOptions extends Partial<Record<string, unknown>>,
+  PluginNameType extends string = string,
+> = Id<
+  Omit<
     PluginObj<
       Id<
         Omit<
@@ -36,10 +40,17 @@ export type BabelPluginResult<PluginOptions extends Record<string, unknown>> =
               : KeyType]: PluginPass[KeyType]
           },
           'opts'
-        > & { opts: Id<PluginOptions> }
+        > & {
+          isAsync?: boolean | undefined
+          opts: Id<PluginOptions>
+        }
       >
-    >
-  >
+    >,
+    'name'
+  > & {
+    name?: PluginNameType | undefined
+  }
+>
 
 /**
  * Represents the options for the {@linkcode mangleErrorsPlugin}.
@@ -62,7 +73,10 @@ export type MangleErrorsPluginOptions = {
  *
  * @internal
  */
-type MangleErrorsPluginResult = BabelPluginResult<MangleErrorsPluginOptions>
+type MangleErrorsPluginResult = BabelPluginResult<
+  MangleErrorsPluginOptions,
+  'mangle-errors-plugin'
+>
 
 /**
  * Converts an AST type into a JavaScript string so that it can be added to
