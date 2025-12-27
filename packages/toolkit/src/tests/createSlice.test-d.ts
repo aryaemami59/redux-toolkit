@@ -15,7 +15,6 @@ import type {
   SerializedError,
   SliceCaseReducers,
   ThunkDispatch,
-  UnknownAction,
   ValidateSliceCaseReducers,
 } from '@reduxjs/toolkit'
 import {

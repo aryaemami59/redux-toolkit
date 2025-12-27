@@ -1,5 +1,7 @@
+import type { TSVersion } from '@phryneas/ts-version'
 import type {
   AsyncThunk,
+  AsyncThunkDispatchConfig,
   SerializedError,
   ThunkDispatch,
   UnknownAction,
@@ -11,11 +13,8 @@ import {
   createSlice,
   unwrapResult,
 } from '@reduxjs/toolkit'
-
-import type { TSVersion } from '@phryneas/ts-version'
 import type { AxiosError } from 'axios'
 import apiRequest from 'axios'
-import type { AsyncThunkDispatchConfig } from '@internal/createAsyncThunk'
 
 const defaultDispatch = (() => {}) as ThunkDispatch<{}, any, UnknownAction>
 const unknownAction = { type: 'foo' } as UnknownAction
