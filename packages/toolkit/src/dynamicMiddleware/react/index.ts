@@ -77,9 +77,11 @@ export const createDynamicMiddleware = <
         ? useDefaultDispatch
         : createDispatchHook(context)
     const createDispatchWithMiddlewareHook = Object.assign(
-      <Middlewares extends Middleware<any, State, DispatchType>[]>(
+      function createDispatchWithMiddlewareHook<
+        Middlewares extends Middleware<any, State, DispatchType>[],
+      >(
         ...middlewares: Middlewares
-      ): UseDispatchWithMiddlewareHook<Middlewares, State, DispatchType> => {
+      ): UseDispatchWithMiddlewareHook<Middlewares, State, DispatchType> {
         instance.addMiddleware(...middlewares)
         return useDispatch
       },
