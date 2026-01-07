@@ -512,7 +512,7 @@ export default defineConfig((cliOptions) => {
   const commonOptions = {
     clean: false,
     cwd,
-    debug: {
+    devtools: {
       clean: false,
       enabled: true,
     },
