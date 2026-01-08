@@ -12465,9 +12465,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30001759, caniuse-lite@npm:^1.0.30001760":
-  version: 1.0.30001762
-  resolution: "caniuse-lite@npm:1.0.30001762"
-  checksum: 10/d60a589180198ac759fa1775e521862f03503286cc9354144adcd88e76d275f03b2b6e9cab1c606790eee9d6af5cedbedb048ec652f5ff77a2b229992b7c4845
+  version: 1.0.30001763
+  resolution: "caniuse-lite@npm:1.0.30001763"
+  checksum: 10/66efb73a641fe2612f561d0f32e5b55415b742dfa3b585f69891b2306cddd8f79bc1a1b0eaac42512686ba9cff59c049aaf1a50192eb5bd27d6f6890c934a5ae
   languageName: node
   linkType: hard
 
@@ -31978,8 +31978,8 @@ __metadata:
   linkType: hard
 
 "unrun@npm:^0.2.23":
-  version: 0.2.23
-  resolution: "unrun@npm:0.2.23"
+  version: 0.2.24
+  resolution: "unrun@npm:0.2.24"
   dependencies:
     rolldown: "npm:1.0.0-beta.59"
   peerDependencies:
@@ -31989,7 +31989,7 @@ __metadata:
       optional: true
   bin:
     unrun: dist/cli.mjs
-  checksum: 10/674d4b929ebf9e62b382157b79ca09e9e32b236b0f6d4f10714e1ad28d870ada7773931d0a8ea887c37edb142f21190b2fea3f2b1bfef98007aa51498bf8d0b6
+  checksum: 10/0532c89afad69e393271a67b7dc04ca76a8a615bae36b8e01f1bfcb7230c1e62759e41c264c145177b7a46365199b015ba9accaa1136bf128e491c5b4811484a
   languageName: node
   linkType: hard
 
