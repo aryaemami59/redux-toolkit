@@ -38,7 +38,64 @@ if (process.env.NODE_ENV === "production") {
   )
 }
 
-// Extract error strings, replace them with error codes, and write messages to a file
+/**
+ * @internal
+ */
+type GenerateBundleObjectHook = Id<
+  Omit<
+    Extract<
+      NonNullable<Rolldown.Plugin['generateBundle']>,
+      { handler: unknown }
+    >,
+    'handler'
+  >
+>
+
+/**
+ * @internal
+ */
+type TransformFilter = Id<
+  Exclude<
+    NonNullable<Required<Rolldown.HookFilterExtension<'transform'>>['filter']>,
+    unknown[]
+  >
+>
+
+/**
+ * @internal
+ */
+type TransformObjectHook = Id<
+  Omit<
+    Extract<NonNullable<Rolldown.Plugin['transform']>, { handler: unknown }>,
+    'filter' | 'handler'
+  > & {
+    filter?:
+      | Id<{
+          [HookFilterKeyType in keyof TransformFilter]: {
+            [GeneralHookFilterKeyType in keyof Extract<
+              TransformFilter[HookFilterKeyType],
+              { include?: unknown }
+            >]: Extract<
+              Extract<
+                TransformFilter[HookFilterKeyType],
+                { include?: unknown }
+              >[GeneralHookFilterKeyType],
+              unknown[]
+            >
+          }
+        }>
+      | undefined
+  }
+>
+
+/**
+ * Extract error strings, replace them with error codes, and write messages to
+ * a file.
+ *
+ * @param [mangleErrorsPluginOptions] - Options forwarded to the `mangleErrorsPlugin`. Supported options include `minify` to indicate whether error messages should be further minified.
+ * @returns A Rolldown plugin that applies the Babel transformation to TypeScript/TSX sources matching the configured filter and returns transformed code and source maps.
+ * @internal
+ */
 const mangleErrorsTransform = (
   mangleErrorsPluginOptions: MangleErrorsPluginOptions = {},
 ): Rolldown.Plugin => {
@@ -107,10 +164,23 @@ const mangleErrorsTransform = (
   }
 }
 
-const removeCJSOutputsFromDTSBuilds = (): Rolldown.Plugin => {
+/**
+ * Rolldown plugin to remove generated CommonJS (.cjs) JavaScript outputs
+ * from DTS-only builds. When generating type definition builds we may still
+ * emit stray .cjs files; this plugin deletes those entries from the
+ * generated bundle to ensure only declaration artifacts remain.
+ *
+ * @param [pluginOptions] - Options forwarded to the plugin.
+ * @returns A Rolldown plugin that prunes .cjs files from the bundle.
+ * @internal
+ */
+const removeCJSOutputsFromDTSBuilds = (
+  pluginOptions: GenerateBundleObjectHook = {},
+): Rolldown.Plugin => {
   return {
     name: 'remove-cjs-outputs-from-dts-builds',
     generateBundle: {
+      order: pluginOptions.order ?? null,
       handler(outputOptions, bundle, isWrite) {
         Object.entries(bundle).forEach(([fileName]) => {
           if (
@@ -126,6 +196,15 @@ const removeCJSOutputsFromDTSBuilds = (): Rolldown.Plugin => {
   }
 }
 
+/**
+ * Rolldown plugin to remove multi-line JSDoc-style comments from source
+ * files while preserving single-line pure annotations (e.g. `@__PURE__` or
+ * `#__PURE__`). This helps reduce bundle size by stripping documentation
+ * comments that are not needed at runtime.
+ *
+ * @returns A Rolldown plugin that removes multi-line comments.
+ * @internal
+ */
 const removeComments = (): Rolldown.Plugin => {
   return {
     name: 'remove-comments',
@@ -188,11 +267,20 @@ const removeComments = (): Rolldown.Plugin => {
   }
 }
 
+/**
+ * @internal
+ */
 const DEFAULT_PURE_ANNOTATION = '@__PURE__'
 
+/**
+ * @internal
+ */
 const isPureAnnotated = ({ leadingComments }: Node): boolean =>
   !!leadingComments?.some((comment) => /[@#]__PURE__/.test(comment.value))
 
+/**
+ * @internal
+ */
 const annotateAsPure = (nodePath: NodePath): void => {
   if (isPureAnnotated(nodePath.node)) {
     return
@@ -201,69 +289,51 @@ const annotateAsPure = (nodePath: NodePath): void => {
   nodePath.addComment('leading', DEFAULT_PURE_ANNOTATION, false)
 }
 
-type TransformFilter = Id<
-  Exclude<
-    NonNullable<Required<Rolldown.HookFilterExtension<'transform'>>['filter']>,
-    unknown[]
-  >
->
-
-type TransformObjectHook = Id<
-  Omit<
-    Extract<NonNullable<Rolldown.Plugin['transform']>, { handler: unknown }>,
-    'filter'
-  > & {
-    filter?:
-      | Id<{
-          [HookFilterKeyType in keyof TransformFilter]: {
-            [GeneralHookFilterKeyType in keyof Extract<
-              TransformFilter[HookFilterKeyType],
-              { include?: unknown }
-            >]: Extract<
-              Extract<
-                TransformFilter[HookFilterKeyType],
-                { include?: unknown }
-              >[GeneralHookFilterKeyType],
-              unknown[]
-            >
-          }
-        }>
-      | undefined
+/**
+ * @internal
+ */
+type AnnotateAsPurePluginOptions = Id<
+  TransformObjectHook & {
+    /**
+     * A list of call expression method names to annotate as pure.
+     *
+     * @default []
+     */
+    callExpressions?: string[] | undefined
   }
 >
 
-type AnnotateAsPurePluginOptions = Id<
-  Pick<TransformObjectHook, 'filter' | 'order'>
-> & {
-  /**
-   * A list of call expression method names to annotate as pure.
-   *
-   * @default []
-   */
-  callExpressions?: string[] | undefined
-}
-
+/**
+ * @internal
+ */
 type AnnotateAsPurePluginResult = BabelPluginResult<
   AnnotateAsPurePluginOptions,
   'annotate-as-pure'
 >
 
-const hasCallableParent = (
-  nodePath: NodePath<CallExpression | Function>,
-): nodePath is Omit<NodePath<CallExpression | Function>, 'parentPath'> & {
-  parentPath: NodePath<CallExpression>
-} =>
+/**
+ * @internal
+ */
+const hasCallableParent = <NodePathType extends NodePath>(
+  nodePath: NodePathType,
+): nodePath is NodePathType & { parentPath: NodePath<CallExpression> } =>
   nodePath.parentPath != null &&
   (nodePath.parentPath.isCallExpression() ||
     nodePath.parentPath.isNewExpression())
 
-const isUsedAsCallee = (
-  nodePath: NodePath<CallExpression | Function>,
-): nodePath is Omit<NodePath<CallExpression | Function>, 'parentPath'> & {
-  parentPath: NodePath<CallExpression>
-} =>
+/**
+ * @internal
+ */
+const isUsedAsCallee = <
+  NodePathType extends NodePath<CallExpression | Function>,
+>(
+  nodePath: NodePathType,
+): nodePath is NodePathType & { parentPath: NodePath<CallExpression> } =>
   hasCallableParent(nodePath) && nodePath.parentPath.get('callee') === nodePath
 
+/**
+ * @internal
+ */
 function isInCallee(nodePath: NodePath<CallExpression>): boolean {
   do {
     nodePath = nodePath.parentPath as NodePath<CallExpression>
@@ -271,11 +341,14 @@ function isInCallee(nodePath: NodePath<CallExpression>): boolean {
     if (isUsedAsCallee(nodePath)) {
       return true
     }
-  } while (!nodePath?.isStatement() && !nodePath?.isFunction())
+  } while (!nodePath.isStatement() && !nodePath.isFunction())
 
   return false
 }
 
+/**
+ * @internal
+ */
 const isExecutedDuringInitialization = (
   nodePath: NodePath<CallExpression>,
 ): boolean => {
@@ -292,6 +365,9 @@ const isExecutedDuringInitialization = (
   return true
 }
 
+/**
+ * @internal
+ */
 const isInAssignmentContext = (nodePath: NodePath<CallExpression>): boolean => {
   const statement: NodePath<Statement> | null = nodePath.getStatementParent()
   let parentPath: NodePath | null = null
@@ -312,6 +388,9 @@ const isInAssignmentContext = (nodePath: NodePath<CallExpression>): boolean => {
   return false
 }
 
+/**
+ * @internal
+ */
 function callableExpressionVisitor(nodePath: NodePath<CallExpression>): void {
   if (
     isUsedAsCallee(nodePath) ||
@@ -326,6 +405,9 @@ function callableExpressionVisitor(nodePath: NodePath<CallExpression>): void {
   annotateAsPure(nodePath)
 }
 
+/**
+ * @internal
+ */
 const annotateAsPureBabelPlugin = declare<
   AnnotateAsPurePluginOptions,
   AnnotateAsPurePluginResult
@@ -342,9 +424,13 @@ const annotateAsPureBabelPlugin = declare<
           return
         }
 
+        const callee = path.get('callee')
+
         if (
-          t.isIdentifier(path.node.callee) &&
-          callExpressions.includes(path.node.callee.name)
+          callee.isIdentifier() &&
+          callExpressions.some((callExpression) =>
+            callee.matchesPattern(callExpression),
+          )
         ) {
           callableExpressionVisitor(path)
           // annotateAsPure(path)
@@ -352,35 +438,20 @@ const annotateAsPureBabelPlugin = declare<
       },
 
       MemberExpression(path: NodePath<MemberExpression>) {
-        if (
-          callExpressions.length === 0 ||
-          !t.isIdentifier(path.node.property)
-        ) {
+        if (callExpressions.length === 0) {
           return
         }
 
-        const { name: propertyName } = path.node.property
+        const property = path.get('property')
+
+        if (!property.isIdentifier()) {
+          return
+        }
 
         if (
           callExpressions.some((callExpression) => {
-            if (callExpression === propertyName) {
+            if (path.matchesPattern(callExpression)) {
               return true
-            }
-
-            if (callExpression.includes('.')) {
-              const segments = callExpression.split('.')
-              const ObjectName = segments.at(-2)
-              const methodName = segments.at(-1)
-
-              if (methodName == null || ObjectName == null) {
-                return false
-              }
-
-              return (
-                methodName === propertyName &&
-                t.isIdentifier(path.node.object) &&
-                path.node.object.name === ObjectName
-              )
             }
 
             return false
@@ -393,8 +464,14 @@ const annotateAsPureBabelPlugin = declare<
           }
 
           if (
-            t.isReturnStatement(statementParent.node) ||
-            t.isVariableDeclaration(statementParent.node, { kind: 'const' })
+            statementParent.isReturnStatement() ||
+            t.isVariableDeclaration(statementParent.node, { kind: 'const' }) ||
+            (t.isExportNamedDeclaration(statementParent.node, {
+              exportKind: 'value',
+            }) &&
+              t.isVariableDeclaration(statementParent.node.declaration, {
+                kind: 'const',
+              }))
           ) {
             annotateAsPure(path)
           }
@@ -404,6 +481,9 @@ const annotateAsPureBabelPlugin = declare<
   }
 })
 
+/**
+ * @internal
+ */
 const ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS = {
   callExpressions: [],
   filter: {
@@ -422,35 +502,51 @@ const ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS = {
   order: null,
 } as const satisfies Required<AnnotateAsPurePluginOptions>
 
-export const annotateAsPurePlugin = (
-  annotateAsPurePluginOptions: AnnotateAsPurePluginOptions = {},
-): Rolldown.Plugin => {
+/**
+ * @internal
+ */
+const getPluginOptionsWithDefaults = (
+  annotateAsPurePluginOptions: AnnotateAsPurePluginOptions,
+  annotateAsPurePluginOptionsDefaults: Required<AnnotateAsPurePluginOptions>,
+) => {
   const pluginOptionsWithDefaults = {
-    ...ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS,
+    ...annotateAsPurePluginOptionsDefaults,
     ...annotateAsPurePluginOptions,
     filter: {
-      ...ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS.filter,
+      ...annotateAsPurePluginOptionsDefaults.filter,
       ...annotateAsPurePluginOptions.filter,
       code: {
-        ...ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS.filter.code,
+        ...annotateAsPurePluginOptionsDefaults.filter.code,
         ...annotateAsPurePluginOptions.filter?.code,
       },
       id: {
-        ...ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS.filter.id,
+        ...annotateAsPurePluginOptionsDefaults.filter.id,
         ...annotateAsPurePluginOptions.filter?.id,
       },
       moduleType: {
-        ...ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS.filter.moduleType,
+        ...annotateAsPurePluginOptionsDefaults.filter.moduleType,
         ...annotateAsPurePluginOptions.filter?.moduleType,
       },
     },
   } as const satisfies Required<AnnotateAsPurePluginOptions>
 
+  return pluginOptionsWithDefaults
+}
+
+/**
+ * @internal
+ */
+export const annotateAsPurePlugin = (
+  annotateAsPurePluginOptions: AnnotateAsPurePluginOptions = {},
+): Rolldown.Plugin => {
   const {
     callExpressions = [],
     filter = ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS.filter,
     order = null,
-  } = pluginOptionsWithDefaults
+  } = getPluginOptionsWithDefaults(
+    annotateAsPurePluginOptions,
+    ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS,
+  )
 
   return {
     name: 'annotate-as-pure',
@@ -506,7 +602,7 @@ export const annotateAsPurePlugin = (
 const peerAndProductionDependencies = Object.keys({
   ...packageJson.dependencies,
   ...packageJson.peerDependencies,
-} as const)
+} as const) satisfies Extract<NonNullable<InlineConfig['external']>, unknown[]>
 
 export default defineConfig((cliOptions) => {
   const commonOptions = {
@@ -646,8 +742,6 @@ export default defineConfig((cliOptions) => {
     minify: 'dce-only',
     outExtensions: () => ({ js: '.development.cjs' }),
     treeshake: {
-      annotations: true,
-      commonjs: true,
       moduleSideEffects: false,
     },
   } as const satisfies InlineConfig
@@ -667,8 +761,6 @@ export default defineConfig((cliOptions) => {
     },
     outExtensions: () => ({ js: '.production.min.cjs' }),
     treeshake: {
-      annotations: true,
-      commonjs: true,
       moduleSideEffects: false,
     },
   } as const satisfies InlineConfig
