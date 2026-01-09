@@ -1,5 +1,6 @@
 import type { Node, NodePath } from '@babel/core'
 import * as babel from '@babel/core'
+import { generate } from '@babel/generator'
 import { declare } from '@babel/helper-plugin-utils'
 import type {
   CallExpression,
@@ -25,6 +26,12 @@ const packageJsonPath = path.join(cwd, 'package.json')
 
 const sourceRootDirectory = path.join(cwd, 'src')
 
+const RE_NODE_MODULES = /node_modules/
+
+const RE_TS = /\.([cm]?)tsx?$/
+
+const RE_DTS = /\.d\.([cm]?)ts$/
+
 async function writeCommonJSEntry(folder: string, prefix: string) {
   await fs.writeFile(
     path.join(folder, 'index.js'),
@@ -42,50 +49,13 @@ if (process.env.NODE_ENV === "production") {
  * @internal
  */
 type GenerateBundleObjectHook = Id<
-  Omit<
+  Pick<
     Extract<
       NonNullable<Rolldown.Plugin['generateBundle']>,
       { handler: unknown }
     >,
-    'handler'
+    'order'
   >
->
-
-/**
- * @internal
- */
-type TransformFilter = Id<
-  Exclude<
-    NonNullable<Required<Rolldown.HookFilterExtension<'transform'>>['filter']>,
-    unknown[]
-  >
->
-
-/**
- * @internal
- */
-type TransformObjectHook = Id<
-  Omit<
-    Extract<NonNullable<Rolldown.Plugin['transform']>, { handler: unknown }>,
-    'filter' | 'handler'
-  > & {
-    filter?:
-      | Id<{
-          [HookFilterKeyType in keyof TransformFilter]: {
-            [GeneralHookFilterKeyType in keyof Extract<
-              TransformFilter[HookFilterKeyType],
-              { include?: unknown }
-            >]: Extract<
-              Extract<
-                TransformFilter[HookFilterKeyType],
-                { include?: unknown }
-              >[GeneralHookFilterKeyType],
-              unknown[]
-            >
-          }
-        }>
-      | undefined
-  }
 >
 
 /**
@@ -109,8 +79,8 @@ const mangleErrorsTransform = (
           include: ['throw new'],
         },
         id: {
-          exclude: [/node_modules/],
-          include: ['src/**/*.ts', 'src/**/*.tsx'],
+          exclude: [RE_DTS, RE_NODE_MODULES],
+          include: [RE_TS],
         },
         moduleType: {
           include: ['ts', 'tsx'],
@@ -177,6 +147,10 @@ const mangleErrorsTransform = (
 const removeCJSOutputsFromDTSBuilds = (
   pluginOptions: GenerateBundleObjectHook = {},
 ): Rolldown.Plugin => {
+  const { types: t } = babel
+
+  const typeExports = new Set<string>()
+
   return {
     name: 'remove-cjs-outputs-from-dts-builds',
     generateBundle: {
@@ -186,11 +160,75 @@ const removeCJSOutputsFromDTSBuilds = (
           if (
             outputOptions.format === 'cjs' &&
             isWrite &&
-            fileName.endsWith('.cjs')
+            (fileName.endsWith('.cjs') || fileName.endsWith('.cjs.map'))
           ) {
             delete bundle[fileName]
           }
         })
+      },
+    },
+
+    renderChunk: {
+      order: null,
+      async handler(code, chunk, outputOptions, meta) {
+        if (!RE_DTS.test(chunk.fileName)) {
+          return
+        }
+
+        const parsedFile = await babel.parseAsync(code, {
+          sourceType: 'module',
+          parserOpts: {
+            sourceType: 'module',
+            plugins: [['typescript', { dts: true }]],
+          },
+        })
+
+        if (parsedFile == null) {
+          return null
+        }
+
+        parsedFile.program.body.forEach((statement) => {
+          if (t.isExportNamedDeclaration(statement)) {
+            const typeExportSpecifiers = statement.specifiers.filter(
+              (exportSpecifier) =>
+                t.isExportSpecifier(exportSpecifier, { exportKind: 'type' }),
+            )
+
+            typeExportSpecifiers.forEach((typeExportSpecifier) => {
+              typeExports.add(typeExportSpecifier.local.name)
+            })
+          }
+        })
+
+        parsedFile.program.body = parsedFile.program.body.map((statement) => {
+          if (t.isImportDeclaration(statement)) {
+            const importSpecifiers = statement.specifiers.filter(
+              (importSpecifier) => t.isImportSpecifier(importSpecifier),
+            )
+
+            importSpecifiers.forEach((importSpecifier) => {
+              if (
+                importSpecifier.importKind === 'value' &&
+                typeExports.has(importSpecifier.local.name)
+              ) {
+                importSpecifier.importKind = 'type'
+              }
+            })
+          }
+
+          return statement
+        })
+
+        const generatedResults = generate(parsedFile, {
+          comments: true,
+          sourceMaps: true,
+          sourceFileName: chunk.fileName,
+        })
+
+        return {
+          code: generatedResults.code,
+          map: generatedResults.map,
+        }
       },
     },
   }
@@ -214,8 +252,8 @@ const removeComments = (): Rolldown.Plugin => {
           include: [/\/\*\*\n/],
         },
         id: {
-          exclude: [/node_modules/],
-          include: ['src/**/*.ts', 'src/**/*.tsx'],
+          exclude: [RE_NODE_MODULES],
+          include: [RE_TS],
         },
         moduleType: {
           include: ['ts', 'tsx'],
@@ -293,7 +331,7 @@ const annotateAsPure = (nodePath: NodePath): void => {
  * @internal
  */
 type AnnotateAsPurePluginOptions = Id<
-  TransformObjectHook & {
+  GenerateBundleObjectHook & {
     /**
      * A list of call expression method names to annotate as pure.
      *
@@ -486,72 +524,32 @@ const annotateAsPureBabelPlugin = declare<
  */
 const ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS = {
   callExpressions: [],
-  filter: {
-    code: {
-      exclude: [],
-      include: [],
-    },
-    id: {
-      exclude: [/node_modules/],
-      include: ['src/**/*.ts', 'src/**/*.tsx'],
-    },
-    moduleType: {
-      include: ['ts', 'tsx'],
-    },
-  },
   order: null,
 } as const satisfies Required<AnnotateAsPurePluginOptions>
 
 /**
  * @internal
  */
-const getPluginOptionsWithDefaults = (
-  annotateAsPurePluginOptions: AnnotateAsPurePluginOptions,
-  annotateAsPurePluginOptionsDefaults: Required<AnnotateAsPurePluginOptions>,
-) => {
-  const pluginOptionsWithDefaults = {
-    ...annotateAsPurePluginOptionsDefaults,
-    ...annotateAsPurePluginOptions,
-    filter: {
-      ...annotateAsPurePluginOptionsDefaults.filter,
-      ...annotateAsPurePluginOptions.filter,
-      code: {
-        ...annotateAsPurePluginOptionsDefaults.filter.code,
-        ...annotateAsPurePluginOptions.filter?.code,
-      },
-      id: {
-        ...annotateAsPurePluginOptionsDefaults.filter.id,
-        ...annotateAsPurePluginOptions.filter?.id,
-      },
-      moduleType: {
-        ...annotateAsPurePluginOptionsDefaults.filter.moduleType,
-        ...annotateAsPurePluginOptions.filter?.moduleType,
-      },
-    },
-  } as const satisfies Required<AnnotateAsPurePluginOptions>
-
-  return pluginOptionsWithDefaults
-}
-
-/**
- * @internal
- */
-export const annotateAsPurePlugin = (
+const annotateAsPurePlugin = (
   annotateAsPurePluginOptions: AnnotateAsPurePluginOptions = {},
 ): Rolldown.Plugin => {
-  const {
-    callExpressions = [],
-    filter = ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS.filter,
-    order = null,
-  } = getPluginOptionsWithDefaults(
-    annotateAsPurePluginOptions,
-    ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS,
-  )
+  const { callExpressions = [], order = null } = {
+    ...ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS,
+    ...annotateAsPurePluginOptions,
+  } as const satisfies Required<AnnotateAsPurePluginOptions>
 
   return {
     name: 'annotate-as-pure',
     transform: {
-      filter,
+      filter: {
+        id: {
+          exclude: [RE_DTS, RE_NODE_MODULES],
+          include: [RE_TS],
+        },
+        moduleType: {
+          include: ['ts', 'tsx'],
+        },
+      },
       order,
       async handler(code, id, meta) {
         const combinedSourcemap = this.getCombinedSourcemap()
@@ -713,7 +711,13 @@ export default defineConfig((cliOptions) => {
       },
     }),
 
-    plugins: [removeCJSOutputsFromDTSBuilds()],
+    plugins: [
+      mangleErrorsTransform(),
+      // annotateAsPurePlugin({
+      //   callExpressions: ['__assign', 'Object.assign'],
+      // }),
+      removeCJSOutputsFromDTSBuilds(),
+    ],
     /**
      * @todo Investigate why an unexpected `index.js` file is still emitted
      * even with `emitDtsOnly: true`. The goal is to produce `.d.ts`
@@ -723,6 +727,9 @@ export default defineConfig((cliOptions) => {
      * to avoid producing additional unwanted artifacts.
      */
     sourcemap: false,
+    treeshake: {
+      moduleSideEffects: false,
+    },
   } as const satisfies InlineConfig
 
   const modernEsmConfig = {
@@ -1051,7 +1058,12 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/react/index': 'src/query/react/index.ts',
       },
-      external: [`${packageJson.name}/react`, `${packageJson.name}/query`],
+      external: [
+        ...sharedDTSConfig.external,
+        packageJson.name,
+        `${packageJson.name}/react`,
+        `${packageJson.name}/query`,
+      ],
     },
   ] as const satisfies UserConfig[]
 })
