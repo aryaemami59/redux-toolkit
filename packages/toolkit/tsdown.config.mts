@@ -4,9 +4,17 @@ import { generate } from '@babel/generator'
 import { declare } from '@babel/helper-plugin-utils'
 import type {
   CallExpression,
+  ExportNamedDeclaration,
   Function,
+  Identifier,
+  ImportSpecifier,
   MemberExpression,
   Statement,
+  TSSymbolKeyword,
+  TSTypeAnnotation,
+  TSTypeOperator,
+  VariableDeclaration,
+  VariableDeclarator,
 } from '@babel/types'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
@@ -135,6 +143,40 @@ const mangleErrorsTransform = (
 }
 
 /**
+ * Represents a `const` variable declaration whose identifier is annotated with
+ * the {@linkcode https://www.typescriptlang.org/docs/handbook/symbols.html#unique-symbol | unique symbol}
+ * type in a TypeScript declaration file (`.d.ts`).
+ *
+ * @example
+ * <caption>Top-level unique symbol declaration</caption>
+ *
+ * ```ts
+ * declare const skipToken: unique symbol;
+ * ```
+ *
+ * @internal
+ */
+type UniqueSymbolVariableDeclaration = Id<
+  VariableDeclaration & {
+    declarations: [
+      variableDeclarator: VariableDeclarator & {
+        id: Identifier & {
+          typeAnnotation: TSTypeAnnotation & {
+            typeAnnotation: TSTypeOperator & {
+              operator: 'unique'
+              typeAnnotation: TSSymbolKeyword
+            }
+          }
+        }
+      },
+      ...VariableDeclarator[],
+    ]
+    declare: true
+    kind: 'const'
+  }
+>
+
+/**
  * Rolldown plugin to remove generated CommonJS (.cjs) JavaScript outputs
  * from DTS-only builds. When generating type definition builds we may still
  * emit stray .cjs files; this plugin deletes those entries from the
@@ -150,6 +192,7 @@ const removeCJSOutputsFromDTSBuilds = (
   const { types: t } = babel
 
   const typeExports = new Set<string>()
+  const exportedUniqueSymbolsMap = new Map<string, Set<string>>()
 
   return {
     name: 'remove-cjs-outputs-from-dts-builds',
@@ -171,49 +214,132 @@ const removeCJSOutputsFromDTSBuilds = (
     renderChunk: {
       order: null,
       async handler(code, chunk, outputOptions, meta) {
-        if (!RE_DTS.test(chunk.fileName)) {
+        if (!RE_DTS.test(chunk.fileName) || !chunk.isEntry) {
           return
         }
 
+        exportedUniqueSymbolsMap.set(chunk.fileName, new Set<string>())
+
         const parsedFile = await babel.parseAsync(code, {
-          sourceType: 'module',
+          ast: true,
+          cwd,
+          filename: chunk.fileName,
+          filenameRelative: path.relative(sourceRootDirectory, chunk.fileName),
           parserOpts: {
-            sourceType: 'module',
+            errorRecovery: true,
             plugins: [['typescript', { dts: true }]],
+            ranges: true,
+            sourceFilename: chunk.fileName,
+            sourceType: 'module',
           },
+          sourceFileName: chunk.fileName,
+          sourceMaps: 'both',
+          sourceType: 'module',
         })
 
         if (parsedFile == null) {
           return null
         }
 
+        const isExportedUniqueSymbolDeclaration = <
+          StatementType extends Statement,
+        >(
+          statement: StatementType,
+        ): statement is Id<StatementType & UniqueSymbolVariableDeclaration> =>
+          t.isVariableDeclaration(statement, {
+            declare: true,
+            kind: 'const',
+          }) &&
+          t.isIdentifier(statement.declarations[0].id) &&
+          t.isTSTypeAnnotation(statement.declarations[0].id.typeAnnotation) &&
+          t.isTSTypeOperator(
+            statement.declarations[0].id.typeAnnotation.typeAnnotation,
+            { operator: 'unique' },
+          ) &&
+          t.isTSSymbolKeyword(
+            statement.declarations[0].id.typeAnnotation.typeAnnotation
+              .typeAnnotation,
+          ) &&
+          chunk.exports.includes(statement.declarations[0].id.name)
+
         parsedFile.program.body.forEach((statement) => {
-          if (t.isExportNamedDeclaration(statement)) {
-            const typeExportSpecifiers = statement.specifiers.filter(
-              (exportSpecifier) =>
-                t.isExportSpecifier(exportSpecifier, { exportKind: 'type' }),
+          const exportedUniqueSymbols =
+            exportedUniqueSymbolsMap.get(chunk.fileName) ?? new Set<string>()
+
+          if (isExportedUniqueSymbolDeclaration(statement)) {
+            exportedUniqueSymbols.add(statement.declarations[0].id.name)
+          } else if (t.isExportNamedDeclaration(statement)) {
+            const exportSpecifiers = statement.specifiers.filter(
+              (exportSpecifier) => t.isExportSpecifier(exportSpecifier),
             )
 
-            typeExportSpecifiers.forEach((typeExportSpecifier) => {
-              typeExports.add(typeExportSpecifier.local.name)
+            exportSpecifiers.forEach((exportSpecifier) => {
+              if (exportSpecifier.exportKind === 'type') {
+                typeExports.add(exportSpecifier.local.name)
+              }
             })
+
+            const newExportSpecifiers = exportSpecifiers.filter(
+              (exportSpecifier) => {
+                if (
+                  exportSpecifier.exportKind === 'value' &&
+                  t.isIdentifier(exportSpecifier.local) &&
+                  t.isIdentifier(exportSpecifier.exported) &&
+                  exportedUniqueSymbols.has(exportSpecifier.local.name)
+                ) {
+                  return false
+                }
+
+                return true
+              },
+            )
+
+            statement.specifiers = newExportSpecifiers
           }
         })
 
         parsedFile.program.body = parsedFile.program.body.map((statement) => {
+          if (isExportedUniqueSymbolDeclaration(statement)) {
+            const newExportNamedDeclaration: ExportNamedDeclaration =
+              t.exportNamedDeclaration(statement)
+
+            return newExportNamedDeclaration
+          }
+
+          return statement
+        })
+
+        parsedFile.program.body = parsedFile.program.body.map((statement) => {
           if (t.isImportDeclaration(statement)) {
-            const importSpecifiers = statement.specifiers.filter(
-              (importSpecifier) => t.isImportSpecifier(importSpecifier),
+            const newImportSpecifiers = statement.specifiers.map(
+              (importSpecifier) => {
+                if (
+                  t.isImportSpecifier(importSpecifier) &&
+                  importSpecifier.importKind === 'value' &&
+                  t.isIdentifier(importSpecifier.imported) &&
+                  typeExports.has(importSpecifier.local.name)
+                ) {
+                  const newImportSpecifier: ImportSpecifier = {
+                    ...t.importSpecifier(
+                      t.identifier(importSpecifier.local.name),
+                      t.identifier(importSpecifier.imported.name),
+                    ),
+                    importKind: 'type',
+                  }
+
+                  return newImportSpecifier
+                }
+
+                return importSpecifier
+              },
             )
 
-            importSpecifiers.forEach((importSpecifier) => {
-              if (
-                importSpecifier.importKind === 'value' &&
-                typeExports.has(importSpecifier.local.name)
-              ) {
-                importSpecifier.importKind = 'type'
-              }
-            })
+            const newImportDeclaration = t.importDeclaration(
+              newImportSpecifiers,
+              statement.source,
+            )
+
+            return newImportDeclaration
           }
 
           return statement
