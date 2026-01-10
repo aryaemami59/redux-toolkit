@@ -3,13 +3,10 @@ import * as helperModuleImports from '@babel/helper-module-imports'
 import { declare } from '@babel/helper-plugin-utils'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import type { Id } from '../src/tsHelpers.js'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
 const formatProdErrorMessageAbsoluteFilePath = path.join(
-  __dirname,
+  import.meta.dirname,
   '..',
   'src',
   'formatProdErrorMessage.ts',
@@ -166,8 +163,13 @@ export const mangleErrorsPlugin = declare<
   // indexes do not change between builds.
   let errorsFiles = ''
   // Save this to the root
-  // TODO: For some reason `import.meta.dirname` here points to the wrong location. There is probably an issue with `unrun`.
-  const errorsPath = path.join(__dirname, '..', '..', '..', 'errors.json')
+  const errorsPath = path.join(
+    import.meta.dirname,
+    '..',
+    '..',
+    '..',
+    'errors.json',
+  )
   if (fs.existsSync(errorsPath)) {
     errorsFiles = fs.readFileSync(errorsPath).toString()
   }
