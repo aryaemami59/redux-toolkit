@@ -737,7 +737,7 @@ export default defineConfig((cliOptions) => {
       enabled: true,
     },
     dts: false,
-    external: peerAndProductionDependencies,
+    external: [...peerAndProductionDependencies, /uncheckedindexed/],
     failOnWarn: true,
     fixedExtension: false,
     format: ['cjs', 'es'],
@@ -804,6 +804,9 @@ export default defineConfig((cliOptions) => {
     shims: true,
     sourcemap: true,
     target: ['esnext'],
+    treeshake: {
+      moduleSideEffects: false,
+    },
     tsconfig: path.join(cwd, 'tsconfig.build.json'),
     ...cliOptions,
   } as const satisfies InlineConfig
@@ -836,7 +839,6 @@ export default defineConfig((cliOptions) => {
         attachDebugInfo: 'none',
       },
     }),
-
     plugins: [
       mangleErrorsTransform(),
       // annotateAsPurePlugin({
@@ -853,9 +855,6 @@ export default defineConfig((cliOptions) => {
      * to avoid producing additional unwanted artifacts.
      */
     sourcemap: false,
-    treeshake: {
-      moduleSideEffects: false,
-    },
   } as const satisfies InlineConfig
 
   const modernEsmConfig = {
