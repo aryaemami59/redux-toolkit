@@ -70,8 +70,6 @@ export type {
   UnsubscribeListenerOptions,
 } from './types'
 
-//Overly-aggressive byte-shaving
-const { assign } = Object
 /**
  * @internal
  */
@@ -212,7 +210,7 @@ const getListenerEntryPropsFrom = (options: FallbackAddListenerOptions) => {
 
 /** Accepts the possible options for creating a listener, and returns a formatted listener entry */
 export const createListenerEntry: TypedCreateListenerEntry<unknown> =
-  /* @__PURE__ */ assign(
+  /* @__PURE__ */ Object.assign(
     (options: FallbackAddListenerOptions) => {
       const { type, predicate, effect } = getListenerEntryPropsFrom(options)
 
@@ -294,7 +292,7 @@ const safelyNotifyError = (
 /**
  * @public
  */
-export const addListener = /* @__PURE__ */ assign(
+export const addListener = /* @__PURE__ */ Object.assign(
   /* @__PURE__ */ createAction(`${alm}/add`),
   {
     withTypes: () => addListener,
@@ -311,7 +309,7 @@ export const clearAllListeners = /* @__PURE__ */ createAction(
 /**
  * @public
  */
-export const removeListener = /* @__PURE__ */ assign(
+export const removeListener = /* @__PURE__ */ Object.assign(
   /* @__PURE__ */ createAction(`${alm}/remove`),
   {
     withTypes: () => removeListener,
@@ -370,7 +368,7 @@ export const createListenerMiddleware = <
     }
   }
 
-  const startListening = /* @__PURE__ */ assign(
+  const startListening = /* @__PURE__ */ Object.assign(
     ((options: FallbackAddListenerOptions) => {
       const entry =
         findListenerEntry(listenerMap, options) ??
@@ -381,7 +379,7 @@ export const createListenerMiddleware = <
     { withTypes: () => startListening },
   )
 
-  const stopListening = /* @__PURE__ */ assign(
+  const stopListening = /* @__PURE__ */ Object.assign(
     (
       options: FallbackAddListenerOptions & UnsubscribeListenerOptions,
     ): boolean => {
@@ -418,8 +416,8 @@ export const createListenerMiddleware = <
       await Promise.resolve(
         entry.effect(
           action,
-          // Use assign() rather than ... to avoid extra helper functions added to bundle
-          assign({}, api, {
+          // Use Object.assign() rather than ... to avoid extra helper functions added to bundle
+          Object.assign({}, api, {
             getOriginalState,
             condition: (
               predicate: AnyListenerPredicate<any>,
