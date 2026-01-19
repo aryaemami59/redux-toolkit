@@ -155,7 +155,8 @@ const removeCJSOutputsFromDTSBuilds = (
           if (
             outputOptions.format === 'cjs' &&
             isWrite &&
-            (fileName.endsWith('.cjs') || fileName.endsWith('.cjs.map'))
+            (fileName.endsWith('index.cjs') ||
+              fileName.endsWith('index.cjs.map'))
           ) {
             delete bundle[fileName]
           }
@@ -601,6 +602,7 @@ export default defineConfig((cliOptions) => {
       annotateAsPurePlugin({
         callExpressions: ['__assign', 'Object.assign'],
       }),
+      removeCJSOutputsFromDTSBuilds(),
     ],
     shims: true,
     sourcemap: true,
@@ -640,22 +642,6 @@ export default defineConfig((cliOptions) => {
         attachDebugInfo: 'none',
       },
     }),
-    plugins: [
-      mangleErrorsTransform(),
-      // annotateAsPurePlugin({
-      //   callExpressions: ['__assign', 'Object.assign'],
-      // }),
-      removeCJSOutputsFromDTSBuilds(),
-    ],
-    /**
-     * @todo Investigate why an unexpected `index.js` file is still emitted
-     * even with `emitDtsOnly: true`. The goal is to produce `.d.ts`
-     * outputs for CJS builds without generating any JavaScript files.
-     *
-     * Until the root cause is identified, we disable source map generation
-     * to avoid producing additional unwanted artifacts.
-     */
-    sourcemap: false,
   } as const satisfies InlineConfig
 
   const modernEsmConfig = {
@@ -674,9 +660,6 @@ export default defineConfig((cliOptions) => {
     format: ['cjs'],
     minify: 'dce-only',
     outExtensions: () => ({ js: '.development.cjs' }),
-    treeshake: {
-      moduleSideEffects: false,
-    },
   } as const satisfies InlineConfig
 
   const productionCjsConfig = {
@@ -693,9 +676,6 @@ export default defineConfig((cliOptions) => {
       await writeCommonJSEntry(path.join(outDir, 'cjs'), 'redux-toolkit')
     },
     outExtensions: () => ({ js: '.production.min.cjs' }),
-    treeshake: {
-      moduleSideEffects: false,
-    },
   } as const satisfies InlineConfig
 
   const browserEsmConfig = {
@@ -766,6 +746,7 @@ export default defineConfig((cliOptions) => {
         `${packageJson.name}/query`,
       ],
     },
+
     {
       ...developmentCjsConfig,
       name: 'Redux-Toolkit-Core-CJS-Development',
