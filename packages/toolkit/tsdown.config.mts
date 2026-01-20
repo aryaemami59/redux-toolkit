@@ -75,7 +75,7 @@ const mangleErrorsTransform = (
     transform: {
       filter: {
         code: {
-          include: ['throw new'],
+          include: ['throw'],
         },
         id: {
           exclude: [RE_DTS, RE_NODE_MODULES],
