@@ -1,16 +1,14 @@
-import { getReferenceName, isReference, resolve, resolveArray } from '@oazapfts/resolve';
 import camelCase from 'lodash.camelcase';
 import path from 'node:path';
-import { UNSTABLE_cg as cg } from 'oazapfts';
-import type { OazapftsContext } from 'oazapfts/context';
-import { createContext, withMode } from 'oazapfts/context';
-import {
+import ApiGenerator, {
   getOperationName as _getOperationName,
-  getResponseType,
-  getSchemaFromContent,
-  getTypeFromResponse,
-  getTypeFromSchema,
-  preprocessComponents,
+  createPropertyAssignment,
+  createQuestionToken,
+  getReferenceName,
+  isReference,
+  isValidIdentifier,
+  keywordType,
+  supportDeepObjects,
 } from 'oazapfts/generate';
 import type { OpenAPIV3 } from 'openapi-types';
 import ts from 'typescript';
@@ -26,43 +24,19 @@ import type {
   ParameterMatcher,
   TextMatcher,
 } from './types';
-import { factory } from './utils/factory';
-import { capitalize, getOperationDefinitions, getV3Doc, removeUndefined, isQuery as testIsQuery } from './utils/index';
-
-const { createPropertyAssignment, createQuestionToken, keywordType, isValidIdentifier } = cg;
+import {
+  capitalize,
+  factory,
+  getOperationDefinitions,
+  getV3Doc,
+  removeUndefined,
+  isQuery as testIsQuery,
+} from './utils/index';
 
 const generatedApiName = 'injectedRtkApi';
 const v3DocCache: Record<string, OpenAPIV3.Document> = {};
 
-function supportDeepObjects(params: OpenAPIV3.ParameterObject[]): OpenAPIV3.ParameterObject[] {
-  const res: OpenAPIV3.ParameterObject[] = [];
-  const merged: Record<string, any> = {};
-  for (const p of params) {
-    const m = /^(.+?)\[(.*?)\]/.exec(p.name);
-    if (!m) {
-      res.push(p);
-      continue;
-    }
-    const [, name, prop] = m;
-    let obj = merged[name];
-    if (!obj) {
-      obj = merged[name] = {
-        name,
-        in: p.in,
-        style: 'deepObject',
-        schema: {
-          type: 'object',
-          properties: {} as Record<string, any>,
-        },
-      };
-      res.push(obj);
-    }
-    obj.schema.properties[prop] = p.schema;
-  }
-  return res;
-}
-
-function defaultIsDataResponse(code: string, includeDefault: boolean) {
+function defaultIsDataResponse(code: string, includeDefault: boolean): boolean {
   if (includeDefault && code === 'default') {
     return true;
   }
@@ -70,7 +44,7 @@ function defaultIsDataResponse(code: string, includeDefault: boolean) {
   return !Number.isNaN(parsedCode) && parsedCode >= 200 && parsedCode < 300;
 }
 
-function getOperationName({ verb, path, operation }: Pick<OperationDefinition, 'verb' | 'path' | 'operation'>) {
+function getOperationName({ verb, path, operation }: Pick<OperationDefinition, 'verb' | 'path' | 'operation'>): string {
   return _getOperationName(verb, path, operation.operationId);
 }
 
@@ -78,9 +52,9 @@ function getTags({ verb, pathItem }: Pick<OperationDefinition, 'verb' | 'pathIte
   return verb ? pathItem[verb]?.tags || [] : [];
 }
 
-function patternMatches(pattern?: TextMatcher) {
+function patternMatches(pattern?: TextMatcher): (operationName: string) => boolean {
   const filters = Array.isArray(pattern) ? pattern : [pattern];
-  return function matcher(operationName: string) {
+  return function matcher(operationName: string): boolean {
     if (!pattern) return true;
     return filters.some((filter) =>
       typeof filter === 'string' ? filter === operationName : filter?.test(operationName)
@@ -88,18 +62,18 @@ function patternMatches(pattern?: TextMatcher) {
   };
 }
 
-function operationMatches(pattern?: EndpointMatcher) {
+function operationMatches(pattern?: EndpointMatcher): (operationDefinition: OperationDefinition) => boolean {
   const checkMatch = typeof pattern === 'function' ? pattern : patternMatches(pattern);
-  return function matcher(operationDefinition: OperationDefinition) {
+  return function matcher(operationDefinition: OperationDefinition): boolean {
     if (!pattern) return true;
     const operationName = getOperationName(operationDefinition);
     return checkMatch(operationName, operationDefinition);
   };
 }
 
-function argumentMatches(pattern?: ParameterMatcher) {
+function argumentMatches(pattern?: ParameterMatcher): (argumentDefinition: ParameterDefinition) => boolean {
   const checkMatch = typeof pattern === 'function' ? pattern : patternMatches(pattern);
-  return function matcher(argumentDefinition: ParameterDefinition) {
+  return function matcher(argumentDefinition: ParameterDefinition): boolean {
     if (!pattern || argumentDefinition.in === 'path') return true;
     const argumentName = argumentDefinition.name;
     return checkMatch(argumentName, argumentDefinition);
@@ -121,27 +95,26 @@ function withQueryComment<T extends ts.Node>(node: T, def: QueryArgDefinition, h
 
 function getPatternFromProperty(
   property: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject,
-  ctx: OazapftsContext
+  apiGen: ApiGenerator
 ): string | null {
-  const resolved = resolve(property, ctx);
-  if (!resolved || typeof resolved !== 'object' || !('pattern' in resolved)) return null;
-  if (resolved.type !== 'string') return null;
-  const pattern = resolved.pattern;
+  const resolved = apiGen.resolve(property);
+  if (!resolved || typeof resolved !== 'object' || !('pattern' in resolved) || resolved.type !== 'string') return null;
+  const { pattern } = resolved;
   return typeof pattern === 'string' && pattern.length > 0 ? pattern : null;
 }
 
 function generateRegexConstantsForType(
   typeName: string,
   schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject,
-  ctx: OazapftsContext
+  apiGen: ApiGenerator
 ): ts.VariableStatement[] {
-  const resolvedSchema = resolve(schema, ctx);
+  const resolvedSchema = apiGen.resolve(schema);
   if (!resolvedSchema || !('properties' in resolvedSchema) || !resolvedSchema.properties) return [];
 
   const constants: ts.VariableStatement[] = [];
 
   for (const [propertyName, property] of Object.entries(resolvedSchema.properties)) {
-    const pattern = getPatternFromProperty(property, ctx);
+    const pattern = getPatternFromProperty(property, apiGen);
     if (!pattern) continue;
 
     const constantName = camelCase(`${typeName} ${propertyName} Pattern`);
@@ -191,7 +164,7 @@ export async function generateApi(
     isDataResponse = defaultIsDataResponse,
     filterEndpoints,
     endpointOverrides,
-    unionUndefined,
+    unionUndefined = false,
     encodePathParams = false,
     encodeQueryParams = false,
     flattenArg = false,
@@ -203,16 +176,20 @@ export async function generateApi(
     esmExtensions = false,
     outputRegexConstants = false,
   }: GenerationOptions
-) {
+): Promise<string> {
   const v3Doc = (v3DocCache[spec] ??= await getV3Doc(spec, httpResolverOptions));
 
-  const ctx = createContext(v3Doc, {
+  const apiGen = new ApiGenerator(v3Doc, {
     unionUndefined,
     useEnumType,
     mergeReadWriteOnly,
     useUnknown,
   });
-  preprocessComponents(ctx);
+
+  // temporary workaround for https://github.com/oazapfts/oazapfts/issues/491
+  if (apiGen.spec.components?.schemas) {
+    apiGen.preprocessComponents(apiGen.spec.components.schemas);
+  }
 
   const operationDefinitions = getOperationDefinitions(v3Doc).filter(operationMatches(filterEndpoints));
 
@@ -226,7 +203,9 @@ export async function generateApi(
   const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
 
   const interfaces: Record<string, ts.InterfaceDeclaration | ts.TypeAliasDeclaration> = {};
-  function registerInterface(declaration: ts.InterfaceDeclaration | ts.TypeAliasDeclaration) {
+  function registerInterface(
+    declaration: ts.InterfaceDeclaration | ts.TypeAliasDeclaration
+  ): ts.TypeAliasDeclaration | ts.InterfaceDeclaration {
     const name = declaration.name.escapedText.toString();
     if (name in interfaces) {
       throw new Error(`interface/type alias ${name} already registered`);
@@ -286,18 +265,18 @@ export async function generateApi(
         ),
         ...Object.values(interfaces),
         ...(outputRegexConstants
-          ? ctx.aliases.flatMap((alias) => {
+          ? apiGen.aliases.flatMap((alias) => {
               if (!ts.isInterfaceDeclaration(alias) && !ts.isTypeAliasDeclaration(alias)) return [alias];
 
               const typeName = alias.name.escapedText.toString();
               const schema = v3Doc.components?.schemas?.[typeName];
               if (!schema) return [alias];
 
-              const regexConstants = generateRegexConstantsForType(typeName, schema, ctx);
+              const regexConstants = generateRegexConstantsForType(typeName, schema, apiGen);
               return regexConstants.length > 0 ? [alias, ...regexConstants] : [alias];
             })
-          : ctx.aliases),
-        ...ctx.enumAliases,
+          : apiGen.aliases),
+        ...apiGen.enumAliases,
         ...(hooks
           ? [
               generateReactHooks({
@@ -316,7 +295,7 @@ export async function generateApi(
     resultFile
   );
 
-  function extractAllTagTypes({ operationDefinitions }: { operationDefinitions: OperationDefinition[] }) {
+  function extractAllTagTypes({ operationDefinitions }: { operationDefinitions: OperationDefinition[] }): string[] {
     const allTagTypes = new Set<string>();
 
     for (const operationDefinition of operationDefinitions) {
@@ -334,7 +313,7 @@ export async function generateApi(
   }: {
     operationDefinition: OperationDefinition;
     overrides?: EndpointOverrides;
-  }) {
+  }): ts.PropertyAssignment {
     const {
       verb,
       path,
@@ -346,7 +325,7 @@ export async function generateApi(
     const tags = tag ? getTags({ verb, pathItem }) : undefined;
     const isQuery = testIsQuery(verb, overrides);
 
-    const returnsJson = getResponseType(ctx, responses) === 'json';
+    const returnsJson = apiGen.getResponseType(responses) === 'json';
     let ResponseType: ts.TypeNode = factory.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword);
     if (returnsJson) {
       const returnTypes = Object.entries(responses || {})
@@ -354,12 +333,14 @@ export async function generateApi(
           ([code, response]) =>
             [
               code,
-              resolve(response, ctx),
-              getTypeFromResponse(response, withMode(ctx, 'readOnly')) ||
+              apiGen.resolve(response),
+              apiGen.getTypeFromResponse(response, 'readOnly') ||
                 factory.createKeywordTypeNode(ts.SyntaxKind.UndefinedKeyword),
             ] as const
         )
-        .filter(([status, response]) => isDataResponse(status, includeDefault, resolve(response, ctx), responses || {}))
+        .filter(([status, response]) =>
+          isDataResponse(status, includeDefault, apiGen.resolve(response), responses || {})
+        )
         .filter(([_1, _2, type]) => type !== keywordType.void)
         .map(([code, response, type]) =>
           ts.addSyntheticLeadingComment(
@@ -385,10 +366,10 @@ export async function generateApi(
       ).name
     );
 
-    const operationParameters = resolveArray(ctx, operation.parameters);
-    const pathItemParameters = resolveArray(ctx, pathItem.parameters).filter(
-      (pp) => !operationParameters.some((op) => op.name === pp.name && op.in === pp.in)
-    );
+    const operationParameters = apiGen.resolveArray(operation.parameters);
+    const pathItemParameters = apiGen
+      .resolveArray(pathItem.parameters)
+      .filter((pp) => !operationParameters.some((op) => op.name === pp.name && op.in === pp.in));
 
     const parameters = supportDeepObjects([...pathItemParameters, ...operationParameters]).filter(
       argumentMatches(overrides?.parameterFilter)
@@ -421,16 +402,16 @@ export async function generateApi(
         origin: 'param',
         name,
         originalName: param.name,
-        type: getTypeFromSchema(withMode(ctx, 'writeOnly'), isReference(param) ? param : param.schema),
+        type: apiGen.getTypeFromSchema(isReference(param) ? param : param.schema, undefined, 'writeOnly'),
         required: param.required,
         param,
       };
     }
 
     if (requestBody) {
-      const body = resolve(requestBody, ctx);
-      const schema = getSchemaFromContent(body.content);
-      const type = getTypeFromSchema(ctx, schema);
+      const body = apiGen.resolve(requestBody);
+      const schema = apiGen.getSchemaFromContent(body.content);
+      const type = apiGen.getTypeFromSchema(schema);
       const schemaName = camelCase(
         (type as any).name ||
           getReferenceName(schema) ||
@@ -443,7 +424,7 @@ export async function generateApi(
         origin: 'body',
         name,
         originalName: schemaName,
-        type: getTypeFromSchema(withMode(ctx, 'writeOnly'), schema),
+        type: apiGen.getTypeFromSchema(schema, undefined, 'writeOnly'),
         required: true,
         body,
       };
@@ -539,14 +520,14 @@ export async function generateApi(
     isQuery: boolean;
     encodePathParams: boolean;
     encodeQueryParams: boolean;
-  }) {
+  }): ts.ArrowFunction {
     const { path, verb } = operationDefinition;
 
     const bodyParameter = Object.values(queryArg).find((def) => def.origin === 'body');
 
     const rootObject = factory.createIdentifier('queryArg');
 
-    function pickParams(paramIn: string) {
+    function pickParams(paramIn: string): QueryArgDefinition[] {
       return Object.values(queryArg).filter((def) => def.origin === 'param' && def.param.in === paramIn);
     }
 
@@ -628,7 +609,10 @@ export async function generateApi(
   }
 }
 
-function accessProperty(rootObject: ts.Identifier, propertyName: string) {
+function accessProperty(
+  rootObject: ts.Identifier,
+  propertyName: string
+): ts.PropertyAccessExpression | ts.ElementAccessExpression {
   return isValidIdentifier(propertyName)
     ? factory.createPropertyAccessExpression(rootObject, factory.createIdentifier(propertyName))
     : factory.createElementAccessExpression(rootObject, factory.createStringLiteral(propertyName));
@@ -640,7 +624,7 @@ function generatePathExpression(
   rootObject: ts.Identifier,
   isFlatArg: boolean,
   encodePathParams: boolean
-) {
+): ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression {
   const expressions: Array<[string, string]> = [];
 
   const head = path.replace(/\{(.*?)}(.*?)(?=\{|$)/g, (_, expression, literal) => {
