@@ -8,13 +8,9 @@ type HooksConfigOptions = NonNullable<ConfigFile['hooks']>;
 
 type GetReactHookNameParams = Omit<GenerateReactHooksParams, 'exportName' | 'operationDefinitions'> & {
   operationDefinition: OperationDefinition;
-  // endpointOverrides: EndpointOverrides[] | undefined;
-  // config: HooksConfigOptions;
-  // operationNameSuffix?: string;
 };
 
 type CreateBindingParams = Pick<GetReactHookNameParams, 'operationDefinition' | 'operationNameSuffix'> & {
-  // operationDefinition: OperationDefinition;
   overrides?: EndpointOverrides;
 
   /**
@@ -23,7 +19,6 @@ type CreateBindingParams = Pick<GetReactHookNameParams, 'operationDefinition' | 
    * @default false
    */
   isLazy?: boolean;
-  // operationNameSuffix?: string;
 };
 
 const createBinding = ({
@@ -85,7 +80,6 @@ type GenerateReactHooksParams = Pick<ConfigFile, 'operationNameSuffix' | 'export
   operationDefinitions: OperationDefinition[];
   endpointOverrides: EndpointOverrides[] | undefined;
   config: HooksConfigOptions;
-  // operationNameSuffix?: string;
 };
 export const generateReactHooks = ({
   exportName,

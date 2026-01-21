@@ -37,7 +37,7 @@ export async function generateEndpoints(options: GenerationOptions): Promise<str
   }
 }
 
-export function parseConfig(fullConfig: ConfigFile) {
+export function parseConfig(fullConfig: ConfigFile): (CommonOptions & OutputFileOptions)[] {
   const outFiles: (CommonOptions & OutputFileOptions)[] = [];
 
   if ('outputFiles' in fullConfig) {
@@ -52,7 +52,7 @@ export function parseConfig(fullConfig: ConfigFile) {
   } else {
     outFiles.push(fullConfig);
   }
-  return outFiles;
+  return outFiles satisfies (CommonOptions & OutputFileOptions)[];
 }
 
 /**
