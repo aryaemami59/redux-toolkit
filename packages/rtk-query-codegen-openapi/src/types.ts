@@ -357,6 +357,6 @@ export type ConfigFile =
         /**
          * Mapping of output file paths to their respective output file options.
          */
-        outputFiles: { [outputFile: string]: Omit<OutputFileOptions, 'outputFile'> };
+        outputFiles: { [outputFile: string]: Id<Omit<OutputFileOptions, 'outputFile'>> };
       }
     >;

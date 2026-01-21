@@ -1,13 +1,10 @@
 import camelCase from 'lodash.camelcase';
 import * as path from 'node:path';
+import { cg } from 'oazapfts';
 import ApiGenerator, {
   getOperationName as _getOperationName,
-  createPropertyAssignment,
-  createQuestionToken,
   getReferenceName,
   isReference,
-  isValidIdentifier,
-  keywordType,
   supportDeepObjects,
 } from 'oazapfts/generate';
 import type { OpenAPIV3 } from 'openapi-types';
@@ -32,6 +29,8 @@ import {
   removeUndefined,
   isQuery as testIsQuery,
 } from './utils/index';
+
+const { createPropertyAssignment, createQuestionToken, isValidIdentifier, keywordType } = cg;
 
 const generatedApiName = 'injectedRtkApi';
 const v3DocCache: Record<string, OpenAPIV3.Document> = {};
@@ -164,7 +163,7 @@ export async function generateApi(
     isDataResponse = defaultIsDataResponse,
     filterEndpoints,
     endpointOverrides,
-    unionUndefined,
+    unionUndefined = false,
     encodePathParams = false,
     encodeQueryParams = false,
     flattenArg = false,
@@ -532,7 +531,10 @@ export async function generateApi(
       return Object.values(queryArg).filter((def) => def.origin === 'param' && def.param.in === paramIn);
     }
 
-    function createObjectLiteralProperty(parameters: QueryArgDefinition[], propertyName: string) {
+    function createObjectLiteralProperty(
+      parameters: QueryArgDefinition[],
+      propertyName: string
+    ): ts.PropertyAssignment | undefined {
       if (parameters.length === 0) return undefined;
 
       const properties = parameters.map((param) => {
