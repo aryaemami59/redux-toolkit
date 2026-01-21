@@ -9,13 +9,7 @@ export default defineConfig({
   test: {
     alias: process.env.TEST_DIST
       ? {
-          '@rtk-query/codegen-openapi': path.join(
-            import.meta.dirname,
-            '..',
-            '..',
-            'node_modules',
-            '@rtk-query/codegen-openapi'
-          ),
+          '@rtk-query/codegen-openapi': path.join(import.meta.dirname, '..', '..', 'node_modules', packageJson.name),
         }
       : undefined,
     clearMocks: true,
@@ -29,7 +23,6 @@ export default defineConfig({
     setupFiles: ['./test/vitest.setup.ts'],
     testTimeout: 10_000,
     typecheck: {
-      checker: 'tsc',
       enabled: true,
       include: ['**/*.{test,spec}-d.?(c|m)ts?(x)'],
       tsconfig: path.join(import.meta.dirname, 'tsconfig.json'),

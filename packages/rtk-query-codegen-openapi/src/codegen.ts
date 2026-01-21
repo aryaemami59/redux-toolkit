@@ -6,8 +6,8 @@ const defaultEndpointBuilder = factory.createIdentifier('build');
 export type ObjectPropertyDefinitions = Record<string, ts.Expression | undefined>;
 export function generateObjectProperties(obj: ObjectPropertyDefinitions): ts.PropertyAssignment[] {
   return Object.entries(obj)
-    .filter(([_, v]) => v)
-    .map(([k, v]) => factory.createPropertyAssignment(factory.createIdentifier(k), v as ts.Expression));
+    .filter((entry): entry is [string, ts.Expression] => entry[1] != null)
+    .map(([k, v]) => factory.createPropertyAssignment(factory.createIdentifier(k), v));
 }
 
 export function generateImportNode(
@@ -18,7 +18,7 @@ export function generateImportNode(
   return factory.createImportDeclaration(
     undefined,
     factory.createImportClause(
-      false,
+      undefined,
       defaultImportName !== undefined ? factory.createIdentifier(defaultImportName) : undefined,
       factory.createNamedImports(
         Object.entries(namedImports).map(([propertyName, name]) =>

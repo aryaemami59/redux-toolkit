@@ -170,7 +170,7 @@ export type CommonOptions = {
 
   /**
    * `true` will add {@linkcode encodeURIComponent} to the generated
-   * {@linkcode  OpenAPIV3.OperationObject.parameters | query parameters}.
+   * {@linkcode OpenAPIV3.OperationObject.parameters | query parameters}.
    *
    * @default false
    */
@@ -357,6 +357,6 @@ export type ConfigFile =
         /**
          * Mapping of output file paths to their respective output file options.
          */
-        outputFiles: { [outputFile: string]: Omit<OutputFileOptions, 'outputFile'> };
+        outputFiles: { [outputFile: string]: Id<Omit<OutputFileOptions, 'outputFile'>> };
       }
     >;
