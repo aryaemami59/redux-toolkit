@@ -58,6 +58,7 @@
     "test:update:enum": "lib/bin/cli.mjs test/config.example.enum.ts",
     "test": "vitest --run --typecheck",
     "test:watch": "vitest --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "cli": "esr src/bin/cli.ts"
   },
   "files": [
