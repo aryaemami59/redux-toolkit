@@ -8,7 +8,7 @@ export type { ConfigFile } from './types';
 
 const require = createRequire(__filename);
 
-export async function generateEndpoints(options: GenerationOptions): Promise<string | void> {
+export async function generateEndpoints(options: GenerationOptions): Promise<string> {
   const schemaLocation = options.schemaFile;
 
   const schemaAbsPath = isValidUrl(options.schemaFile)
@@ -20,10 +20,11 @@ export async function generateEndpoints(options: GenerationOptions): Promise<str
   });
   const { outputFile, prettierConfigFile } = options;
   if (outputFile) {
-    fs.writeFileSync(
-      path.resolve(process.cwd(), outputFile),
-      await prettify(outputFile, sourceCode, prettierConfigFile)
-    );
+    const formattedOutput = await prettify(outputFile, sourceCode, prettierConfigFile);
+
+    fs.writeFileSync(path.resolve(process.cwd(), outputFile), formattedOutput);
+
+    return formattedOutput;
   } else {
     return await prettify(null, sourceCode, prettierConfigFile);
   }
