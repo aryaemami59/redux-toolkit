@@ -1,13 +1,10 @@
 import camelCase from 'lodash.camelcase';
-import path from 'node:path';
+import * as path from 'node:path';
+import { cg } from 'oazapfts';
 import ApiGenerator, {
   getOperationName as _getOperationName,
-  createPropertyAssignment,
-  createQuestionToken,
   getReferenceName,
   isReference,
-  isValidIdentifier,
-  keywordType,
   supportDeepObjects,
 } from 'oazapfts/generate';
 import type { OpenAPIV3 } from 'openapi-types';
@@ -32,6 +29,8 @@ import {
   removeUndefined,
   isQuery as testIsQuery,
 } from './utils/index';
+
+const { createPropertyAssignment, createQuestionToken, isValidIdentifier, keywordType } = cg;
 
 const generatedApiName = 'injectedRtkApi';
 const v3DocCache: Record<string, OpenAPIV3.Document> = {};
