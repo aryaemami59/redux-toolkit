@@ -1,5 +1,5 @@
 import camelCase from 'lodash.camelcase';
-import path from 'node:path';
+import * as path from 'node:path';
 import ApiGenerator, {
   getOperationName as _getOperationName,
   createPropertyAssignment,
@@ -24,13 +24,19 @@ import type {
   ParameterMatcher,
   TextMatcher,
 } from './types';
-import { capitalize, getOperationDefinitions, getV3Doc, removeUndefined, isQuery as testIsQuery } from './utils';
-import { factory } from './utils/factory';
+import {
+  capitalize,
+  factory,
+  getOperationDefinitions,
+  getV3Doc,
+  removeUndefined,
+  isQuery as testIsQuery,
+} from './utils/index';
 
 const generatedApiName = 'injectedRtkApi';
 const v3DocCache: Record<string, OpenAPIV3.Document> = {};
 
-function defaultIsDataResponse(code: string, includeDefault: boolean) {
+function defaultIsDataResponse(code: string, includeDefault: boolean): boolean {
   if (includeDefault && code === 'default') {
     return true;
   }
@@ -46,9 +52,9 @@ function getTags({ verb, pathItem }: Pick<OperationDefinition, 'verb' | 'pathIte
   return verb ? pathItem[verb]?.tags || [] : [];
 }
 
-function patternMatches(pattern?: TextMatcher) {
+function patternMatches(pattern?: TextMatcher): (operationName: string) => boolean {
   const filters = Array.isArray(pattern) ? pattern : [pattern];
-  return function matcher(operationName: string) {
+  return function matcher(operationName: string): boolean {
     if (!pattern) return true;
     return filters.some((filter) =>
       typeof filter === 'string' ? filter === operationName : filter?.test(operationName)
@@ -56,9 +62,9 @@ function patternMatches(pattern?: TextMatcher) {
   };
 }
 
-function operationMatches(pattern?: EndpointMatcher) {
+function operationMatches(pattern?: EndpointMatcher): (operationDefinition: OperationDefinition) => boolean {
   const checkMatch = typeof pattern === 'function' ? pattern : patternMatches(pattern);
-  return function matcher(operationDefinition: OperationDefinition) {
+  return function matcher(operationDefinition: OperationDefinition): boolean {
     if (!pattern) return true;
     const operationName = getOperationName(operationDefinition);
     return checkMatch(operationName, operationDefinition);
@@ -92,9 +98,8 @@ function getPatternFromProperty(
   apiGen: ApiGenerator
 ): string | null {
   const resolved = apiGen.resolve(property);
-  if (!resolved || typeof resolved !== 'object' || !('pattern' in resolved)) return null;
-  if (resolved.type !== 'string') return null;
-  const pattern = resolved.pattern;
+  if (!resolved || typeof resolved !== 'object' || !('pattern' in resolved) || resolved.type !== 'string') return null;
+  const { pattern } = resolved;
   return typeof pattern === 'string' && pattern.length > 0 ? pattern : null;
 }
 
@@ -245,6 +250,7 @@ export async function generateApi(
             true
           ),
         }),
+        // `export { injectedRtkApi as enhancedApi };`
         factory.createExportDeclaration(
           undefined,
           false,
