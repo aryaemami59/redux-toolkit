@@ -531,7 +531,10 @@ export async function generateApi(
       return Object.values(queryArg).filter((def) => def.origin === 'param' && def.param.in === paramIn);
     }
 
-    function createObjectLiteralProperty(parameters: QueryArgDefinition[], propertyName: string) {
+    function createObjectLiteralProperty(
+      parameters: QueryArgDefinition[],
+      propertyName: string
+    ): ts.PropertyAssignment | undefined {
       if (parameters.length === 0) return undefined;
 
       const properties = parameters.map((param) => {
