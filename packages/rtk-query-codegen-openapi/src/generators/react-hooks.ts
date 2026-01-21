@@ -87,7 +87,7 @@ export const generateReactHooks = ({
   endpointOverrides,
   config,
   operationNameSuffix,
-}: GenerateReactHooksParams) =>
+}: GenerateReactHooksParams): ts.VariableStatement =>
   factory.createVariableStatement(
     [factory.createModifier(ts.SyntaxKind.ExportKeyword)],
     factory.createVariableDeclarationList(
