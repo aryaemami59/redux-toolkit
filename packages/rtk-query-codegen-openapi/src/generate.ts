@@ -44,7 +44,7 @@ function defaultIsDataResponse(code: string, includeDefault: boolean): boolean {
   return !Number.isNaN(parsedCode) && parsedCode >= 200 && parsedCode < 300;
 }
 
-function getOperationName({ verb, path, operation }: Pick<OperationDefinition, 'verb' | 'path' | 'operation'>) {
+function getOperationName({ verb, path, operation }: Pick<OperationDefinition, 'verb' | 'path' | 'operation'>): string {
   return _getOperationName(verb, path, operation.operationId);
 }
 
@@ -71,9 +71,9 @@ function operationMatches(pattern?: EndpointMatcher): (operationDefinition: Oper
   };
 }
 
-function argumentMatches(pattern?: ParameterMatcher) {
+function argumentMatches(pattern?: ParameterMatcher): (argumentDefinition: ParameterDefinition) => boolean {
   const checkMatch = typeof pattern === 'function' ? pattern : patternMatches(pattern);
-  return function matcher(argumentDefinition: ParameterDefinition) {
+  return function matcher(argumentDefinition: ParameterDefinition): boolean {
     if (!pattern || argumentDefinition.in === 'path') return true;
     const argumentName = argumentDefinition.name;
     return checkMatch(argumentName, argumentDefinition);
@@ -176,7 +176,7 @@ export async function generateApi(
     esmExtensions = false,
     outputRegexConstants = false,
   }: GenerationOptions
-) {
+): Promise<string> {
   const v3Doc = (v3DocCache[spec] ??= await getV3Doc(spec, httpResolverOptions));
 
   const apiGen = new ApiGenerator(v3Doc, {
@@ -203,7 +203,9 @@ export async function generateApi(
   const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
 
   const interfaces: Record<string, ts.InterfaceDeclaration | ts.TypeAliasDeclaration> = {};
-  function registerInterface(declaration: ts.InterfaceDeclaration | ts.TypeAliasDeclaration) {
+  function registerInterface(
+    declaration: ts.InterfaceDeclaration | ts.TypeAliasDeclaration
+  ): ts.TypeAliasDeclaration | ts.InterfaceDeclaration {
     const name = declaration.name.escapedText.toString();
     if (name in interfaces) {
       throw new Error(`interface/type alias ${name} already registered`);
@@ -294,7 +296,7 @@ export async function generateApi(
     resultFile
   );
 
-  function extractAllTagTypes({ operationDefinitions }: { operationDefinitions: OperationDefinition[] }) {
+  function extractAllTagTypes({ operationDefinitions }: { operationDefinitions: OperationDefinition[] }): string[] {
     const allTagTypes = new Set<string>();
 
     for (const operationDefinition of operationDefinitions) {
@@ -312,7 +314,7 @@ export async function generateApi(
   }: {
     operationDefinition: OperationDefinition;
     overrides?: EndpointOverrides;
-  }) {
+  }): ts.PropertyAssignment {
     const {
       verb,
       path,
@@ -378,7 +380,7 @@ export async function generateApi(
     const queryArg: QueryArgDefinitions = {};
     function generateName(name: string, potentialPrefix: string) {
       const isPureSnakeCase = /^[a-zA-Z][a-zA-Z0-9_]*$/.test(name);
-      // prefix with `query`, `path` or `body` if there are multiple paramters with the same name
+      // prefix with `query`, `path` or `body` if there are multiple parameters with the same name
       const hasNamingConflict = allNames.filter((n) => n === name).length > 1;
       if (hasNamingConflict) {
         name = `${potentialPrefix}_${name}`;
@@ -519,14 +521,14 @@ export async function generateApi(
     isQuery: boolean;
     encodePathParams: boolean;
     encodeQueryParams: boolean;
-  }) {
+  }): ts.ArrowFunction {
     const { path, verb } = operationDefinition;
 
     const bodyParameter = Object.values(queryArg).find((def) => def.origin === 'body');
 
     const rootObject = factory.createIdentifier('queryArg');
 
-    function pickParams(paramIn: string) {
+    function pickParams(paramIn: string): QueryArgDefinition[] {
       return Object.values(queryArg).filter((def) => def.origin === 'param' && def.param.in === paramIn);
     }
 
@@ -608,7 +610,10 @@ export async function generateApi(
   }
 }
 
-function accessProperty(rootObject: ts.Identifier, propertyName: string) {
+function accessProperty(
+  rootObject: ts.Identifier,
+  propertyName: string
+): ts.PropertyAccessExpression | ts.ElementAccessExpression {
   return isValidIdentifier(propertyName)
     ? factory.createPropertyAccessExpression(rootObject, factory.createIdentifier(propertyName))
     : factory.createElementAccessExpression(rootObject, factory.createStringLiteral(propertyName));
@@ -620,7 +625,7 @@ function generatePathExpression(
   rootObject: ts.Identifier,
   isFlatArg: boolean,
   encodePathParams: boolean
-) {
+): ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression {
   const expressions: Array<[string, string]> = [];
 
   const head = path.replace(/\{(.*?)}(.*?)(?=\{|$)/g, (_, expression, literal) => {
