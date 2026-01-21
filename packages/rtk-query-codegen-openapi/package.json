@@ -75,6 +75,7 @@
     "@types/lodash.camelcase": "^4.3.9",
     "@types/node": "^25.5.0",
     "@types/semver": "^7.7.1",
+    "@types/swagger2openapi": "^7.0.4",
     "esbuild": "^0.28.0",
     "esbuild-runner": "^2.2.2",
     "msw": "^2.14.3",
