@@ -238,7 +238,7 @@
   "scripts": {
     "clean": "rimraf dist/ .rolldown/",
     "run-build": "tsdown --config-loader='unrun' --config=$INIT_CWD/tsdown.config.mts",
-    "build": "yarn clean && yarn run-build && tsx scripts/fixUniqueSymbolExports.mts",
+    "build": "yarn clean && yarn run-build",
     "build-only": "yarn clean && yarn run-build",
     "format": "prettier --write \"(src|examples)/**/*.{ts,tsx}\" \"**/*.md\"",
     "format:check": "prettier --list-different \"(src|examples)/**/*.{ts,tsx}\" \"docs/*/**.md\"",
