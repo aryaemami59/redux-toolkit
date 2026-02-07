@@ -30,8 +30,7 @@ import {
   isQueryDefinition,
 } from '../endpointDefinitions'
 import { safeAssign } from '../tsHelpers'
-import { enablePatches } from '../utils/immerImports'
-import { getOrInsertComputed } from '../utils/index'
+import { enablePatches, getOrInsertComputed } from '../utils/index'
 import type {
   CombinedState,
   MutationKeys,
