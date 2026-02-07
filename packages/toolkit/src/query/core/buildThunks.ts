@@ -45,7 +45,7 @@ import {
   shouldSkip,
 } from '../standardSchema'
 import type { UnwrapPromise } from '../tsHelpers'
-import { isDraftable, produceWithPatches } from '../utils/immerImports'
+import { isDraftable, produceWithPatches } from '../utils/index'
 import type {
   InfiniteData,
   InfiniteQueryConfigOptions,

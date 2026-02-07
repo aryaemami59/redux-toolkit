@@ -1,6 +1,9 @@
 import type { Action } from '@reduxjs/toolkit'
-import { produceWithPatches } from '../../utils/immerImports'
-import { createNewMap, getOrInsertComputed } from '../../utils/index'
+import {
+  createNewMap,
+  getOrInsertComputed,
+  produceWithPatches,
+} from '../../utils/index'
 import type { SubscriptionInternalState, SubscriptionState } from '../apiState'
 import type { InternalHandlerBuilder, SubscriptionSelectors } from './types'
 
