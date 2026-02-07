@@ -553,6 +553,7 @@ export default defineConfig((cliOptions) => {
       ...options,
       experimental: {
         ...options.experimental,
+        lazyBarrel: true,
         ...(format === 'cjs'
           ? {
               attachDebugInfo: 'none',
@@ -574,16 +575,6 @@ export default defineConfig((cliOptions) => {
     }),
     nodeProtocol: true,
     outDir: 'dist',
-    outputOptions: (options, format, context) => ({
-      ...options,
-      ...(format === 'cjs' && !context.cjsDts
-        ? {
-            externalLiveBindings: false,
-            intro: '"use strict";',
-          }
-        : {}),
-      legalComments: 'none',
-    }),
     outExtensions: ({ format, options }) => ({
       dts: format === 'es' ? '.d.mts' : '.d.ts',
       js:
@@ -594,6 +585,17 @@ export default defineConfig((cliOptions) => {
             ? '.legacy-esm.js'
             : `${options.platform === 'browser' ? '.browser' : '.modern'}.mjs`
           : '.cjs',
+    }),
+    outputOptions: (options, format, context) => ({
+      ...options,
+      codeSplitting: false,
+      ...(format === 'cjs' && !context.cjsDts
+        ? {
+            externalLiveBindings: false,
+            intro: '"use strict";',
+          }
+        : {}),
+      legalComments: 'none',
     }),
     platform: 'node',
     plugins: [
@@ -672,9 +674,6 @@ export default defineConfig((cliOptions) => {
     },
     format: ['cjs'],
     minify: true,
-    onSuccess: async ({ outDir }) => {
-      await writeCommonJSEntry(path.join(outDir, 'cjs'), 'redux-toolkit')
-    },
     outExtensions: () => ({ js: '.production.min.cjs' }),
   } as const satisfies InlineConfig
 
@@ -793,8 +792,13 @@ export default defineConfig((cliOptions) => {
       entry: {
         'cjs/redux-toolkit': 'src/index.ts',
       },
-      onSuccess: async ({ outDir }) => {
-        await writeCommonJSEntry(path.join(outDir, 'cjs'), 'redux-toolkit')
+      hooks: {
+        'build:done': async ({ options }) => {
+          await writeCommonJSEntry(
+            path.join(options.outDir, 'cjs'),
+            'redux-toolkit',
+          )
+        },
       },
     },
 
@@ -805,11 +809,13 @@ export default defineConfig((cliOptions) => {
         'react/cjs/redux-toolkit-react': 'src/react/index.ts',
       },
       external: [...peerAndProductionDependencies, packageJson.name],
-      onSuccess: async ({ outDir }) => {
-        await writeCommonJSEntry(
-          path.join(outDir, 'react', 'cjs'),
-          'redux-toolkit-react',
-        )
+      hooks: {
+        'build:done': async ({ options }) => {
+          await writeCommonJSEntry(
+            path.join(options.outDir, 'react', 'cjs'),
+            'redux-toolkit-react',
+          )
+        },
       },
     },
     {
@@ -823,8 +829,13 @@ export default defineConfig((cliOptions) => {
         packageJson.name,
         `${packageJson.name}/react`,
       ],
-      onSuccess: async ({ outDir }) => {
-        await writeCommonJSEntry(path.join(outDir, 'query', 'cjs'), 'rtk-query')
+      hooks: {
+        'build:done': async ({ options }) => {
+          await writeCommonJSEntry(
+            path.join(options.outDir, 'query', 'cjs'),
+            'rtk-query',
+          )
+        },
       },
     },
     {
@@ -839,11 +850,13 @@ export default defineConfig((cliOptions) => {
         `${packageJson.name}/react`,
         `${packageJson.name}/query`,
       ],
-      onSuccess: async ({ outDir }) => {
-        await writeCommonJSEntry(
-          path.join(outDir, 'query', 'react', 'cjs'),
-          'rtk-query-react',
-        )
+      hooks: {
+        'build:done': async ({ options }) => {
+          await writeCommonJSEntry(
+            path.join(options.outDir, 'query', 'react', 'cjs'),
+            'rtk-query-react',
+          )
+        },
       },
     },
 
