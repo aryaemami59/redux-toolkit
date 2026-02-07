@@ -1,11 +1,18 @@
 import type { Node, NodePath } from '@babel/core'
 import * as babel from '@babel/core'
+import { generate } from '@babel/generator'
 import { declare } from '@babel/helper-plugin-utils'
 import type {
   CallExpression,
   Function,
+  Identifier,
   MemberExpression,
   Statement,
+  TSSymbolKeyword,
+  TSTypeAnnotation,
+  TSTypeOperator,
+  VariableDeclaration,
+  VariableDeclarator,
 } from '@babel/types'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
@@ -529,6 +536,342 @@ const annotateAsPurePlugin = (
   }
 }
 
+/**
+ * Represents a `const` variable declaration whose identifier is annotated with
+ * the {@linkcode https://www.typescriptlang.org/docs/handbook/symbols.html#unique-symbol | unique symbol}
+ * type in a TypeScript declaration file (`.d.ts`).
+ *
+ * @example
+ * <caption>Top-level unique symbol declaration</caption>
+ *
+ * ```ts
+ * declare const skipToken: unique symbol;
+ * ```
+ *
+ * @internal
+ */
+type UniqueSymbolVariableDeclaration = Id<
+  VariableDeclaration & {
+    declarations: [
+      variableDeclarator: VariableDeclarator & {
+        id: Identifier & {
+          typeAnnotation: TSTypeAnnotation & {
+            typeAnnotation: TSTypeOperator & {
+              operator: 'unique'
+              typeAnnotation: TSSymbolKeyword
+            }
+          }
+        }
+      },
+      ...VariableDeclarator[],
+    ]
+    declare: true
+    kind: 'const'
+  }
+>
+
+/**
+ * Rolldown plugin to fix unique symbol exports in TypeScript declaration files.
+ *
+ * TypeScript has issues with re-exporting unique symbols in barrel exports.
+ * This plugin uses Babel to parse the AST, identify unique symbol declarations,
+ * remove them from export statements, and convert them to individual export
+ * declarations (e.g., `export declare const X: unique symbol`).
+ *
+ * @param [pluginOptions] - Options forwarded to the plugin.
+ * @returns A Rolldown plugin that fixes unique symbol exports in .d.ts files.
+ * @internal
+ */
+const fixUniqueSymbolExports = (
+  pluginOptions: GenerateBundleObjectHook = {},
+): Rolldown.Plugin => {
+  const { types: t } = babel
+
+  const exportedUniqueSymbolsMap = new Map<string, Set<string>>()
+  const processedFiles = new Set<string>()
+
+  return {
+    name: 'fix-unique-symbol-exports',
+    renderChunk: {
+      order: pluginOptions.order ?? null,
+      async handler(code, chunk, _outputOptions, _meta) {
+        if (!RE_DTS.test(chunk.fileName) || !chunk.isEntry) {
+          return
+        }
+
+        const parsedFile = await babel.parseAsync(code, {
+          ast: true,
+          cwd,
+          filename: chunk.fileName,
+          filenameRelative: path.relative(sourceRootDirectory, chunk.fileName),
+          parserOpts: {
+            errorRecovery: true,
+            plugins: [['typescript', { dts: true }]],
+            ranges: true,
+            sourceFilename: chunk.fileName,
+            sourceType: 'module',
+          },
+          sourceFileName: chunk.fileName,
+          sourceMaps: 'both',
+          sourceType: 'module',
+        })
+
+        if (parsedFile == null) {
+          return null
+        }
+
+        const allUniqueSymbols = new Set<string>()
+        const exportedUniqueSymbols = new Set<string>()
+
+        const isUniqueSymbolDeclaration = <StatementType extends Statement>(
+          statement: StatementType,
+        ): statement is Id<StatementType & UniqueSymbolVariableDeclaration> =>
+          t.isVariableDeclaration(statement, {
+            declare: true,
+            kind: 'const',
+          }) &&
+          t.isIdentifier(statement.declarations[0].id) &&
+          t.isTSTypeAnnotation(statement.declarations[0].id.typeAnnotation) &&
+          t.isTSTypeOperator(
+            statement.declarations[0].id.typeAnnotation.typeAnnotation,
+            { operator: 'unique' },
+          ) &&
+          t.isTSSymbolKeyword(
+            statement.declarations[0].id.typeAnnotation.typeAnnotation
+              .typeAnnotation,
+          )
+
+        // First pass: find all unique symbol declarations
+        parsedFile.program.body.forEach((statement) => {
+          if (isUniqueSymbolDeclaration(statement)) {
+            allUniqueSymbols.add(statement.declarations[0].id.name)
+          }
+        })
+
+        // Second pass: find which ones are in the export list
+        parsedFile.program.body.forEach((statement) => {
+          if (t.isExportNamedDeclaration(statement)) {
+            statement.specifiers.forEach((spec) => {
+              if (
+                t.isExportSpecifier(spec) &&
+                t.isIdentifier(spec.local) &&
+                allUniqueSymbols.has(spec.local.name)
+              ) {
+                exportedUniqueSymbols.add(spec.local.name)
+              }
+            })
+
+            // Remove exported unique symbols from the export specifier list
+            statement.specifiers = statement.specifiers.filter(
+              (exportSpecifier) => {
+                if (
+                  t.isExportSpecifier(exportSpecifier) &&
+                  exportSpecifier.exportKind === 'value' &&
+                  t.isIdentifier(exportSpecifier.local) &&
+                  t.isIdentifier(exportSpecifier.exported) &&
+                  exportedUniqueSymbols.has(exportSpecifier.local.name)
+                ) {
+                  return false
+                }
+
+                return true
+              },
+            )
+          }
+        })
+
+        exportedUniqueSymbolsMap.set(chunk.fileName, exportedUniqueSymbols)
+
+        // Convert unique symbol declarations to export declarations
+        parsedFile.program.body = parsedFile.program.body.map((statement) => {
+          if (
+            isUniqueSymbolDeclaration(statement) &&
+            exportedUniqueSymbols.has(statement.declarations[0].id.name)
+          ) {
+            console.log(
+              `  Exporting '${statement.declarations[0].id.name}' as individual export`,
+            )
+            return t.exportNamedDeclaration(statement)
+          }
+
+          return statement
+        })
+
+        if (exportedUniqueSymbols.size > 0) {
+          console.log(
+            `Fixing unique symbol exports in ${chunk.fileName} (${exportedUniqueSymbols.size} symbols)`,
+          )
+        }
+
+        const generatedResults = generate(parsedFile, {
+          comments: true,
+          sourceMaps: true,
+          sourceFileName: chunk.fileName,
+        })
+
+        processedFiles.add(chunk.fileName)
+
+        return {
+          code: generatedResults.code,
+          map: generatedResults.map,
+        }
+      },
+    },
+
+    // Fallback for .d.ts files that don't go through renderChunk
+    async writeBundle(outputOptions) {
+      const outDir = outputOptions.dir || path.dirname(outputOptions.file || '')
+
+      const entryPointDirectories = ['', 'react', 'query', 'query/react']
+
+      const dtsFiles = entryPointDirectories.map((filePath) =>
+        path.join(outDir, filePath, 'index.d.ts'),
+      )
+
+      for (const filePath of dtsFiles) {
+        const relativePath = path.relative(outDir, filePath)
+
+        // Skip if already processed by renderChunk
+        if (processedFiles.has(relativePath)) {
+          continue
+        }
+
+        try {
+          const content = await fs.readFile(filePath, { encoding: 'utf-8' })
+
+          const parsedFile = await babel.parseAsync(content, {
+            ast: true,
+            cwd,
+            filename: relativePath,
+            filenameRelative: path.relative(sourceRootDirectory, relativePath),
+            parserOpts: {
+              errorRecovery: true,
+              plugins: [['typescript', { dts: true }]],
+              ranges: true,
+              sourceFilename: relativePath,
+              sourceType: 'module',
+            },
+            sourceFileName: relativePath,
+            sourceMaps: false,
+            sourceType: 'module',
+          })
+
+          if (parsedFile == null) {
+            continue
+          }
+
+          const allUniqueSymbols = new Set<string>()
+          const exportedUniqueSymbols = new Set<string>()
+
+          const isUniqueSymbolDeclaration = <StatementType extends Statement>(
+            statement: StatementType,
+          ): statement is Id<StatementType & UniqueSymbolVariableDeclaration> =>
+            t.isVariableDeclaration(statement, {
+              declare: true,
+              kind: 'const',
+            }) &&
+            t.isIdentifier(statement.declarations[0].id) &&
+            t.isTSTypeAnnotation(statement.declarations[0].id.typeAnnotation) &&
+            t.isTSTypeOperator(
+              statement.declarations[0].id.typeAnnotation.typeAnnotation,
+              { operator: 'unique' },
+            ) &&
+            t.isTSSymbolKeyword(
+              statement.declarations[0].id.typeAnnotation.typeAnnotation
+                .typeAnnotation,
+            )
+
+          // Find all unique symbol declarations
+          parsedFile.program.body.forEach((statement) => {
+            if (isUniqueSymbolDeclaration(statement)) {
+              allUniqueSymbols.add(statement.declarations[0].id.name)
+            }
+          })
+
+          if (allUniqueSymbols.size === 0) {
+            continue
+          }
+
+          // Check which unique symbols are actually in the export list
+          parsedFile.program.body.forEach((statement) => {
+            if (t.isExportNamedDeclaration(statement)) {
+              statement.specifiers.forEach((spec) => {
+                if (
+                  t.isExportSpecifier(spec) &&
+                  t.isIdentifier(spec.local) &&
+                  allUniqueSymbols.has(spec.local.name)
+                ) {
+                  exportedUniqueSymbols.add(spec.local.name)
+                }
+              })
+            }
+          })
+
+          if (exportedUniqueSymbols.size === 0) {
+            continue
+          }
+
+          console.log(
+            `Fixing unique symbol exports in ${relativePath} via writeBundle`,
+          )
+
+          // Remove unique symbols from export specifiers
+          parsedFile.program.body = parsedFile.program.body.map((statement) => {
+            if (t.isExportNamedDeclaration(statement)) {
+              statement.specifiers = statement.specifiers.filter((spec) => {
+                if (
+                  t.isExportSpecifier(spec) &&
+                  t.isIdentifier(spec.local) &&
+                  exportedUniqueSymbols.has(spec.local.name)
+                ) {
+                  console.log(
+                    `  Exporting '${spec.local.name}' as individual export`,
+                  )
+                  return false
+                }
+                return true
+              })
+            }
+            return statement
+          })
+
+          // Convert declarations to export declarations
+          parsedFile.program.body = parsedFile.program.body.map((statement) => {
+            if (
+              isUniqueSymbolDeclaration(statement) &&
+              exportedUniqueSymbols.has(statement.declarations[0].id.name)
+            ) {
+              return t.exportNamedDeclaration(statement)
+            }
+            return statement
+          })
+
+          const generatedResults = generate(parsedFile, {
+            comments: true,
+            sourceMaps: false,
+          })
+
+          await fs.writeFile(filePath, generatedResults.code, {
+            encoding: 'utf-8',
+          })
+
+          processedFiles.add(relativePath)
+        } catch (error) {
+          if (
+            !(
+              error instanceof Error &&
+              'code' in error &&
+              error.code === 'ENOENT'
+            )
+          ) {
+            console.error(`Error processing ${relativePath}:`, error)
+          }
+        }
+      }
+    },
+  }
+}
+
 const peerAndProductionDependencies = Object.keys({
   ...packageJson.dependencies,
   ...packageJson.peerDependencies,
@@ -605,6 +948,7 @@ export default defineConfig((cliOptions) => {
         callExpressions: ['__assign', 'Object.assign'],
       }),
       removeCJSOutputsFromDTSBuilds(),
+      fixUniqueSymbolExports(),
     ],
     shims: true,
     sourcemap: true,
