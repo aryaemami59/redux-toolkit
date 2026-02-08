@@ -38,18 +38,43 @@ const RE_TS = /\.([cm]?)tsx?$/
 
 const RE_DTS = /\.d\.([cm]?)ts$/
 
-async function writeCommonJSEntry(folder: string, prefix: string) {
-  await fs.writeFile(
-    path.join(folder, 'index.js'),
-    `"use strict";
+/**
+ * Rolldown plugin to emit a CommonJS entry file that switches between
+ * development and production bundles based on `NODE_ENV`.
+ *
+ * Automatically derives the folder and prefix from the output chunk filenames.
+ * Only acts on production CJS builds (chunks ending in `.production.min.cjs`).
+ *
+ * @returns A Rolldown plugin that emits the CJS entry file.
+ * @internal
+ */
+const writeCommonJSEntryPlugin = (): Rolldown.Plugin => ({
+  name: 'write-commonjs-entry',
+  generateBundle: {
+    handler(_outputOptions, bundle) {
+      for (const [fileName, chunk] of Object.entries(bundle)) {
+        if (
+          chunk.type === 'chunk' &&
+          chunk.isEntry &&
+          fileName.endsWith('.production.min.cjs')
+        ) {
+          const dir = path.dirname(fileName)
+          const prefix = path.basename(fileName, '.production.min.cjs')
+          this.emitFile({
+            type: 'asset',
+            fileName: `${dir}/index.js`,
+            source: `"use strict";
 if (process.env.NODE_ENV === "production") {
   module.exports = require("./${prefix}.production.min.cjs");
 } else {
   module.exports = require("./${prefix}.development.cjs");
 }`,
-    { encoding: 'utf-8' },
-  )
-}
+          })
+        }
+      }
+    },
+  },
+})
 
 /**
  * @internal
@@ -949,6 +974,7 @@ export default defineConfig((cliOptions) => {
       }),
       removeCJSOutputsFromDTSBuilds(),
       fixUniqueSymbolExports(),
+      writeCommonJSEntryPlugin(),
     ],
     shims: true,
     sourcemap: true,
@@ -1136,14 +1162,6 @@ export default defineConfig((cliOptions) => {
       entry: {
         'cjs/redux-toolkit': 'src/index.ts',
       },
-      hooks: {
-        'build:done': async ({ options }) => {
-          await writeCommonJSEntry(
-            path.join(options.outDir, 'cjs'),
-            'redux-toolkit',
-          )
-        },
-      },
     },
 
     {
@@ -1153,14 +1171,6 @@ export default defineConfig((cliOptions) => {
         'react/cjs/redux-toolkit-react': 'src/react/index.ts',
       },
       external: [...peerAndProductionDependencies, packageJson.name],
-      hooks: {
-        'build:done': async ({ options }) => {
-          await writeCommonJSEntry(
-            path.join(options.outDir, 'react', 'cjs'),
-            'redux-toolkit-react',
-          )
-        },
-      },
     },
     {
       ...productionCjsConfig,
@@ -1173,14 +1183,6 @@ export default defineConfig((cliOptions) => {
         packageJson.name,
         `${packageJson.name}/react`,
       ],
-      hooks: {
-        'build:done': async ({ options }) => {
-          await writeCommonJSEntry(
-            path.join(options.outDir, 'query', 'cjs'),
-            'rtk-query',
-          )
-        },
-      },
     },
     {
       ...productionCjsConfig,
@@ -1194,14 +1196,6 @@ export default defineConfig((cliOptions) => {
         `${packageJson.name}/react`,
         `${packageJson.name}/query`,
       ],
-      hooks: {
-        'build:done': async ({ options }) => {
-          await writeCommonJSEntry(
-            path.join(options.outDir, 'query', 'react', 'cjs'),
-            'rtk-query-react',
-          )
-        },
-      },
     },
 
     {
