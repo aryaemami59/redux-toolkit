@@ -38,6 +38,19 @@ const RE_TS = /\.([cm]?)tsx?$/
 const RE_DTS = /\.d\.([cm]?)ts$/
 
 /**
+ * @internal
+ */
+type GenerateBundleObjectHook = Id<
+  Pick<
+    Extract<
+      NonNullable<Rolldown.Plugin['generateBundle']>,
+      { handler: unknown }
+    >,
+    'order'
+  >
+>
+
+/**
  * Rolldown plugin to emit a CommonJS entry file that switches between
  * development and production bundles based on `NODE_ENV`.
  *
@@ -47,11 +60,14 @@ const RE_DTS = /\.d\.([cm]?)ts$/
  * @returns A Rolldown plugin that emits the CJS entry file.
  * @internal
  */
-const writeCommonJSEntryPlugin = (): Rolldown.Plugin => ({
+const writeCommonJSEntryPlugin = (
+  pluginOptions: GenerateBundleObjectHook = {},
+): Rolldown.Plugin => ({
   name: 'write-commonjs-entry',
   generateBundle: {
+    order: pluginOptions.order ?? null,
     handler(_outputOptions, bundle) {
-      for (const [fileName, chunk] of Object.entries(bundle)) {
+      Object.entries(bundle).forEach(([fileName, chunk]) => {
         if (
           chunk.type === 'chunk' &&
           chunk.isEntry &&
@@ -70,23 +86,10 @@ if (process.env.NODE_ENV === "production") {
 }`,
           })
         }
-      }
+      })
     },
   },
 })
-
-/**
- * @internal
- */
-type GenerateBundleObjectHook = Id<
-  Pick<
-    Extract<
-      NonNullable<Rolldown.Plugin['generateBundle']>,
-      { handler: unknown }
-    >,
-    'order'
-  >
->
 
 /**
  * Extract error strings, replace them with error codes, and write messages to
@@ -271,11 +274,6 @@ const removeComments = (): Rolldown.Plugin => {
 /**
  * @internal
  */
-const DEFAULT_PURE_ANNOTATION = '@__PURE__'
-
-/**
- * @internal
- */
 const isPureAnnotated = ({ leadingComments }: Node): boolean =>
   !!leadingComments?.some((comment) => /[@#]__PURE__/.test(comment.value))
 
@@ -287,7 +285,7 @@ const annotateAsPure = (nodePath: NodePath): void => {
     return
   }
 
-  nodePath.addComment('leading', DEFAULT_PURE_ANNOTATION, false)
+  nodePath.addComment('leading', '@__PURE__', false)
 }
 
 /**
@@ -484,21 +482,10 @@ const annotateAsPureBabelPlugin = declare<
 /**
  * @internal
  */
-const ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS = {
-  callExpressions: [],
-  order: null,
-} as const satisfies Required<AnnotateAsPurePluginOptions>
-
-/**
- * @internal
- */
 const annotateAsPurePlugin = (
   annotateAsPurePluginOptions: AnnotateAsPurePluginOptions = {},
 ): Rolldown.Plugin => {
-  const { callExpressions = [], order = null } = {
-    ...ANNOTATE_AS_PURE_PLUGIN_OPTIONS_DEFAULTS,
-    ...annotateAsPurePluginOptions,
-  } as const satisfies Required<AnnotateAsPurePluginOptions>
+  const { callExpressions = [], order = null } = annotateAsPurePluginOptions
 
   return {
     name: 'annotate-as-pure',
@@ -744,7 +731,7 @@ const fixUniqueSymbolExports = (
     // Fallback for .d.ts files that don't go through renderChunk
     writeBundle: {
       order: pluginOptions.order ?? null,
-      async handler(outputOptions) {
+      async handler(outputOptions, _bundle) {
         const outDir =
           outputOptions.dir || path.dirname(outputOptions.file || '')
 
@@ -759,159 +746,169 @@ const fixUniqueSymbolExports = (
           (filePath) => [path.join(outDir, filePath, 'index.d.ts')] as const,
         )
 
-        for (const filePath of dtsFiles) {
-          const relativePath = path.relative(outDir, filePath)
+        await Promise.all(
+          dtsFiles.map(async (filePath) => {
+            const relativePath = path.relative(outDir, filePath)
 
-          // Skip if already processed by renderChunk
-          if (processedFiles.has(relativePath)) {
-            continue
-          }
+            // Skip if already processed by renderChunk
+            if (processedFiles.has(relativePath)) {
+              return
+            }
 
-          try {
-            const content = await this.fs.readFile(filePath, {
-              encoding: 'utf8',
-            })
+            try {
+              const content = await this.fs.readFile(filePath, {
+                encoding: 'utf8',
+              })
 
-            const parsedFile = await babel.parseAsync(content, {
-              ast: true,
-              cwd,
-              filename: relativePath,
-              filenameRelative: path.relative(
-                sourceRootDirectory,
-                relativePath,
-              ),
-              parserOpts: {
-                errorRecovery: true,
-                plugins: [['typescript', { dts: true }]],
-                ranges: true,
-                sourceFilename: relativePath,
+              const parsedFile = await babel.parseAsync(content, {
+                ast: true,
+                cwd,
+                filename: relativePath,
+                filenameRelative: path.relative(
+                  sourceRootDirectory,
+                  relativePath,
+                ),
+                parserOpts: {
+                  errorRecovery: true,
+                  plugins: [['typescript', { dts: true }]],
+                  ranges: true,
+                  sourceFilename: relativePath,
+                  sourceType: 'module',
+                },
+                sourceFileName: relativePath,
+                sourceMaps: 'both',
                 sourceType: 'module',
-              },
-              sourceFileName: relativePath,
-              sourceMaps: false,
-              sourceType: 'module',
-            })
+              })
 
-            if (parsedFile == null) {
-              continue
-            }
-
-            const allUniqueSymbols = new Set<string>()
-            const exportedUniqueSymbols = new Set<string>()
-
-            const isUniqueSymbolDeclaration = <StatementType extends Statement>(
-              statement: StatementType,
-            ): statement is Id<
-              StatementType & UniqueSymbolVariableDeclaration
-            > =>
-              t.isVariableDeclaration(statement, {
-                declare: true,
-                kind: 'const',
-              }) &&
-              t.isIdentifier(statement.declarations[0].id) &&
-              t.isTSTypeAnnotation(
-                statement.declarations[0].id.typeAnnotation,
-              ) &&
-              t.isTSTypeOperator(
-                statement.declarations[0].id.typeAnnotation.typeAnnotation,
-                { operator: 'unique' },
-              ) &&
-              t.isTSSymbolKeyword(
-                statement.declarations[0].id.typeAnnotation.typeAnnotation
-                  .typeAnnotation,
-              )
-
-            // Find all unique symbol declarations
-            parsedFile.program.body.forEach((statement) => {
-              if (isUniqueSymbolDeclaration(statement)) {
-                allUniqueSymbols.add(statement.declarations[0].id.name)
+              if (parsedFile == null) {
+                return
               }
-            })
 
-            if (allUniqueSymbols.size === 0) {
-              continue
-            }
+              const allUniqueSymbols = new Set<string>()
+              const exportedUniqueSymbols = new Set<string>()
 
-            // Check which unique symbols are actually in the export list
-            parsedFile.program.body.forEach((statement) => {
-              if (t.isExportNamedDeclaration(statement)) {
-                statement.specifiers.forEach((spec) => {
-                  if (
-                    t.isExportSpecifier(spec) &&
-                    t.isIdentifier(spec.local) &&
-                    allUniqueSymbols.has(spec.local.name)
-                  ) {
-                    exportedUniqueSymbols.add(spec.local.name)
-                  }
-                })
+              const isUniqueSymbolDeclaration = <
+                StatementType extends Statement,
+              >(
+                statement: StatementType,
+              ): statement is Id<
+                StatementType & UniqueSymbolVariableDeclaration
+              > =>
+                t.isVariableDeclaration(statement, {
+                  declare: true,
+                  kind: 'const',
+                }) &&
+                t.isIdentifier(statement.declarations[0].id) &&
+                t.isTSTypeAnnotation(
+                  statement.declarations[0].id.typeAnnotation,
+                ) &&
+                t.isTSTypeOperator(
+                  statement.declarations[0].id.typeAnnotation.typeAnnotation,
+                  { operator: 'unique' },
+                ) &&
+                t.isTSSymbolKeyword(
+                  statement.declarations[0].id.typeAnnotation.typeAnnotation
+                    .typeAnnotation,
+                )
+
+              // Find all unique symbol declarations
+              parsedFile.program.body.forEach((statement) => {
+                if (isUniqueSymbolDeclaration(statement)) {
+                  allUniqueSymbols.add(statement.declarations[0].id.name)
+                }
+              })
+
+              if (allUniqueSymbols.size === 0) {
+                return
               }
-            })
 
-            if (exportedUniqueSymbols.size === 0) {
-              continue
-            }
-
-            console.log(
-              `Fixing unique symbol exports in ${relativePath} via writeBundle`,
-            )
-
-            // Remove unique symbols from export specifiers
-            parsedFile.program.body = parsedFile.program.body.map(
-              (statement) => {
+              // Check which unique symbols are actually in the export list
+              parsedFile.program.body.forEach((statement) => {
                 if (t.isExportNamedDeclaration(statement)) {
-                  statement.specifiers = statement.specifiers.filter((spec) => {
+                  statement.specifiers.forEach((spec) => {
                     if (
                       t.isExportSpecifier(spec) &&
                       t.isIdentifier(spec.local) &&
-                      exportedUniqueSymbols.has(spec.local.name)
+                      allUniqueSymbols.has(spec.local.name)
                     ) {
-                      console.log(
-                        `  Exporting '${spec.local.name}' as individual export`,
-                      )
-                      return false
+                      exportedUniqueSymbols.add(spec.local.name)
                     }
-                    return true
                   })
                 }
-                return statement
-              },
-            )
+              })
 
-            // Convert declarations to export declarations
-            parsedFile.program.body = parsedFile.program.body.map(
-              (statement) => {
-                if (
-                  isUniqueSymbolDeclaration(statement) &&
-                  exportedUniqueSymbols.has(statement.declarations[0].id.name)
-                ) {
-                  return t.exportNamedDeclaration(statement)
-                }
-                return statement
-              },
-            )
+              if (exportedUniqueSymbols.size === 0) {
+                return
+              }
 
-            const generatedResults = generate(parsedFile, {
-              comments: true,
-              sourceMaps: true,
-            })
-
-            await this.fs.writeFile(filePath, generatedResults.code, {
-              encoding: 'utf8',
-            })
-
-            processedFiles.add(relativePath)
-          } catch (error) {
-            if (
-              !(
-                error instanceof Error &&
-                'code' in error &&
-                error.code === 'ENOENT'
+              console.log(
+                `Fixing unique symbol exports in ${relativePath} via writeBundle`,
               )
-            ) {
-              console.error(`Error processing ${relativePath}:`, error)
+
+              // Remove unique symbols from export specifiers
+              parsedFile.program.body = parsedFile.program.body.map(
+                (statement) => {
+                  if (t.isExportNamedDeclaration(statement)) {
+                    statement.specifiers = statement.specifiers.filter(
+                      (spec) => {
+                        if (
+                          t.isExportSpecifier(spec) &&
+                          t.isIdentifier(spec.local) &&
+                          exportedUniqueSymbols.has(spec.local.name)
+                        ) {
+                          console.log(
+                            `  Exporting '${spec.local.name}' as individual export`,
+                          )
+
+                          return false
+                        }
+
+                        return true
+                      },
+                    )
+                  }
+
+                  return statement
+                },
+              )
+
+              // Convert declarations to export declarations
+              parsedFile.program.body = parsedFile.program.body.map(
+                (statement) => {
+                  if (
+                    isUniqueSymbolDeclaration(statement) &&
+                    exportedUniqueSymbols.has(statement.declarations[0].id.name)
+                  ) {
+                    return t.exportNamedDeclaration(statement)
+                  }
+
+                  return statement
+                },
+              )
+
+              const generatedResults = generate(parsedFile, {
+                comments: true,
+                sourceMaps: true,
+              })
+
+              await this.fs.writeFile(filePath, generatedResults.code, {
+                encoding: 'utf8',
+              })
+
+              processedFiles.add(relativePath)
+            } catch (error) {
+              if (
+                !(
+                  error instanceof Error &&
+                  'code' in error &&
+                  error.code === 'ENOENT'
+                )
+              ) {
+                console.error(`Error processing ${relativePath}:`, error)
+              }
             }
-          }
-        }
+          }),
+        )
       },
     },
   }
@@ -937,30 +934,31 @@ export default defineConfig((cliOptions) => {
     format: ['cjs', 'es'],
     hash: false,
     // inlineOnly: [],
-    inputOptions: (options, format) => ({
-      ...options,
-      experimental: {
-        ...options.experimental,
-        lazyBarrel: true,
-        ...(format === 'cjs'
-          ? {
-              attachDebugInfo: 'none',
-            }
-          : {}),
-        nativeMagicString: true,
-      },
-      transform: {
-        ...options.transform,
-        inject: {
-          ...options.transform?.inject,
-          'Object.assign': [
-            path.join(sourceRootDirectory, 'bundle-size-utils.ts'),
-            '__assign',
-          ] as const,
-          React: ['react', '*'] as const,
+    inputOptions: (options, format) =>
+      ({
+        ...options,
+        experimental: {
+          ...options.experimental,
+          lazyBarrel: true,
+          ...(format === 'cjs'
+            ? {
+                attachDebugInfo: 'none',
+              }
+            : {}),
+          nativeMagicString: true,
         },
-      },
-    }),
+        transform: {
+          ...options.transform,
+          inject: {
+            ...options.transform?.inject,
+            'Object.assign': [
+              path.join(sourceRootDirectory, 'bundle-size-utils.ts'),
+              '__assign',
+            ] as const,
+            React: ['react', '*'] as const,
+          },
+        },
+      }) as const satisfies Rolldown.InputOptions,
     nodeProtocol: true,
     outDir: 'dist',
     outExtensions: ({ format, options }) => ({
@@ -974,25 +972,26 @@ export default defineConfig((cliOptions) => {
             : `${options.platform === 'browser' ? '.browser' : '.modern'}.mjs`
           : '.cjs',
     }),
-    outputOptions: (options, format, context) => ({
-      ...options,
-      codeSplitting: false,
-      // comments: {
-      //   annotation: true,
-      //   jsdoc: false,
-      //   legal: true,
-      // },
-      ...(format === 'cjs' && !context.cjsDts
-        ? {
-            externalLiveBindings: false,
-            intro: '"use strict";',
-          }
-        : {}),
-      legalComments: 'none',
-    }),
+    outputOptions: (options, format, context) =>
+      ({
+        ...options,
+        codeSplitting: false,
+        // comments: {
+        //   annotation: true,
+        //   jsdoc: false,
+        //   legal: true,
+        // },
+        ...(format === 'cjs' && !context.cjsDts
+          ? {
+              externalLiveBindings: false,
+              intro: '"use strict";',
+            }
+          : {}),
+        legalComments: 'none',
+      }) as const satisfies Rolldown.OutputOptions,
     platform: 'node',
     plugins: [
-      // removeComments(),
+      removeComments(),
       mangleErrorsTransform(),
       annotateAsPurePlugin({
         callExpressions: ['__assign', 'Object.assign'],
@@ -1032,13 +1031,14 @@ export default defineConfig((cliOptions) => {
       tsconfig: commonOptions.tsconfig,
     },
     external: [...peerAndProductionDependencies, /uncheckedindexed/],
-    inputOptions: (options) => ({
-      ...options,
-      experimental: {
-        ...options.experimental,
-        attachDebugInfo: 'none',
-      },
-    }),
+    inputOptions: (options) =>
+      ({
+        ...options,
+        experimental: {
+          ...options.experimental,
+          attachDebugInfo: 'none',
+        },
+      }) as const satisfies Rolldown.InputOptions,
   } as const satisfies InlineConfig
 
   const modernEsmConfig = {
