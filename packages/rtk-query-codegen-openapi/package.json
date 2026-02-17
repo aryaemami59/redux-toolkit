@@ -48,9 +48,6 @@
     "src"
   ],
   "devDependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.0",
-    "@babel/preset-typescript": "^7.28.5",
     "@oazapfts/runtime": "^1.0.3",
     "@reduxjs/toolkit": "^1.6.0",
     "@types/commander": "^2.12.2",
