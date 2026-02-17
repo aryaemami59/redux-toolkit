@@ -130,6 +130,7 @@ const mangleErrorsTransform = (
             filenameRelative: path.relative(sourceRootDirectory, id),
             inputSourceMap: combinedSourcemap,
             parserOpts: {
+              createParenthesizedExpressions: true,
               plugins: ['typescript', 'jsx'],
               sourceFilename: id,
               sourceType: 'module',
@@ -234,6 +235,7 @@ const removeComments = (): Rolldown.Plugin => {
           filenameRelative: path.relative(sourceRootDirectory, id),
           inputSourceMap: combinedSourcemap,
           parserOpts: {
+            createParenthesizedExpressions: true,
             plugins: [['typescript', {}], 'jsx'],
             sourceFilename: id,
             sourceType: 'module',
@@ -509,6 +511,7 @@ const annotateAsPurePlugin = (
           filenameRelative: path.relative(sourceRootDirectory, id),
           inputSourceMap: combinedSourcemap,
           parserOpts: {
+            createParenthesizedExpressions: true,
             plugins: [['typescript', {}], 'jsx'],
             sourceFilename: id,
             sourceType: 'module',
@@ -615,6 +618,7 @@ const fixUniqueSymbolExports = (
           filename: chunk.fileName,
           filenameRelative: path.relative(sourceRootDirectory, chunk.fileName),
           parserOpts: {
+            createParenthesizedExpressions: true,
             errorRecovery: true,
             plugins: [['typescript', { dts: true }]],
             ranges: true,
@@ -769,6 +773,7 @@ const fixUniqueSymbolExports = (
                   relativePath,
                 ),
                 parserOpts: {
+                  createParenthesizedExpressions: true,
                   errorRecovery: true,
                   plugins: [['typescript', { dts: true }]],
                   ranges: true,
@@ -996,7 +1001,6 @@ export default defineConfig((cliOptions) => {
       annotateAsPurePlugin({
         callExpressions: ['__assign', 'Object.assign'],
       }),
-      removeCJSOutputsFromDTSBuilds(),
       fixUniqueSymbolExports(),
       writeCommonJSEntryPlugin(),
     ],
@@ -1039,6 +1043,12 @@ export default defineConfig((cliOptions) => {
           attachDebugInfo: 'none',
         },
       }) as const satisfies Rolldown.InputOptions,
+    plugins: [
+      ...(Array.isArray(commonOptions.plugins)
+        ? commonOptions.plugins
+        : [commonOptions.plugins]),
+      removeCJSOutputsFromDTSBuilds(),
+    ],
   } as const satisfies InlineConfig
 
   const modernEsmConfig = {
