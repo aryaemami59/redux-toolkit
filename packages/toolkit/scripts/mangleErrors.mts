@@ -1,6 +1,7 @@
-import type { Node, PluginObj, PluginPass } from '@babel/core'
+import type { PluginObject, PluginPass } from '@babel/core'
 import * as helperModuleImports from '@babel/helper-module-imports'
 import { declare } from '@babel/helper-plugin-utils'
+import type { Node } from '@babel/types'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import type { Id } from '../src/tsHelpers.js'
@@ -25,20 +26,19 @@ export type BabelPluginResult<
   PluginNameType extends string = string,
 > = Id<
   Omit<
-    PluginObj<
+    PluginObject<
       Id<
         Omit<
           {
-            [KeyType in keyof PluginPass as NonNullable<unknown> extends Record<
+            [KeyType in keyof PluginPass<PluginOptions> as NonNullable<unknown> extends Record<
               KeyType,
               unknown
             >
               ? never
-              : KeyType]: PluginPass[KeyType]
+              : KeyType]: PluginPass<PluginOptions>[KeyType]
           },
           'opts'
         > & {
-          isAsync?: boolean | undefined
           opts: Id<PluginOptions>
         }
       >
@@ -154,136 +154,144 @@ const evalToString = (
  * )
  * ```
  */
-export const mangleErrorsPlugin = declare<
-  MangleErrorsPluginOptions,
-  MangleErrorsPluginResult
->((api, options = {}): MangleErrorsPluginResult => {
-  const { types: t } = api
-  // When the plugin starts up, we'll load in the existing file. This allows us to continually add to it so that the
-  // indexes do not change between builds.
-  let errorsFiles = ''
-  // Save this to the root
-  const errorsPath = path.join(
-    import.meta.dirname,
-    '..',
-    '..',
-    '..',
-    'errors.json',
-  )
-  if (fs.existsSync(errorsPath)) {
-    errorsFiles = fs.readFileSync(errorsPath).toString()
-  }
-  const errors = Object.values(JSON.parse(errorsFiles || '{}'))
-  // This variable allows us to skip writing back to the file if the errors array hasn't changed
-  let changeInArray = false
+export const mangleErrorsPlugin = declare(
+  (api, options: MangleErrorsPluginOptions = {}): MangleErrorsPluginResult => {
+    // api.assertVersion('^8.0.0-0')
 
-  return {
-    name: 'mangle-errors-plugin',
-    pre: () => {
-      changeInArray = false
-    },
-    visitor: {
-      ThrowStatement(path) {
-        if (
-          !('arguments' in path.node.argument) ||
-          !t.isNewExpression(path.node.argument)
-        ) {
-          return
-        }
-        const args = path.node.argument.arguments
-        const { minify = false } = options
+    const { types: t } = api
+    // When the plugin starts up, we'll load in the existing file. This allows us to continually add to it so that the
+    // indexes do not change between builds.
+    let errorsFiles = ''
+    // Save this to the root
+    const errorsPath = path.join(
+      import.meta.dirname,
+      '..',
+      '..',
+      '..',
+      'errors.json',
+    )
+    if (fs.existsSync(errorsPath)) {
+      errorsFiles = fs.readFileSync(errorsPath).toString()
+    }
+    const errors = Object.values(JSON.parse(errorsFiles || '{}'))
+    // This variable allows us to skip writing back to the file if the errors array hasn't changed
+    let changeInArray = false
 
-        if (args && args[0]) {
-          // Skip running this logic when certain types come up:
-          //  Identifier comes up when a variable is thrown (E.g. throw new error(message))
-          //  NumericLiteral, CallExpression, and ConditionalExpression is code we have already processed
-
-          const firstArgument = args[0]
-
+    return {
+      name: 'mangle-errors-plugin',
+      pre: () => {
+        changeInArray = false
+      },
+      visitor: {
+        ThrowStatement(path) {
           if (
-            firstArgument.type === 'Identifier' ||
-            firstArgument.type === 'NumericLiteral' ||
-            firstArgument.type === 'ConditionalExpression' ||
-            firstArgument.type === 'CallExpression' ||
-            firstArgument.type === 'ObjectExpression' ||
-            firstArgument.type === 'MemberExpression' ||
-            !t.isExpression(firstArgument) ||
-            !t.isIdentifier(path.node.argument.callee)
+            !('arguments' in path.node.argument) ||
+            !t.isNewExpression(path.node.argument)
           ) {
             return
           }
+          const args = path.node.argument.arguments
+          const { minify = false } = options
 
-          const errorName = path.node.argument.callee.name
+          if (args && args[0]) {
+            // Skip running this logic when certain types come up:
+            //  Identifier comes up when a variable is thrown (E.g. throw new error(message))
+            //  NumericLiteral, CallExpression, and ConditionalExpression is code we have already processed
 
-          const errorMsgLiteral = evalToString(firstArgument)
+            const firstArgument = args[0]
 
-          if (errorMsgLiteral.includes('Super expression')) {
-            // ignore Babel runtime error message
-            return
-          }
+            if (
+              firstArgument.type === 'Identifier' ||
+              firstArgument.type === 'NumericLiteral' ||
+              firstArgument.type === 'ConditionalExpression' ||
+              firstArgument.type === 'CallExpression' ||
+              firstArgument.type === 'ObjectExpression' ||
+              firstArgument.type === 'MemberExpression' ||
+              !t.isExpression(firstArgument) ||
+              !t.isIdentifier(path.node.argument.callee)
+            ) {
+              return
+            }
 
-          // Attempt to get the existing index of the error. If it is not found, add it to the array as a new error.
-          let errorIndex = errors.indexOf(errorMsgLiteral)
-          if (errorIndex === -1) {
-            errors.push(errorMsgLiteral)
-            errorIndex = errors.length - 1
-            changeInArray = true
-          }
+            const errorName = path.node.argument.callee.name
 
-          // Import the error message function
-          const formatProdErrorMessageIdentifier = helperModuleImports.addNamed(
-            path,
-            'formatProdErrorMessage',
-            formatProdErrorMessageAbsoluteFilePath,
-            { nameHint: 'formatProdErrorMessage' },
-          )
+            const errorMsgLiteral = evalToString(firstArgument)
 
-          // Creates a function call to output the message to the error code page on the website
-          const prodMessage = t.callExpression(
-            formatProdErrorMessageIdentifier,
-            [t.numericLiteral(errorIndex)],
-          )
+            if (errorMsgLiteral.includes('Super expression')) {
+              // ignore Babel runtime error message
+              return
+            }
 
-          const prodMessageWithPureAnnotation = t.addComment(
-            prodMessage,
-            'leading',
-            '@__PURE__',
-            false,
-          )
+            // Attempt to get the existing index of the error. If it is not found, add it to the array as a new error.
+            let errorIndex = errors.indexOf(errorMsgLiteral)
+            if (errorIndex === -1) {
+              errors.push(errorMsgLiteral)
+              errorIndex = errors.length - 1
+              changeInArray = true
+            }
 
-          if (minify) {
-            path.replaceWith(
-              t.throwStatement(
-                t.newExpression(t.identifier(errorName), [
-                  prodMessageWithPureAnnotation,
-                ]),
-              ),
+            // Import the error message function
+            const formatProdErrorMessageIdentifier =
+              helperModuleImports.addNamed(
+                path,
+                'formatProdErrorMessage',
+                formatProdErrorMessageAbsoluteFilePath,
+                { nameHint: 'formatProdErrorMessage' },
+              )
+
+            // Creates a function call to output the message to the error code page on the website
+            const prodMessage = t.callExpression(
+              formatProdErrorMessageIdentifier,
+              [t.numericLiteral(errorIndex)],
             )
-          } else {
-            path.replaceWith(
-              t.throwStatement(
-                t.newExpression(t.identifier(errorName), [
-                  t.conditionalExpression(
-                    t.binaryExpression(
-                      '===',
-                      t.identifier('process.env.NODE_ENV'),
-                      t.stringLiteral('production'),
-                    ),
+
+            const prodMessageWithPureAnnotation = t.addComment(
+              prodMessage,
+              'leading',
+              '@__PURE__',
+              false,
+            )
+
+            if (minify) {
+              path.replaceWith(
+                t.throwStatement(
+                  t.newExpression(t.identifier(errorName), [
                     prodMessageWithPureAnnotation,
-                    firstArgument,
-                  ),
-                ]),
-              ),
-            )
+                  ]),
+                ),
+              )
+            } else {
+              path.replaceWith(
+                t.throwStatement(
+                  t.newExpression(t.identifier(errorName), [
+                    t.conditionalExpression(
+                      t.binaryExpression(
+                        '===',
+                        t.memberExpression(
+                          t.memberExpression(
+                            t.identifier('process'),
+                            t.identifier('env'),
+                          ),
+                          t.identifier('NODE_ENV'),
+                        ),
+                        t.stringLiteral('production'),
+                      ),
+                      prodMessageWithPureAnnotation,
+                      firstArgument,
+                    ),
+                  ]),
+                ),
+              )
+            }
           }
+        },
+      },
+      post: () => {
+        // If there is a new error in the array, convert it to an indexed object and write it back to the file.
+        if (changeInArray) {
+          fs.writeFileSync(errorsPath, JSON.stringify({ ...errors }, null, 2))
         }
       },
-    },
-    post: () => {
-      // If there is a new error in the array, convert it to an indexed object and write it back to the file.
-      if (changeInArray) {
-        fs.writeFileSync(errorsPath, JSON.stringify({ ...errors }, null, 2))
-      }
-    },
-  }
-})
+    }
+  },
+)
