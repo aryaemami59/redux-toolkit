@@ -1,4 +1,4 @@
-import type { Node, NodePath } from '@babel/core'
+import type { NodePath } from '@babel/core'
 import * as babel from '@babel/core'
 import { generate } from '@babel/generator'
 import { declare } from '@babel/helper-plugin-utils'
@@ -7,6 +7,7 @@ import type {
   Function,
   Identifier,
   MemberExpression,
+  Node,
   Statement,
   TSSymbolKeyword,
   TSTypeAnnotation,
@@ -131,7 +132,8 @@ const mangleErrorsTransform = (
             inputSourceMap: combinedSourcemap,
             parserOpts: {
               createParenthesizedExpressions: true,
-              plugins: ['typescript', 'jsx'],
+              errorRecovery: true,
+              plugins: [['typescript', {}], 'jsx'],
               sourceFilename: id,
               sourceType: 'module',
             },
@@ -153,7 +155,8 @@ const mangleErrorsTransform = (
           return {
             code: res.code ?? code,
             invalidate: true,
-            map: res.map ?? combinedSourcemap,
+            map:
+              (res.map as Rolldown.ExistingRawSourceMap) ?? combinedSourcemap,
             meta,
             moduleSideEffects: false,
             moduleType: meta.moduleType,
@@ -236,6 +239,7 @@ const removeComments = (): Rolldown.Plugin => {
           inputSourceMap: combinedSourcemap,
           parserOpts: {
             createParenthesizedExpressions: true,
+            errorRecovery: true,
             plugins: [['typescript', {}], 'jsx'],
             sourceFilename: id,
             sourceType: 'module',
@@ -262,7 +266,9 @@ const removeComments = (): Rolldown.Plugin => {
         return {
           code: transformResult.code ?? code,
           invalidate: true,
-          map: transformResult.map ?? combinedSourcemap,
+          map:
+            (transformResult.map as Rolldown.ExistingRawSourceMap) ??
+            combinedSourcemap,
           meta,
           moduleSideEffects: false,
           moduleType: meta.moduleType,
@@ -409,77 +415,81 @@ function callableExpressionVisitor(nodePath: NodePath<CallExpression>): void {
 /**
  * @internal
  */
-const annotateAsPureBabelPlugin = declare<
-  AnnotateAsPurePluginOptions,
-  AnnotateAsPurePluginResult
->((api, options = {}): AnnotateAsPurePluginResult => {
-  const { types: t } = api
+const annotateAsPureBabelPlugin = declare(
+  (
+    api,
+    options: AnnotateAsPurePluginOptions = {},
+  ): AnnotateAsPurePluginResult => {
+    const { types: t } = api
 
-  const { callExpressions = [] } = options
+    const { callExpressions = [] } = options
 
-  return {
-    name: 'annotate-as-pure',
-    visitor: {
-      CallExpression(path: NodePath<CallExpression>) {
-        if (callExpressions.length === 0) {
-          return
-        }
+    return {
+      name: 'annotate-as-pure',
+      visitor: {
+        CallExpression(path: NodePath<CallExpression>) {
+          if (callExpressions.length === 0) {
+            return
+          }
 
-        const callee = path.get('callee')
+          const callee = path.get('callee')
 
-        if (
-          callee.isIdentifier() &&
-          callExpressions.some((callExpression) =>
-            callee.matchesPattern(callExpression),
-          )
-        ) {
-          callableExpressionVisitor(path)
-        }
-      },
+          if (
+            callee.isIdentifier() &&
+            callExpressions.some((callExpression) =>
+              callee.matchesPattern(callExpression),
+            )
+          ) {
+            callableExpressionVisitor(path)
+          }
+        },
 
-      MemberExpression(path: NodePath<MemberExpression>) {
-        if (callExpressions.length === 0) {
-          return
-        }
+        MemberExpression(path: NodePath<MemberExpression>) {
+          if (callExpressions.length === 0) {
+            return
+          }
 
-        const property = path.get('property')
+          const property = path.get('property')
 
-        if (!property.isIdentifier()) {
-          return
-        }
-
-        if (
-          callExpressions.some((callExpression) => {
-            if (path.matchesPattern(callExpression)) {
-              return true
-            }
-
-            return false
-          })
-        ) {
-          const statementParent = path.getStatementParent()
-
-          if (statementParent == null) {
+          if (!property.isIdentifier()) {
             return
           }
 
           if (
-            statementParent.isReturnStatement() ||
-            t.isVariableDeclaration(statementParent.node, { kind: 'const' }) ||
-            (t.isExportNamedDeclaration(statementParent.node, {
-              exportKind: 'value',
-            }) &&
-              t.isVariableDeclaration(statementParent.node.declaration, {
-                kind: 'const',
-              }))
+            callExpressions.some((callExpression) => {
+              if (path.matchesPattern(callExpression)) {
+                return true
+              }
+
+              return false
+            })
           ) {
-            annotateAsPure(path)
+            const statementParent = path.getStatementParent()
+
+            if (statementParent == null) {
+              return
+            }
+
+            if (
+              statementParent.isReturnStatement() ||
+              t.isVariableDeclaration(statementParent.node, {
+                kind: 'const',
+              }) ||
+              (t.isExportNamedDeclaration(statementParent.node, {
+                exportKind: 'value',
+              }) &&
+                t.isVariableDeclaration(statementParent.node.declaration, {
+                  kind: 'const',
+                }))
+            ) {
+              annotateAsPure(path)
+            }
           }
-        }
+        },
       },
-    },
-  }
-})
+    }
+  },
+)
 
 /**
  * @internal
@@ -512,6 +522,7 @@ const annotateAsPurePlugin = (
           inputSourceMap: combinedSourcemap,
           parserOpts: {
             createParenthesizedExpressions: true,
+            errorRecovery: true,
             plugins: [['typescript', {}], 'jsx'],
             sourceFilename: id,
             sourceType: 'module',
@@ -538,7 +549,9 @@ const annotateAsPurePlugin = (
         return {
           code: transformResult.code ?? code,
           invalidate: true,
-          map: transformResult.map ?? combinedSourcemap,
+          map:
+            (transformResult.map as Rolldown.ExistingRawSourceMap) ??
+            combinedSourcemap,
           meta,
           moduleSideEffects: false,
           moduleType: meta.moduleType,
@@ -727,7 +740,7 @@ const fixUniqueSymbolExports = (
 
         return {
           code: generatedResults.code,
-          map: generatedResults.map,
+          map: generatedResults.map as Rolldown.ExistingRawSourceMap,
         }
       },
     },
