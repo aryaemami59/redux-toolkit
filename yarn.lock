@@ -7606,10 +7606,6 @@ __metadata:
     "@testing-library/react": "npm:^16.0.1"
     "@testing-library/react-render-stream": "npm:^1.0.3"
     "@testing-library/user-event": "npm:^14.5.2"
-    "@types/babel__core": "npm:^7.20.5"
-    "@types/babel__generator": "npm:^7.27.0"
-    "@types/babel__helper-module-imports": "npm:^7.18.3"
-    "@types/babel__helper-plugin-utils": "npm:^7.10.3"
     "@types/node": "npm:^25.3.0"
     "@types/query-string": "npm:^6.3.0"
     "@types/react": "npm:^19.0.1"
@@ -9348,7 +9344,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/babel__core@npm:*, @types/babel__core@npm:^7.0.0, @types/babel__core@npm:^7.1.14, @types/babel__core@npm:^7.20.5":
+"@types/babel__core@npm:^7.0.0, @types/babel__core@npm:^7.1.14, @types/babel__core@npm:^7.20.5":
   version: 7.20.5
   resolution: "@types/babel__core@npm:7.20.5"
   dependencies:
@@ -9361,31 +9357,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/babel__generator@npm:*, @types/babel__generator@npm:^7.27.0":
+"@types/babel__generator@npm:*":
   version: 7.27.0
   resolution: "@types/babel__generator@npm:7.27.0"
   dependencies:
     "@babel/types": "npm:^7.0.0"
   checksum: 10/f572e67a9a39397664350a4437d8a7fbd34acc83ff4887a8cf08349e39f8aeb5ad2f70fb78a0a0a23a280affe3a5f4c25f50966abdce292bcf31237af1c27b1a
-  languageName: node
-  linkType: hard
-
-"@types/babel__helper-module-imports@npm:^7.18.3":
-  version: 7.18.3
-  resolution: "@types/babel__helper-module-imports@npm:7.18.3"
-  dependencies:
-    "@types/babel__core": "npm:*"
-    "@types/babel__traverse": "npm:*"
-  checksum: 10/9270b9735f04bf664b71a737c92ca932e5f5a82d1103b6baff6d36c58def20106a6a97c485c6c6539666c8538fca0f4592ca1f1cd3dec56b34725bfce5ac7fea
-  languageName: node
-  linkType: hard
-
-"@types/babel__helper-plugin-utils@npm:^7.10.3":
-  version: 7.10.3
-  resolution: "@types/babel__helper-plugin-utils@npm:7.10.3"
-  dependencies:
-    "@types/babel__core": "npm:*"
-  checksum: 10/eb27740adaad62f72f1c1eebafefc71efe8df05f3bf2c0a6ec9fad1907301c0129a1031998f37dcaf200a7a3883414dca667ed660fd8465f62b21c4cbace30e3
   languageName: node
   linkType: hard
 
