@@ -210,7 +210,7 @@ export type UseQuerySubscriptionOptions = SubscriptionOptions & {
  * {@linkcode UseQuerySubscriptionOptions} does not depend on a specific query
  * definition.
  *
- * @since 2.2.8
+ * @since 2.11.3
  * @public
  */
 export type TypedUseQuerySubscriptionOptions = UseQuerySubscriptionOptions
@@ -1355,7 +1355,7 @@ export type UseMutationStateOptions<
  * @template BaseQuery - The type of the base query function being used.
  * @template SelectedResult - The type of the selected result returned by the __`selectFromResult`__ function.
  *
- * @since 2.2.8
+ * @since 2.11.3
  * @public
  */
 export type TypedUseMutationStateOptions<
