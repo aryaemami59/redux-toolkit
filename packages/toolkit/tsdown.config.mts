@@ -946,6 +946,7 @@ export default defineConfig((cliOptions) => {
       enabled: true,
     },
     dts: false,
+    // TODO: Replace with `deps.neverBundle` in the next major version of `tsdown`.
     external: [...peerAndProductionDependencies, /uncheckedindexed/],
     failOnWarn: true,
     fixedExtension: false,
@@ -1005,10 +1006,12 @@ export default defineConfig((cliOptions) => {
               intro: '"use strict";',
             }
           : {}),
+        // TODO: Replace with `comments` in the next major version of `tsdown`.
         legalComments: 'none',
       }) as const satisfies Rolldown.OutputOptions,
     platform: 'node',
     plugins: [
+      // TODO: Replace with `comments` in the next major version of `tsdown`.
       removeComments(),
       mangleErrorsTransform(),
       annotateAsPurePlugin({
