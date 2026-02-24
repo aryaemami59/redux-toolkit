@@ -4,8 +4,12 @@ import { generate } from '@babel/generator'
 import { declare } from '@babel/helper-plugin-utils'
 import type {
   CallExpression,
+  ExportNamedDeclaration,
+  ExportSpecifier,
   Function,
   Identifier,
+  ImportDeclaration,
+  ImportSpecifier,
   MemberExpression,
   Node,
   Statement,
@@ -610,6 +614,230 @@ type UniqueSymbolVariableDeclaration = Id<
 >
 
 /**
+ * Rolldown plugin to implement proper `import type` / `export type` syntax in
+ * TypeScript declaration files.
+ *
+ * In a `.d.ts` file, any import whose local name is not re-exported as a plain
+ * value is type-only. This plugin:
+ * 1. Splits mixed `import { Value, type Type }` into separate value/type imports.
+ * 2. Splits mixed `export { value, type Type }` into separate value/type exports.
+ *
+ * @param [pluginOptions] - Options forwarded to the plugin.
+ * @returns A Rolldown plugin that rewrites imports and exports in .d.ts files.
+ * @internal
+ */
+const splitTypeImports = (
+  pluginOptions: GenerateBundleObjectHook = {},
+): Rolldown.Plugin => {
+  const { types: t } = babel
+
+  return {
+    name: 'split-type-imports',
+    renderChunk: {
+      order: pluginOptions.order ?? null,
+      async handler(code, chunk) {
+        if (!(RE_DTS.test(chunk.fileName) && chunk.isEntry)) {
+          return
+        }
+
+        const parsedFile = await babel.parseAsync(code, {
+          ast: true,
+          cwd,
+          filename: chunk.fileName,
+          filenameRelative: path.relative(sourceRootDirectory, chunk.fileName),
+          parserOpts: {
+            createParenthesizedExpressions: true,
+            errorRecovery: true,
+            plugins: [['typescript', { dts: true }]],
+            ranges: true,
+            sourceFilename: chunk.fileName,
+            sourceType: 'module',
+          },
+          sourceFileName: chunk.fileName,
+          sourceMaps: 'both',
+          sourceType: 'module',
+        })
+
+        if (parsedFile == null) {
+          return null
+        }
+
+        // Collect local names that are explicitly exported as values (no `type`
+        // keyword). In a .d.ts file any import whose local name is NOT in this
+        // set is type-only.
+        const valueExportedNames = new Set<string>()
+
+        parsedFile.program.body.forEach((statement) => {
+          if (t.isExportNamedDeclaration(statement)) {
+            statement.specifiers.forEach((exportSpecifier) => {
+              if (
+                t.isExportSpecifier(exportSpecifier) &&
+                exportSpecifier.exportKind === 'value' &&
+                t.isIdentifier(exportSpecifier.local)
+              ) {
+                valueExportedNames.add(exportSpecifier.local.name)
+              }
+            })
+          }
+        })
+
+        // Preserve value imports for identifiers used as base classes in extends
+        // clauses. `import type { X }` cannot be used in `class Y extends X {}`.
+        parsedFile.program.body.forEach((statement) => {
+          const decl = t.isExportNamedDeclaration(statement)
+            ? statement.declaration
+            : statement
+          if (
+            t.isClassDeclaration(decl) &&
+            decl.superClass != null &&
+            t.isIdentifier(decl.superClass)
+          ) {
+            valueExportedNames.add(decl.superClass.name)
+          }
+        })
+
+        // Split value/type import specifiers into separate import declarations.
+        parsedFile.program.body = parsedFile.program.body.flatMap(
+          (statement) => {
+            if (t.isImportDeclaration(statement)) {
+              // Namespace imports (`import * as X`) can't be split — convert the
+              // whole declaration to `import type * as X` when X is not a value export.
+              if (
+                statement.importKind === 'value' &&
+                statement.specifiers.length === 1 &&
+                t.isImportNamespaceSpecifier(statement.specifiers[0]) &&
+                !valueExportedNames.has(statement.specifiers[0].local.name)
+              ) {
+                return [
+                  {
+                    ...statement,
+                    importKind: 'type',
+                  } satisfies ImportDeclaration,
+                ]
+              }
+
+              const newImportSpecifiers = statement.specifiers.map(
+                (importSpecifier) => {
+                  if (
+                    t.isImportSpecifier(importSpecifier) &&
+                    importSpecifier.importKind === 'value' &&
+                    t.isIdentifier(importSpecifier.imported) &&
+                    !valueExportedNames.has(importSpecifier.local.name)
+                  ) {
+                    const newImportSpecifier: ImportSpecifier = {
+                      ...t.importSpecifier(
+                        t.identifier(importSpecifier.local.name),
+                        t.identifier(importSpecifier.imported.name),
+                      ),
+                      importKind: 'type',
+                    }
+
+                    return newImportSpecifier
+                  }
+
+                  return importSpecifier
+                },
+              )
+
+              const valueSpecifiers = newImportSpecifiers.filter((e) =>
+                t.isImportSpecifier(e, { importKind: 'value' }),
+              )
+
+              const typeSpecifiers = newImportSpecifiers.filter((e) =>
+                t.isImportSpecifier(e, { importKind: 'type' }),
+              )
+
+              const result: Statement[] = []
+
+              if (valueSpecifiers.length > 0) {
+                result.push({
+                  ...t.importDeclaration(valueSpecifiers, statement.source),
+                  importKind: 'value',
+                } satisfies ImportDeclaration)
+              }
+
+              if (typeSpecifiers.length > 0) {
+                result.push({
+                  ...t.importDeclaration(
+                    typeSpecifiers.map((e) => ({
+                      ...t.importSpecifier(e.local, e.imported),
+                      importKind: 'value',
+                    })),
+                    statement.source,
+                  ),
+                  importKind: 'type',
+                } satisfies ImportDeclaration)
+              }
+
+              return result.length > 0 ? result : [statement]
+            }
+
+            return [statement]
+          },
+        )
+
+        // Split mixed `export { value, type Type }` into separate statements.
+        parsedFile.program.body = parsedFile.program.body.flatMap(
+          (statement) => {
+            if (
+              t.isExportNamedDeclaration(statement) &&
+              statement.declaration == null
+            ) {
+              const valueSpecifiers = statement.specifiers.filter(
+                (spec): spec is ExportSpecifier =>
+                  t.isExportSpecifier(spec) && spec.exportKind === 'value',
+              )
+
+              const typeSpecifiers = statement.specifiers.filter(
+                (spec): spec is ExportSpecifier =>
+                  t.isExportSpecifier(spec) && spec.exportKind === 'type',
+              )
+
+              if (valueSpecifiers.length > 0 && typeSpecifiers.length > 0) {
+                return [
+                  {
+                    ...t.exportNamedDeclaration(
+                      null,
+                      valueSpecifiers,
+                      statement.source,
+                    ),
+                    exportKind: 'value',
+                  } satisfies ExportNamedDeclaration,
+                  {
+                    ...t.exportNamedDeclaration(
+                      null,
+                      typeSpecifiers.map((spec) => ({
+                        ...t.exportSpecifier(spec.local, spec.exported),
+                        exportKind: 'value' as const,
+                      })),
+                      statement.source,
+                    ),
+                    exportKind: 'type',
+                  } satisfies ExportNamedDeclaration,
+                ]
+              }
+            }
+
+            return [statement]
+          },
+        )
+
+        const generatedResults = generate(parsedFile, {
+          comments: true,
+          sourceMaps: true,
+          sourceFileName: chunk.fileName,
+        })
+
+        return {
+          code: generatedResults.code,
+          map: generatedResults.map as Rolldown.ExistingRawSourceMap,
+        }
+      },
+    },
+  }
+}
+
+/**
  * Rolldown plugin to fix unique symbol exports in TypeScript declaration files.
  *
  * TypeScript has issues with re-exporting unique symbols in barrel exports.
@@ -626,7 +854,6 @@ const fixUniqueSymbolExports = (
 ): Rolldown.Plugin => {
   const { types: t } = babel
 
-  const exportedUniqueSymbolsMap = new Map<string, Set<string>>()
   const processedFiles = new Set<string>()
 
   return {
@@ -724,8 +951,6 @@ const fixUniqueSymbolExports = (
             )
           }
         })
-
-        exportedUniqueSymbolsMap.set(chunk.fileName, exportedUniqueSymbols)
 
         // Convert unique symbol declarations to export declarations
         parsedFile.program.body = parsedFile.program.body.map((statement) => {
@@ -1121,7 +1346,7 @@ export default defineConfig((cliOptions) => {
           ...options.experimental,
           attachDebugInfo: 'none',
         },
-        plugins: [...plugins, fixUniqueSymbolExports()],
+        plugins: [...plugins, fixUniqueSymbolExports(), splitTypeImports()],
       } as const satisfies Rolldown.InputOptions
     },
     // plugins: [
