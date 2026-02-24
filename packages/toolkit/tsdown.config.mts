@@ -38,6 +38,8 @@ const RE_TS = /\.([cm]?)tsx?$/
 
 const RE_DTS = /\.d\.([cm]?)ts$/
 
+const RE_JS = /\.([cm]?)jsx?$/
+
 /**
  * @internal
  */
@@ -67,27 +69,38 @@ const writeCommonJSEntryPlugin = (
   name: 'write-commonjs-entry',
   generateBundle: {
     order: pluginOptions.order ?? null,
-    handler(_outputOptions, bundle) {
-      Object.entries(bundle).forEach(([fileName, chunk]) => {
-        if (
-          chunk.type === 'chunk' &&
-          chunk.isEntry &&
-          fileName.endsWith('.production.min.cjs')
-        ) {
-          const dir = path.dirname(fileName)
-          const prefix = path.basename(fileName, '.production.min.cjs')
-          this.emitFile({
-            type: 'asset',
-            fileName: `${dir}/index.js`,
-            source: `"use strict";
+    handler(outputOptions, bundle, isWrite) {
+      if (outputOptions.format === 'cjs' && isWrite) {
+        Object.values(bundle).forEach((chunk) => {
+          if (
+            chunk.type === 'chunk' &&
+            chunk.isEntry &&
+            chunk.fileName.endsWith('.production.min.cjs')
+          ) {
+            const dir = path.dirname(chunk.fileName)
+
+            const prefix = path.basename(chunk.fileName, '.production.min.cjs')
+
+            this.emitFile({
+              // exports: chunk.exports,
+              // facadeModuleId: chunk.facadeModuleId ?? undefined,
+              fileName: `${dir}/index.js`,
+              // isDynamicEntry: chunk.isDynamicEntry,
+              isEntry: true,
+              // map: chunk.map ?? undefined,
+              // name: chunk.name,
+              // sourcemapFileName: `${dir}/index.js.map`,
+              type: 'prebuilt-chunk',
+              code: `"use strict";
 if (process.env.NODE_ENV === "production") {
   module.exports = require("./${prefix}.production.min.cjs");
 } else {
   module.exports = require("./${prefix}.development.cjs");
-}`,
-          })
-        }
-      })
+}\n`,
+            })
+          }
+        })
+      }
     },
   },
 })
@@ -189,16 +202,16 @@ const removeCJSOutputsFromDTSBuilds = (
     generateBundle: {
       order: pluginOptions.order ?? null,
       handler(outputOptions, bundle, isWrite) {
-        Object.entries(bundle).forEach(([fileName]) => {
-          if (
-            outputOptions.format === 'cjs' &&
-            isWrite &&
-            (fileName.endsWith('index.cjs') ||
-              fileName.endsWith('index.cjs.map'))
-          ) {
-            delete bundle[fileName]
-          }
-        })
+        if (outputOptions.format === 'cjs' && isWrite) {
+          Object.values(bundle).forEach((outputBundle) => {
+            if (
+              outputBundle.fileName.endsWith('index.cjs') ||
+              outputBundle.fileName.endsWith('index.cjs.map')
+            ) {
+              delete bundle[outputBundle.fileName]
+            }
+          })
+        }
       },
     },
   }
@@ -219,10 +232,10 @@ const removeComments = (): Rolldown.Plugin => {
     transform: {
       filter: {
         code: {
-          include: [/\/\*\*\n/],
+          include: [/\/\*\*\n?/],
         },
         id: {
-          exclude: [RE_NODE_MODULES],
+          exclude: [RE_NODE_MODULES, RE_DTS],
           include: [RE_TS],
         },
         moduleType: {
@@ -619,9 +632,14 @@ const fixUniqueSymbolExports = (
   return {
     name: 'fix-unique-symbol-exports',
     renderChunk: {
+      filter: {
+        code: {
+          include: [/unique symbol/],
+        },
+      },
       order: pluginOptions.order ?? null,
       async handler(code, chunk, _outputOptions, _meta) {
-        if (!RE_DTS.test(chunk.fileName) || !chunk.isEntry) {
+        if (!(RE_DTS.test(chunk.fileName) && chunk.isEntry)) {
           return
         }
 
@@ -942,7 +960,7 @@ export default defineConfig((cliOptions) => {
     clean: false,
     cwd,
     devtools: {
-      clean: false,
+      clean: true,
       enabled: true,
     },
     dts: false,
@@ -952,9 +970,13 @@ export default defineConfig((cliOptions) => {
     fixedExtension: false,
     format: ['cjs', 'es'],
     hash: false,
-    // inlineOnly: [],
-    inputOptions: (options, format) =>
-      ({
+    inlineOnly: [],
+    inputOptions: (options, format, context) => {
+      const plugins = Array.isArray(options.plugins)
+        ? options.plugins.flat()
+        : [options.plugins]
+
+      return {
         ...options,
         experimental: {
           ...options.experimental,
@@ -966,6 +988,14 @@ export default defineConfig((cliOptions) => {
             : {}),
           nativeMagicString: true,
         },
+        plugins: [
+          ...plugins,
+          removeComments(),
+          mangleErrorsTransform(),
+          annotateAsPurePlugin({
+            callExpressions: ['__assign', 'Object.assign'],
+          }),
+        ],
         transform: {
           ...options.transform,
           inject: {
@@ -977,7 +1007,8 @@ export default defineConfig((cliOptions) => {
             React: ['react', '*'] as const,
           },
         },
-      }) as const satisfies Rolldown.InputOptions,
+      } as const satisfies Rolldown.InputOptions
+    },
     nodeProtocol: true,
     outDir: 'dist',
     outExtensions: ({ format, options }) => ({
@@ -991,8 +1022,12 @@ export default defineConfig((cliOptions) => {
             : `${options.platform === 'browser' ? '.browser' : '.modern'}.mjs`
           : '.cjs',
     }),
-    outputOptions: (options, format, context) =>
-      ({
+    outputOptions: (options, format, context) => {
+      const plugins = Array.isArray(options.plugins)
+        ? options.plugins.flat()
+        : [options.plugins]
+
+      return {
         ...options,
         codeSplitting: false,
         // comments: {
@@ -1003,23 +1038,32 @@ export default defineConfig((cliOptions) => {
         ...(format === 'cjs' && !context.cjsDts
           ? {
               externalLiveBindings: false,
-              intro: '"use strict";',
+              intro: (chunk) => {
+                if (!(RE_JS.test(chunk.fileName) && chunk.isEntry)) {
+                  return ''
+                }
+
+                return '"use strict";'
+              },
+
+              plugins: [...plugins, writeCommonJSEntryPlugin()],
             }
           : {}),
         // TODO: Replace with `comments` in the next major version of `tsdown`.
         legalComments: 'none',
-      }) as const satisfies Rolldown.OutputOptions,
+      } as const satisfies Rolldown.OutputOptions
+    },
     platform: 'node',
-    plugins: [
-      // TODO: Replace with `comments` in the next major version of `tsdown`.
-      removeComments(),
-      mangleErrorsTransform(),
-      annotateAsPurePlugin({
-        callExpressions: ['__assign', 'Object.assign'],
-      }),
-      fixUniqueSymbolExports(),
-      writeCommonJSEntryPlugin(),
-    ],
+    // plugins: [
+    //   // TODO: Replace with `comments` in the next major version of `tsdown`.
+    //   removeComments(),
+    //   mangleErrorsTransform(),
+    //   annotateAsPurePlugin({
+    //     callExpressions: ['__assign', 'Object.assign'],
+    //   }),
+    //   fixUniqueSymbolExports(),
+    //   writeCommonJSEntryPlugin(),
+    // ],
     shims: true,
     sourcemap: true,
     target: ['esnext'],
@@ -1051,20 +1095,41 @@ export default defineConfig((cliOptions) => {
       tsconfig: commonOptions.tsconfig,
     },
     external: [...peerAndProductionDependencies, /uncheckedindexed/],
-    inputOptions: (options) =>
-      ({
+    outputOptions: (options, format, context) => {
+      const plugins = Array.isArray(options.plugins)
+        ? options.plugins.flat()
+        : [options.plugins]
+
+      return {
+        ...options,
+        plugins: [
+          ...plugins,
+          format === 'cjs' && !context.cjsDts
+            ? removeCJSOutputsFromDTSBuilds()
+            : false,
+        ],
+      }
+    },
+    inputOptions: (options, format, context) => {
+      const plugins = Array.isArray(options.plugins)
+        ? options.plugins.flat()
+        : [options.plugins]
+
+      return {
         ...options,
         experimental: {
           ...options.experimental,
           attachDebugInfo: 'none',
         },
-      }) as const satisfies Rolldown.InputOptions,
-    plugins: [
-      ...(Array.isArray(commonOptions.plugins)
-        ? commonOptions.plugins
-        : [commonOptions.plugins]),
-      removeCJSOutputsFromDTSBuilds(),
-    ],
+        plugins: [...plugins, fixUniqueSymbolExports()],
+      } as const satisfies Rolldown.InputOptions
+    },
+    // plugins: [
+    //   ...(Array.isArray(commonOptions.plugins)
+    //     ? commonOptions.plugins
+    //     : [commonOptions.plugins]),
+    //   removeCJSOutputsFromDTSBuilds(),
+    // ],
   } as const satisfies InlineConfig
 
   const modernEsmConfig = {
