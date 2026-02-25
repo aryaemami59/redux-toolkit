@@ -5,7 +5,6 @@ import { declare } from '@babel/helper-plugin-utils'
 import type {
   CallExpression,
   ExportNamedDeclaration,
-  ExportSpecifier,
   Function,
   Identifier,
   ImportDeclaration,
@@ -634,6 +633,11 @@ const splitTypeImports = (
   return {
     name: 'split-type-imports',
     renderChunk: {
+      // filter: {
+      //   code: {
+      //     include: [/type/],
+      //   },
+      // },
       order: pluginOptions.order ?? null,
       async handler(code, chunk) {
         if (!(RE_DTS.test(chunk.fileName) && chunk.isEntry)) {
@@ -684,15 +688,16 @@ const splitTypeImports = (
         // Preserve value imports for identifiers used as base classes in extends
         // clauses. `import type { X }` cannot be used in `class Y extends X {}`.
         parsedFile.program.body.forEach((statement) => {
-          const decl = t.isExportNamedDeclaration(statement)
+          const exportedDeclaration = t.isExportNamedDeclaration(statement)
             ? statement.declaration
             : statement
+
           if (
-            t.isClassDeclaration(decl) &&
-            decl.superClass != null &&
-            t.isIdentifier(decl.superClass)
+            t.isClassDeclaration(exportedDeclaration) &&
+            exportedDeclaration.superClass != null &&
+            t.isIdentifier(exportedDeclaration.superClass)
           ) {
-            valueExportedNames.add(decl.superClass.name)
+            valueExportedNames.add(exportedDeclaration.superClass.name)
           }
         })
 
@@ -724,13 +729,13 @@ const splitTypeImports = (
                     t.isIdentifier(importSpecifier.imported) &&
                     !valueExportedNames.has(importSpecifier.local.name)
                   ) {
-                    const newImportSpecifier: ImportSpecifier = {
+                    const newImportSpecifier = {
                       ...t.importSpecifier(
                         t.identifier(importSpecifier.local.name),
                         t.identifier(importSpecifier.imported.name),
                       ),
                       importKind: 'type',
-                    }
+                    } satisfies ImportSpecifier
 
                     return newImportSpecifier
                   }
@@ -739,30 +744,41 @@ const splitTypeImports = (
                 },
               )
 
-              const valueSpecifiers = newImportSpecifiers.filter((e) =>
-                t.isImportSpecifier(e, { importKind: 'value' }),
+              const valueImportSpecifiers = newImportSpecifiers.filter(
+                (importSpecifier) =>
+                  t.isImportSpecifier(importSpecifier, { importKind: 'value' }),
               )
 
-              const typeSpecifiers = newImportSpecifiers.filter((e) =>
-                t.isImportSpecifier(e, { importKind: 'type' }),
+              const typeImportSpecifiers = newImportSpecifiers.filter(
+                (importSpecifier) =>
+                  t.isImportSpecifier(importSpecifier, { importKind: 'type' }),
               )
 
               const result: Statement[] = []
 
-              if (valueSpecifiers.length > 0) {
+              if (valueImportSpecifiers.length > 0) {
                 result.push({
-                  ...t.importDeclaration(valueSpecifiers, statement.source),
+                  ...t.importDeclaration(
+                    valueImportSpecifiers,
+                    statement.source,
+                  ),
                   importKind: 'value',
                 } satisfies ImportDeclaration)
               }
 
-              if (typeSpecifiers.length > 0) {
+              if (typeImportSpecifiers.length > 0) {
                 result.push({
                   ...t.importDeclaration(
-                    typeSpecifiers.map((e) => ({
-                      ...t.importSpecifier(e.local, e.imported),
-                      importKind: 'value',
-                    })),
+                    typeImportSpecifiers.map(
+                      (typeImportSpecifier) =>
+                        ({
+                          ...t.importSpecifier(
+                            typeImportSpecifier.local,
+                            typeImportSpecifier.imported,
+                          ),
+                          importKind: 'value',
+                        }) satisfies ImportSpecifier,
+                    ),
                     statement.source,
                   ),
                   importKind: 'type',
@@ -783,22 +799,25 @@ const splitTypeImports = (
               t.isExportNamedDeclaration(statement) &&
               statement.declaration == null
             ) {
-              const valueSpecifiers = statement.specifiers.filter(
-                (spec): spec is ExportSpecifier =>
-                  t.isExportSpecifier(spec) && spec.exportKind === 'value',
+              const valueExportSpecifiers = statement.specifiers.filter(
+                (specifier) =>
+                  t.isExportSpecifier(specifier, { exportKind: 'value' }),
               )
 
-              const typeSpecifiers = statement.specifiers.filter(
-                (spec): spec is ExportSpecifier =>
-                  t.isExportSpecifier(spec) && spec.exportKind === 'type',
+              const typeExportSpecifiers = statement.specifiers.filter(
+                (specifier) =>
+                  t.isExportSpecifier(specifier, { exportKind: 'type' }),
               )
 
-              if (valueSpecifiers.length > 0 && typeSpecifiers.length > 0) {
+              if (
+                valueExportSpecifiers.length > 0 &&
+                typeExportSpecifiers.length > 0
+              ) {
                 return [
                   {
                     ...t.exportNamedDeclaration(
                       null,
-                      valueSpecifiers,
+                      valueExportSpecifiers,
                       statement.source,
                     ),
                     exportKind: 'value',
@@ -806,9 +825,12 @@ const splitTypeImports = (
                   {
                     ...t.exportNamedDeclaration(
                       null,
-                      typeSpecifiers.map((spec) => ({
-                        ...t.exportSpecifier(spec.local, spec.exported),
-                        exportKind: 'value' as const,
+                      typeExportSpecifiers.map((typeExportSpecifier) => ({
+                        ...t.exportSpecifier(
+                          typeExportSpecifier.local,
+                          typeExportSpecifier.exported,
+                        ),
+                        exportKind: 'value',
                       })),
                       statement.source,
                     ),
