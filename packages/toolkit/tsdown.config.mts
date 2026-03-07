@@ -221,81 +221,6 @@ const removeCJSOutputsFromDTSBuilds = (
 }
 
 /**
- * Rolldown plugin to remove multi-line JSDoc-style comments from source
- * files while preserving single-line pure annotations (e.g. `@__PURE__` or
- * `#__PURE__`). This helps reduce bundle size by stripping documentation
- * comments that are not needed at runtime.
- *
- * @returns A Rolldown plugin that removes multi-line comments.
- * @internal
- */
-const removeComments = (): Rolldown.Plugin => {
-  return {
-    name: 'remove-comments',
-    transform: {
-      filter: {
-        code: {
-          include: [/\/\*\*\n?/],
-        },
-        id: {
-          exclude: [RE_NODE_MODULES, RE_DTS],
-          include: [RE_TS],
-        },
-        moduleType: {
-          include: ['ts', 'tsx'],
-        },
-      },
-      async handler(code, id, meta) {
-        const combinedSourcemap = this.getCombinedSourcemap()
-
-        const transformResult = await babel.transformAsync(code, {
-          cwd,
-          filename: id,
-          filenameRelative: path.relative(sourceRootDirectory, id),
-          inputSourceMap: combinedSourcemap,
-          parserOpts: {
-            createParenthesizedExpressions: true,
-            errorRecovery: true,
-            plugins: [['typescript', {}], 'jsx'],
-            sourceFilename: id,
-            sourceType: 'module',
-          },
-          shouldPrintComment: (commentContents) => {
-            if (
-              commentContents.includes('\n') ||
-              !/^\s?[@#]__PURE__\s?$/.test(commentContents)
-            ) {
-              return false
-            }
-
-            return true
-          },
-          sourceFileName: id,
-          sourceMaps: 'both',
-          sourceType: 'module',
-        })
-
-        if (transformResult == null) {
-          return null
-        }
-
-        return {
-          code: transformResult.code ?? code,
-          invalidate: true,
-          map:
-            (transformResult.map as Rolldown.ExistingRawSourceMap) ??
-            combinedSourcemap,
-          meta,
-          moduleSideEffects: false,
-          moduleType: meta.moduleType,
-          packageJsonPath,
-        }
-      },
-    },
-  }
-}
-
-/**
  * @internal
  */
 const isPureAnnotated = ({ leadingComments }: Node): boolean =>
@@ -1200,44 +1125,46 @@ const fixUniqueSymbolExports = (
 const peerAndProductionDependencies = Object.keys({
   ...packageJson.dependencies,
   ...packageJson.peerDependencies,
-} as const) satisfies Extract<NonNullable<InlineConfig['external']>, unknown[]>
+} as const) satisfies Extract<Rolldown.ExternalOption, unknown[]>
 
 export default defineConfig((cliOptions) => {
   const commonOptions = {
     clean: false,
     cwd,
+    deps: {
+      neverBundle: [...peerAndProductionDependencies, /uncheckedindexed/],
+      onlyAllowBundle: [],
+    },
     devtools: {
       clean: true,
       enabled: true,
     },
     dts: false,
-    // TODO: Replace with `deps.neverBundle` in the next major version of `tsdown`.
-    external: [...peerAndProductionDependencies, /uncheckedindexed/],
     failOnWarn: true,
     fixedExtension: false,
     format: ['cjs', 'es'],
     hash: false,
-    inlineOnly: [],
     inputOptions: (options, format, context) => {
-      const plugins = Array.isArray(options.plugins)
-        ? options.plugins.flat()
-        : [options.plugins]
+      const plugins = options.plugins
+        ? Array.isArray(options.plugins)
+          ? options.plugins.flat()
+          : [options.plugins]
+        : []
 
       return {
         ...options,
         experimental: {
           ...options.experimental,
           lazyBarrel: true,
+          nativeMagicString: true,
           ...(format === 'cjs'
             ? {
                 attachDebugInfo: 'none',
               }
             : {}),
-          nativeMagicString: true,
         },
         plugins: [
           ...plugins,
-          removeComments(),
           mangleErrorsTransform(),
           annotateAsPurePlugin({
             callExpressions: ['__assign', 'Object.assign'],
@@ -1270,34 +1197,27 @@ export default defineConfig((cliOptions) => {
           : '.cjs',
     }),
     outputOptions: (options, format, context) => {
-      const plugins = Array.isArray(options.plugins)
-        ? options.plugins.flat()
-        : [options.plugins]
+      const plugins = options.plugins
+        ? Array.isArray(options.plugins)
+          ? options.plugins.flat()
+          : [options.plugins]
+        : []
 
       return {
         ...options,
         codeSplitting: false,
-        // comments: {
-        //   annotation: true,
-        //   jsdoc: false,
-        //   legal: true,
-        // },
+        comments: {
+          annotation: true,
+          jsdoc: false,
+          legal: true,
+        },
+        strict: true,
         ...(format === 'cjs' && !context.cjsDts
           ? {
               externalLiveBindings: false,
-              intro: (chunk) => {
-                if (!(RE_JS.test(chunk.fileName) && chunk.isEntry)) {
-                  return ''
-                }
-
-                return '"use strict";'
-              },
-
               plugins: [...plugins, writeCommonJSEntryPlugin()],
             }
           : {}),
-        // TODO: Replace with `comments` in the next major version of `tsdown`.
-        legalComments: 'none',
       } as const satisfies Rolldown.OutputOptions
     },
     platform: 'node',
@@ -1341,32 +1261,48 @@ export default defineConfig((cliOptions) => {
       sourcemap: true,
       tsconfig: commonOptions.tsconfig,
     },
-    external: [...peerAndProductionDependencies, /uncheckedindexed/],
+    deps: {
+      ...commonOptions.deps,
+      neverBundle: [...peerAndProductionDependencies, /uncheckedindexed/],
+    },
     outputOptions: (options, format, context) => {
-      const plugins = Array.isArray(options.plugins)
-        ? options.plugins.flat()
-        : [options.plugins]
+      const plugins = options.plugins
+        ? Array.isArray(options.plugins)
+          ? options.plugins.flat()
+          : [options.plugins]
+        : []
 
       return {
         ...options,
+        codeSplitting: false,
+        comments: {
+          annotation: false,
+          jsdoc: true,
+          legal: false,
+        },
         plugins: [
           ...plugins,
           format === 'cjs' && !context.cjsDts
             ? removeCJSOutputsFromDTSBuilds()
             : false,
         ],
-      }
+        strict: true,
+      } as const satisfies Rolldown.OutputOptions
     },
     inputOptions: (options, format, context) => {
-      const plugins = Array.isArray(options.plugins)
-        ? options.plugins.flat()
-        : [options.plugins]
+      const plugins = options.plugins
+        ? Array.isArray(options.plugins)
+          ? options.plugins.flat()
+          : [options.plugins]
+        : []
 
       return {
         ...options,
         experimental: {
           ...options.experimental,
           attachDebugInfo: 'none',
+          lazyBarrel: true,
+          nativeMagicString: true,
         },
         plugins: [...plugins, fixUniqueSymbolExports(), splitTypeImports()],
       } as const satisfies Rolldown.InputOptions
@@ -1399,9 +1335,7 @@ export default defineConfig((cliOptions) => {
 
   const productionCjsConfig = {
     ...commonOptions,
-    define: {
-      process: JSON.stringify('process'),
-    },
+    define: developmentCjsConfig.define,
     env: {
       NODE_ENV: 'production',
     },
@@ -1416,9 +1350,7 @@ export default defineConfig((cliOptions) => {
       process: 'undefined',
       window: JSON.stringify('window'),
     },
-    env: {
-      NODE_ENV: 'production',
-    },
+    env: productionCjsConfig.env,
     format: ['es'],
     minify: true,
     platform: 'browser',
@@ -1451,7 +1383,10 @@ export default defineConfig((cliOptions) => {
       entry: {
         'react/redux-toolkit-react': 'src/react/index.ts',
       },
-      external: [...peerAndProductionDependencies, packageJson.name],
+      deps: {
+        ...modernEsmConfig.deps,
+        neverBundle: [...peerAndProductionDependencies, packageJson.name],
+      },
     },
     {
       ...modernEsmConfig,
@@ -1459,11 +1394,14 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/rtk-query': 'src/query/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-      ],
+      deps: {
+        ...modernEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+        ],
+      },
     },
     {
       ...modernEsmConfig,
@@ -1471,12 +1409,15 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/react/rtk-query-react': 'src/query/react/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-        `${packageJson.name}/query`,
-      ],
+      deps: {
+        ...modernEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
 
     {
@@ -1492,7 +1433,10 @@ export default defineConfig((cliOptions) => {
       entry: {
         'react/cjs/redux-toolkit-react': 'src/react/index.ts',
       },
-      external: [...peerAndProductionDependencies, packageJson.name],
+      deps: {
+        ...developmentCjsConfig.deps,
+        neverBundle: [...peerAndProductionDependencies, packageJson.name],
+      },
     },
     {
       ...developmentCjsConfig,
@@ -1500,11 +1444,14 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/cjs/rtk-query': 'src/query/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-      ],
+      deps: {
+        ...developmentCjsConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+        ],
+      },
     },
     {
       ...developmentCjsConfig,
@@ -1512,12 +1459,15 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/react/cjs/rtk-query-react': 'src/query/react/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-        `${packageJson.name}/query`,
-      ],
+      deps: {
+        ...developmentCjsConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
     {
       ...productionCjsConfig,
@@ -1533,7 +1483,10 @@ export default defineConfig((cliOptions) => {
       entry: {
         'react/cjs/redux-toolkit-react': 'src/react/index.ts',
       },
-      external: [...peerAndProductionDependencies, packageJson.name],
+      deps: {
+        ...productionCjsConfig.deps,
+        neverBundle: [...peerAndProductionDependencies, packageJson.name],
+      },
     },
     {
       ...productionCjsConfig,
@@ -1541,11 +1494,14 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/cjs/rtk-query': 'src/query/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-      ],
+      deps: {
+        ...productionCjsConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+        ],
+      },
     },
     {
       ...productionCjsConfig,
@@ -1553,12 +1509,15 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/react/cjs/rtk-query-react': 'src/query/react/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-        `${packageJson.name}/query`,
-      ],
+      deps: {
+        ...productionCjsConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
 
     {
@@ -1575,7 +1534,10 @@ export default defineConfig((cliOptions) => {
       entry: {
         'react/redux-toolkit-react': 'src/react/index.ts',
       },
-      external: [...peerAndProductionDependencies, packageJson.name],
+      deps: {
+        ...browserEsmConfig.deps,
+        neverBundle: [...peerAndProductionDependencies, packageJson.name],
+      },
     },
     {
       ...browserEsmConfig,
@@ -1583,11 +1545,14 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/rtk-query': 'src/query/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-      ],
+      deps: {
+        ...browserEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+        ],
+      },
     },
     {
       ...browserEsmConfig,
@@ -1595,12 +1560,15 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/react/rtk-query-react': 'src/query/react/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-        `${packageJson.name}/query`,
-      ],
+      deps: {
+        ...browserEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
     {
       ...legacyEsmConfig,
@@ -1615,7 +1583,10 @@ export default defineConfig((cliOptions) => {
       entry: {
         'react/redux-toolkit-react': 'src/react/index.ts',
       },
-      external: [...peerAndProductionDependencies, packageJson.name],
+      deps: {
+        ...legacyEsmConfig.deps,
+        neverBundle: [...peerAndProductionDependencies, packageJson.name],
+      },
     },
     {
       ...legacyEsmConfig,
@@ -1623,11 +1594,14 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/rtk-query': 'src/query/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-      ],
+      deps: {
+        ...legacyEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+        ],
+      },
     },
     {
       ...legacyEsmConfig,
@@ -1635,12 +1609,15 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/react/rtk-query-react': 'src/query/react/index.ts',
       },
-      external: [
-        ...peerAndProductionDependencies,
-        packageJson.name,
-        `${packageJson.name}/react`,
-        `${packageJson.name}/query`,
-      ],
+      deps: {
+        ...legacyEsmConfig.deps,
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
 
     {
@@ -1657,7 +1634,10 @@ export default defineConfig((cliOptions) => {
       entry: {
         'react/index': 'src/react/index.ts',
       },
-      external: [...sharedDTSConfig.external, packageJson.name],
+      deps: {
+        ...sharedDTSConfig.deps,
+        neverBundle: [...sharedDTSConfig.deps.neverBundle, packageJson.name],
+      },
     },
 
     {
@@ -1666,11 +1646,14 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/index': 'src/query/index.ts',
       },
-      external: [
-        ...sharedDTSConfig.external,
-        packageJson.name,
-        `${packageJson.name}/react`,
-      ],
+      deps: {
+        ...sharedDTSConfig.deps,
+        neverBundle: [
+          ...sharedDTSConfig.deps.neverBundle,
+          packageJson.name,
+          `${packageJson.name}/react`,
+        ],
+      },
     },
 
     {
@@ -1679,12 +1662,15 @@ export default defineConfig((cliOptions) => {
       entry: {
         'query/react/index': 'src/query/react/index.ts',
       },
-      external: [
-        ...sharedDTSConfig.external,
-        packageJson.name,
-        `${packageJson.name}/react`,
-        `${packageJson.name}/query`,
-      ],
+      deps: {
+        ...sharedDTSConfig.deps,
+        neverBundle: [
+          ...sharedDTSConfig.deps.neverBundle,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
+      },
     },
   ] as const satisfies UserConfig[]
 })
