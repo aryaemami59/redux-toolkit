@@ -963,12 +963,12 @@ export interface InfiniteQueryExtraOptions<
    *
    * ```ts
    * // codeblock-meta title="infiniteQueryOptions example"
-   * import { createApi, fetchBaseQuery, defaultSerializeQueryArgs } from '@reduxjs/toolkit/query/react'
+   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
    *
    * type Pokemon = {
-   *   id: string
-   *   name: string
-   * }
+   *   id: string;
+   *   name: string;
+   * };
    *
    * const pokemonApi = createApi({
    *   baseQuery: fetchBaseQuery({ baseUrl: 'https://pokeapi.co/api/v2/' }),
@@ -993,8 +993,7 @@ export interface InfiniteQueryExtraOptions<
    *       },
    *     }),
    *   }),
-   * })
-
+   * });
    * ```
    */
   infiniteQueryOptions: InfiniteQueryConfigOptions<
