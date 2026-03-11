@@ -193,25 +193,36 @@ const mangleErrorsTransform = (
  * emit stray .cjs files; this plugin deletes those entries from the
  * generated bundle to ensure only declaration artifacts remain.
  *
- * @param [pluginOptions] - Options forwarded to the plugin.
+ * @param [pluginOptions={}] - Options forwarded to the plugin.
  * @returns A Rolldown plugin that prunes .cjs files from the bundle.
  * @internal
  */
 const removeCJSOutputsFromDTSBuilds = (
-  pluginOptions: GenerateBundleObjectHook = {},
+  pluginOptions: Id<
+    GenerateBundleObjectHook & {
+      /**
+       * @default ".temp.cjs"
+       */
+      fileExtension?: string
+    }
+  > = {},
 ): Rolldown.Plugin => {
+  const { fileExtension = '.temp.cjs', order = null } = pluginOptions
+
   return {
     name: 'remove-cjs-outputs-from-dts-builds',
     generateBundle: {
-      order: pluginOptions.order ?? null,
+      order,
       handler(outputOptions, bundle, isWrite) {
         if (outputOptions.format === 'cjs' && isWrite) {
-          Object.values(bundle).forEach((outputBundle) => {
+          Object.values(bundle).forEach((outputChunk) => {
             if (
-              outputBundle.fileName.endsWith('index.cjs') ||
-              outputBundle.fileName.endsWith('index.cjs.map')
+              outputChunk.type === 'chunk' &&
+              outputChunk.isEntry &&
+              outputChunk.fileName.endsWith(fileExtension)
             ) {
-              delete bundle[outputBundle.fileName]
+              delete bundle[outputChunk.fileName]
+              delete bundle[`${outputChunk.fileName}.map`]
             }
           })
         }
@@ -792,7 +803,7 @@ const splitTypeImports = (
  * remove them from export statements, and convert them to individual export
  * declarations (e.g., `export declare const X: unique symbol`).
  *
- * @param [pluginOptions] - Options forwarded to the plugin.
+ * @param [pluginOptions={}] - Options forwarded to the plugin.
  * @returns A Rolldown plugin that fixes unique symbol exports in .d.ts files.
  * @internal
  */
@@ -908,6 +919,7 @@ const fixUniqueSymbolExports = (
             console.log(
               `  Exporting '${statement.declarations[0].id.name}' as individual export`,
             )
+
             return t.exportNamedDeclaration(statement)
           }
 
@@ -1155,13 +1167,13 @@ export default defineConfig((cliOptions) => {
         ...options,
         experimental: {
           ...options.experimental,
-          lazyBarrel: true,
-          nativeMagicString: true,
           ...(format === 'cjs'
             ? {
                 attachDebugInfo: 'none',
               }
             : {}),
+          lazyBarrel: true,
+          nativeMagicString: true,
         },
         plugins: [
           ...plugins,
@@ -1183,12 +1195,13 @@ export default defineConfig((cliOptions) => {
         },
       } as const satisfies Rolldown.InputOptions
     },
+    minify: false,
     nodeProtocol: true,
     outDir: 'dist',
     outExtensions: ({ format, options }) => ({
       dts: format === 'es' ? '.d.mts' : '.d.ts',
       js:
-        format === 'es'
+        format === 'es' && options.transform?.target != null
           ? (Array.isArray(options.transform?.target) &&
               options.transform?.target.includes('es2017')) ||
             options.transform?.target === 'es2017'
@@ -1243,12 +1256,16 @@ export default defineConfig((cliOptions) => {
 
   const sharedDTSConfig = {
     ...commonOptions,
+    deps: {
+      ...commonOptions.deps,
+      neverBundle: [...peerAndProductionDependencies, /uncheckedindexed/],
+    },
     dts: {
       build: false,
       cjsDefault: false,
       cwd: commonOptions.cwd,
       dtsInput: false,
-      eager: true,
+      eager: false,
       emitDtsOnly: true,
       emitJs: false,
       enabled: true,
@@ -1260,34 +1277,6 @@ export default defineConfig((cliOptions) => {
       sideEffects: false,
       sourcemap: true,
       tsconfig: commonOptions.tsconfig,
-    },
-    deps: {
-      ...commonOptions.deps,
-      neverBundle: [...peerAndProductionDependencies, /uncheckedindexed/],
-    },
-    outputOptions: (options, format, context) => {
-      const plugins = options.plugins
-        ? Array.isArray(options.plugins)
-          ? options.plugins.flat()
-          : [options.plugins]
-        : []
-
-      return {
-        ...options,
-        codeSplitting: false,
-        comments: {
-          annotation: false,
-          jsdoc: true,
-          legal: false,
-        },
-        plugins: [
-          ...plugins,
-          format === 'cjs' && !context.cjsDts
-            ? removeCJSOutputsFromDTSBuilds()
-            : false,
-        ],
-        strict: true,
-      } as const satisfies Rolldown.OutputOptions
     },
     inputOptions: (options, format, context) => {
       const plugins = options.plugins
@@ -1306,6 +1295,34 @@ export default defineConfig((cliOptions) => {
         },
         plugins: [...plugins, fixUniqueSymbolExports(), splitTypeImports()],
       } as const satisfies Rolldown.InputOptions
+    },
+    outExtensions: ({ format }) => ({
+      dts: format === 'cjs' ? '.d.ts' : '.d.mts',
+      js: format === 'cjs' ? '.temp.cjs' : '.mjs',
+    }),
+    outputOptions: (options, format, context) => {
+      const plugins = options.plugins
+        ? Array.isArray(options.plugins)
+          ? options.plugins.flat()
+          : [options.plugins]
+        : []
+
+      return {
+        ...options,
+        codeSplitting: false,
+        comments: {
+          annotation: true,
+          jsdoc: true,
+          legal: true,
+        },
+        plugins: [
+          ...plugins,
+          format === 'cjs' && !context.cjsDts
+            ? removeCJSOutputsFromDTSBuilds()
+            : false,
+        ],
+        strict: true,
+      } as const satisfies Rolldown.OutputOptions
     },
     // plugins: [
     //   ...(Array.isArray(commonOptions.plugins)
