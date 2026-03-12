@@ -80,19 +80,19 @@ const writeCommonJSEntryPlugin = (
             chunk.isEntry &&
             chunk.fileName.endsWith('.production.min.cjs')
           ) {
-            const dir = path.dirname(chunk.fileName)
+            const chunkDirectory = path.dirname(chunk.fileName)
 
             const prefix = path.basename(chunk.fileName, '.production.min.cjs')
 
             this.emitFile({
               // exports: chunk.exports,
               // facadeModuleId: chunk.facadeModuleId ?? undefined,
-              fileName: `${dir}/index.js`,
+              fileName: `${chunkDirectory}/index.js`,
               // isDynamicEntry: chunk.isDynamicEntry,
               isEntry: true,
               // map: chunk.map ?? undefined,
               // name: chunk.name,
-              // sourcemapFileName: `${dir}/index.js.map`,
+              // sourcemapFileName: `${chunkDirectory}/index.js.map`,
               type: 'prebuilt-chunk',
               code: `"use strict";
 if (process.env.NODE_ENV === "production") {
@@ -171,8 +171,14 @@ const mangleErrorsTransform = (
           return {
             code: res.code ?? code,
             invalidate: true,
-            map:
-              (res.map as Rolldown.ExistingRawSourceMap) ?? combinedSourcemap,
+            map: {
+              ...res.map,
+              mappings: res.map?.mappings ?? '',
+              names: [...(res.map?.names ?? [])],
+              sources: [...(res.map?.sources ?? [])],
+              sourcesContent: [...(res.map?.sourcesContent ?? [])],
+              x_google_ignoreList: [...(res.map?.ignoreList ?? [])],
+            },
             meta,
             moduleSideEffects: false,
             moduleType: meta.moduleType,
@@ -501,9 +507,14 @@ const annotateAsPurePlugin = (
         return {
           code: transformResult.code ?? code,
           invalidate: true,
-          map:
-            (transformResult.map as Rolldown.ExistingRawSourceMap) ??
-            combinedSourcemap,
+          map: {
+            ...transformResult.map,
+            mappings: transformResult.map?.mappings ?? '',
+            names: [...(transformResult.map?.names ?? [])],
+            sources: [...(transformResult.map?.sources ?? [])],
+            sourcesContent: [...(transformResult.map?.sourcesContent ?? [])],
+            x_google_ignoreList: [...(transformResult.map?.ignoreList ?? [])],
+          },
           meta,
           moduleSideEffects: false,
           moduleType: meta.moduleType,
@@ -660,8 +671,9 @@ const splitTypeImports = (
               const newImportSpecifiers = statement.specifiers.map(
                 (importSpecifier) => {
                   if (
-                    t.isImportSpecifier(importSpecifier) &&
-                    importSpecifier.importKind === 'value' &&
+                    t.isImportSpecifier(importSpecifier, {
+                      importKind: 'value',
+                    }) &&
                     t.isIdentifier(importSpecifier.imported) &&
                     !valueExportedNames.has(importSpecifier.local.name)
                   ) {
@@ -780,15 +792,26 @@ const splitTypeImports = (
           },
         )
 
-        const generatedResults = generate(parsedFile, {
-          comments: true,
-          sourceMaps: true,
-          sourceFileName: chunk.fileName,
-        })
+        const generatedResults = generate(
+          parsedFile,
+          {
+            comments: true,
+            sourceMaps: true,
+            sourceFileName: chunk.fileName,
+          },
+          code,
+        )
 
         return {
           code: generatedResults.code,
-          map: generatedResults.map as Rolldown.ExistingRawSourceMap,
+          map: {
+            ...generatedResults.map,
+            mappings: generatedResults.map?.mappings ?? '',
+            names: [...(generatedResults.map?.names ?? [])],
+            sources: [...(generatedResults.map?.sources ?? [])],
+            sourcesContent: [...(generatedResults.map?.sourcesContent ?? [])],
+            x_google_ignoreList: [...(generatedResults.map?.ignoreList ?? [])],
+          },
         }
       },
     },
@@ -895,8 +918,9 @@ const fixUniqueSymbolExports = (
             statement.specifiers = statement.specifiers.filter(
               (exportSpecifier) => {
                 if (
-                  t.isExportSpecifier(exportSpecifier) &&
-                  exportSpecifier.exportKind === 'value' &&
+                  t.isExportSpecifier(exportSpecifier, {
+                    exportKind: 'value',
+                  }) &&
                   t.isIdentifier(exportSpecifier.local) &&
                   t.isIdentifier(exportSpecifier.exported) &&
                   exportedUniqueSymbols.has(exportSpecifier.local.name)
@@ -932,17 +956,28 @@ const fixUniqueSymbolExports = (
           )
         }
 
-        const generatedResults = generate(parsedFile, {
-          comments: true,
-          sourceMaps: true,
-          sourceFileName: chunk.fileName,
-        })
+        const generatedResults = generate(
+          parsedFile,
+          {
+            comments: true,
+            sourceMaps: true,
+            sourceFileName: chunk.fileName,
+          },
+          code,
+        )
 
         processedFiles.add(chunk.fileName)
 
         return {
           code: generatedResults.code,
-          map: generatedResults.map as Rolldown.ExistingRawSourceMap,
+          map: {
+            ...generatedResults.map,
+            mappings: generatedResults.map?.mappings ?? '',
+            names: [...(generatedResults.map?.names ?? [])],
+            sources: [...(generatedResults.map?.sources ?? [])],
+            sourcesContent: [...(generatedResults.map?.sourcesContent ?? [])],
+            x_google_ignoreList: [...(generatedResults.map?.ignoreList ?? [])],
+          },
         }
       },
     },
@@ -1045,13 +1080,13 @@ const fixUniqueSymbolExports = (
               // Check which unique symbols are actually in the export list
               parsedFile.program.body.forEach((statement) => {
                 if (t.isExportNamedDeclaration(statement)) {
-                  statement.specifiers.forEach((spec) => {
+                  statement.specifiers.forEach((specifier) => {
                     if (
-                      t.isExportSpecifier(spec) &&
-                      t.isIdentifier(spec.local) &&
-                      allUniqueSymbols.has(spec.local.name)
+                      t.isExportSpecifier(specifier) &&
+                      t.isIdentifier(specifier.local) &&
+                      allUniqueSymbols.has(specifier.local.name)
                     ) {
-                      exportedUniqueSymbols.add(spec.local.name)
+                      exportedUniqueSymbols.add(specifier.local.name)
                     }
                   })
                 }
@@ -1070,14 +1105,14 @@ const fixUniqueSymbolExports = (
                 (statement) => {
                   if (t.isExportNamedDeclaration(statement)) {
                     statement.specifiers = statement.specifiers.filter(
-                      (spec) => {
+                      (specifier) => {
                         if (
-                          t.isExportSpecifier(spec) &&
-                          t.isIdentifier(spec.local) &&
-                          exportedUniqueSymbols.has(spec.local.name)
+                          t.isExportSpecifier(specifier) &&
+                          t.isIdentifier(specifier.local) &&
+                          exportedUniqueSymbols.has(specifier.local.name)
                         ) {
                           console.log(
-                            `  Exporting '${spec.local.name}' as individual export`,
+                            `  Exporting '${specifier.local.name}' as individual export`,
                           )
 
                           return false
@@ -1106,10 +1141,15 @@ const fixUniqueSymbolExports = (
                 },
               )
 
-              const generatedResults = generate(parsedFile, {
-                comments: true,
-                sourceMaps: true,
-              })
+              const generatedResults = generate(
+                parsedFile,
+                {
+                  comments: true,
+                  sourceMaps: true,
+                  sourceFileName: relativePath,
+                },
+                content,
+              )
 
               await this.fs.writeFile(filePath, generatedResults.code, {
                 encoding: 'utf8',
