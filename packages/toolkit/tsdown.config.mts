@@ -1185,7 +1185,7 @@ export default defineConfig((cliOptions) => {
     cwd,
     deps: {
       neverBundle: [...peerAndProductionDependencies, /uncheckedindexed/],
-      onlyAllowBundle: [],
+      onlyBundle: [],
     },
     devtools: {
       clean: true,
@@ -1274,16 +1274,7 @@ export default defineConfig((cliOptions) => {
       } as const satisfies Rolldown.OutputOptions
     },
     platform: 'node',
-    // plugins: [
-    //   // TODO: Replace with `comments` in the next major version of `tsdown`.
-    //   removeComments(),
-    //   mangleErrorsTransform(),
-    //   annotateAsPurePlugin({
-    //     callExpressions: ['__assign', 'Object.assign'],
-    //   }),
-    //   fixUniqueSymbolExports(),
-    //   writeCommonJSEntryPlugin(),
-    // ],
+    root: sourceRootDirectory,
     shims: true,
     sourcemap: true,
     target: ['esnext'],
@@ -1364,12 +1355,6 @@ export default defineConfig((cliOptions) => {
         strict: true,
       } as const satisfies Rolldown.OutputOptions
     },
-    // plugins: [
-    //   ...(Array.isArray(commonOptions.plugins)
-    //     ? commonOptions.plugins
-    //     : [commonOptions.plugins]),
-    //   removeCJSOutputsFromDTSBuilds(),
-    // ],
   } as const satisfies InlineConfig
 
   const modernEsmConfig = {
