@@ -175,7 +175,6 @@ const mangleErrorsTransform = (
 
           return {
             code: res.code ?? code,
-            invalidate: true,
             map: {
               ...res.map,
               mappings: res.map?.mappings ?? '',
@@ -245,8 +244,17 @@ const removeCJSOutputsFromDTSBuilds = (
 /**
  * @internal
  */
-const isPureAnnotated = ({ leadingComments }: Node): boolean =>
-  !!leadingComments?.some((comment) => /[@#]__PURE__/.test(comment.value))
+const isPureAnnotated = (node: Node): boolean => {
+  const { leadingComments } = node
+
+  if (!leadingComments || leadingComments.length === 0) {
+    return false
+  }
+
+  return leadingComments.some((leadingComment) =>
+    /[@#]__PURE__/.test(leadingComment.value),
+  )
+}
 
 /**
  * @internal
@@ -340,6 +348,7 @@ const isExecutedDuringInitialization = (
  */
 const isInAssignmentContext = (nodePath: NodePath<CallExpression>): boolean => {
   const statement: NodePath<Statement> | null = nodePath.getStatementParent()
+
   let parentPath: NodePath | null = null
 
   do {
@@ -397,11 +406,15 @@ const annotateAsPureBabelPlugin = declare(
 
           const callee = path.get('callee')
 
+          if (!callee.isIdentifier()) {
+            return
+          }
+
           if (
-            callee.isIdentifier() &&
             callExpressions.some((callExpression) =>
               callee.matchesPattern(callExpression),
-            )
+            ) ||
+            callExpressions.includes(callee.node.name)
           ) {
             callableExpressionVisitor(path)
           }
@@ -477,13 +490,15 @@ const annotateAsPurePlugin = (
       order,
       async handler(code, id, meta) {
         const transformResult = await babel.transformAsync(code, {
+          ast: true,
           cwd,
           filename: id,
           filenameRelative: path.relative(sourceRootDirectory, id),
           parserOpts: {
             createParenthesizedExpressions: true,
             errorRecovery: true,
-            plugins: [['typescript', {}], 'jsx'],
+            plugins: [['typescript', { dts: false }], 'jsx'],
+            ranges: true,
             sourceFilename: id,
             sourceType: 'module',
           },
@@ -508,7 +523,6 @@ const annotateAsPurePlugin = (
 
         return {
           code: transformResult.code ?? code,
-          invalidate: true,
           map: {
             ...transformResult.map,
             mappings: transformResult.map?.mappings ?? '',
