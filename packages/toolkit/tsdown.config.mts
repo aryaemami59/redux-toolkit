@@ -35,7 +35,7 @@ const packageJsonPath = path.join(cwd, 'package.json')
 
 const sourceRootDirectory = path.join(cwd, 'src')
 
-const RE_NODE_MODULES = /node_modules/
+const RE_NODE_MODULES = /[\\/]node_modules[\\/]/
 
 const RE_TS = /\.([cm]?)tsx?$/
 
@@ -63,56 +63,64 @@ type GenerateBundleObjectHook = Id<
  * Automatically derives the folder and prefix from the output chunk filenames.
  * Only acts on production CJS builds (chunks ending in `.production.min.cjs`).
  *
+ * @param [pluginOptions={}] - Options forwarded to the plugin.
  * @returns A Rolldown plugin that emits the CJS entry file.
  * @internal
  */
 const writeCommonJSEntryPlugin = (
   pluginOptions: GenerateBundleObjectHook = {},
-): Rolldown.Plugin => ({
-  name: 'write-commonjs-entry',
-  generateBundle: {
-    order: pluginOptions.order ?? null,
-    handler(outputOptions, bundle, isWrite) {
-      if (outputOptions.format === 'cjs' && isWrite) {
-        Object.values(bundle).forEach((chunk) => {
-          if (
-            chunk.type === 'chunk' &&
-            chunk.isEntry &&
-            chunk.fileName.endsWith('.production.min.cjs')
-          ) {
-            const chunkDirectory = path.dirname(chunk.fileName)
+): Rolldown.Plugin => {
+  const { order = null } = pluginOptions
 
-            const prefix = path.basename(chunk.fileName, '.production.min.cjs')
+  return {
+    name: 'write-commonjs-entry',
+    generateBundle: {
+      order,
+      handler(outputOptions, bundle, isWrite) {
+        if (outputOptions.format === 'cjs' && isWrite) {
+          Object.values(bundle).forEach((chunk) => {
+            if (
+              chunk.type === 'chunk' &&
+              chunk.isEntry &&
+              chunk.fileName.endsWith('.production.min.cjs')
+            ) {
+              const chunkDirectory = path.dirname(chunk.fileName)
 
-            this.emitFile({
-              // exports: chunk.exports,
-              // facadeModuleId: chunk.facadeModuleId ?? undefined,
-              fileName: `${chunkDirectory}/index.js`,
-              // isDynamicEntry: chunk.isDynamicEntry,
-              isEntry: true,
-              // map: chunk.map ?? undefined,
-              // name: chunk.name,
-              // sourcemapFileName: `${chunkDirectory}/index.js.map`,
-              type: 'prebuilt-chunk',
-              code: `"use strict";
+              const prefix = path.basename(
+                chunk.fileName,
+                '.production.min.cjs',
+              )
+
+              this.emitFile({
+                // exports: chunk.exports,
+                // facadeModuleId: chunk.facadeModuleId ?? undefined,
+                fileName: `${chunkDirectory}/index.js`,
+                // isDynamicEntry: chunk.isDynamicEntry,
+                isEntry: true,
+                // map: chunk.map ?? undefined,
+                // name: chunk.name,
+                // sourcemapFileName: `${chunkDirectory}/index.js.map`,
+                type: 'prebuilt-chunk',
+                code: `"use strict";
 if (process.env.NODE_ENV === "production") {
   module.exports = require("./${prefix}.production.min.cjs");
 } else {
   module.exports = require("./${prefix}.development.cjs");
 }\n`,
-            })
-          }
-        })
-      }
+              })
+            }
+          })
+        }
+      },
     },
-  },
-})
+  }
+}
 
 /**
  * Extract error strings, replace them with error codes, and write messages to
  * a file.
  *
- * @param [mangleErrorsPluginOptions] - Options forwarded to the `mangleErrorsPlugin`. Supported options include `minify` to indicate whether error messages should be further minified.
+ * @param [mangleErrorsPluginOptions={}] - Options forwarded to the `mangleErrorsPlugin`. Supported options include `minify` to indicate whether error messages should be further minified.
  * @returns A Rolldown plugin that applies the Babel transformation to TypeScript/TSX sources matching the configured filter and returns transformed code and source maps.
  * @internal
  */
@@ -138,14 +146,11 @@ const mangleErrorsTransform = (
       },
 
       async handler(code, id, meta) {
-        const combinedSourcemap = this.getCombinedSourcemap()
-
         try {
           const res = await babel.transformAsync(code, {
             cwd,
             filename: id,
             filenameRelative: path.relative(sourceRootDirectory, id),
-            inputSourceMap: combinedSourcemap,
             parserOpts: {
               createParenthesizedExpressions: true,
               errorRecovery: true,
@@ -471,13 +476,10 @@ const annotateAsPurePlugin = (
       },
       order,
       async handler(code, id, meta) {
-        const combinedSourcemap = this.getCombinedSourcemap()
-
         const transformResult = await babel.transformAsync(code, {
           cwd,
           filename: id,
           filenameRelative: path.relative(sourceRootDirectory, id),
-          inputSourceMap: combinedSourcemap,
           parserOpts: {
             createParenthesizedExpressions: true,
             errorRecovery: true,
@@ -568,7 +570,7 @@ type UniqueSymbolVariableDeclaration = Id<
  * 1. Splits mixed `import { Value, type Type }` into separate value/type imports.
  * 2. Splits mixed `export { value, type Type }` into separate value/type exports.
  *
- * @param [pluginOptions] - Options forwarded to the plugin.
+ * @param [pluginOptions={}] - Options forwarded to the plugin.
  * @returns A Rolldown plugin that rewrites imports and exports in .d.ts files.
  * @internal
  */
@@ -576,6 +578,8 @@ const splitTypeImports = (
   pluginOptions: GenerateBundleObjectHook = {},
 ): Rolldown.Plugin => {
   const { types: t } = babel
+
+  const { order = null } = pluginOptions
 
   return {
     name: 'split-type-imports',
@@ -585,7 +589,7 @@ const splitTypeImports = (
       //     include: [/type/],
       //   },
       // },
-      order: pluginOptions.order ?? null,
+      order,
       async handler(code, chunk) {
         if (!(RE_DTS.test(chunk.fileName) && chunk.isEntry)) {
           return
@@ -748,13 +752,13 @@ const splitTypeImports = (
               statement.declaration == null
             ) {
               const valueExportSpecifiers = statement.specifiers.filter(
-                (specifier) =>
-                  t.isExportSpecifier(specifier, { exportKind: 'value' }),
+                (exportSpecifier) =>
+                  t.isExportSpecifier(exportSpecifier, { exportKind: 'value' }),
               )
 
               const typeExportSpecifiers = statement.specifiers.filter(
-                (specifier) =>
-                  t.isExportSpecifier(specifier, { exportKind: 'type' }),
+                (exportSpecifier) =>
+                  t.isExportSpecifier(exportSpecifier, { exportKind: 'type' }),
               )
 
               if (
@@ -835,6 +839,8 @@ const fixUniqueSymbolExports = (
 ): Rolldown.Plugin => {
   const { types: t } = babel
 
+  const { order = null } = pluginOptions
+
   const processedFiles = new Set<string>()
 
   return {
@@ -845,7 +851,7 @@ const fixUniqueSymbolExports = (
           include: [/unique symbol/],
         },
       },
-      order: pluginOptions.order ?? null,
+      order,
       async handler(code, chunk, _outputOptions, _meta) {
         if (!(RE_DTS.test(chunk.fileName) && chunk.isEntry)) {
           return
@@ -904,13 +910,13 @@ const fixUniqueSymbolExports = (
         // Second pass: find which ones are in the export list
         parsedFile.program.body.forEach((statement) => {
           if (t.isExportNamedDeclaration(statement)) {
-            statement.specifiers.forEach((spec) => {
+            statement.specifiers.forEach((exportSpecifier) => {
               if (
-                t.isExportSpecifier(spec) &&
-                t.isIdentifier(spec.local) &&
-                allUniqueSymbols.has(spec.local.name)
+                t.isExportSpecifier(exportSpecifier) &&
+                t.isIdentifier(exportSpecifier.local) &&
+                allUniqueSymbols.has(exportSpecifier.local.name)
               ) {
-                exportedUniqueSymbols.add(spec.local.name)
+                exportedUniqueSymbols.add(exportSpecifier.local.name)
               }
             })
 
@@ -984,7 +990,7 @@ const fixUniqueSymbolExports = (
 
     // Fallback for .d.ts files that don't go through renderChunk
     writeBundle: {
-      order: pluginOptions.order ?? null,
+      order,
       async handler(outputOptions, _bundle) {
         const outDir =
           outputOptions.dir || path.dirname(outputOptions.file || '')
@@ -1080,13 +1086,13 @@ const fixUniqueSymbolExports = (
               // Check which unique symbols are actually in the export list
               parsedFile.program.body.forEach((statement) => {
                 if (t.isExportNamedDeclaration(statement)) {
-                  statement.specifiers.forEach((specifier) => {
+                  statement.specifiers.forEach((exportSpecifier) => {
                     if (
-                      t.isExportSpecifier(specifier) &&
-                      t.isIdentifier(specifier.local) &&
-                      allUniqueSymbols.has(specifier.local.name)
+                      t.isExportSpecifier(exportSpecifier) &&
+                      t.isIdentifier(exportSpecifier.local) &&
+                      allUniqueSymbols.has(exportSpecifier.local.name)
                     ) {
-                      exportedUniqueSymbols.add(specifier.local.name)
+                      exportedUniqueSymbols.add(exportSpecifier.local.name)
                     }
                   })
                 }
@@ -1105,14 +1111,14 @@ const fixUniqueSymbolExports = (
                 (statement) => {
                   if (t.isExportNamedDeclaration(statement)) {
                     statement.specifiers = statement.specifiers.filter(
-                      (specifier) => {
+                      (exportSpecifier) => {
                         if (
-                          t.isExportSpecifier(specifier) &&
-                          t.isIdentifier(specifier.local) &&
-                          exportedUniqueSymbols.has(specifier.local.name)
+                          t.isExportSpecifier(exportSpecifier) &&
+                          t.isIdentifier(exportSpecifier.local) &&
+                          exportedUniqueSymbols.has(exportSpecifier.local.name)
                         ) {
                           console.log(
-                            `  Exporting '${specifier.local.name}' as individual export`,
+                            `  Exporting '${exportSpecifier.local.name}' as individual export`,
                           )
 
                           return false
@@ -1179,12 +1185,17 @@ const peerAndProductionDependencies = Object.keys({
   ...packageJson.peerDependencies,
 } as const) satisfies Extract<Rolldown.ExternalOption, unknown[]>
 
+const neverBundle = [
+  ...peerAndProductionDependencies,
+  /uncheckedindexed/,
+] as const satisfies Extract<Rolldown.ExternalOption, unknown[]>
+
 export default defineConfig((cliOptions) => {
   const commonOptions = {
     clean: false,
     cwd,
     deps: {
-      neverBundle: [...peerAndProductionDependencies, /uncheckedindexed/],
+      neverBundle,
       onlyBundle: [],
     },
     devtools: {
@@ -1196,7 +1207,7 @@ export default defineConfig((cliOptions) => {
     fixedExtension: false,
     format: ['cjs', 'es'],
     hash: false,
-    inputOptions: (options, format, context) => {
+    inputOptions: (options, format) => {
       const plugins = options.plugins
         ? Array.isArray(options.plugins)
           ? options.plugins.flat()
@@ -1229,8 +1240,8 @@ export default defineConfig((cliOptions) => {
             'Object.assign': [
               path.join(sourceRootDirectory, 'bundle-size-utils.ts'),
               '__assign',
-            ] as const,
-            React: ['react', '*'] as const,
+            ],
+            React: ['react', '*'],
           },
         },
       } as const satisfies Rolldown.InputOptions
@@ -1289,7 +1300,7 @@ export default defineConfig((cliOptions) => {
     ...commonOptions,
     deps: {
       ...commonOptions.deps,
-      neverBundle: [...peerAndProductionDependencies, /uncheckedindexed/],
+      neverBundle,
     },
     dts: {
       build: false,
@@ -1309,7 +1320,7 @@ export default defineConfig((cliOptions) => {
       sourcemap: true,
       tsconfig: commonOptions.tsconfig,
     },
-    inputOptions: (options, format, context) => {
+    inputOptions: (options) => {
       const plugins = options.plugins
         ? Array.isArray(options.plugins)
           ? options.plugins.flat()
@@ -1421,7 +1432,7 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...modernEsmConfig,
-      name: 'Redux-Toolkit-React-ESM',
+      name: 'RTK-React-ESM',
       entry: {
         'react/redux-toolkit-react': 'src/react/index.ts',
       },
@@ -1432,7 +1443,7 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...modernEsmConfig,
-      name: 'Redux-Toolkit-Query-ESM',
+      name: 'RTK-Query-ESM',
       entry: {
         'query/rtk-query': 'src/query/index.ts',
       },
@@ -1447,7 +1458,7 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...modernEsmConfig,
-      name: 'Redux-Toolkit-Query-React-ESM',
+      name: 'RTK-Query-React-ESM',
       entry: {
         'query/react/rtk-query-react': 'src/query/react/index.ts',
       },
@@ -1471,7 +1482,7 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...developmentCjsConfig,
-      name: 'Redux-Toolkit-React-CJS-Development',
+      name: 'RTK-React-CJS-Development',
       entry: {
         'react/cjs/redux-toolkit-react': 'src/react/index.ts',
       },
@@ -1482,7 +1493,7 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...developmentCjsConfig,
-      name: 'Redux-Toolkit-Query-CJS-Development',
+      name: 'RTK-Query-CJS-Development',
       entry: {
         'query/cjs/rtk-query': 'src/query/index.ts',
       },
@@ -1497,7 +1508,7 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...developmentCjsConfig,
-      name: 'Redux-Toolkit-Query-React-CJS-Development',
+      name: 'RTK-Query-React-CJS-Development',
       entry: {
         'query/react/cjs/rtk-query-react': 'src/query/react/index.ts',
       },
@@ -1513,7 +1524,7 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...productionCjsConfig,
-      name: 'Redux-Toolkit-Core-CJS-Production',
+      name: 'RTK-Core-CJS-Production',
       entry: {
         'cjs/redux-toolkit': 'src/index.ts',
       },
@@ -1521,7 +1532,7 @@ export default defineConfig((cliOptions) => {
 
     {
       ...productionCjsConfig,
-      name: 'Redux-Toolkit-React-CJS-Production',
+      name: 'RTK-React-CJS-Production',
       entry: {
         'react/cjs/redux-toolkit-react': 'src/react/index.ts',
       },
@@ -1532,7 +1543,7 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...productionCjsConfig,
-      name: 'Redux-Toolkit-Query-CJS-Production',
+      name: 'RTK-Query-CJS-Production',
       entry: {
         'query/cjs/rtk-query': 'src/query/index.ts',
       },
@@ -1547,7 +1558,7 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...productionCjsConfig,
-      name: 'Redux-Toolkit-Query-React-CJS-Production',
+      name: 'RTK-Query-React-CJS-Production',
       entry: {
         'query/react/cjs/rtk-query-react': 'src/query/react/index.ts',
       },
@@ -1572,7 +1583,7 @@ export default defineConfig((cliOptions) => {
 
     {
       ...browserEsmConfig,
-      name: 'Redux-Toolkit-React-Browser',
+      name: 'RTK-React-Browser',
       entry: {
         'react/redux-toolkit-react': 'src/react/index.ts',
       },
@@ -1583,7 +1594,7 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...browserEsmConfig,
-      name: 'Redux-Toolkit-Query-Browser',
+      name: 'RTK-Query-Browser',
       entry: {
         'query/rtk-query': 'src/query/index.ts',
       },
@@ -1598,7 +1609,7 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...browserEsmConfig,
-      name: 'Redux-Toolkit-Query-React-Browser',
+      name: 'RTK-Query-React-Browser',
       entry: {
         'query/react/rtk-query-react': 'src/query/react/index.ts',
       },
@@ -1621,7 +1632,7 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...legacyEsmConfig,
-      name: 'Redux-Toolkit-React-Legacy-ESM',
+      name: 'RTK-React-Legacy-ESM',
       entry: {
         'react/redux-toolkit-react': 'src/react/index.ts',
       },
@@ -1632,7 +1643,7 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...legacyEsmConfig,
-      name: 'Redux-Toolkit-Query-Legacy-ESM',
+      name: 'RTK-Query-Legacy-ESM',
       entry: {
         'query/rtk-query': 'src/query/index.ts',
       },
@@ -1647,7 +1658,7 @@ export default defineConfig((cliOptions) => {
     },
     {
       ...legacyEsmConfig,
-      name: 'Redux-Toolkit-Query-React-Legacy-ESM',
+      name: 'RTK-Query-React-Legacy-ESM',
       entry: {
         'query/react/rtk-query-react': 'src/query/react/index.ts',
       },
