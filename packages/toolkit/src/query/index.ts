@@ -89,7 +89,6 @@ export type { RetryOptions } from './retry'
 export { NamedSchemaError } from './standardSchema'
 export type {
   Id as TSHelpersId,
-  NoInfer as TSHelpersNoInfer,
   Override as TSHelpersOverride,
 } from './tsHelpers'
 export { copyWithStructuralSharing } from './utils/index'
