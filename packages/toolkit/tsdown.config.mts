@@ -205,16 +205,9 @@ const mangleErrorsTransform = (
  * @internal
  */
 const removeCJSOutputsFromDTSBuilds = (
-  pluginOptions: Id<
-    GenerateBundleObjectHook & {
-      /**
-       * @default ".temp.cjs"
-       */
-      fileExtension?: string
-    }
-  > = {},
+  pluginOptions: GenerateBundleObjectHook = {},
 ): Rolldown.Plugin => {
-  const { fileExtension = '.temp.cjs', order = null } = pluginOptions
+  const { order = null } = pluginOptions
 
   return {
     name: 'remove-cjs-outputs-from-dts-builds',
@@ -226,7 +219,7 @@ const removeCJSOutputsFromDTSBuilds = (
             if (
               outputChunk.type === 'chunk' &&
               outputChunk.isEntry &&
-              outputChunk.fileName.endsWith(fileExtension)
+              !RE_DTS.test(outputChunk.fileName)
             ) {
               delete bundle[outputChunk.fileName]
               delete bundle[`${outputChunk.fileName}.map`]
@@ -1147,10 +1140,6 @@ export default defineConfig((cliOptions) => {
         plugins: [...plugins, fixUniqueSymbolExports(), splitTypeImports()],
       } as const satisfies Rolldown.InputOptions
     },
-    outExtensions: ({ format }) => ({
-      dts: format === 'cjs' ? '.d.ts' : '.d.mts',
-      js: format === 'cjs' ? '.temp.cjs' : '.mjs',
-    }),
     outputOptions: (options, format, context) => {
       const plugins = options.plugins
         ? Array.isArray(options.plugins)
@@ -1213,7 +1202,7 @@ export default defineConfig((cliOptions) => {
     },
     env: productionCjsConfig.env,
     format: ['es'],
-    minify: true,
+    minify: productionCjsConfig.minify,
     platform: 'browser',
   } as const satisfies InlineConfig
 
