@@ -35,7 +35,6 @@ import type {
   SkipToken,
   SubscriptionOptions,
   TSHelpersId,
-  TSHelpersNoInfer,
   TSHelpersOverride,
 } from '@reduxjs/toolkit/query'
 import type {
@@ -688,7 +687,7 @@ export type TypedUseQueryStateOptions<
 export type UseQueryStateResult<
   _ extends QueryDefinition<any, any, any, any>,
   R,
-> = TSHelpersNoInfer<R>
+> = R
 
 /**
  * Helper type to manually type the result
@@ -701,7 +700,7 @@ export type TypedUseQueryStateResult<
   R = UseQueryStateDefaultResult<
     QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
   >,
-> = TSHelpersNoInfer<R>
+> = R
 
 type UseQueryStateBaseResult<D extends QueryDefinition<any, any, any, any>> =
   QuerySubState<D> & {
@@ -1227,7 +1226,7 @@ export type TypedUseInfiniteQueryStateOptions<
 export type UseInfiniteQueryStateResult<
   D extends InfiniteQueryDefinition<any, any, any, any, any>,
   R = UseInfiniteQueryStateDefaultResult<D>,
-> = TSHelpersNoInfer<R>
+> = R
 
 export type TypedUseInfiniteQueryStateResult<
   ResultType,
@@ -1377,7 +1376,7 @@ export type TypedUseMutationStateOptions<
 export type UseMutationStateResult<
   D extends MutationDefinition<any, any, any, any>,
   R,
-> = TSHelpersNoInfer<R> & {
+> = R & {
   originalArgs?: QueryArgFrom<D>
   /**
    * Resets the hook state to its initial `uninitialized` state.
