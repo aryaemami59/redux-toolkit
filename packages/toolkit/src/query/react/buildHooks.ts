@@ -1751,7 +1751,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
      */
     const promiseRef = useRef<T | undefined>(undefined)
 
-    let { queryCacheKey, requestId } = promiseRef.current || {}
+    const { queryCacheKey, requestId } = promiseRef.current || {}
 
     // HACK We've saved the middleware subscription lookup callbacks into a ref,
     // so we can directly check here if the subscription exists for this query.
@@ -2099,9 +2099,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
       }, [stableSubscriptionOptions])
 
       // Extract and stabilize the hook-level refetchCachedPages option
-      const hookRefetchCachedPages = (
-        options as UseInfiniteQuerySubscriptionOptions<any>
-      ).refetchCachedPages
+      const hookRefetchCachedPages = options.refetchCachedPages
       const stableHookRefetchCachedPages = useShallowStableValue(
         hookRefetchCachedPages,
       )
