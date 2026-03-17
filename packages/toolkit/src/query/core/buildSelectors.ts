@@ -311,7 +311,7 @@ export function buildSelectors<
 
   function buildMutationSelector() {
     return ((id) => {
-      let mutationId: string | typeof skipToken
+      let mutationId: string | SkipToken
       if (typeof id === 'object') {
         mutationId = getMutationCacheKey(id) ?? skipToken
       } else {
