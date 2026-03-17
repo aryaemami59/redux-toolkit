@@ -161,7 +161,7 @@ export const buildPollingHandler: InternalHandlerBuilder = ({
     for (const entry of subscribers.values()) {
       if (!!entry.pollingInterval) {
         lowestPollingInterval = Math.min(
-          entry.pollingInterval!,
+          entry.pollingInterval,
           lowestPollingInterval,
         )
         skipPollingIfUnfocused =

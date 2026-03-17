@@ -195,7 +195,7 @@ export const buildCacheCollectionHandler: InternalHandlerBuilder = ({
           }
           api.dispatch(removeQueryResult({ queryCacheKey }))
         }
-        delete currentRemovalTimeouts![queryCacheKey]
+        delete currentRemovalTimeouts[queryCacheKey]
       }, finalKeepUnusedDataFor * 1000)
     }
   }

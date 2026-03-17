@@ -515,7 +515,7 @@ You must add the middleware for RTK-Query to function correctly!`,
         )
 
         if (!runningQuery && !skippedSynchronously && !forceQueryFn) {
-          const runningQueries = getRunningQueries(dispatch)!
+          const runningQueries = getRunningQueries(dispatch)
           runningQueries.set(queryCacheKey, statePromise)
 
           statePromise.then(() => {
