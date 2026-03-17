@@ -204,14 +204,14 @@ export function createImmutableStateInvariantMiddleware(
         const thisPos = stack.indexOf(this)
         ~thisPos ? stack.splice(thisPos + 1) : stack.push(this)
         ~thisPos ? keys.splice(thisPos, Infinity, key) : keys.push(key)
-        if (~stack.indexOf(value)) value = decycler!.call(this, key, value)
+        if (~stack.indexOf(value)) value = decycler.call(this, key, value)
       } else stack.push(value)
 
       return serializer == null ? value : serializer.call(this, key, value)
     }
   }
 
-  let {
+  const {
     isImmutable = isImmutableDefault,
     ignoredPaths,
     warnAfter = 32,
