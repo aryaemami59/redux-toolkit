@@ -2102,7 +2102,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
       )
 
       const trigger: LazyInfiniteQueryTrigger<any> = useCallback(
-        function (arg: unknown, direction: 'forward' | 'backward') {
+        function (arg: unknown, direction: InfiniteQueryDirection) {
           let promise: InfiniteQueryActionCreatorResult<any>
 
           batch(() => {
