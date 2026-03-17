@@ -5,13 +5,19 @@ import { createSortedStateAdapter } from './sorted_state_adapter'
 import { createSelectorsFactory } from './state_selectors'
 import { createUnsortedStateAdapter } from './unsorted_state_adapter'
 
-export function createEntityAdapter<T, EntityIdType extends EntityId>(
-  options: WithRequiredProp<EntityAdapterOptions<T, EntityIdType>, 'selectId'>,
-): EntityAdapter<T, EntityIdType>
+export function createEntityAdapter<EntityType, EntityIdType extends EntityId>(
+  options: WithRequiredProp<
+    EntityAdapterOptions<EntityType, EntityIdType>,
+    'selectId'
+  >,
+): EntityAdapter<EntityType, EntityIdType>
 
-export function createEntityAdapter<T extends { id: EntityId }>(
-  options?: Omit<EntityAdapterOptions<T, T['id']>, 'selectId'>,
-): EntityAdapter<T, T['id']>
+export function createEntityAdapter<EntityType extends { id: EntityId }>(
+  options?: Omit<
+    EntityAdapterOptions<EntityType, EntityType['id']>,
+    'selectId'
+  >,
+): EntityAdapter<EntityType, EntityType['id']>
 
 /**
  *
@@ -19,13 +25,13 @@ export function createEntityAdapter<T extends { id: EntityId }>(
  *
  * @public
  */
-export function createEntityAdapter<T>(
-  options: EntityAdapterOptions<T, EntityId> = {},
-): EntityAdapter<T, EntityId> {
+export function createEntityAdapter<EntityType>(
+  options: EntityAdapterOptions<EntityType, EntityId> = {},
+): EntityAdapter<EntityType, EntityId> {
   const {
     selectId,
     sortComparer,
-  }: Required<EntityAdapterOptions<T, EntityId>> = {
+  }: Required<EntityAdapterOptions<EntityType, EntityId>> = {
     sortComparer: false,
     selectId: (instance: any) => instance.id,
     ...options,
@@ -35,7 +41,7 @@ export function createEntityAdapter<T>(
     ? createSortedStateAdapter(selectId, sortComparer)
     : createUnsortedStateAdapter(selectId)
   const stateFactory = createInitialStateFactory(stateAdapter)
-  const selectorsFactory = createSelectorsFactory<T, EntityId>()
+  const selectorsFactory = createSelectorsFactory<EntityType, EntityId>()
 
   return {
     selectId,
