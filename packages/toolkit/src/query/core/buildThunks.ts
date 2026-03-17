@@ -501,7 +501,7 @@ export function buildThunks<
     transformFieldName: 'transformResponse' | 'transformErrorResponse',
   ): TransformCallback => {
     return endpointDefinition.query && endpointDefinition[transformFieldName]
-      ? (endpointDefinition[transformFieldName]! as TransformCallback)
+      ? (endpointDefinition[transformFieldName] as TransformCallback)
       : defaultTransformResponse
   }
 
@@ -722,9 +722,8 @@ export function buildThunks<
         const isForcedQueryNeedingRefetch = // arg.forceRefetch
           isForcedQuery(arg, getState()) &&
           !(arg as InfiniteQueryThunkArg<any>).direction
-        const existingData = (
+        const existingData =
           isForcedQueryNeedingRefetch || !cachedData ? blankData : cachedData
-        ) as InfiniteData<unknown, unknown>
 
         // If the thunk specified a direction and we do have at least one page,
         // fetch the next or previous page
