@@ -20,7 +20,7 @@ import {
   ENDPOINT_QUERY,
   isInfiniteQueryDefinition,
 } from './endpointDefinitions'
-import type { NoInfer } from './tsHelpers'
+
 export interface CreateApiOptions<
   BaseQuery extends BaseQueryFn,
   Definitions extends EndpointDefinitions,

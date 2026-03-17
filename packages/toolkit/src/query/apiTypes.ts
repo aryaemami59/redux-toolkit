@@ -8,11 +8,7 @@ import type {
   EndpointDefinitions,
   UpdateDefinitions,
 } from './endpointDefinitions'
-import type {
-  NoInfer,
-  UnionToIntersection,
-  WithRequiredProp,
-} from './tsHelpers'
+import type { UnionToIntersection, WithRequiredProp } from './tsHelpers'
 
 export type ModuleName = keyof ApiModules<any, any, any, any>
 
