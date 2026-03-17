@@ -845,7 +845,7 @@ const splitTypeImports = (
  * declarations (e.g., `export declare const X: unique symbol`).
  *
  * @param [pluginOptions={}] - Options forwarded to the plugin.
- * @returns A Rolldown plugin that fixes unique symbol exports in .d.ts files.
+ * @returns A Rolldown plugin that fixes unique symbol exports in `.d.ts` files.
  * @internal
  */
 const fixUniqueSymbolExports = (
@@ -1021,7 +1021,7 @@ export default defineConfig((cliOptions) => {
     fixedExtension: false,
     format: ['cjs', 'es'],
     hash: false,
-    inputOptions: (options, format) => {
+    inputOptions: (options) => {
       const plugins = options.plugins
         ? Array.isArray(options.plugins)
           ? options.plugins.flat()
@@ -1032,11 +1032,6 @@ export default defineConfig((cliOptions) => {
         ...options,
         experimental: {
           ...options.experimental,
-          ...(format === 'cjs'
-            ? {
-                attachDebugInfo: 'none',
-              }
-            : {}),
           lazyBarrel: true,
           nativeMagicString: true,
         },
@@ -1196,7 +1191,6 @@ export default defineConfig((cliOptions) => {
       NODE_ENV: 'development',
     },
     format: ['cjs'],
-    minify: 'dce-only',
     outExtensions: () => ({ js: '.development.cjs' }),
   } as const satisfies InlineConfig
 
