@@ -582,7 +582,7 @@ You must add the middleware for RTK-Query to function correctly!`,
           reset,
         })
 
-        const runningMutations = getRunningMutations(dispatch)!
+        const runningMutations = getRunningMutations(dispatch)
 
         runningMutations.set(requestId, ret)
         ret.then(() => {
