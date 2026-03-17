@@ -6,8 +6,8 @@ const completed = 'completed'
 const cancelled = 'cancelled'
 
 /* TaskAbortError error codes  */
-export const taskCancelled = `task-${cancelled}` as const
-export const taskCompleted = `task-${completed}` as const
+export const taskCancelled = `${task}-${cancelled}` as const
+export const taskCompleted = `${task}-${completed}` as const
 export const listenerCancelled = `${listener}-${cancelled}` as const
 export const listenerCompleted = `${listener}-${completed}` as const
 
