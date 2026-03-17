@@ -5,6 +5,7 @@ import { declare } from '@babel/helper-plugin-utils'
 import type {
   CallExpression,
   ExportNamedDeclaration,
+  ExportSpecifier,
   Function,
   Identifier,
   ImportDeclaration,
@@ -92,14 +93,8 @@ const writeCommonJSEntryPlugin = (
               )
 
               this.emitFile({
-                // exports: chunk.exports,
-                // facadeModuleId: chunk.facadeModuleId ?? undefined,
                 fileName: `${chunkDirectory}/index.js`,
-                // isDynamicEntry: chunk.isDynamicEntry,
                 isEntry: true,
-                // map: chunk.map ?? undefined,
-                // name: chunk.name,
-                // sourcemapFileName: `${chunkDirectory}/index.js.map`,
                 type: 'prebuilt-chunk',
                 code: `"use strict";
 if (process.env.NODE_ENV === "production") {
@@ -148,13 +143,15 @@ const mangleErrorsTransform = (
       async handler(code, id, meta) {
         try {
           const res = await babel.transformAsync(code, {
+            ast: true,
             cwd,
             filename: id,
             filenameRelative: path.relative(sourceRootDirectory, id),
             parserOpts: {
               createParenthesizedExpressions: true,
               errorRecovery: true,
-              plugins: [['typescript', {}], 'jsx'],
+              plugins: [['typescript', { dts: false }], 'jsx'],
+              ranges: true,
               sourceFilename: id,
               sourceType: 'module',
             },
@@ -585,7 +582,7 @@ type UniqueSymbolVariableDeclaration = Id<
  * 2. Splits mixed `export { value, type Type }` into separate value/type exports.
  *
  * @param [pluginOptions={}] - Options forwarded to the plugin.
- * @returns A Rolldown plugin that rewrites imports and exports in .d.ts files.
+ * @returns A Rolldown plugin that rewrites imports and exports in `.d.ts` files.
  * @internal
  */
 const splitTypeImports = (
@@ -695,7 +692,7 @@ const splitTypeImports = (
                     t.isIdentifier(importSpecifier.imported) &&
                     !valueExportedNames.has(importSpecifier.local.name)
                   ) {
-                    const newImportSpecifier = {
+                    const newTypeImportSpecifier = {
                       ...t.importSpecifier(
                         t.identifier(importSpecifier.local.name),
                         t.identifier(importSpecifier.imported.name),
@@ -703,7 +700,7 @@ const splitTypeImports = (
                       importKind: 'type',
                     } satisfies ImportSpecifier
 
-                    return newImportSpecifier
+                    return newTypeImportSpecifier
                   }
 
                   return importSpecifier
@@ -720,10 +717,10 @@ const splitTypeImports = (
                   t.isImportSpecifier(importSpecifier, { importKind: 'type' }),
               )
 
-              const result: Statement[] = []
+              const statementsList: Statement[] = []
 
               if (valueImportSpecifiers.length > 0) {
-                result.push({
+                statementsList.push({
                   ...t.importDeclaration(
                     valueImportSpecifiers,
                     statement.source,
@@ -733,7 +730,7 @@ const splitTypeImports = (
               }
 
               if (typeImportSpecifiers.length > 0) {
-                result.push({
+                statementsList.push({
                   ...t.importDeclaration(
                     typeImportSpecifiers.map(
                       (typeImportSpecifier) =>
@@ -751,7 +748,7 @@ const splitTypeImports = (
                 } satisfies ImportDeclaration)
               }
 
-              return result.length > 0 ? result : [statement]
+              return statementsList.length === 0 ? [statement] : statementsList
             }
 
             return [statement]
@@ -791,13 +788,16 @@ const splitTypeImports = (
                   {
                     ...t.exportNamedDeclaration(
                       null,
-                      typeExportSpecifiers.map((typeExportSpecifier) => ({
-                        ...t.exportSpecifier(
-                          typeExportSpecifier.local,
-                          typeExportSpecifier.exported,
-                        ),
-                        exportKind: 'value',
-                      })),
+                      typeExportSpecifiers.map(
+                        (typeExportSpecifier) =>
+                          ({
+                            ...t.exportSpecifier(
+                              typeExportSpecifier.local,
+                              typeExportSpecifier.exported,
+                            ),
+                            exportKind: 'value',
+                          }) satisfies ExportSpecifier,
+                      ),
                       statement.source,
                     ),
                     exportKind: 'type',
@@ -960,21 +960,11 @@ const fixUniqueSymbolExports = (
             isUniqueSymbolDeclaration(statement) &&
             exportedUniqueSymbols.has(statement.declarations[0].id.name)
           ) {
-            console.log(
-              `  Exporting '${statement.declarations[0].id.name}' as individual export`,
-            )
-
             return t.exportNamedDeclaration(statement)
           }
 
           return statement
         })
-
-        if (exportedUniqueSymbols.size > 0) {
-          console.log(
-            `Fixing unique symbol exports in ${chunk.fileName} (${exportedUniqueSymbols.size} symbols)`,
-          )
-        }
 
         const generatedResults = generate(
           parsedFile,
@@ -999,196 +989,6 @@ const fixUniqueSymbolExports = (
             x_google_ignoreList: [...(generatedResults.map?.ignoreList ?? [])],
           },
         }
-      },
-    },
-
-    // Fallback for .d.ts files that don't go through renderChunk
-    writeBundle: {
-      order,
-      async handler(outputOptions, _bundle) {
-        const outDir =
-          outputOptions.dir || path.dirname(outputOptions.file || '')
-
-        const entryPointDirectories = [
-          '',
-          'react',
-          'query',
-          'query/react',
-        ] as const
-
-        const dtsFiles = entryPointDirectories.flatMap(
-          (filePath) => [path.join(outDir, filePath, 'index.d.ts')] as const,
-        )
-
-        await Promise.all(
-          dtsFiles.map(async (filePath) => {
-            const relativePath = path.relative(outDir, filePath)
-
-            // Skip if already processed by renderChunk
-            if (processedFiles.has(relativePath)) {
-              return
-            }
-
-            try {
-              const content = await this.fs.readFile(filePath, {
-                encoding: 'utf8',
-              })
-
-              const parsedFile = await babel.parseAsync(content, {
-                ast: true,
-                cwd,
-                filename: relativePath,
-                filenameRelative: path.relative(
-                  sourceRootDirectory,
-                  relativePath,
-                ),
-                parserOpts: {
-                  createParenthesizedExpressions: true,
-                  errorRecovery: true,
-                  plugins: [['typescript', { dts: true }]],
-                  ranges: true,
-                  sourceFilename: relativePath,
-                  sourceType: 'module',
-                },
-                sourceFileName: relativePath,
-                sourceMaps: 'both',
-                sourceType: 'module',
-              })
-
-              if (parsedFile == null) {
-                return
-              }
-
-              const allUniqueSymbols = new Set<string>()
-              const exportedUniqueSymbols = new Set<string>()
-
-              const isUniqueSymbolDeclaration = <
-                StatementType extends Statement,
-              >(
-                statement: StatementType,
-              ): statement is Id<
-                StatementType & UniqueSymbolVariableDeclaration
-              > =>
-                t.isVariableDeclaration(statement, {
-                  declare: true,
-                  kind: 'const',
-                }) &&
-                t.isIdentifier(statement.declarations[0].id) &&
-                t.isTSTypeAnnotation(
-                  statement.declarations[0].id.typeAnnotation,
-                ) &&
-                t.isTSTypeOperator(
-                  statement.declarations[0].id.typeAnnotation.typeAnnotation,
-                  { operator: 'unique' },
-                ) &&
-                t.isTSSymbolKeyword(
-                  statement.declarations[0].id.typeAnnotation.typeAnnotation
-                    .typeAnnotation,
-                )
-
-              // Find all unique symbol declarations
-              parsedFile.program.body.forEach((statement) => {
-                if (isUniqueSymbolDeclaration(statement)) {
-                  allUniqueSymbols.add(statement.declarations[0].id.name)
-                }
-              })
-
-              if (allUniqueSymbols.size === 0) {
-                return
-              }
-
-              // Check which unique symbols are actually in the export list
-              parsedFile.program.body.forEach((statement) => {
-                if (t.isExportNamedDeclaration(statement)) {
-                  statement.specifiers.forEach((exportSpecifier) => {
-                    if (
-                      t.isExportSpecifier(exportSpecifier) &&
-                      t.isIdentifier(exportSpecifier.local) &&
-                      allUniqueSymbols.has(exportSpecifier.local.name)
-                    ) {
-                      exportedUniqueSymbols.add(exportSpecifier.local.name)
-                    }
-                  })
-                }
-              })
-
-              if (exportedUniqueSymbols.size === 0) {
-                return
-              }
-
-              console.log(
-                `Fixing unique symbol exports in ${relativePath} via writeBundle`,
-              )
-
-              // Remove unique symbols from export specifiers
-              parsedFile.program.body = parsedFile.program.body.map(
-                (statement) => {
-                  if (t.isExportNamedDeclaration(statement)) {
-                    statement.specifiers = statement.specifiers.filter(
-                      (exportSpecifier) => {
-                        if (
-                          t.isExportSpecifier(exportSpecifier) &&
-                          t.isIdentifier(exportSpecifier.local) &&
-                          exportedUniqueSymbols.has(exportSpecifier.local.name)
-                        ) {
-                          console.log(
-                            `  Exporting '${exportSpecifier.local.name}' as individual export`,
-                          )
-
-                          return false
-                        }
-
-                        return true
-                      },
-                    )
-                  }
-
-                  return statement
-                },
-              )
-
-              // Convert declarations to export declarations
-              parsedFile.program.body = parsedFile.program.body.map(
-                (statement) => {
-                  if (
-                    isUniqueSymbolDeclaration(statement) &&
-                    exportedUniqueSymbols.has(statement.declarations[0].id.name)
-                  ) {
-                    return t.exportNamedDeclaration(statement)
-                  }
-
-                  return statement
-                },
-              )
-
-              const generatedResults = generate(
-                parsedFile,
-                {
-                  comments: true,
-                  sourceMaps: true,
-                  sourceFileName: relativePath,
-                },
-                content,
-              )
-
-              await this.fs.writeFile(filePath, generatedResults.code, {
-                encoding: 'utf8',
-              })
-
-              processedFiles.add(relativePath)
-            } catch (error) {
-              if (
-                !(
-                  error instanceof Error &&
-                  'code' in error &&
-                  error.code === 'ENOENT'
-                )
-              ) {
-                console.error(`Error processing ${relativePath}:`, error)
-              }
-            }
-          }),
-        )
       },
     },
   }
