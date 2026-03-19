@@ -12,6 +12,7 @@ import type {
   BaseQueryFn,
   CoreModule,
   EndpointDefinitions,
+  InfiniteData,
   InfiniteQueryActionCreatorResult,
   InfiniteQueryArgFrom,
   InfiniteQueryDefinition,
@@ -38,7 +39,6 @@ import type {
   TSHelpersOverride,
 } from '@reduxjs/toolkit/query'
 import type {
-  InfiniteData,
   InfiniteQueryDirection,
   StartInfiniteQueryActionCreator,
   SubscriptionSelectors,
