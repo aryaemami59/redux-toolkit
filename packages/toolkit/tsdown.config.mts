@@ -807,8 +807,8 @@ const splitTypeImports = (
           parsedFile,
           {
             comments: true,
-            sourceMaps: true,
             sourceFileName: chunk.fileName,
+            sourceMaps: true,
           },
           code,
         )
@@ -963,8 +963,8 @@ const fixUniqueSymbolExports = (
           parsedFile,
           {
             comments: true,
-            sourceMaps: true,
             sourceFileName: chunk.fileName,
+            sourceMaps: true,
           },
           code,
         )
