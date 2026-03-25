@@ -1235,7 +1235,12 @@ export default defineConfig((cliOptions) => {
       },
       deps: {
         ...modernEsmConfig.deps,
-        neverBundle: [...peerAndProductionDependencies, packageJson.name],
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
       },
     },
     {
@@ -1250,6 +1255,7 @@ export default defineConfig((cliOptions) => {
           ...peerAndProductionDependencies,
           packageJson.name,
           `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
         ],
       },
     },
@@ -1285,7 +1291,12 @@ export default defineConfig((cliOptions) => {
       },
       deps: {
         ...developmentCjsConfig.deps,
-        neverBundle: [...peerAndProductionDependencies, packageJson.name],
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
       },
     },
     {
@@ -1300,6 +1311,7 @@ export default defineConfig((cliOptions) => {
           ...peerAndProductionDependencies,
           packageJson.name,
           `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
         ],
       },
     },
@@ -1335,7 +1347,12 @@ export default defineConfig((cliOptions) => {
       },
       deps: {
         ...productionCjsConfig.deps,
-        neverBundle: [...peerAndProductionDependencies, packageJson.name],
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
       },
     },
     {
@@ -1350,6 +1367,7 @@ export default defineConfig((cliOptions) => {
           ...peerAndProductionDependencies,
           packageJson.name,
           `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
         ],
       },
     },
@@ -1386,7 +1404,12 @@ export default defineConfig((cliOptions) => {
       },
       deps: {
         ...browserEsmConfig.deps,
-        neverBundle: [...peerAndProductionDependencies, packageJson.name],
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
       },
     },
     {
@@ -1401,6 +1424,7 @@ export default defineConfig((cliOptions) => {
           ...peerAndProductionDependencies,
           packageJson.name,
           `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
         ],
       },
     },
@@ -1435,7 +1459,12 @@ export default defineConfig((cliOptions) => {
       },
       deps: {
         ...legacyEsmConfig.deps,
-        neverBundle: [...peerAndProductionDependencies, packageJson.name],
+        neverBundle: [
+          ...peerAndProductionDependencies,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
       },
     },
     {
@@ -1450,6 +1479,7 @@ export default defineConfig((cliOptions) => {
           ...peerAndProductionDependencies,
           packageJson.name,
           `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
         ],
       },
     },
@@ -1483,10 +1513,17 @@ export default defineConfig((cliOptions) => {
       name: 'RTK-React-Type-Definitions',
       entry: {
         'react/index': 'src/react/index.ts',
+        // 'query/index': 'src/query/index.ts',
+        // 'query/react/index': 'src/query/react/index.ts',
       },
       deps: {
         ...sharedDTSConfig.deps,
-        neverBundle: [...sharedDTSConfig.deps.neverBundle, packageJson.name],
+        neverBundle: [
+          ...sharedDTSConfig.deps.neverBundle,
+          packageJson.name,
+          `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
+        ],
       },
     },
 
@@ -1502,6 +1539,7 @@ export default defineConfig((cliOptions) => {
           ...sharedDTSConfig.deps.neverBundle,
           packageJson.name,
           `${packageJson.name}/react`,
+          `${packageJson.name}/query`,
         ],
       },
     },
