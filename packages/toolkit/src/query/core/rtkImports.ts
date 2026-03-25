@@ -21,4 +21,5 @@ export {
   nanoid,
   prepareAutoBatched,
   SHOULD_AUTOBATCH,
+  weakMapMemoize,
 } from '@reduxjs/toolkit'
