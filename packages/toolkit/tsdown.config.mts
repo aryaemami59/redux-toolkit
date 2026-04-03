@@ -1107,6 +1107,7 @@ export default defineConfig((cliOptions) => {
     dts: {
       build: false,
       cjsDefault: false,
+      cjsReexport: false,
       cwd: commonOptions.cwd,
       dtsInput: false,
       eager: false,
