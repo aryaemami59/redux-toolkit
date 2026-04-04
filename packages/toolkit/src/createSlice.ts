@@ -553,10 +553,10 @@ type SliceDefinedSelectors<
   SliceSelectorsType extends SliceSelectors<StateType>,
   RootStateType,
 > = {
-  [SliceSelectorsKeyType in keyof SliceSelectorsType as string extends SliceSelectorsKeyType
+  [SliceSelectorNameType in keyof SliceSelectorsType as string extends SliceSelectorNameType
     ? never
-    : SliceSelectorsKeyType]: RemappedSelector<
-    SliceSelectorsType[SliceSelectorsKeyType],
+    : SliceSelectorNameType]: RemappedSelector<
+    SliceSelectorsType[SliceSelectorNameType],
     RootStateType
   >
 }
