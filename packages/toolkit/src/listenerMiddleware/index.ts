@@ -375,7 +375,7 @@ export const createListenerMiddleware = <
         createListenerEntry(options as any)
 
       return insertEntry(entry)
-    }) as AddListenerOverloads<any, StateType, DispatchType>,
+    }) as AddListenerOverloads<any, StateType, DispatchType, ExtraArgument>,
     { withTypes: () => startListening },
   )
 
