@@ -30,7 +30,7 @@ import type {
 import { executeReducerBuilderCallback } from './mapBuilders'
 import type { Selector } from './reselectImports'
 import type { Id, TypeGuard } from './tsHelpers'
-import { getOrInsertComputed } from './utils'
+import { getOrInsertComputed, noop } from './utils'
 
 const asyncThunkSymbol = /* @__PURE__ */ Symbol.for(
   'rtk-slice-createasyncthunk',
@@ -1112,5 +1112,3 @@ function handleThunkCaseReducerDefinition<State>(
     settled: settled || noop,
   })
 }
-
-function noop() {}
