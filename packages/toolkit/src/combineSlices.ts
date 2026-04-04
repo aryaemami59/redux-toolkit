@@ -48,10 +48,10 @@ export type WithSlicePreloadedState<A extends AnySliceLike> = {
 type ReducerMap = Record<string, Reducer>
 
 type ExistingSliceLike<DeclaredState, PreloadedState> = {
-  [DeclaredStateKeyType in keyof DeclaredState]: SliceLike<
-    DeclaredStateKeyType & string,
-    NonUndefined<DeclaredState[DeclaredStateKeyType]>,
-    NonUndefined<PreloadedState[DeclaredStateKeyType & keyof PreloadedState]>
+  [ReducerPathType in keyof DeclaredState]: SliceLike<
+    ReducerPathType & string,
+    NonUndefined<DeclaredState[ReducerPathType]>,
+    NonUndefined<PreloadedState[ReducerPathType & keyof PreloadedState]>
   >
 }[keyof DeclaredState]
 
