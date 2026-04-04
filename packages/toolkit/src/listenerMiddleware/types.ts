@@ -8,6 +8,7 @@ import type {
 import type { BaseActionCreator, PayloadAction } from '../createAction'
 import type { TypedActionCreator } from '../mapBuilders'
 import type { ThunkDispatch } from '../reduxThunkImports'
+import type { HasMatchFunction, TypeGuard } from '../tsHelpers'
 import type { TaskAbortError } from './exceptions'
 
 /**
@@ -16,9 +17,7 @@ import type { TaskAbortError } from './exceptions'
 
 /** @internal */
 type TypedActionCreatorWithMatchFunction<ActionType extends string> =
-  TypedActionCreator<ActionType> & {
-    match: MatchFunction<any>
-  }
+  TypedActionCreator<ActionType> & HasMatchFunction<any>
 
 /** @internal */
 export type AnyListenerPredicate<State> = (
@@ -40,9 +39,6 @@ export interface ConditionFunction<State> {
   (predicate: AnyListenerPredicate<State>, timeout?: number): Promise<boolean>
   (predicate: () => boolean, timeout?: number): Promise<boolean>
 }
-
-/** @internal */
-export type MatchFunction<T> = (v: any) => v is T
 
 /** @public */
 export interface ForkedTaskAPI {
@@ -356,7 +352,7 @@ export type TakePatternOutputWithoutTimeout<
   State,
   Predicate extends AnyListenerPredicate<State>,
 > =
-  Predicate extends MatchFunction<infer InferredActionType>
+  Predicate extends TypeGuard<infer InferredActionType>
     ? Promise<[InferredActionType, State, State]>
     : Promise<[UnknownAction, State, State]>
 
@@ -365,7 +361,7 @@ export type TakePatternOutputWithTimeout<
   State,
   Predicate extends AnyListenerPredicate<State>,
 > =
-  Predicate extends MatchFunction<infer InferredActionType>
+  Predicate extends TypeGuard<infer InferredActionType>
     ? Promise<[InferredActionType, State, State] | null>
     : Promise<[UnknownAction, State, State] | null>
 
@@ -462,7 +458,7 @@ export type AddListenerOverloads<
   ): Return
 
   /** Accepts an RTK matcher function, such as `incrementByAmount.match` */
-  <MatchFunctionType extends MatchFunction<Action>>(
+  <MatchFunctionType extends TypeGuard<Action>>(
     options: {
       actionCreator?: never
       type?: never
@@ -865,9 +861,10 @@ export type ListenerEntry<
 export type FallbackAddListenerOptions = {
   actionCreator?: TypedActionCreatorWithMatchFunction<string>
   type?: string
-  matcher?: MatchFunction<any>
+  matcher?: TypeGuard<any>
   predicate?: ListenerPredicate<any, any>
-} & { effect: ListenerEffect<any, any, any> }
+  effect: ListenerEffect<any, any, any>
+}
 
 /**
  * Utility Types
