@@ -123,3 +123,8 @@ export function promiseWithResolvers<T>(): {
   })
   return { promise, resolve, reject }
 }
+
+/**
+ * @internal
+ */
+export const noop = (): void => {}
