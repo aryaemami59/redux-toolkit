@@ -1081,7 +1081,13 @@ export default defineConfig((cliOptions) => {
         ...(format === 'cjs' && !context.cjsDts
           ? {
               externalLiveBindings: false,
-              plugins: [...plugins, writeCommonJSEntryPlugin()],
+              plugins: [
+                ...plugins,
+                ...(typeof options.entryFileNames === 'string' &&
+                options.entryFileNames?.endsWith('.production.min.cjs')
+                  ? [writeCommonJSEntryPlugin()]
+                  : []),
+              ],
             }
           : {}),
       } as const satisfies Rolldown.OutputOptions
@@ -1115,7 +1121,7 @@ export default defineConfig((cliOptions) => {
       emitJs: false,
       enabled: true,
       incremental: false,
-      newContext: true,
+      newContext: false,
       oxc: false,
       parallel: false,
       resolver: 'tsc',
