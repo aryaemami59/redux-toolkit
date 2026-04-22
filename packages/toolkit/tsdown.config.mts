@@ -1037,6 +1037,11 @@ export default defineConfig((cliOptions) => {
         ],
         transform: {
           ...options.transform,
+          typescript: {
+            ...options.transform?.typescript,
+            optimizeConstEnums: true,
+            optimizeEnums: true,
+          },
           inject: {
             ...options.transform?.inject,
             'Object.assign': [
@@ -1138,6 +1143,14 @@ export default defineConfig((cliOptions) => {
 
       return {
         ...options,
+        transform: {
+          ...options.transform,
+          typescript: {
+            ...options.transform?.typescript,
+            optimizeConstEnums: true,
+            optimizeEnums: true,
+          },
+        },
         experimental: {
           ...options.experimental,
           attachDebugInfo: 'none',
