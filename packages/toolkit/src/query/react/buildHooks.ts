@@ -36,7 +36,7 @@ import type {
   SkipToken,
   SubscriptionOptions,
   TSHelpersId,
-  TSHelpersNoInfer,
+  // TSHelpersNoInfer,
   TSHelpersOverride,
 } from '@reduxjs/toolkit/query'
 import { QueryStatus, skipToken } from './rtkqImports'
@@ -688,7 +688,7 @@ export type TypedUseQueryStateOptions<
 export type UseQueryStateResult<
   _ extends QueryDefinition<any, any, any, any>,
   R,
-> = TSHelpersNoInfer<R>
+> = R
 
 /**
  * Helper type to manually type the result
@@ -701,7 +701,7 @@ export type TypedUseQueryStateResult<
   R = UseQueryStateDefaultResult<
     QueryDefinition<QueryArg, BaseQuery, string, ResultType, string>
   >,
-> = TSHelpersNoInfer<R>
+> = R
 
 type UseQueryStateBaseResult<D extends QueryDefinition<any, any, any, any>> =
   QuerySubState<D> & {
@@ -1231,7 +1231,7 @@ export type TypedUseInfiniteQueryStateOptions<
 export type UseInfiniteQueryStateResult<
   D extends InfiniteQueryDefinition<any, any, any, any, any>,
   R = UseInfiniteQueryStateDefaultResult<D>,
-> = TSHelpersNoInfer<R>
+> = R
 
 export type TypedUseInfiniteQueryStateResult<
   ResultType,
@@ -1381,7 +1381,7 @@ export type TypedUseMutationStateOptions<
 export type UseMutationStateResult<
   D extends MutationDefinition<any, any, any, any>,
   R,
-> = TSHelpersNoInfer<R> & {
+> = R & {
   originalArgs?: QueryArgFrom<D>
   /**
    * Resets the hook state to its initial `uninitialized` state.
@@ -1833,9 +1833,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
 
   function buildUseQueryState(
     endpointName: string,
-    preSelector:
-      | typeof queryStatePreSelector
-      | typeof infiniteQueryStatePreSelector,
+    preSelector: (currentState: any, lastResult: any, queryArgs: any) => any,
   ) {
     const useQueryState = (
       arg: any,
@@ -1858,10 +1856,6 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
 
       const selectDefaultResult: Selector<ApiRootState, any, [any]> = useMemo(
         () =>
-          // Normally ts-ignores are bad and should be avoided, but we're
-          // already casting this selector to be `Selector<any>` anyway,
-          // so the inconsistencies don't matter here
-          // @ts-ignore
           createSelector(
             [
               // @ts-ignore
