@@ -52,8 +52,8 @@ describe('type tests', () => {
         (state, action: ReturnType<typeof increment>) => state,
       )
 
-      // @ts-expect-error
       builder.addCase(
+        // @ts-expect-error
         increment,
         (state, action: ReturnType<typeof decrement>) => state,
       )
@@ -63,9 +63,9 @@ describe('type tests', () => {
         (state, action: ReturnType<typeof increment>) => state,
       )
 
-      // @ts-expect-error
       builder.addCase(
         'decrement',
+        // @ts-expect-error
         (state, action: ReturnType<typeof increment>) => state,
       )
 
