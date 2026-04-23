@@ -934,6 +934,7 @@ describe('type tests', () => {
             state.status = 'loading'
           }),
           success: create.reducer<T>((state, action) => {
+            // @ts-expect-error
             state.data = castDraft(action.payload)
             state.status = 'finished'
           }),

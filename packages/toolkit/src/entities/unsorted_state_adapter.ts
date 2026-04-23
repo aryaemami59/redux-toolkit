@@ -1,18 +1,18 @@
 import type { Draft } from 'immer'
 import type {
+  DraftableEntityState,
+  EntityId,
   EntityStateAdapter,
   IdSelector,
   Update,
-  EntityId,
-  DraftableEntityState,
 } from './models'
 import {
-  createStateOperator,
   createSingleArgumentStateOperator,
+  createStateOperator,
 } from './state_adapter'
 import {
-  selectIdValue,
   ensureEntitiesArray,
+  selectIdValue,
   splitAddedUpdatedEntities,
 } from './utils'
 
@@ -24,7 +24,7 @@ export function createUnsortedStateAdapter<T, Id extends EntityId>(
   function addOneMutably(entity: T, state: R): void {
     const key = selectIdValue(entity, selectId)
 
-    if (key in state.entities) {
+    if (key in (state.entities as Record<Id, T>)) {
       return
     }
 
@@ -45,7 +45,7 @@ export function createUnsortedStateAdapter<T, Id extends EntityId>(
 
   function setOneMutably(entity: T, state: R): void {
     const key = selectIdValue(entity, selectId)
-    if (!(key in state.entities)) {
+    if (!(key in (state.entities as Record<Id, T>))) {
       state.ids.push(key as Id & Draft<Id>)
     }
     ;(state.entities as Record<Id, T>)[key] = entity
@@ -81,16 +81,16 @@ export function createUnsortedStateAdapter<T, Id extends EntityId>(
     let didMutate = false
 
     keys.forEach((key) => {
-      if (key in state.entities) {
+      if (key in (state.entities as Record<Id, T>)) {
         delete (state.entities as Record<Id, T>)[key]
         didMutate = true
       }
     })
 
     if (didMutate) {
-      state.ids = (state.ids as Id[]).filter((id) => id in state.entities) as
-        | Id[]
-        | Draft<Id[]>
+      state.ids = (state.ids as Id[]).filter(
+        (id) => id in (state.entities as Record<Id, T>),
+      ) as Id[] | Draft<Id[]>
     }
   }
 
@@ -138,7 +138,7 @@ export function createUnsortedStateAdapter<T, Id extends EntityId>(
 
     updates.forEach((update) => {
       // Only apply updates to entities that currently exist
-      if (update.id in state.entities) {
+      if (update.id in (state.entities as Record<Id, T>)) {
         // If there are multiple updates to one entity, merge them together
         updatesPerEntity[update.id] = {
           id: update.id,
@@ -162,7 +162,7 @@ export function createUnsortedStateAdapter<T, Id extends EntityId>(
         0
 
       if (didMutateIds) {
-        state.ids = Object.values(state.entities).map((e) =>
+        state.ids = Object.values(state.entities as Record<Id, T>).map((e) =>
           selectIdValue(e as T, selectId),
         )
       }

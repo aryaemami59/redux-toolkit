@@ -1,10 +1,10 @@
 {
   // For runtime and type tests during CI.
-  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx"
   },
   "exclude": ["dist"],
+  "extends": "./tsconfig.base.json",
   "include": [
     "src/**/*.test.ts*",
     "src/**/*.test-d.ts*",
