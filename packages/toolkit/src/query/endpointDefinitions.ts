@@ -908,8 +908,7 @@ export type InfiniteQueryTypes<
     BaseQuery,
     TagTypes,
     ResultType,
-    ReducerPath,
-    RawResultType
+    ReducerPath
   >
   TagTypes: TagTypes
   ReducerPath: ReducerPath
@@ -1124,8 +1123,7 @@ type MutationTypes<
     BaseQuery,
     TagTypes,
     ResultType,
-    ReducerPath,
-    RawResultType
+    ReducerPath
   >
   TagTypes: TagTypes
   ReducerPath: ReducerPath
@@ -1678,32 +1676,28 @@ export type OverrideResultType<Definition, NewResultType> =
     infer InferredBaseQueryFunctionType,
     infer InferredTagType,
     any,
-    infer InferredReducerPathType,
-    infer InferredRawResultType
+    infer InferredReducerPathType
   >
     ? QueryDefinition<
         InferredQueryArgumentType,
         InferredBaseQueryFunctionType,
         InferredTagType,
         NewResultType,
-        InferredReducerPathType,
-        InferredRawResultType
+        InferredReducerPathType
       >
     : Definition extends MutationDefinition<
           infer InferredQueryArgumentType,
           infer InferredBaseQueryFunctionType,
           infer InferredTagType,
           any,
-          infer InferredReducerPathType,
-          infer InferredRawResultType
+          infer InferredReducerPathType
         >
       ? MutationDefinition<
           InferredQueryArgumentType,
           InferredBaseQueryFunctionType,
           InferredTagType,
           NewResultType,
-          InferredReducerPathType,
-          InferredRawResultType
+          InferredReducerPathType
         >
       : Definition extends InfiniteQueryDefinition<
             infer InferredQueryArgumentType,
@@ -1711,8 +1705,7 @@ export type OverrideResultType<Definition, NewResultType> =
             infer InferredBaseQueryFunctionType,
             infer InferredTagType,
             any,
-            infer InferredReducerPathType,
-            infer InferredRawResultType
+            infer InferredReducerPathType
           >
         ? InfiniteQueryDefinition<
             InferredQueryArgumentType,
@@ -1720,8 +1713,7 @@ export type OverrideResultType<Definition, NewResultType> =
             InferredBaseQueryFunctionType,
             InferredTagType,
             NewResultType,
-            InferredReducerPathType,
-            InferredRawResultType
+            InferredReducerPathType
           >
         : never
 
@@ -1735,8 +1727,7 @@ export type UpdateDefinitions<
     infer InferredBaseQueryFunctionType,
     any,
     infer InferredResultType,
-    infer InferredReducerPathType,
-    infer InferredRawResultType
+    infer InferredReducerPathType
   >
     ? QueryDefinition<
         InferredQueryArgumentType,
@@ -1747,16 +1738,14 @@ export type UpdateDefinitions<
           EndpointNameType,
           InferredResultType
         >,
-        InferredReducerPathType,
-        InferredRawResultType
+        InferredReducerPathType
       >
     : Definitions[EndpointNameType] extends MutationDefinition<
           infer InferredQueryArgumentType,
           infer InferredBaseQueryFunctionType,
           any,
           infer InferredResultType,
-          infer InferredReducerPathType,
-          infer InferredRawResultType
+          infer InferredReducerPathType
         >
       ? MutationDefinition<
           InferredQueryArgumentType,
@@ -1767,8 +1756,7 @@ export type UpdateDefinitions<
             EndpointNameType,
             InferredResultType
           >,
-          InferredReducerPathType,
-          InferredRawResultType
+          InferredReducerPathType
         >
       : Definitions[EndpointNameType] extends InfiniteQueryDefinition<
             infer InferredQueryArgumentType,
@@ -1776,8 +1764,7 @@ export type UpdateDefinitions<
             infer InferredBaseQueryFunctionType,
             any,
             infer InferredResultType,
-            infer InferredReducerPathType,
-            infer InferredRawResultType
+            infer InferredReducerPathType
           >
         ? InfiniteQueryDefinition<
             InferredQueryArgumentType,
@@ -1789,8 +1776,7 @@ export type UpdateDefinitions<
               EndpointNameType,
               InferredResultType
             >,
-            InferredReducerPathType,
-            InferredRawResultType
+            InferredReducerPathType
           >
         : never
 }
