@@ -1,6 +1,6 @@
-import { getEndpointDefinition } from '@internal/query/apiTypes'
+import { getEndpointDefinition } from '../../apiTypes'
 import type { QueryDefinition } from '../../endpointDefinitions'
-import type { ConfigState, QueryCacheKey, QuerySubState } from '../apiState'
+import type { ConfigState, QueryCacheKey } from '../apiState'
 import { isAnyOf } from '../rtkImports'
 import type {
   ApiMiddlewareInternalHandler,
@@ -16,12 +16,14 @@ export type ReferenceCacheCollection = never
  * @example
  * ```ts
  * // codeblock-meta title="keepUnusedDataFor example"
- * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+ * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+ *
  * interface Post {
- *   id: number
- *   name: string
+ *   id: number;
+ *   name: string;
  * }
- * type PostsResponse = Post[]
+ *
+ * type PostsResponse = Post[];
  *
  * const api = createApi({
  *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
@@ -29,11 +31,11 @@ export type ReferenceCacheCollection = never
  *     getPosts: build.query<PostsResponse, void>({
  *       query: () => 'posts',
  *       // highlight-start
- *       keepUnusedDataFor: 5
+ *       keepUnusedDataFor: 5,
  *       // highlight-end
- *     })
- *   })
- * })
+ *     }),
+ *   }),
+ * });
  * ```
  */
 export type CacheCollectionQueryExtraOptions = {

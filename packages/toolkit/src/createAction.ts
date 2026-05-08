@@ -1,9 +1,9 @@
 import { isAction } from './reduxImports'
 import type {
-  IsUnknownOrNonInferrable,
   IfMaybeUndefined,
   IfVoid,
   IsAny,
+  IsUnknownOrNonInferrable,
 } from './tsHelpers'
 import { hasMatchFunction } from './tsHelpers'
 
@@ -90,11 +90,11 @@ export type BaseActionCreator<P, T extends string, M = never, E = never> = {
 /**
  * An action creator that takes multiple arguments that are passed
  * to a `PrepareAction` method to create the final Action.
- * @typeParam Args arguments for the action creator function
- * @typeParam P `payload` type
- * @typeParam T `type` name
- * @typeParam E optional `error` type
- * @typeParam M optional `meta` type
+ * @template Args arguments for the action creator function
+ * @template P `payload` type
+ * @template T `type` name
+ * @template E optional `error` type
+ * @template M optional `meta` type
  *
  * @inheritdoc {redux#ActionCreator}
  *
@@ -122,8 +122,10 @@ export interface ActionCreatorWithPreparedPayload<
  *
  * @public
  */
-export interface ActionCreatorWithOptionalPayload<P, T extends string = string>
-  extends BaseActionCreator<P, T> {
+export interface ActionCreatorWithOptionalPayload<
+  P,
+  T extends string = string,
+> extends BaseActionCreator<P, T> {
   /**
    * Calling this {@link redux#ActionCreator} with an argument will
    * return a {@link PayloadAction} of type `T` with a payload of `P`.
@@ -139,8 +141,9 @@ export interface ActionCreatorWithOptionalPayload<P, T extends string = string>
  *
  * @public
  */
-export interface ActionCreatorWithoutPayload<T extends string = string>
-  extends BaseActionCreator<undefined, T> {
+export interface ActionCreatorWithoutPayload<
+  T extends string = string,
+> extends BaseActionCreator<undefined, T> {
   /**
    * Calling this {@link redux#ActionCreator} will
    * return a {@link PayloadAction} of type `T` with a payload of `undefined`
@@ -155,8 +158,10 @@ export interface ActionCreatorWithoutPayload<T extends string = string>
  *
  * @public
  */
-export interface ActionCreatorWithPayload<P, T extends string = string>
-  extends BaseActionCreator<P, T> {
+export interface ActionCreatorWithPayload<
+  P,
+  T extends string = string,
+> extends BaseActionCreator<P, T> {
   /**
    * Calling this {@link redux#ActionCreator} with an argument will
    * return a {@link PayloadAction} of type `T` with a payload of `P`

@@ -47,7 +47,7 @@ type InjectIntoConfig<NewReducerPath extends string> = InjectConfig & {
 }
 
 /**
- * The return value of `createSlice`
+ * The return value of {@linkcode createSlice}.
  *
  * @public
  */
@@ -175,15 +175,16 @@ type InjectedSlice<
   >
 
   /**
-   * Select the slice state, using the slice's current reducerPath.
+   * Select the slice state, using the slice's current
+   * {@linkcode InjectedSlice.reducerPath | reducerPath}.
    *
-   * Returns initial state if slice is not found.
+   * @returns initial state if slice is not found.
    */
   selectSlice(state: { [K in ReducerPath]?: State | undefined }): State
 }
 
 /**
- * Options for `createSlice()`.
+ * Options for {@linkcode createSlice | createSlice()}.
  *
  * @public
  */
@@ -212,7 +213,7 @@ export interface CreateSliceOptions<
   /**
    * A mapping from action types to action-type-specific *case reducer*
    * functions. For every action type, a matching action creator will be
-   * generated using `createAction()`.
+   * generated using {@linkcode createAction | createAction()}.
    */
   reducers:
     | ValidateSliceCaseReducers<State, CR>
@@ -298,7 +299,9 @@ export type CaseReducerWithPrepare<State, Action extends PayloadAction> = {
 export interface CaseReducerWithPrepareDefinition<
   State,
   Action extends PayloadAction,
-> extends CaseReducerWithPrepare<State, Action>,
+>
+  extends
+    CaseReducerWithPrepare<State, Action>,
     ReducerDefinition<ReducerType.reducerWithPrepare> {}
 
 type AsyncThunkSliceReducerConfig<
@@ -331,8 +334,8 @@ type PreventCircular<ThunkApiConfig> = {
 
 interface AsyncThunkCreator<
   State,
-  CurriedThunkApiConfig extends
-    PreventCircular<AsyncThunkConfig> = PreventCircular<AsyncThunkConfig>,
+  CurriedThunkApiConfig extends PreventCircular<AsyncThunkConfig> =
+    PreventCircular<AsyncThunkConfig>,
 > {
   <Returned, ThunkArg = void>(
     payloadCreator: AsyncThunkPayloadCreator<
@@ -404,7 +407,8 @@ export interface ReducerCreators<State> {
 }
 
 /**
- * The type describing a slice's `reducers` option.
+ * The type describing a slice's
+ * {@linkcode CreateSliceOptions.reducers | reducers} option.
  *
  * @public
  */
@@ -417,7 +421,8 @@ export type SliceCaseReducers<State> =
     >
 
 /**
- * The type describing a slice's `selectors` option.
+ * The type describing a slice's
+ * {@linkcode Slice.selectors | selectors} option.
  */
 export type SliceSelectors<State> = {
   [K: string]: (sliceState: State, ...args: any[]) => any
@@ -429,7 +434,8 @@ type SliceActionType<
 > = ActionName extends string | number ? `${SliceName}/${ActionName}` : string
 
 /**
- * Derives the slice's `actions` property from the `reducers` options
+ * Derives the slice's {@linkcode Slice.actions | actions} property from the
+ * {@linkcode CreateSliceOptions.reducers | reducers} options.
  *
  * @public
  */
@@ -463,7 +469,8 @@ export type CaseReducerActions<
 }
 
 /**
- * Get a `PayloadActionCreator` type for a passed `CaseReducerWithPrepare`
+ * Get a {@linkcode PayloadActionCreator} type for a passed
+ * {@linkcode CaseReducerWithPrepare}.
  *
  * @internal
  */
@@ -473,7 +480,8 @@ type ActionCreatorForCaseReducerWithPrepare<
 > = _ActionCreatorWithPreparedPayload<CR['prepare'], Type>
 
 /**
- * Get a `PayloadActionCreator` type for a passed `CaseReducer`
+ * Get a {@linkcode PayloadActionCreator} type for a passed
+ * {@linkcode CaseReducer}.
  *
  * @internal
  */
@@ -487,8 +495,9 @@ type ActionCreatorForCaseReducer<CR, Type extends string> = CR extends (
   : ActionCreatorWithoutPayload<Type>
 
 /**
- * Extracts the CaseReducers out of a `reducers` object, even if they are
- * tested into a `CaseReducerWithPrepare`.
+ * Extracts the CaseReducers out of a
+ * {@linkcode CreateSliceOptions.reducers | reducers} object, even if they are
+ * tested into a {@linkcode CaseReducerWithPrepare}.
  *
  * @internal
  */
@@ -515,9 +524,9 @@ type RemappedSelector<S extends Selector, NewState> =
     : never
 
 /**
- * Extracts the final selector type from the `selectors` object.
- *
- * Removes the `string` index signature from the default value.
+ * Extracts the final selector type from the
+ * {@linkcode Slice.selectors | selectors} object. Removes the `string` index
+ * signature from the default value.
  */
 type SliceDefinedSelectors<
   State,
@@ -531,14 +540,13 @@ type SliceDefinedSelectors<
 }
 
 /**
- * Used on a SliceCaseReducers object.
- * Ensures that if a CaseReducer is a `CaseReducerWithPrepare`, that
- * the `reducer` and the `prepare` function use the same type of `payload`.
- *
- * Might do additional such checks in the future.
- *
- * This type is only ever useful if you want to write your own wrapper around
- * `createSlice`. Please don't use it otherwise!
+ * Used on a {@linkcode SliceCaseReducers} object. Ensures that if a
+ * {@linkcode CaseReducer} is a {@linkcode CaseReducerWithPrepare}, that the
+ * {@linkcode Slice.reducer | reducer} and the
+ * {@linkcode CaseReducerWithPrepare.prepare | prepare} function use the same
+ * type of `payload`. Might do additional such checks in the future. This type
+ * is only ever useful if you want to write your own wrapper around
+ * {@linkcode createSlice}. Please don't use it otherwise!
  *
  * @public
  */
@@ -944,11 +952,19 @@ interface ReducerHandlingContextMethods<State> {
 }
 
 interface ReducerDetails {
-  /** The key the reducer was defined under */
+  /**
+   * The key the reducer was defined under.
+   */
   reducerName: string
-  /** The predefined action type, i.e. `${slice.name}/${reducerName}` */
+
+  /**
+   * The predefined action type, i.e. `${slice.name}/${reducerName}`
+   */
   type: string
-  /** Whether create. notation was used when defining reducers */
+
+  /**
+   * Whether `create.` notation was used when defining reducers.
+   */
   createNotation: boolean
 }
 

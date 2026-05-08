@@ -116,7 +116,7 @@ export interface DevToolsEnhancerOptions {
    * if specified, whenever clicking on `Pause recording` button and there are actions in the history log, will add this action type.
    * If not specified, will commit when paused. Available only for Redux enhancer.
    *
-   * @default "@@PAUSED""
+   * @default '@@PAUSED'
    */
   pauseActionType?: string
   /**
@@ -195,11 +195,14 @@ export interface DevToolsEnhancerOptions {
   }
   /**
    * Set to true or a stacktrace-returning function to record call stack traces for dispatched actions.
-   * Defaults to false.
+   *
+   * @default false
    */
   trace?: boolean | (<A extends Action>(action: A) => string)
   /**
-   * The maximum number of stack trace entries to record per action. Defaults to 10.
+   * The maximum number of stack trace entries to record per action.
+   *
+   * @default 10
    */
   traceLimit?: number
 }

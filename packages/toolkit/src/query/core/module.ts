@@ -10,7 +10,7 @@ import type {
   ThunkDispatch,
   UnknownAction,
 } from '@reduxjs/toolkit'
-import { enablePatches } from '../utils/immerImports'
+import type { CreateSelectorFunction } from 'reselect'
 import type { Api, Module } from '../apiTypes'
 import type { BaseQueryFn } from '../baseQueryTypes'
 import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
@@ -30,6 +30,8 @@ import {
   isQueryDefinition,
 } from '../endpointDefinitions'
 import { assertCast, safeAssign } from '../tsHelpers'
+import { getOrInsertComputed } from '../utils'
+import { enablePatches } from '../utils/immerImports'
 import type {
   CombinedState,
   MutationKeys,
@@ -37,12 +39,12 @@ import type {
   RootState,
 } from './apiState'
 import type {
+  BuildInitiateApiEndpointInfiniteQuery,
   BuildInitiateApiEndpointMutation,
   BuildInitiateApiEndpointQuery,
+  InfiniteQueryActionCreatorResult,
   MutationActionCreatorResult,
   QueryActionCreatorResult,
-  InfiniteQueryActionCreatorResult,
-  BuildInitiateApiEndpointInfiniteQuery,
 } from './buildInitiate'
 import { buildInitiate } from './buildInitiate'
 import type {
@@ -51,6 +53,7 @@ import type {
   ReferenceQueryLifecycle,
 } from './buildMiddleware'
 import { buildMiddleware } from './buildMiddleware'
+import type { InternalMiddlewareState } from './buildMiddleware/types'
 import type {
   BuildSelectorsApiEndpointInfiniteQuery,
   BuildSelectorsApiEndpointMutation,
@@ -72,9 +75,6 @@ import type {
 import { buildThunks } from './buildThunks'
 import { createSelector as _createSelector } from './rtkImports'
 import { onFocus, onFocusLost, onOffline, onOnline } from './setupListeners'
-import type { InternalMiddlewareState } from './buildMiddleware/types'
-import { getOrInsertComputed } from '../utils'
-import type { CreateSelectorFunction } from 'reselect'
 
 /**
  * `ifOlderThan` - (default: `false` | `number`) - _number is value in seconds_
@@ -172,7 +172,7 @@ export interface ApiModules<
        * Can be used to await a specific query triggered in any way,
        * including via hook calls or manually dispatching `initiate` actions.
        *
-       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
+       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
        */
       getRunningQueryThunk<EndpointName extends AllQueryKeys<Definitions>>(
         endpointName: EndpointName,
@@ -195,7 +195,7 @@ export interface ApiModules<
        * Can be used to await a specific mutation triggered in any way,
        * including via hook trigger functions or manually dispatching `initiate` actions.
        *
-       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
+       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
        */
       getRunningMutationThunk<EndpointName extends MutationKeys<Definitions>>(
         endpointName: EndpointName,
@@ -213,7 +213,7 @@ export interface ApiModules<
        * Useful for SSR scenarios to await all running queries triggered in any way,
        * including via hook calls or manually dispatching `initiate` actions.
        *
-       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
+       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
        */
       getRunningQueriesThunk(): ThunkWithReturnValue<
         Array<
@@ -227,7 +227,7 @@ export interface ApiModules<
        * Useful for SSR scenarios to await all running mutations triggered in any way,
        * including via hook calls or manually dispatching `initiate` actions.
        *
-       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
+       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
        */
       getRunningMutationsThunk(): ThunkWithReturnValue<
         Array<MutationActionCreatorResult<any>>
@@ -243,7 +243,7 @@ export interface ApiModules<
        * @example
        *
        * ```ts no-transpile
-       * dispatch(api.util.prefetch('getPosts', undefined, { force: true }))
+       * dispatch(api.util.prefetch('getPosts', undefined, { force: true }));
        * ```
        */
       prefetch<EndpointName extends QueryKeys<Definitions>>(
@@ -431,7 +431,9 @@ export interface ApiEndpointQuery<
   Definition extends QueryDefinition<any, any, any, any, any>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Definitions extends EndpointDefinitions,
-> extends BuildThunksApiEndpointQuery<Definition>,
+>
+  extends
+    BuildThunksApiEndpointQuery<Definition>,
     BuildInitiateApiEndpointQuery<Definition>,
     BuildSelectorsApiEndpointQuery<Definition, Definitions> {
   name: string
@@ -446,7 +448,9 @@ export interface ApiEndpointInfiniteQuery<
   Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Definitions extends EndpointDefinitions,
-> extends BuildThunksApiEndpointInfiniteQuery<Definition>,
+>
+  extends
+    BuildThunksApiEndpointInfiniteQuery<Definition>,
     BuildInitiateApiEndpointInfiniteQuery<Definition>,
     BuildSelectorsApiEndpointInfiniteQuery<Definition, Definitions> {
   name: string
@@ -462,7 +466,9 @@ export interface ApiEndpointMutation<
   Definition extends MutationDefinition<any, any, any, any, any>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Definitions extends EndpointDefinitions,
-> extends BuildThunksApiEndpointMutation<Definition>,
+>
+  extends
+    BuildThunksApiEndpointMutation<Definition>,
     BuildInitiateApiEndpointMutation<Definition>,
     BuildSelectorsApiEndpointMutation<Definition, Definitions> {
   name: string
@@ -492,6 +498,8 @@ export type InternalActions = SliceActions & ListenerActions
 export interface CoreModuleOptions {
   /**
    * A selector creator (usually from `reselect`, or matching the same signature)
+   *
+   * @default createSelector
    */
   createSelector?: CreateSelectorFunction<any, any, any>
 }
@@ -501,6 +509,8 @@ export interface CoreModuleOptions {
  *
  * @example
  * ```ts
+ * import { buildCreateApi, coreModule } from '@reduxjs/toolkit/query';
+ *
  * const createBaseApi = buildCreateApi(coreModule());
  * ```
  */

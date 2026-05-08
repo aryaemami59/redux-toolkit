@@ -92,7 +92,7 @@ export type ReducerWithInitialState<S extends NotFunction<any>> = Reducer<S> & {
  * called to define what actions this reducer will handle.
  *
  * @param initialState - `State | (() => State)`: The initial state that should be used when the reducer is called the first time. This may also be a "lazy initializer" function, which should return an initial state value when called. This will be used whenever the reducer is called with `undefined` as its state value, and is primarily useful for cases like reading initial state from `localStorage`.
- * @param builderCallback - `(builder: Builder) => void` A callback that receives a *builder* object to define
+ * @param mapOrBuilderCallback - `(builder: Builder) => void` A callback that receives a *builder* object to define
  *   case reducers via calls to `builder.addCase(actionCreatorOrType, reducer)`.
  * @example
  * ```ts

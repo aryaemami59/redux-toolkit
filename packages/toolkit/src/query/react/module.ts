@@ -94,21 +94,33 @@ export interface ReactHooksModuleOptions {
   hooks?: {
     /**
      * The version of the `useDispatch` hook to be used
+     *
+     * @default rrUseDispatch
      */
     useDispatch: RR['useDispatch']
+
     /**
      * The version of the `useSelector` hook to be used
+     *
+     * @default rrUseSelector
      */
     useSelector: RR['useSelector']
+
     /**
      * The version of the `useStore` hook to be used
+     *
+     * @default rrUseStore
      */
     useStore: RR['useStore']
   }
+
   /**
    * The version of the `batchedUpdates` function to be used
+   *
+   * @default rrBatch
    */
   batch?: RR['batch']
+
   /**
    * Enables performing asynchronous tasks immediately within a render.
    *
@@ -118,41 +130,61 @@ export interface ReactHooksModuleOptions {
    * import {
    *   buildCreateApi,
    *   coreModule,
-   *   reactHooksModule
-   * } from '@reduxjs/toolkit/query/react'
+   *   reactHooksModule,
+   * } from '@reduxjs/toolkit/query/react';
    *
    * const createApi = buildCreateApi(
    *   coreModule(),
-   *   reactHooksModule({ unstable__sideEffectsInRender: true })
-   * )
+   *   reactHooksModule({ unstable__sideEffectsInRender: true }),
+   * );
    * ```
+   *
+   * @default false
    */
   unstable__sideEffectsInRender?: boolean
+
   /**
    * A selector creator (usually from `reselect`, or matching the same signature)
+   *
+   * @default createSelector
    */
   createSelector?: CreateSelectorFunction<any, any, any>
 }
 
 /**
- * Creates a module that generates react hooks from endpoints, for use with `buildCreateApi`.
+ * Creates a module that generates react hooks from endpoints, for use with
+ * `buildCreateApi`.
  *
  *  @example
  * ```ts
+ * import {
+ *   buildCreateApi,
+ *   coreModule,
+ *   reactHooksModule,
+ * } from '@reduxjs/toolkit/query/react';
+ * import * as React from 'react';
+ * import type { ReactReduxContextValue } from 'react-redux';
+ * import {
+ *   createDispatchHook,
+ *   createSelectorHook,
+ *   createStoreHook,
+ * } from 'react-redux';
+ *
  * const MyContext = React.createContext<ReactReduxContextValue | null>(null);
+ *
  * const customCreateApi = buildCreateApi(
  *   coreModule(),
  *   reactHooksModule({
  *     hooks: {
  *       useDispatch: createDispatchHook(MyContext),
  *       useSelector: createSelectorHook(MyContext),
- *       useStore: createStoreHook(MyContext)
- *     }
- *   })
+ *       useStore: createStoreHook(MyContext),
+ *     },
+ *   }),
  * );
  * ```
  *
- * @returns A module for use with `buildCreateApi`
+ * @returns A module for use with `buildCreateApi`.
  */
 export const reactHooksModule = ({
   batch = rrBatch,

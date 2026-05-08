@@ -1,4 +1,4 @@
-import { getEndpointDefinition } from '@internal/query/apiTypes'
+import { getEndpointDefinition } from '../../apiTypes'
 import type {
   BaseQueryError,
   BaseQueryFn,
@@ -149,10 +149,11 @@ export type QueryLifecycleMutationExtraOptions<
    * @example
    *
    * ```ts
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query'
+   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
+   *
    * export interface Post {
-   *   id: number
-   *   name: string
+   *   id: number;
+   *   name: string;
    * }
    *
    * const api = createApi({
@@ -175,18 +176,18 @@ export type QueryLifecycleMutationExtraOptions<
    *       async onQueryStarted({ id, ...patch }, { dispatch, queryFulfilled }) {
    *         const patchResult = dispatch(
    *           api.util.updateQueryData('getPost', id, (draft) => {
-   *             Object.assign(draft, patch)
-   *           })
-   *         )
+   *             Object.assign(draft, patch);
+   *           }),
+   *         );
    *         try {
-   *           await queryFulfilled
+   *           await queryFulfilled;
    *         } catch {
-   *           patchResult.undo()
+   *           patchResult.undo();
    *         }
    *       },
    *     }),
    *   }),
-   * })
+   * });
    * ```
    */
   onQueryStarted?(
@@ -227,25 +228,25 @@ export type MutationLifecycleApi<
  * <caption>#### __Create and reuse a strongly-typed `onQueryStarted` function__</caption>
  *
  * ```ts
- * import type { TypedQueryOnQueryStarted } from '@reduxjs/toolkit/query'
- * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query'
+ * import type { TypedQueryOnQueryStarted } from '@reduxjs/toolkit/query';
+ * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
  *
  * type Post = {
- *   id: number
- *   title: string
- *   userId: number
- * }
+ *   id: number;
+ *   title: string;
+ *   userId: number;
+ * };
  *
  * type PostsApiResponse = {
- *   posts: Post[]
- *   total: number
- *   skip: number
- *   limit: number
- * }
+ *   posts: Post[];
+ *   total: number;
+ *   skip: number;
+ *   limit: number;
+ * };
  *
- * type QueryArgument = number | undefined
+ * type QueryArgument = number | undefined;
  *
- * type BaseQueryFunction = ReturnType<typeof fetchBaseQuery>
+ * type BaseQueryFunction = ReturnType<typeof fetchBaseQuery>;
  *
  * const baseApiSlice = createApi({
  *   baseQuery: fetchBaseQuery({ baseUrl: 'https://dummyjson.com' }),
@@ -260,7 +261,7 @@ export type MutationLifecycleApi<
  *       query: (postId) => `/posts/${postId}`,
  *     }),
  *   }),
- * })
+ * });
  *
  * const updatePostOnFulfilled: TypedQueryOnQueryStarted<
  *   PostsApiResponse,
@@ -268,9 +269,9 @@ export type MutationLifecycleApi<
  *   BaseQueryFunction,
  *   'postsApi'
  * > = async (queryArgument, { dispatch, queryFulfilled }) => {
- *   const result = await queryFulfilled
+ *   const result = await queryFulfilled;
  *
- *   const { posts } = result.data
+ *   const { posts } = result.data;
  *
  *   // Pre-fill the individual post entries with the results
  *   // from the list endpoint query
@@ -282,8 +283,8 @@ export type MutationLifecycleApi<
  *         value: post,
  *       })),
  *     ),
- *   )
- * }
+ *   );
+ * };
  *
  * export const extendedApiSlice = baseApiSlice.injectEndpoints({
  *   endpoints: (build) => ({
@@ -293,7 +294,7 @@ export type MutationLifecycleApi<
  *       onQueryStarted: updatePostOnFulfilled,
  *     }),
  *   }),
- * })
+ * });
  * ```
  *
  * @template ResultType - The type of the result `data` returned by the query.
@@ -325,25 +326,25 @@ export type TypedQueryOnQueryStarted<
  * <caption>#### __Create and reuse a strongly-typed `onQueryStarted` function__</caption>
  *
  * ```ts
- * import type { TypedMutationOnQueryStarted } from '@reduxjs/toolkit/query'
- * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query'
+ * import type { TypedMutationOnQueryStarted } from '@reduxjs/toolkit/query';
+ * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
  *
  * type Post = {
- *   id: number
- *   title: string
- *   userId: number
- * }
+ *   id: number;
+ *   title: string;
+ *   userId: number;
+ * };
  *
  * type PostsApiResponse = {
- *   posts: Post[]
- *   total: number
- *   skip: number
- *   limit: number
- * }
+ *   posts: Post[];
+ *   total: number;
+ *   skip: number;
+ *   limit: number;
+ * };
  *
- * type QueryArgument = Pick<Post, 'id'> & Partial<Post>
+ * type QueryArgument = Pick<Post, 'id'> & Partial<Post>;
  *
- * type BaseQueryFunction = ReturnType<typeof fetchBaseQuery>
+ * type BaseQueryFunction = ReturnType<typeof fetchBaseQuery>;
  *
  * const baseApiSlice = createApi({
  *   baseQuery: fetchBaseQuery({ baseUrl: 'https://dummyjson.com' }),
@@ -358,7 +359,7 @@ export type TypedQueryOnQueryStarted<
  *       query: (postId) => `/posts/${postId}`,
  *     }),
  *   }),
- * })
+ * });
  *
  * const updatePostOnFulfilled: TypedMutationOnQueryStarted<
  *   Post,
@@ -368,16 +369,16 @@ export type TypedQueryOnQueryStarted<
  * > = async ({ id, ...patch }, { dispatch, queryFulfilled }) => {
  *   const patchCollection = dispatch(
  *     baseApiSlice.util.updateQueryData('getPostById', id, (draftPost) => {
- *       Object.assign(draftPost, patch)
+ *       Object.assign(draftPost, patch);
  *     }),
- *   )
+ *   );
  *
  *   try {
- *     await queryFulfilled
+ *     await queryFulfilled;
  *   } catch {
- *     patchCollection.undo()
+ *     patchCollection.undo();
  *   }
- * }
+ * };
  *
  * export const extendedApiSlice = baseApiSlice.injectEndpoints({
  *   endpoints: (build) => ({
@@ -401,7 +402,7 @@ export type TypedQueryOnQueryStarted<
  *       onQueryStarted: updatePostOnFulfilled,
  *     }),
  *   }),
- * })
+ * });
  * ```
  *
  * @template ResultType - The type of the result `data` returned by the query.

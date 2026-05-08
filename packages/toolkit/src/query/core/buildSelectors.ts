@@ -21,39 +21,38 @@ import type {
   MutationSubState,
   QueryCacheKey,
   QueryState,
+  QueryStatus,
   QuerySubState,
   RequestStatusFlags,
   RootState as _RootState,
-  QueryStatus,
 } from './apiState'
 import { STATUS_UNINITIALIZED, getRequestStatusFlags } from './apiState'
 import { getMutationCacheKey } from './buildSlice'
-import type { createSelector as _createSelector } from './rtkImports'
-import { createNextState } from './rtkImports'
 import {
   type AllQueryKeys,
   getNextPageParam,
   getPreviousPageParam,
 } from './buildThunks'
+import type { createSelector as _createSelector } from './rtkImports'
+import { createNextState } from './rtkImports'
 
 export type SkipToken = typeof skipToken
 /**
- * Can be passed into `useQuery`, `useQueryState` or `useQuerySubscription`
- * instead of the query argument to get the same effect as if setting
- * `skip: true` in the query options.
- *
- * Useful for scenarios where a query should be skipped when `arg` is `undefined`
- * and TypeScript complains about it because `arg` is not allowed to be passed
+ * Can be passed into {@linkcode useQuery}, {@linkcode useQueryState} or
+ * {@linkcode useQuerySubscription} instead of the query argument to get the
+ * same effect as if setting `skip: true` in the query options. Useful for
+ * scenarios where a query should be skipped when `arg` is `undefined` and
+ * TypeScript complains about it because `arg` is not allowed to be passed
  * in as `undefined`, such as
  *
  * ```ts
  * // codeblock-meta title="will error if the query argument is not allowed to be undefined" no-transpile
- * useSomeQuery(arg, { skip: !!arg })
+ * useSomeQuery(arg, { skip: !!arg });
  * ```
  *
  * ```ts
  * // codeblock-meta title="using skipToken instead" no-transpile
- * useSomeQuery(arg ?? skipToken)
+ * useSomeQuery(arg ?? skipToken);
  * ```
  *
  * If passed directly into a query or mutation selector, that selector will always
