@@ -3,8 +3,8 @@ import { isActionCreator as isRTKAction } from './createAction'
 
 export interface ActionCreatorInvariantMiddlewareOptions {
   /**
-   * The function to identify whether a value is an action creator.
-   * The default checks for a function with a static type property and match method.
+   * The function to identify whether a value is an action creator. The default
+   * checks for a function with a static type property and match method.
    */
   isActionCreator?: (action: unknown) => action is Function & { type?: unknown }
 }

@@ -1,72 +1,73 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
-import {
-  combineReducers,
-  createAction,
-  createSlice,
-  isAnyOf,
-  isFulfilled,
-  isRejectedWithValue,
-  createNextState,
-  prepareAutoBatched,
-  SHOULD_AUTOBATCH,
-  nanoid,
-} from './rtkImports'
+import type { Patch } from 'immer'
+import type { ApiContext } from '../apiTypes'
+import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
 import type {
-  QuerySubstateIdentifier,
-  QuerySubState,
-  MutationSubstateIdentifier,
-  MutationSubState,
-  MutationState,
-  QueryState,
-  InvalidationState,
-  Subscribers,
-  QueryCacheKey,
-  SubscriptionState,
+  AssertTagTypes,
+  EndpointDefinitions,
+  FullTagDescription,
+  QueryDefinition,
+} from '../endpointDefinitions'
+import {
+  ENDPOINT_QUERY,
+  isInfiniteQueryDefinition,
+} from '../endpointDefinitions'
+import type { UnwrapPromise } from '../tsHelpers'
+import {
+  copyWithStructuralSharing,
+  isDocumentVisible,
+  isOnline,
+} from '../utils'
+import { getCurrent } from '../utils/getCurrent'
+import { applyPatches, isDraft, original } from '../utils/immerImports'
+import type {
   ConfigState,
-  InfiniteQuerySubState,
   InfiniteQueryDirection,
+  InfiniteQuerySubState,
+  InvalidationState,
+  MutationState,
+  MutationSubState,
+  MutationSubstateIdentifier,
+  QueryCacheKey,
+  QueryState,
+  QuerySubState,
+  QuerySubstateIdentifier,
+  Subscribers,
+  SubscriptionState,
 } from './apiState'
 import {
   STATUS_FULFILLED,
   STATUS_PENDING,
-  QueryStatus,
   STATUS_REJECTED,
   STATUS_UNINITIALIZED,
 } from './apiState'
+import { isUpsertQuery } from './buildInitiate'
 import type {
   AllQueryKeys,
-  QueryArgFromAnyQueryDefinition,
   DataFromAnyQueryDefinition,
   InfiniteQueryThunk,
   MutationThunk,
+  QueryArgFromAnyQueryDefinition,
   QueryThunk,
   QueryThunkArg,
 } from './buildThunks'
 import { calculateProvidedByThunk } from './buildThunks'
 import {
-  ENDPOINT_QUERY,
-  isInfiniteQueryDefinition,
-  type AssertTagTypes,
-  type EndpointDefinitions,
-  type FullTagDescription,
-  type QueryDefinition,
-} from '../endpointDefinitions'
-import type { Patch } from 'immer'
-import { applyPatches, original, isDraft } from '../utils/immerImports'
+  combineReducers,
+  createAction,
+  createNextState,
+  createSlice,
+  isAnyOf,
+  isFulfilled,
+  isRejectedWithValue,
+  nanoid,
+  prepareAutoBatched,
+  SHOULD_AUTOBATCH,
+} from './rtkImports'
 import { onFocus, onFocusLost, onOffline, onOnline } from './setupListeners'
-import {
-  isDocumentVisible,
-  isOnline,
-  copyWithStructuralSharing,
-} from '../utils'
-import type { ApiContext } from '../apiTypes'
-import { isUpsertQuery } from './buildInitiate'
-import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
-import type { UnwrapPromise } from '../tsHelpers'
-import { getCurrent } from '../utils/getCurrent'
 
 /**
- * A typesafe single entry to be upserted into the cache
+ * A type-safe single entry to be upserted into the cache.
  */
 export type NormalizedQueryUpsertEntry<
   Definitions extends EndpointDefinitions,
@@ -78,7 +79,8 @@ export type NormalizedQueryUpsertEntry<
 }
 
 /**
- * The internal version that is not typesafe since we can't carry the generics through `createSlice`
+ * The internal version that is not type-safe since we can't carry the generics
+ * through `createSlice`.
  */
 type NormalizedQueryUpsertEntryPayload = {
   endpointName: string
@@ -92,7 +94,8 @@ export type ProcessedQueryUpsertEntry = {
 }
 
 /**
- * A typesafe representation of a util action creator that accepts cache entry descriptions to upsert
+ * A type-safe representation of a util action creator that accepts cache entry
+ * descriptions to upsert.
  */
 export type UpsertEntries<Definitions extends EndpointDefinitions> = (<
   EndpointNames extends Array<AllQueryKeys<Definitions>>,

@@ -10,7 +10,7 @@ import type {
   ThunkDispatch,
   UnknownAction,
 } from '@reduxjs/toolkit'
-import { enablePatches } from '../utils/immerImports'
+import type { CreateSelectorFunction } from 'reselect'
 import type { Api, Module } from '../apiTypes'
 import type { BaseQueryFn } from '../baseQueryTypes'
 import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
@@ -30,6 +30,8 @@ import {
   isQueryDefinition,
 } from '../endpointDefinitions'
 import { assertCast, safeAssign } from '../tsHelpers'
+import { getOrInsertComputed } from '../utils'
+import { enablePatches } from '../utils/immerImports'
 import type {
   CombinedState,
   MutationKeys,
@@ -37,12 +39,12 @@ import type {
   RootState,
 } from './apiState'
 import type {
+  BuildInitiateApiEndpointInfiniteQuery,
   BuildInitiateApiEndpointMutation,
   BuildInitiateApiEndpointQuery,
+  InfiniteQueryActionCreatorResult,
   MutationActionCreatorResult,
   QueryActionCreatorResult,
-  InfiniteQueryActionCreatorResult,
-  BuildInitiateApiEndpointInfiniteQuery,
 } from './buildInitiate'
 import { buildInitiate } from './buildInitiate'
 import type {
@@ -51,6 +53,7 @@ import type {
   ReferenceQueryLifecycle,
 } from './buildMiddleware'
 import { buildMiddleware } from './buildMiddleware'
+import type { InternalMiddlewareState } from './buildMiddleware/types'
 import type {
   BuildSelectorsApiEndpointInfiniteQuery,
   BuildSelectorsApiEndpointMutation,
@@ -72,9 +75,6 @@ import type {
 import { buildThunks } from './buildThunks'
 import { createSelector as _createSelector } from './rtkImports'
 import { onFocus, onFocusLost, onOffline, onOnline } from './setupListeners'
-import type { InternalMiddlewareState } from './buildMiddleware/types'
-import { getOrInsertComputed } from '../utils'
-import type { CreateSelectorFunction } from 'reselect'
 
 /**
  * `ifOlderThan` - (default: `false` | `number`) - _number is value in seconds_
@@ -110,32 +110,36 @@ export interface ApiModules<
     /**
      * This api's reducer should be mounted at `store[api.reducerPath]`.
      *
-     * @example
+     * @example <caption>Mount the api in the store</caption>
+     *
      * ```ts
      * configureStore({
      *   reducer: {
      *     [api.reducerPath]: api.reducer,
      *   },
      *   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
-     * })
+     * });
      * ```
      */
     reducerPath: ReducerPath
     /**
-     * Internal actions not part of the public API. Note: These are subject to change at any given time.
+     * Internal actions not part of the public API. Note: These are subject to
+     * change at any given time.
      */
     internalActions: InternalActions
     /**
-     *  A standard redux reducer that enables core functionality. Make sure it's included in your store.
+     * A standard redux reducer that enables core functionality. Make sure it's
+     * included in your store.
      *
-     * @example
+     * @example <caption>Mount the api in the store</caption>
+     *
      * ```ts
      * configureStore({
      *   reducer: {
      *     [api.reducerPath]: api.reducer,
      *   },
      *   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
-     * })
+     * });
      * ```
      */
     reducer: Reducer<
@@ -143,16 +147,19 @@ export interface ApiModules<
       UnknownAction
     >
     /**
-     * This is a standard redux middleware and is responsible for things like polling, garbage collection and a handful of other things. Make sure it's included in your store.
+     * This is a standard redux middleware and is responsible for things like
+     * polling, garbage collection and a handful of other things. Make sure it's
+     * included in your store.
      *
-     * @example
+     * @example <caption>Mount the api in the store</caption>
+     *
      * ```ts
      * configureStore({
      *   reducer: {
      *     [api.reducerPath]: api.reducer,
      *   },
      *   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
-     * })
+     * });
      * ```
      */
     middleware: Middleware<
@@ -172,7 +179,7 @@ export interface ApiModules<
        * Can be used to await a specific query triggered in any way,
        * including via hook calls or manually dispatching `initiate` actions.
        *
-       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
+       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
        */
       getRunningQueryThunk<EndpointName extends AllQueryKeys<Definitions>>(
         endpointName: EndpointName,
@@ -195,7 +202,7 @@ export interface ApiModules<
        * Can be used to await a specific mutation triggered in any way,
        * including via hook trigger functions or manually dispatching `initiate` actions.
        *
-       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
+       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
        */
       getRunningMutationThunk<EndpointName extends MutationKeys<Definitions>>(
         endpointName: EndpointName,
@@ -213,7 +220,7 @@ export interface ApiModules<
        * Useful for SSR scenarios to await all running queries triggered in any way,
        * including via hook calls or manually dispatching `initiate` actions.
        *
-       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
+       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
        */
       getRunningQueriesThunk(): ThunkWithReturnValue<
         Array<
@@ -227,23 +234,24 @@ export interface ApiModules<
        * Useful for SSR scenarios to await all running mutations triggered in any way,
        * including via hook calls or manually dispatching `initiate` actions.
        *
-       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
+       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
        */
       getRunningMutationsThunk(): ThunkWithReturnValue<
         Array<MutationActionCreatorResult<any>>
       >
 
       /**
-       * A Redux thunk that can be used to manually trigger pre-fetching of data.
+       * A Redux thunk that can be used to manually trigger pre-fetching of
+       * data.
        *
        * The thunk accepts three arguments: the name of the endpoint we are updating (such as `'getPost'`), the appropriate query arg values to construct the desired cache key, and a set of options used to determine if the data actually should be re-fetched based on cache staleness.
        *
        * React Hooks users will most likely never need to use this directly, as the `usePrefetch` hook will dispatch this thunk internally as needed when you call the prefetching function supplied by the hook.
        *
-       * @example
+       * @example <caption>Manually prefetch a query</caption>
        *
        * ```ts no-transpile
-       * dispatch(api.util.prefetch('getPosts', undefined, { force: true }))
+       * dispatch(api.util.prefetch("getPosts", undefined, { force: true }));
        * ```
        */
       prefetch<EndpointName extends QueryKeys<Definitions>>(
@@ -262,14 +270,14 @@ export interface ApiModules<
        *
        * Note that the first two arguments (`endpointName` and `arg`) are used to determine which existing cache entry to update. If no existing cache entry is found, the `updateRecipe` callback will not run.
        *
-       * @example
+       * @example <caption>Optimistically update cached data</caption>
        *
        * ```ts
        * const patchCollection = dispatch(
-       *   api.util.updateQueryData('getPosts', undefined, (draftPosts) => {
-       *     draftPosts.push({ id: 1, name: 'Teddy' })
-       *   })
-       * )
+       *   api.util.updateQueryData("getPosts", undefined, (draftPosts) => {
+       *     draftPosts.push({ id: 1, name: "Teddy" });
+       *   }),
+       * );
        * ```
        */
       updateQueryData: UpdateQueryDataThunk<
@@ -288,12 +296,12 @@ export interface ApiModules<
        *
        * If dispatched while an actual request is in progress, both the upsert and request will be handled as soon as they resolve, resulting in a "last result wins" update behavior.
        *
-       * @example
+       * @example <caption>Upsert a value into the cache</caption>
        *
        * ```ts
        * await dispatch(
-       *   api.util.upsertQueryData('getPost', {id: 1}, {id: 1, text: "Hello!"})
-       * )
+       *   api.util.upsertQueryData("getPost", { id: 1 }, { id: 1, text: "Hello!" }),
+       * );
        * ```
        */
       upsertQueryData: UpsertQueryDataThunk<
@@ -309,21 +317,26 @@ export interface ApiModules<
        *
        * In cases where it is desired to simply revert the previous changes, it may be preferable to call the `undo` method returned from dispatching `updateQueryData` instead.
        *
-       * @example
+       * @example <caption>Apply and later revert a patch</caption>
+       *
        * ```ts
        * const patchCollection = dispatch(
-       *   api.util.updateQueryData('getPosts', undefined, (draftPosts) => {
-       *     draftPosts.push({ id: 1, name: 'Teddy' })
-       *   })
-       * )
+       *   api.util.updateQueryData("getPosts", undefined, (draftPosts) => {
+       *     draftPosts.push({ id: 1, name: "Teddy" });
+       *   }),
+       * );
        *
        * // later
        * dispatch(
-       *   api.util.patchQueryData('getPosts', undefined, patchCollection.inversePatches)
-       * )
+       *   api.util.patchQueryData(
+       *     "getPosts",
+       *     undefined,
+       *     patchCollection.inversePatches,
+       *   ),
+       * );
        *
        * // or
-       * patchCollection.undo()
+       * patchCollection.undo();
        * ```
        */
       patchQueryData: PatchQueryDataThunk<
@@ -334,10 +347,10 @@ export interface ApiModules<
       /**
        * A Redux action creator that can be dispatched to manually reset the api state completely. This will immediately remove all existing cache entries, and all queries will be considered 'uninitialized'.
        *
-       * @example
+       * @example <caption>Reset the api state</caption>
        *
        * ```ts
-       * dispatch(api.util.resetApiState())
+       * dispatch(api.util.resetApiState());
        * ```
        */
       resetApiState: SliceActions['resetApiState']
@@ -357,17 +370,17 @@ export interface ApiModules<
        * - `[{ type: TagType }]`
        * - `[{ type: TagType, id: number | string }]`
        *
-       * @example
+       * @example <caption>Manually invalidate cache tags</caption>
        *
        * ```ts
-       * dispatch(api.util.invalidateTags(['Post']))
-       * dispatch(api.util.invalidateTags([{ type: 'Post', id: 1 }]))
+       * dispatch(api.util.invalidateTags(["Post"]));
+       * dispatch(api.util.invalidateTags([{ type: "Post", id: 1 }]));
        * dispatch(
        *   api.util.invalidateTags([
-       *     { type: 'Post', id: 1 },
-       *     { type: 'Post', id: 'LIST' },
-       *   ])
-       * )
+       *     { type: "Post", id: 1 },
+       *     { type: "Post", id: "LIST" },
+       *   ]),
+       * );
        * ```
        */
       invalidateTags: ActionCreatorWithPayload<
@@ -431,7 +444,9 @@ export interface ApiEndpointQuery<
   Definition extends QueryDefinition<any, any, any, any, any>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Definitions extends EndpointDefinitions,
-> extends BuildThunksApiEndpointQuery<Definition>,
+>
+  extends
+    BuildThunksApiEndpointQuery<Definition>,
     BuildInitiateApiEndpointQuery<Definition>,
     BuildSelectorsApiEndpointQuery<Definition, Definitions> {
   name: string
@@ -446,7 +461,9 @@ export interface ApiEndpointInfiniteQuery<
   Definition extends InfiniteQueryDefinition<any, any, any, any, any>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Definitions extends EndpointDefinitions,
-> extends BuildThunksApiEndpointInfiniteQuery<Definition>,
+>
+  extends
+    BuildThunksApiEndpointInfiniteQuery<Definition>,
     BuildInitiateApiEndpointInfiniteQuery<Definition>,
     BuildSelectorsApiEndpointInfiniteQuery<Definition, Definitions> {
   name: string
@@ -462,7 +479,9 @@ export interface ApiEndpointMutation<
   Definition extends MutationDefinition<any, any, any, any, any>,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Definitions extends EndpointDefinitions,
-> extends BuildThunksApiEndpointMutation<Definition>,
+>
+  extends
+    BuildThunksApiEndpointMutation<Definition>,
     BuildInitiateApiEndpointMutation<Definition>,
     BuildSelectorsApiEndpointMutation<Definition, Definitions> {
   name: string
@@ -492,6 +511,8 @@ export type InternalActions = SliceActions & ListenerActions
 export interface CoreModuleOptions {
   /**
    * A selector creator (usually from `reselect`, or matching the same signature)
+   *
+   * @default createSelector
    */
   createSelector?: CreateSelectorFunction<any, any, any>
 }
@@ -501,6 +522,8 @@ export interface CoreModuleOptions {
  *
  * @example
  * ```ts
+ * import { buildCreateApi, coreModule } from '@reduxjs/toolkit/query';
+ *
  * const createBaseApi = buildCreateApi(coreModule());
  * ```
  */

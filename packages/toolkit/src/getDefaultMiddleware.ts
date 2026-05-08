@@ -4,10 +4,7 @@ import { thunk as thunkMiddleware, withExtraArgument } from 'redux-thunk'
 import type { ActionCreatorInvariantMiddlewareOptions } from './actionCreatorInvariantMiddleware'
 import { createActionCreatorInvariantMiddleware } from './actionCreatorInvariantMiddleware'
 import type { ImmutableStateInvariantMiddlewareOptions } from './immutableStateInvariantMiddleware'
-/* PROD_START_REMOVE_UMD */
 import { createImmutableStateInvariantMiddleware } from './immutableStateInvariantMiddleware'
-/* PROD_STOP_REMOVE_UMD */
-
 import type { SerializableStateInvariantMiddlewareOptions } from './serializableStateInvariantMiddleware'
 import { createSerializableStateInvariantMiddleware } from './serializableStateInvariantMiddleware'
 import type { ExcludeFromTuple } from './tsHelpers'
@@ -22,9 +19,24 @@ interface ThunkOptions<E = any> {
 }
 
 interface GetDefaultMiddlewareOptions {
+  /**
+   * @default true
+   */
   thunk?: boolean | ThunkOptions
+
+  /**
+   * @default true
+   */
   immutableCheck?: boolean | ImmutableStateInvariantMiddlewareOptions
+
+  /**
+   * @default true
+   */
   serializableCheck?: boolean | SerializableStateInvariantMiddlewareOptions
+
+  /**
+   * @default true
+   */
   actionCreatorCheck?: boolean | ActionCreatorInvariantMiddlewareOptions
 }
 
@@ -71,7 +83,6 @@ export const buildGetDefaultMiddleware = <S = any>(): GetDefaultMiddleware<S> =>
 
     if (process.env.NODE_ENV !== 'production') {
       if (immutableCheck) {
-        /* PROD_START_REMOVE_UMD */
         let immutableOptions: ImmutableStateInvariantMiddlewareOptions = {}
 
         if (!isBoolean(immutableCheck)) {
@@ -81,7 +92,6 @@ export const buildGetDefaultMiddleware = <S = any>(): GetDefaultMiddleware<S> =>
         middlewareArray.unshift(
           createImmutableStateInvariantMiddleware(immutableOptions),
         )
-        /* PROD_STOP_REMOVE_UMD */
       }
 
       if (serializableCheck) {

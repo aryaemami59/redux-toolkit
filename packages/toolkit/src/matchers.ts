@@ -1,21 +1,25 @@
 import type {
-  ActionFromMatcher,
-  Matcher,
-  UnionToIntersection,
-} from './tsHelpers'
-import { hasMatchFunction } from './tsHelpers'
-import type {
   AsyncThunk,
   AsyncThunkFulfilledActionCreator,
   AsyncThunkPendingActionCreator,
   AsyncThunkRejectedActionCreator,
 } from './createAsyncThunk'
+import type {
+  ActionFromMatcher,
+  Matcher,
+  UnionToIntersection,
+} from './tsHelpers'
+import { hasMatchFunction } from './tsHelpers'
 
-/** @public */
+/**
+ * @public
+ */
 export type ActionMatchingAnyOf<Matchers extends Matcher<any>[]> =
   ActionFromMatcher<Matchers[number]>
 
-/** @public */
+/**
+ * @public
+ */
 export type ActionMatchingAllOf<Matchers extends Matcher<any>[]> =
   UnionToIntersection<ActionMatchingAnyOf<Matchers>>
 
@@ -121,7 +125,8 @@ export function isPending<
   ...asyncThunks: AsyncThunks
 ): (action: any) => action is PendingActionFromAsyncThunk<AsyncThunks[number]>
 /**
- * Tests if `action` is a pending thunk action
+ * Tests if `action` is a pending thunk action.
+ *
  * @public
  */
 export function isPending(action: any): action is UnknownAsyncThunkPendingAction
@@ -171,7 +176,8 @@ export function isRejected<
   ...asyncThunks: AsyncThunks
 ): (action: any) => action is RejectedActionFromAsyncThunk<AsyncThunks[number]>
 /**
- * Tests if `action` is a rejected thunk action
+ * Tests if `action` is a rejected thunk action.
+ *
  * @public
  */
 export function isRejected(
@@ -228,7 +234,8 @@ export function isRejectedWithValue<
   action: any,
 ) => action is RejectedWithValueActionFromAsyncThunk<AsyncThunks[number]>
 /**
- * Tests if `action` is a rejected thunk action with value
+ * Tests if `action` is a rejected thunk action with value.
+ *
  * @public
  */
 export function isRejectedWithValue(
@@ -284,7 +291,8 @@ export function isFulfilled<
   ...asyncThunks: AsyncThunks
 ): (action: any) => action is FulfilledActionFromAsyncThunk<AsyncThunks[number]>
 /**
- * Tests if `action` is a fulfilled thunk action
+ * Tests if `action` is a fulfilled thunk action.
+ *
  * @public
  */
 export function isFulfilled(
@@ -343,7 +351,8 @@ export function isAsyncThunkAction<
   ...asyncThunks: AsyncThunks
 ): (action: any) => action is ActionsFromAsyncThunk<AsyncThunks[number]>
 /**
- * Tests if `action` is a thunk action
+ * Tests if `action` is a thunk action.
+ *
  * @public
  */
 export function isAsyncThunkAction(
@@ -361,5 +370,11 @@ export function isAsyncThunkAction<
     return isAsyncThunkAction()(asyncThunks[0])
   }
 
-  return isAnyOf(...asyncThunks.flatMap(asyncThunk => [asyncThunk.pending, asyncThunk.rejected, asyncThunk.fulfilled]))
+  return isAnyOf(
+    ...asyncThunks.flatMap((asyncThunk) => [
+      asyncThunk.pending,
+      asyncThunk.rejected,
+      asyncThunk.fulfilled,
+    ]),
+  )
 }

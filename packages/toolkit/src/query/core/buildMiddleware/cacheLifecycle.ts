@@ -44,9 +44,10 @@ export interface QueryBaseLifecycleApi<
       BaseQueryResult<BaseQuery>
     >
   >
+
   /**
-   * Updates the current cache entry value.
-   * For documentation see `api.util.updateQueryData`.
+   * Updates the current cache entry value. For documentation see
+   * `api.util.updateQueryData`.
    */
   updateCachedData(updateRecipe: Recipe<ResultType>): PatchCollection
 }
@@ -75,14 +76,18 @@ type LifecycleApi<ReducerPath extends string = string> = {
    * The dispatch method for the store
    */
   dispatch: ThunkDispatch<any, any, UnknownAction>
+
   /**
    * A method to get the current state
    */
   getState(): RootState<any, any, ReducerPath>
+
   /**
-   * `extra` as provided as `thunk.extraArgument` to the `configureStore` `getDefaultMiddleware` option.
+   * `extra` as provided as `thunk.extraArgument` to the `configureStore`
+   * `getDefaultMiddleware` option.
    */
   extra: unknown
+
   /**
    * A unique ID generated for the mutation
    */
@@ -109,6 +114,7 @@ type CacheLifecyclePromises<ResultType = unknown, MetaType = unknown> = {
        * The (transformed) query result.
        */
       data: ResultType
+
       /**
        * The `meta` returned by the `baseQuery`
        */

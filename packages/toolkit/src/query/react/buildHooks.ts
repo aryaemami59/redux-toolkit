@@ -108,11 +108,16 @@ export type MutationHooks<
 }
 
 /**
- * A React hook that automatically triggers fetches of data from an endpoint, 'subscribes' the component to the cached data, and reads the request status and cached data from the Redux store. The component will re-render as the loading status changes and the data becomes available.
- *
- * The query arg is used as a cache key. Changing the query arg will tell the hook to re-fetch the data if it does not exist in the cache already, and the hook will return the data for that query arg once it's available.
- *
- * This hook combines the functionality of both [`useQueryState`](#usequerystate) and [`useQuerySubscription`](#usequerysubscription) together, and is intended to be used in the majority of situations.
+ * A React hook that automatically triggers fetches of data from an endpoint,
+ * 'subscribes' the component to the cached data, and reads the request status
+ * and cached data from the Redux store. The component will re-render as the
+ * loading status changes and the data becomes available. The query arg is used
+ * as a cache key. Changing the query arg will tell the hook to re-fetch the
+ * data if it does not exist in the cache already, and the hook will return the
+ * data for that query arg once it's available. This hook combines the
+ * functionality of both {@linkcode QueryHooks.useQueryState | useQueryState}
+ * and {@linkcode QueryHooks.useQuerySubscription | useQuerySubscription}
+ * together, and is intended to be used in the majority of situations.
  *
  * #### Features
  *
@@ -189,12 +194,18 @@ export type UseQuerySubscriptionOptions = SubscriptionOptions & {
    */
   skip?: boolean
   /**
-   * Defaults to `false`. This setting allows you to control whether if a cached result is already available, RTK Query will only serve a cached result, or if it should `refetch` when set to `true` or if an adequate amount of time has passed since the last successful query result.
+   * This setting allows you to control whether if a cached result is already
+   * available, RTK Query will only serve a cached result, or if it should
+   * `refetch` when set to `true` or if an adequate amount of time has passed
+   * since the last successful query result.
    * - `false` - Will not cause a query to be performed _unless_ it does not exist yet.
    * - `true` - Will always refetch when a new subscriber to a query is added. Behaves the same as calling the `refetch` callback or passing `forceRefetch: true` in the action creator.
    * - `number` - **Value is in seconds**. If a number is provided and there is an existing query in the cache, it will compare the current time vs the last fulfilled timestamp, and only refetch if enough time has elapsed.
    *
-   * If you specify this option alongside `skip: true`, this **will not be evaluated** until `skip` is false.
+   * If you specify this option alongside `skip: true`, this
+   * **will not be evaluated** until `skip` is `false`.
+   *
+   * @default false
    */
   refetchOnMountOrArgChange?: boolean | number
 }
@@ -360,9 +371,11 @@ export type TypedLazyQueryTrigger<
 >
 
 /**
- * A React hook similar to [`useQuerySubscription`](#usequerysubscription), but with manual control over when the data fetching occurs.
- *
- * Note that this hook does not return a request status or cached data. For that use-case, see [`useLazyQuery`](#uselazyquery).
+ * A React hook similar to
+ * {@linkcode QueryHooks.useQuerySubscription | useQuerySubscription}, but with
+ * manual control over when the data fetching occurs. Note that this hook does
+ * not return a request status or cached data. For that use-case, see
+ * {@linkcode QueryHooks.useLazyQuery | useLazyQuery}.
  *
  * #### Features
  *
@@ -873,23 +886,32 @@ export type UseInfiniteQuerySubscriptionOptions<
    */
   skip?: boolean
   /**
-   * Defaults to `false`. This setting allows you to control whether if a cached result is already available, RTK Query will only serve a cached result, or if it should `refetch` when set to `true` or if an adequate amount of time has passed since the last successful query result.
+   * This setting allows you to control whether if a cached result is already
+   * available, RTK Query will only serve a cached result, or if it should
+   * `refetch` when set to `true` or if an adequate amount of time has passed
+   * since the last successful query result.
    * - `false` - Will not cause a query to be performed _unless_ it does not exist yet.
    * - `true` - Will always refetch when a new subscriber to a query is added. Behaves the same as calling the `refetch` callback or passing `forceRefetch: true` in the action creator.
    * - `number` - **Value is in seconds**. If a number is provided and there is an existing query in the cache, it will compare the current time vs the last fulfilled timestamp, and only refetch if enough time has elapsed.
    *
-   * If you specify this option alongside `skip: true`, this **will not be evaluated** until `skip` is false.
+   * If you specify this option alongside `skip: true`, this
+   * **will not be evaluated** until `skip` is `false`.
+   *
+   * @default false
    */
   refetchOnMountOrArgChange?: boolean | number
   initialPageParam?: PageParamFrom<D>
   /**
-   * Defaults to `true`. When this is `true` and an infinite query endpoint is refetched
-   * (due to tag invalidation, polling, arg change configuration, or manual refetching),
-   * RTK Query will try to sequentially refetch all pages currently in the cache.
-   * When `false` only the first page will be refetched.
+   * When this is `true` and an infinite query endpoint is refetched
+   * (due to tag invalidation, polling, arg change configuration, or manual
+   * refetching), RTK Query will try to sequentially refetch all pages
+   * currently in the cache. When `false` only the first page will be
+   * refetched. This option applies to all automatic refetches for this
+   * subscription (polling, tag invalidation, etc.). It can be overridden on
+   * a per-call basis using the
+   * {@linkcode UseInfiniteQuerySubscriptionResult.refetch | refetch()} method.
    *
-   * This option applies to all automatic refetches for this subscription (polling, tag invalidation, etc.).
-   * It can be overridden on a per-call basis using the `refetch()` method.
+   * @default true
    */
   refetchCachedPages?: boolean
 }

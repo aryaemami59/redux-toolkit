@@ -125,10 +125,9 @@ export type InternalHandlerBuilder<ReturnType = void> = (
 
 export interface PromiseConstructorWithKnownReason {
   /**
-   * Creates a new Promise with a known rejection reason.
-   * @param executor A callback used to initialize the promise. This callback is passed two arguments:
-   * a resolve callback used to resolve the promise with a value or the result of another promise,
-   * and a reject callback used to reject the promise with a provided reason or error.
+   * Creates a new {@linkcode Promise | promise} with a known rejection reason.
+   *
+   * @param executor A callback used to initialize the promise. This callback is passed two arguments: a resolve callback used to resolve the promise with a value or the result of another promise, and a reject callback used to reject the promise with a provided reason or error.
    */
   new <T, R>(
     executor: (
@@ -143,10 +142,12 @@ export type PromiseWithKnownReason<T, R> = Omit<
   'then' | 'catch'
 > & {
   /**
-   * Attaches callbacks for the resolution and/or rejection of the Promise.
+   * Attaches callbacks for the resolution and/or rejection of the
+   * {@linkcode Promise | promise}.
+   *
    * @param onfulfilled The callback to execute when the Promise is resolved.
    * @param onrejected The callback to execute when the Promise is rejected.
-   * @returns A Promise for the completion of which ever callback is executed.
+   * @returns A {@linkcode Promise | promise} for the completion of which ever callback is executed.
    */
   then<TResult1 = T, TResult2 = never>(
     onfulfilled?:
@@ -160,9 +161,11 @@ export type PromiseWithKnownReason<T, R> = Omit<
   ): Promise<TResult1 | TResult2>
 
   /**
-   * Attaches a callback for only the rejection of the Promise.
+   * Attaches a callback for only the rejection of the
+   * {@linkcode Promise | promise}.
+   *
    * @param onrejected The callback to execute when the Promise is rejected.
-   * @returns A Promise for the completion of the callback.
+   * @returns A {@linkcode Promise | promise} for the completion of the callback.
    */
   catch<TResult = never>(
     onrejected?:

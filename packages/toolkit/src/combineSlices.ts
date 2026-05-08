@@ -51,7 +51,9 @@ type ExistingSliceLike<DeclaredState, PreloadedState> = {
 
 export type InjectConfig = {
   /**
-   * Allow replacing reducer with a different reference. Normally, an error will be thrown if a different reducer instance to the one already injected is used.
+   * Allow replacing reducer with a different reference. Normally, an error
+   * will be thrown if a different reducer instance to the one already
+   * injected is used.
    */
   overrideExisting?: boolean
 }
@@ -70,14 +72,17 @@ export interface CombinedSliceReducer<
    *
    * One way to do this would be with interface merging:
    * ```ts
+   * import type { WithSlice } from "@reduxjs/toolkit";
+   * import { combineSlices } from "@reduxjs/toolkit";
    *
    * export interface LazyLoadedSlices {}
    *
-   * export const rootReducer = combineSlices(stringSlice).withLazyLoadedSlices<LazyLoadedSlices>();
+   * export const rootReducer =
+   *   combineSlices(stringSlice).withLazyLoadedSlices<LazyLoadedSlices>();
    *
    * // elsewhere
    *
-   * declare module './reducer' {
+   * declare module "./reducer" {
    *   export interface LazyLoadedSlices extends WithSlice<typeof booleanSlice> {}
    * }
    *
@@ -85,13 +90,16 @@ export interface CombinedSliceReducer<
    *
    * // elsewhere again
    *
-   * declare module './reducer' {
+   * declare module "./reducer" {
    *   export interface LazyLoadedSlices {
-   *     customName: CustomState
+   *     customName: CustomState;
    *   }
    * }
    *
-   * const withCustom = rootReducer.inject({ reducerPath: "customName", reducer: customSlice.reducer })
+   * const withCustom = rootReducer.inject({
+   *   reducerPath: "customName",
+   *   reducer: customSlice.reducer,
+   * });
    * ```
    */
   withLazyLoadedSlices<Lazy = {}, LazyPreloaded = Lazy>(): CombinedSliceReducer<
@@ -103,12 +111,16 @@ export interface CombinedSliceReducer<
   /**
    * Inject a slice.
    *
-   * Accepts an individual slice, RTKQ API instance, or a "slice-like" { reducerPath, reducer } object.
+   * Accepts an individual slice, RTKQ API instance, or a "slice-like"
+   * { reducerPath, reducer } object.
    *
    * ```ts
-   * rootReducer.inject(booleanSlice)
-   * rootReducer.inject(baseApi)
-   * rootReducer.inject({ reducerPath: 'boolean' as const, reducer: newReducer }, { overrideExisting: true })
+   * rootReducer.inject(booleanSlice);
+   * rootReducer.inject(baseApi);
+   * rootReducer.inject(
+   *   { reducerPath: "boolean" as const, reducer: newReducer },
+   *   { overrideExisting: true },
+   * );
    * ```
    *
    */
@@ -124,12 +136,16 @@ export interface CombinedSliceReducer<
   /**
    * Inject a slice.
    *
-   * Accepts an individual slice, RTKQ API instance, or a "slice-like" { reducerPath, reducer } object.
+   * Accepts an individual slice, RTKQ API instance, or a "slice-like"
+   * { reducerPath, reducer } object.
    *
    * ```ts
-   * rootReducer.inject(booleanSlice)
-   * rootReducer.inject(baseApi)
-   * rootReducer.inject({ reducerPath: 'boolean' as const, reducer: newReducer }, { overrideExisting: true })
+   * rootReducer.inject(booleanSlice);
+   * rootReducer.inject(baseApi);
+   * rootReducer.inject(
+   *   { reducerPath: "boolean" as const, reducer: newReducer },
+   *   { overrideExisting: true },
+   * );
    * ```
    *
    */
@@ -151,7 +167,8 @@ export interface CombinedSliceReducer<
   >
 
   /**
-   * Create a selector that guarantees that the slices injected will have a defined value when selector is run.
+   * Create a selector that guarantees that the slices injected will have a
+   * defined value when selector is run.
    *
    * ```ts
    * const selectBooleanWithoutInjection = (state: RootState) => state.boolean;
@@ -162,16 +179,20 @@ export interface CombinedSliceReducer<
    *   // however selector() uses a Proxy around the first parameter to ensure that it evaluates to the initial state instead, if undefined
    *   return state.boolean;
    *   //           ^? boolean
-   * })
+   * });
    * ```
    *
-   * If the reducer is nested inside the root state, a selectState callback can be passed to retrieve the reducer's state.
+   * If the reducer is nested inside the root state, a selectState callback
+   * can be passed to retrieve the reducer's state.
    *
    * ```ts
+   * import type { WithSlice } from "@reduxjs/toolkit";
+   * import { combineSlices } from "@reduxjs/toolkit";
    *
-   * export interface LazyLoadedSlices {};
+   * export interface LazyLoadedSlices {}
    *
-   * export const innerReducer = combineSlices(stringSlice).withLazyLoadedSlices<LazyLoadedSlices>();
+   * export const innerReducer =
+   *   combineSlices(stringSlice).withLazyLoadedSlices<LazyLoadedSlices>();
    *
    * export const rootReducer = combineSlices({ inner: innerReducer });
    *
@@ -180,32 +201,33 @@ export interface CombinedSliceReducer<
    * // elsewhere
    *
    * declare module "./reducer.ts" {
-   *  export interface LazyLoadedSlices extends WithSlice<typeof booleanSlice> {}
+   *   export interface LazyLoadedSlices extends WithSlice<typeof booleanSlice> {}
    * }
    *
    * const withBool = innerReducer.inject(booleanSlice);
    *
    * const selectBoolean = withBool.selector(
    *   (state) => state.boolean,
-   *   (rootState: RootState) => state.inner
+   *   (rootState: RootState) => rootState.inner,
    * );
    * //    now expects to be passed RootState instead of innerReducer state
-   *
    * ```
    *
-   * Value passed to selectorFn will be a Proxy - use selector.original(proxy) to get original state value (useful for debugging)
+   * Value passed to selectorFn will be a Proxy - use selector.original(proxy)
+   * to get original state value (useful for debugging)
    *
    * ```ts
    * const injectedReducer = rootReducer.inject(booleanSlice);
    * const selectBoolean = injectedReducer.selector((state) => {
-   *   console.log(injectedReducer.selector.original(state).boolean) // possibly undefined
-   *   return state.boolean
-   * })
+   *   console.log(injectedReducer.selector.original(state).boolean); // possibly undefined
+   *   return state.boolean;
+   * });
    * ```
    */
   selector: {
     /**
-     * Create a selector that guarantees that the slices injected will have a defined value when selector is run.
+     * Create a selector that guarantees that the slices injected will have a
+     * defined value when selector is run.
      *
      * ```ts
      * const selectBooleanWithoutInjection = (state: RootState) => state.boolean;
@@ -216,17 +238,18 @@ export interface CombinedSliceReducer<
      *   // however selector() uses a Proxy around the first parameter to ensure that it evaluates to the initial state instead, if undefined
      *   return state.boolean;
      *   //           ^? boolean
-     * })
+     * });
      * ```
      *
-     * Value passed to selectorFn will be a Proxy - use selector.original(proxy) to get original state value (useful for debugging)
+     * Value passed to selectorFn will be a Proxy - use selector.original(proxy)
+     * to get original state value (useful for debugging)
      *
      * ```ts
      * const injectedReducer = rootReducer.inject(booleanSlice);
      * const selectBoolean = injectedReducer.selector((state) => {
-     *   console.log(injectedReducer.selector.original(state).boolean) // undefined
-     *   return state.boolean
-     * })
+     *   console.log(injectedReducer.selector.original(state).boolean); // undefined
+     *   return state.boolean;
+     * });
      * ```
      */
     <Selector extends (state: DeclaredState, ...args: any[]) => unknown>(
@@ -240,7 +263,8 @@ export interface CombinedSliceReducer<
     ) => ReturnType<Selector>
 
     /**
-     * Create a selector that guarantees that the slices injected will have a defined value when selector is run.
+     * Create a selector that guarantees that the slices injected will have a
+     * defined value when selector is run.
      *
      * ```ts
      * const selectBooleanWithoutInjection = (state: RootState) => state.boolean;
@@ -251,16 +275,20 @@ export interface CombinedSliceReducer<
      *   // however selector() uses a Proxy around the first parameter to ensure that it evaluates to the initial state instead, if undefined
      *   return state.boolean;
      *   //           ^? boolean
-     * })
+     * });
      * ```
      *
-     * If the reducer is nested inside the root state, a selectState callback can be passed to retrieve the reducer's state.
+     * If the reducer is nested inside the root state, a selectState callback
+     * can be passed to retrieve the reducer's state.
      *
      * ```ts
+     * import type { WithSlice } from "@reduxjs/toolkit";
+     * import { combineSlices } from "@reduxjs/toolkit";
      *
-     * interface LazyLoadedSlices {};
+     * interface LazyLoadedSlices {}
      *
-     * const innerReducer = combineSlices(stringSlice).withLazyLoadedSlices<LazyLoadedSlices>();
+     * const innerReducer =
+     *   combineSlices(stringSlice).withLazyLoadedSlices<LazyLoadedSlices>();
      *
      * const rootReducer = combineSlices({ inner: innerReducer });
      *
@@ -269,27 +297,27 @@ export interface CombinedSliceReducer<
      * // elsewhere
      *
      * declare module "./reducer.ts" {
-     *  interface LazyLoadedSlices extends WithSlice<typeof booleanSlice> {}
+     *   interface LazyLoadedSlices extends WithSlice<typeof booleanSlice> {}
      * }
      *
      * const withBool = innerReducer.inject(booleanSlice);
      *
      * const selectBoolean = withBool.selector(
      *   (state) => state.boolean,
-     *   (rootState: RootState) => state.inner
+     *   (rootState: RootState) => rootState.inner,
      * );
      * //    now expects to be passed RootState instead of innerReducer state
-     *
      * ```
      *
-     * Value passed to selectorFn will be a Proxy - use selector.original(proxy) to get original state value (useful for debugging)
+     * Value passed to selectorFn will be a Proxy - use selector.original(proxy)
+     * to get original state value (useful for debugging)
      *
      * ```ts
      * const injectedReducer = rootReducer.inject(booleanSlice);
      * const selectBoolean = injectedReducer.selector((state) => {
-     *   console.log(injectedReducer.selector.original(state).boolean) // possibly undefined
-     *   return state.boolean
-     * })
+     *   console.log(injectedReducer.selector.original(state).boolean); // possibly undefined
+     *   return state.boolean;
+     * });
      * ```
      */
     <
@@ -310,9 +338,10 @@ export interface CombinedSliceReducer<
     ) => ReturnType<Selector>
     /**
      * Returns the unproxied state. Useful for debugging.
+     *
      * @param state state Proxy, that ensures injected reducers have value
      * @returns original, unproxied state
-     * @throws if value passed is not a state Proxy
+     * @throws An {@linkcode Error} if value passed is not a state Proxy
      */
     original: (state: DeclaredState) => InitialState & Partial<DeclaredState>
   }

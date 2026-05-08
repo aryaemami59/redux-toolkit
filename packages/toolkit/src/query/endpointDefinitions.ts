@@ -29,6 +29,7 @@ import type {
 } from './core/index'
 import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import type { NEVER } from './fakeBaseQuery'
+import type { FetchArgs, fetchBaseQuery } from './fetchBaseQuery'
 import type { NamedSchemaError } from './standardSchema'
 import type {
   CastAny,
@@ -69,14 +70,19 @@ export type EndpointDefinitionWithQuery<
   RawResultType extends BaseQueryResult<BaseQuery>,
 > = {
   /**
-   * `query` can be a function that returns either a `string` or an `object` which is passed to your `baseQuery`. If you are using [fetchBaseQuery](./fetchBaseQuery), this can return either a `string` or an `object` of properties in `FetchArgs`. If you use your own custom [`baseQuery`](../../rtk-query/usage/customizing-queries), you can customize this behavior to your liking.
+   * `query` can be a function that returns either a `string` or an `object`
+   * which is passed to your `baseQuery`. If you are using
+   * {@linkcode fetchBaseQuery}, this can return either a `string` or an `object`
+   * of properties in {@linkcode FetchArgs}. If you use your own custom
+   * {@link https://redux-toolkit.js.org/rtk-query/usage/customizing-queries | baseQuery},
+   * you can customize this behavior to your liking.
    *
-   * @example
+   * @example <caption>query example</caption>
    *
    * ```ts
    * // codeblock-meta title="query example"
    *
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
    *
    * interface Post {
    *   id: number;
@@ -86,23 +92,23 @@ export type EndpointDefinitionWithQuery<
    * type PostsResponse = Post[];
    *
    * const api = createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-   *   tagTypes: ['Post'],
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
+   *   tagTypes: ["Post"],
    *   endpoints: (build) => ({
    *     getPosts: build.query<PostsResponse, void>({
    *       // highlight-start
-   *       query: () => 'posts',
+   *       query: () => "posts",
    *       // highlight-end
    *     }),
    *     addPost: build.mutation<Post, Partial<Post>>({
    *       // highlight-start
    *       query: (body) => ({
    *         url: `posts`,
-   *         method: 'POST',
+   *         method: "POST",
    *         body,
    *       }),
    *       // highlight-end
-   *       invalidatesTags: [{ type: 'Post', id: 'LIST' }],
+   *       invalidatesTags: [{ type: "Post", id: "LIST" }],
    *     }),
    *   }),
    * });
@@ -130,17 +136,18 @@ export type EndpointDefinitionWithQuery<
   /**
    * A schema for the result *before* it's passed to `transformResponse`.
    *
-   * @example
+   * @example <caption>Validate the raw response before transforming it</caption>
+   *
    * ```ts
    * // codeblock-meta no-transpile
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-   * import * as v from 'valibot';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+   * import * as v from "valibot";
    *
    * const postSchema = v.object({ id: v.number(), name: v.string() });
    * type Post = v.InferOutput<typeof postSchema>;
    *
    * const api = createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   endpoints: (build) => ({
    *     getPostName: build.query<Post, { id: number }>({
    *       query: ({ id }) => `/post/${id}`,
@@ -154,13 +161,15 @@ export type EndpointDefinitionWithQuery<
   rawResponseSchema?: StandardSchemaV1<RawResultType>
 
   /**
-   * A schema for the error object returned by the `query` or `queryFn`, *before* it's passed to `transformErrorResponse`.
+   * A schema for the error object returned by the `query` or `queryFn`,
+   * *before* it's passed to `transformErrorResponse`.
    *
-   * @example
+   * @example <caption>Validate the raw error response</caption>
+   *
    * ```ts
    * // codeblock-meta no-transpile
-   * import { createApi } from '@reduxjs/toolkit/query/react';
-   * import { baseQueryErrorSchema, customBaseQuery } from './customBaseQuery';
+   * import { createApi } from "@reduxjs/toolkit/query/react";
+   * import { baseQueryErrorSchema, customBaseQuery } from "./customBaseQuery";
    *
    * interface Post {
    *   id: number;
@@ -188,13 +197,15 @@ export type EndpointDefinitionWithQueryFn<
   ResultType,
 > = {
   /**
-   * Can be used in place of `query` as an inline function that bypasses `baseQuery` completely for the endpoint.
+   * Can be used in place of `query` as an inline function that bypasses
+   * `baseQuery` completely for the endpoint.
    *
-   * @example
+   * @example <caption>Basic queryFn example</caption>
+   *
    * ```ts
    * // codeblock-meta title="Basic queryFn example"
    *
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
    *
    * interface Post {
    *   id: number;
@@ -204,26 +215,26 @@ export type EndpointDefinitionWithQueryFn<
    * type PostsResponse = Post[];
    *
    * const api = createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   endpoints: (build) => ({
    *     getPosts: build.query<PostsResponse, void>({
-   *       query: () => 'posts',
+   *       query: () => "posts",
    *     }),
-   *     flipCoin: build.query<'heads' | 'tails', void>({
+   *     flipCoin: build.query<"heads" | "tails", void>({
    *       // highlight-start
    *       queryFn(arg, queryApi, extraOptions, baseQuery) {
    *         const randomVal = Math.random();
    *         if (randomVal < 0.45) {
-   *           return { data: 'heads' };
+   *           return { data: "heads" };
    *         }
    *         if (randomVal < 0.9) {
-   *           return { data: 'tails' };
+   *           return { data: "tails" };
    *         }
    *         return {
    *           error: {
    *             status: 500,
-   *             statusText: 'Internal Server Error',
-   *             data: 'Coin landed on its edge!',
+   *             statusText: "Internal Server Error",
+   *             data: "Coin landed on its edge!",
    *           },
    *         };
    *       },
@@ -280,11 +291,12 @@ interface CommonEndpointDefinition<
   /**
    * A schema for the arguments to be passed to the `query` or `queryFn`.
    *
-   * @example
+   * @example <caption>Validate the query arguments</caption>
+   *
    * ```ts
    * // codeblock-meta no-transpile
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-   * import * as v from 'valibot';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+   * import * as v from "valibot";
    *
    * interface Post {
    *   id: number;
@@ -292,7 +304,7 @@ interface CommonEndpointDefinition<
    * }
    *
    * const api = createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   endpoints: (build) => ({
    *     getPost: build.query<Post, { id: number }>({
    *       query: ({ id }) => `/post/${id}`,
@@ -307,17 +319,18 @@ interface CommonEndpointDefinition<
   /**
    * A schema for the result (including `transformResponse` if provided).
    *
-   * @example
+   * @example <caption>Validate the transformed result</caption>
+   *
    * ```ts
    * // codeblock-meta no-transpile
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-   * import * as v from 'valibot';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+   * import * as v from "valibot";
    *
    * const postSchema = v.object({ id: v.number(), name: v.string() });
    * type Post = v.InferOutput<typeof postSchema>;
    *
    * const api = createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   endpoints: (build) => ({
    *     getPost: build.query<Post, { id: number }>({
    *       query: ({ id }) => `/post/${id}`,
@@ -330,13 +343,15 @@ interface CommonEndpointDefinition<
   responseSchema?: StandardSchemaV1<ResultType>
 
   /**
-   * A schema for the error object returned by the `query` or `queryFn` (including `transformErrorResponse` if provided).
+   * A schema for the error object returned by the `query` or `queryFn`
+   * (including `transformErrorResponse` if provided).
    *
-   * @example
+   * @example <caption>Validate the transformed error response</caption>
+   *
    * ```ts
    * // codeblock-meta no-transpile
-   * import { createApi } from '@reduxjs/toolkit/query/react';
-   * import { baseQueryErrorSchema, customBaseQuery } from './customBaseQuery';
+   * import { createApi } from "@reduxjs/toolkit/query/react";
+   * import { baseQueryErrorSchema, customBaseQuery } from "./customBaseQuery";
    *
    * interface Post {
    *   id: number;
@@ -359,11 +374,12 @@ interface CommonEndpointDefinition<
   /**
    * A schema for the `meta` property returned by the `query` or `queryFn`.
    *
-   * @example
+   * @example <caption>Validate the `meta` property</caption>
+   *
    * ```ts
    * // codeblock-meta no-transpile
-   * import { createApi } from '@reduxjs/toolkit/query/react';
-   * import { baseQueryMetaSchema, customBaseQuery } from './customBaseQuery';
+   * import { createApi } from "@reduxjs/toolkit/query/react";
+   * import { baseQueryMetaSchema, customBaseQuery } from "./customBaseQuery";
    *
    * interface Post {
    *   id: number;
@@ -384,33 +400,37 @@ interface CommonEndpointDefinition<
   metaSchema?: StandardSchemaV1<BaseQueryMeta<BaseQuery>>
 
   /**
-   * Most apps should leave this setting on. The only time it can be a performance issue
-   * is if an API returns extremely large amounts of data (e.g. 10,000 rows per request) and
-   * you're unable to paginate it.
+   * Most apps should leave this setting on. The only time it can be a
+   * performance issue is if an API returns extremely large amounts of data
+   * (e.g. 10,000 rows per request) and you're unable to paginate it.
    *
-   * For details of how this works, please see the below. When it is set to `false`,
-   * every request will cause subscribed components to rerender, even when the data has not changed.
+   * For details of how this works, please see the below. When it is set to
+   * `false`, every request will cause subscribed components to rerender, even
+   * when the data has not changed.
    *
    * @default true
    *
-   * @see https://redux-toolkit.js.org/api/other-exports#copywithstructuralsharing
+   * @see {@link https://redux-toolkit.js.org/api/other-exports#copywithstructuralsharing}
    */
   structuralSharing?: boolean
 
   /**
    * A function that is called when a schema validation fails.
    *
-   * Gets called with a `NamedSchemaError` and an object containing the endpoint name, the type of the endpoint, the argument passed to the endpoint, and the query cache key (if applicable).
+   * Gets called with a `NamedSchemaError` and an object containing the endpoint
+   * name, the type of the endpoint, the argument passed to the endpoint, and
+   * the query cache key (if applicable).
    *
    * `NamedSchemaError` has the following properties:
    * - `issues`: an array of issues that caused the validation to fail
    * - `value`: the value that was passed to the schema
    * - `schemaName`: the name of the schema that was used to validate the value (e.g. `argSchema`)
    *
-   * @example
+   * @example <caption>Log schema validation failures per endpoint</caption>
+   *
    * ```ts
    * // codeblock-meta no-transpile
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
    *
    * interface Post {
    *   id: number;
@@ -418,7 +438,7 @@ interface CommonEndpointDefinition<
    * }
    *
    * const api = createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   endpoints: (build) => ({
    *     getPost: build.query<Post, { id: number }>({
    *       query: ({ id }) => `/post/${id}`,
@@ -433,15 +453,18 @@ interface CommonEndpointDefinition<
   onSchemaFailure?: SchemaFailureHandler
 
   /**
-   * Convert a schema validation failure into an error shape matching base query errors.
+   * Convert a schema validation failure into an error shape matching base query
+   * errors.
    *
-   * When not provided, schema failures are treated as fatal, and normal error handling such as tag invalidation will not be executed.
+   * When not provided, schema failures are treated as fatal, and normal error
+   * handling such as tag invalidation will not be executed.
    *
-   * @example
+   * @example <caption>Convert a schema failure into a custom error</caption>
+   *
    * ```ts
    * // codeblock-meta no-transpile
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-   * import * as v from 'valibot';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+   * import * as v from "valibot";
    *
    * interface Post {
    *   id: number;
@@ -449,13 +472,13 @@ interface CommonEndpointDefinition<
    * }
    *
    * const api = createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   endpoints: (build) => ({
    *     getPost: build.query<Post, { id: number }>({
    *       query: ({ id }) => `/post/${id}`,
    *       responseSchema: v.object({ id: v.number(), name: v.string() }),
    *       catchSchemaFailure: (error, info) => ({
-   *         status: 'CUSTOM_ERROR',
+   *         status: "CUSTOM_ERROR",
    *         error: `${error.schemaName} failed validation`,
    *         data: error.issues,
    *       }),
@@ -475,8 +498,8 @@ interface CommonEndpointDefinition<
    * @example
    * ```ts
    * // codeblock-meta no-transpile
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-   * import * as v from 'valibot';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+   * import * as v from "valibot";
    *
    * interface Post {
    *   id: number;
@@ -484,7 +507,7 @@ interface CommonEndpointDefinition<
    * }
    *
    * const api = createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   endpoints: (build) => ({
    *     getPost: build.query<Post, { id: number }>({
    *       query: ({ id }) => `/post/${id}`,
@@ -614,7 +637,9 @@ export interface QueryExtraOptions<
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
   RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
-> extends CacheLifecycleQueryExtraOptions<
+>
+  extends
+    CacheLifecycleQueryExtraOptions<
       ResultType,
       QueryArg,
       BaseQuery,
@@ -644,7 +669,7 @@ export interface QueryExtraOptions<
    * ```ts
    * // codeblock-meta title="providesTags example"
    *
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
    *
    * interface Post {
    *   id: number;
@@ -654,7 +679,7 @@ export interface QueryExtraOptions<
    * type PostsResponse = Post[];
    *
    * const api = createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   tagTypes: ['Posts'],
    *   endpoints: (build) => ({
    *     getPosts: build.query<PostsResponse, void>({
@@ -698,7 +723,7 @@ export interface QueryExtraOptions<
    * ```ts
    * // codeblock-meta title="serializeQueryArgs : exclude value"
    *
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
    *
    * interface Post {
    *   id: number;
@@ -710,7 +735,7 @@ export interface QueryExtraOptions<
    * }
    *
    * createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   endpoints: (build) => ({
    *     // Example: an endpoint with an API client passed in as an argument,
    *     // but only the item ID should be used as the cache key
@@ -772,7 +797,7 @@ export interface QueryExtraOptions<
    * ```ts
    * // codeblock-meta title="merge: pagination"
    *
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
    *
    * interface Post {
    *   id: number;
@@ -780,7 +805,7 @@ export interface QueryExtraOptions<
    * }
    *
    * createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   endpoints: (build) => ({
    *     listItems: build.query<string[], number>({
    *       query: (pageNumber) => `/listItems?page=${pageNumber}`,
@@ -823,7 +848,7 @@ export interface QueryExtraOptions<
    *
    * ```ts
    * // codeblock-meta title="forceRefresh: pagination"
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
    *
    * interface Post {
    *   id: number;
@@ -831,7 +856,7 @@ export interface QueryExtraOptions<
    * }
    *
    * createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   endpoints: (build) => ({
    *     listItems: build.query<string[], number>({
    *       query: (pageNumber) => `/listItems?page=${pageNumber}`,
@@ -925,7 +950,9 @@ export interface InfiniteQueryExtraOptions<
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
   RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
-> extends CacheLifecycleInfiniteQueryExtraOptions<
+>
+  extends
+    CacheLifecycleInfiniteQueryExtraOptions<
       InfiniteData<ResultType, PageParam>,
       QueryArg,
       BaseQuery,
@@ -964,7 +991,7 @@ export interface InfiniteQueryExtraOptions<
    *
    * ```ts
    * // codeblock-meta title="infiniteQueryOptions example"
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
    *
    * type Pokemon = {
    *   id: string;
@@ -1015,7 +1042,7 @@ export interface InfiniteQueryExtraOptions<
    *
    * ```ts
    * // codeblock-meta title="serializeQueryArgs : exclude value"
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
    *
    * interface Post {
    *   id: number;
@@ -1027,7 +1054,7 @@ export interface InfiniteQueryExtraOptions<
    * }
    *
    * createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   endpoints: (build) => ({
    *     // Example: an endpoint with an API client passed in as an argument,
    *     // but only the item ID should be used as the cache key
@@ -1140,7 +1167,9 @@ export interface MutationExtraOptions<
   BaseQuery extends BaseQueryFn,
   ReducerPath extends string = string,
   RawResultType extends BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
-> extends CacheLifecycleMutationExtraOptions<
+>
+  extends
+    CacheLifecycleMutationExtraOptions<
       ResultType,
       QueryArg,
       BaseQuery,
@@ -1162,7 +1191,7 @@ export interface MutationExtraOptions<
    *
    * ```ts
    * // codeblock-meta title="invalidatesTags example"
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
    *
    * interface Post {
    *   id: number;
@@ -1172,7 +1201,7 @@ export interface MutationExtraOptions<
    * type PostsResponse = Post[];
    *
    * const api = createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   tagTypes: ['Posts'],
    *   endpoints: (build) => ({
    *     getPosts: build.query<PostsResponse, void>({
@@ -1320,7 +1349,7 @@ export type EndpointBuilder<
    * @example
    * ```ts
    * // codeblock-meta title="Example of all query endpoint options"
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
    *
    * interface Post {
    *   id: number;
@@ -1332,7 +1361,7 @@ export type EndpointBuilder<
    * }
    *
    * const api = createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   tagTypes: ['Post'],
    *   endpoints: (build) => ({
    *     getPost: build.query<Post[], number, PostsResponse>({
@@ -1378,8 +1407,8 @@ export type EndpointBuilder<
   query<
     ResultType,
     QueryArg,
-    RawResultType extends
-      BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+    RawResultType extends BaseQueryResult<BaseQuery> =
+      BaseQueryResult<BaseQuery>,
   >(
     definition: OmitFromUnion<
       QueryDefinition<
@@ -1407,7 +1436,7 @@ export type EndpointBuilder<
    * @example
    * ```ts
    * // codeblock-meta title="Example of all mutation endpoint options"
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+   * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
    *
    * interface Post {
    *   id: number;
@@ -1419,7 +1448,7 @@ export type EndpointBuilder<
    * }
    *
    * const api = createApi({
-   *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+   *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
    *   tagTypes: ['Post'],
    *   endpoints: (build) => ({
    *     updatePost: build.mutation<Post[], Partial<Post>, PostsResponse>({
@@ -1460,8 +1489,8 @@ export type EndpointBuilder<
   mutation<
     ResultType,
     QueryArg,
-    RawResultType extends
-      BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+    RawResultType extends BaseQueryResult<BaseQuery> =
+      BaseQueryResult<BaseQuery>,
   >(
     definition: OmitFromUnion<
       MutationDefinition<
@@ -1487,8 +1516,8 @@ export type EndpointBuilder<
     ResultType,
     QueryArg,
     PageParam,
-    RawResultType extends
-      BaseQueryResult<BaseQuery> = BaseQueryResult<BaseQuery>,
+    RawResultType extends BaseQueryResult<BaseQuery> =
+      BaseQueryResult<BaseQuery>,
   >(
     definition: OmitFromUnion<
       InfiniteQueryDefinition<

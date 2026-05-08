@@ -19,7 +19,8 @@ export interface BaseQueryApi {
    */
   forced?: boolean
   /**
-   * Only available for queries: the cache key that was used to store the query result
+   * Only available for queries: the cache key that was used to store the query
+   * result
    */
   queryCacheKey?: string
 }
@@ -64,6 +65,8 @@ export type BaseQueryEnhancer<
 >
 
 /**
+ * Extracts the `data` result type returned by a given {@linkcode BaseQueryFn}.
+ *
  * @public
  */
 export type BaseQueryResult<BaseQuery extends BaseQueryFn> =
@@ -74,6 +77,8 @@ export type BaseQueryResult<BaseQuery extends BaseQueryFn> =
     : never
 
 /**
+ * Extracts the `meta` type returned by a given {@linkcode BaseQueryFn}.
+ *
  * @public
  */
 export type BaseQueryMeta<BaseQuery extends BaseQueryFn> = UnwrapPromise<
@@ -81,6 +86,8 @@ export type BaseQueryMeta<BaseQuery extends BaseQueryFn> = UnwrapPromise<
 >['meta']
 
 /**
+ * Extracts the `error` type returned by a given {@linkcode BaseQueryFn}.
+ *
  * @public
  */
 export type BaseQueryError<BaseQuery extends BaseQueryFn> = Exclude<
@@ -89,12 +96,16 @@ export type BaseQueryError<BaseQuery extends BaseQueryFn> = Exclude<
 >['error']
 
 /**
+ * Extracts the argument type accepted by a given base query function.
+ *
  * @public
  */
 export type BaseQueryArg<T extends (arg: any, ...args: any[]) => any> =
   T extends (arg: infer A, ...args: any[]) => any ? A : any
 
 /**
+ * Extracts the `extraOptions` type accepted by a given {@linkcode BaseQueryFn}.
+ *
  * @public
  */
 export type BaseQueryExtraOptions<BaseQuery extends BaseQueryFn> =

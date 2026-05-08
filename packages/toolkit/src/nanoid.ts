@@ -5,6 +5,20 @@ let urlAlphabet =
   'ModuleSymbhasOwnPr-0123456789ABCDEFGHNRVfgctiUvz_KqYTJkLxpZXIjQW'
 
 /**
+ * Generates a URL-friendly, pseudorandom unique ID string using the
+ * `A-Za-z0-9_-` alphabet. Borrowed from
+ * {@link https://github.com/ai/nanoid | nanoid}.
+ *
+ * @param size - The desired length of the generated ID. Defaults to `21`.
+ * @returns A pseudorandom unique ID string of the requested length.
+ *
+ * @example <caption>Generate a unique ID</caption>
+ *
+ * ```ts
+ * import { nanoid } from "@reduxjs/toolkit"
+ *
+ * const id = nanoid()
+ * ```
  *
  * @public
  */

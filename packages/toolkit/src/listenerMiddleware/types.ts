@@ -14,117 +14,152 @@ import type { TaskAbortError } from './exceptions'
  * Types copied from RTK
  */
 
-/** @internal */
+/**
+ * @internal
+ */
 type TypedActionCreatorWithMatchFunction<Type extends string> =
   TypedActionCreator<Type> & {
     match: MatchFunction<any>
   }
 
-/** @internal */
+/**
+ * @internal
+ */
 export type AnyListenerPredicate<State> = (
   action: UnknownAction,
   currentState: State,
   originalState: State,
 ) => boolean
 
-/** @public */
+/**
+ * @public
+ */
 export type ListenerPredicate<ActionType extends Action, State> = (
   action: UnknownAction,
   currentState: State,
   originalState: State,
 ) => action is ActionType
 
-/** @public */
+/**
+ * @public
+ */
 export interface ConditionFunction<State> {
   (predicate: AnyListenerPredicate<State>, timeout?: number): Promise<boolean>
   (predicate: () => boolean, timeout?: number): Promise<boolean>
 }
 
-/** @internal */
+/**
+ * @internal
+ */
 export type MatchFunction<T> = (v: any) => v is T
 
-/** @public */
+/**
+ * @public
+ */
 export interface ForkedTaskAPI {
   /**
-   * Returns a promise that resolves when `waitFor` resolves or
-   * rejects if the task or the parent listener has been cancelled or is completed.
+   * Returns a promise that resolves when `waitFor` resolves or rejects if the
+   * task or the parent listener has been cancelled or is completed.
    */
   pause<W>(waitFor: Promise<W>): Promise<W>
+
   /**
-   * Returns a promise that resolves after `timeoutMs` or
-   * rejects if the task or the parent listener has been cancelled or is completed.
-   * @param timeoutMs
+   * Returns a promise that resolves after `timeoutMs` or rejects if the task or
+   * the parent listener has been cancelled or is completed.
+   *
+   * @param timeoutMs - The number of milliseconds to wait before resolving.
    */
   delay(timeoutMs: number): Promise<void>
+
   /**
-   * An abort signal whose `aborted` property is set to `true`
-   * if the task execution is either aborted or completed.
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
+   * An abort signal whose `aborted` property is set to `true` if the task
+   * execution is either aborted or completed.
+   *
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal | AbortSignal}
    */
   signal: AbortSignal
 }
 
-/** @public */
+/**
+ * @public
+ */
 export interface AsyncTaskExecutor<T> {
   (forkApi: ForkedTaskAPI): Promise<T>
 }
 
-/** @public */
+/**
+ * @public
+ */
 export interface SyncTaskExecutor<T> {
   (forkApi: ForkedTaskAPI): T
 }
 
-/** @public */
+/**
+ * @public
+ */
 export type ForkedTaskExecutor<T> = AsyncTaskExecutor<T> | SyncTaskExecutor<T>
 
-/** @public */
+/**
+ * @public
+ */
 export type TaskResolved<T> = {
   readonly status: 'ok'
   readonly value: T
 }
 
-/** @public */
+/**
+ * @public
+ */
 export type TaskRejected = {
   readonly status: 'rejected'
   readonly error: unknown
 }
 
-/** @public */
+/**
+ * @public
+ */
 export type TaskCancelled = {
   readonly status: 'cancelled'
   readonly error: TaskAbortError
 }
 
-/** @public */
+/**
+ * @public
+ */
 export type TaskResult<Value> =
   | TaskResolved<Value>
   | TaskRejected
   | TaskCancelled
 
-/** @public */
+/**
+ * @public
+ */
 export interface ForkedTask<T> {
   /**
-   * A promise that resolves when the task is either completed or cancelled or rejects
-   * if parent listener execution is cancelled or completed.
+   * A promise that resolves when the task is either completed or cancelled or
+   * rejects if parent listener execution is cancelled or completed.
    *
-   * ### Example
+   * @example <caption>Read a forked task's result</caption>
+   *
    * ```ts
    * const result = await fork(async (forkApi) => Promise.resolve(4)).result;
    *
-   * if (result.status === 'ok') {
+   * if (result.status === "ok") {
    *   console.log(result.value); // logs 4
    * }
    * ```
    */
   result: Promise<TaskResult<T>>
+
   /**
-   * Cancel task if it is in progress or not yet started,
-   * it is noop otherwise.
+   * Cancel task if it is in progress or not yet started, it is noop otherwise.
    */
   cancel(): void
 }
 
-/** @public */
+/**
+ * @public
+ */
 export interface ForkOptions {
   /**
    * If true, causes the parent task to not be marked as complete until
@@ -133,20 +168,24 @@ export interface ForkOptions {
   autoJoin: boolean
 }
 
-/** @public */
+/**
+ * @public
+ */
 export interface ListenerEffectAPI<
   State,
   DispatchType extends Dispatch,
   ExtraArgument = unknown,
 > extends MiddlewareAPI<DispatchType, State> {
   /**
-   * Returns the store state as it existed when the action was originally dispatched, _before_ the reducers ran.
+   * Returns the store state as it existed when the action was originally
+   * dispatched, _before_ the reducers ran.
    *
    * ### Synchronous invocation
    *
-   * This function can **only** be invoked **synchronously**, it throws error otherwise.
+   * This function can **only** be invoked **synchronously**, it throws error
+   * otherwise.
    *
-   * @example
+   * @example <caption>getOriginalState must be called synchronously</caption>
    *
    * ```ts
    * middleware.startListening({
@@ -164,12 +203,15 @@ export interface ListenerEffectAPI<
    * ```
    */
   getOriginalState: () => State
+
   /**
-   * Removes the listener entry from the middleware and prevent future instances of the listener from running.
+   * Removes the listener entry from the middleware and prevent future instances
+   * of the listener from running.
    *
    * It does **not** cancel any active instances.
    */
   unsubscribe(): void
+
   /**
    * It will subscribe a listener if it was previously removed, noop otherwise.
    */
@@ -178,14 +220,15 @@ export interface ListenerEffectAPI<
    * Returns a promise that resolves when the input predicate returns `true` or
    * rejects if the listener has been cancelled or is completed.
    *
-   * The return value is `true` if the predicate succeeds or `false` if a timeout is provided and expires first.
+   * The return value is `true` if the predicate succeeds or `false` if a
+   * timeout is provided and expires first.
    *
-   * ### Example
+   * @example <caption>Wait for a matching action with a timeout</caption>
    *
    * ```ts
-   * import { createAction } from '@reduxjs/toolkit';
+   * import { createAction } from "@reduxjs/toolkit";
    *
-   * const updateBy = createAction<number>('counter/updateBy');
+   * const updateBy = createAction<number>("counter/updateBy");
    *
    * middleware.startListening({
    *   actionCreator: updateBy,
@@ -203,66 +246,81 @@ export interface ListenerEffectAPI<
    * Returns a promise that resolves when the input predicate returns `true` or
    * rejects if the listener has been cancelled or is completed.
    *
-   * The return value is the `[action, currentState, previousState]` combination that the predicate saw as arguments.
+   * The return value is the `[action, currentState, previousState]` combination
+   * that the predicate saw as arguments.
    *
    * The promise resolves to null if a timeout is provided and expires first,
    *
-   * ### Example
+   * @example <caption>Take the next matching action</caption>
    *
    * ```ts
-   * const updateBy = createAction<number>('counter/updateBy');
+   * const updateBy = createAction<number>("counter/updateBy");
    *
    * middleware.startListening({
-   *  actionCreator: updateBy,
-   *  async effect(_, { take }) {
-   *    const [{ payload }] =  await take(updateBy.match);
-   *    console.log(payload); // logs 5;
-   *  }
-   * })
+   *   actionCreator: updateBy,
+   *   async effect(_, { take }) {
+   *     const [{ payload }] = await take(updateBy.match);
+   *     console.log(payload); // logs 5;
+   *   },
+   * });
    *
    * store.dispatch(updateBy(5));
    * ```
    */
   take: TakePattern<State>
+
   /**
-   * Cancels all other running instances of this same listener except for the one that made this call.
+   * Cancels all other running instances of this same listener except for the
+   * one that made this call.
    */
   cancelActiveListeners: () => void
+
   /**
    * Cancels the instance of this listener that made this call.
    */
   cancel: () => void
+
   /**
-   * Throws a `TaskAbortError` if this listener has been cancelled
+   * Throws a {@linkcode TaskAbortError} if this listener has been cancelled.
    */
   throwIfCancelled: () => void
+
   /**
-   * An abort signal whose `aborted` property is set to `true`
-   * if the listener execution is either aborted or completed.
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
+   * An abort signal whose `aborted` property is set to `true` if the listener
+   * execution is either aborted or completed.
+   *
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal | AbortSignal}
    */
   signal: AbortSignal
+
   /**
-   * Returns a promise that resolves after `timeoutMs` or
-   * rejects if the listener has been cancelled or is completed.
+   * Returns a promise that resolves after `timeoutMs` or rejects if the
+   * listener has been cancelled or is completed.
    */
   delay(timeoutMs: number): Promise<void>
+
   /**
    * Queues in the next microtask the execution of a task.
-   * @param executor
-   * @param options
+   *
+   * @param executor - The task to run inside the fork.
+   * @param options - Options controlling fork behavior such as `autoJoin`.
    */
   fork<T>(executor: ForkedTaskExecutor<T>, options?: ForkOptions): ForkedTask<T>
+
   /**
-   * Returns a promise that resolves when `waitFor` resolves or
-   * rejects if the listener has been cancelled or is completed.
-   * @param promise
+   * Returns a promise that resolves when `promise` resolves or rejects if the
+   * listener has been cancelled or is completed.
+   *
+   * @param promise - The promise to await.
    */
   pause<M>(promise: Promise<M>): Promise<M>
+
   extra: ExtraArgument
 }
 
-/** @public */
+/**
+ * @public
+ */
 export type ListenerEffect<
   ActionType extends Action,
   State,
@@ -274,7 +332,8 @@ export type ListenerEffect<
 ) => void | Promise<void>
 
 /**
- * Additional infos regarding the error raised.
+ * Additional info regarding the error raised.
+ *
  * @public
  */
 export interface ListenerErrorInfo {
@@ -285,25 +344,34 @@ export interface ListenerErrorInfo {
 }
 
 /**
- * Gets notified with synchronous and asynchronous errors raised by `listeners` or `predicates`.
+ * Gets notified with synchronous and asynchronous errors raised by `listeners`
+ * or `predicates`.
+ *
  * @param error The thrown error.
  * @param errorInfo Additional information regarding the thrown error.
+ *
  * @public
  */
 export interface ListenerErrorHandler {
   (error: unknown, errorInfo: ListenerErrorInfo): void
 }
 
-/** @public */
+/**
+ * @public
+ */
 export interface CreateListenerMiddlewareOptions<ExtraArgument = unknown> {
   extra?: ExtraArgument
+
   /**
-   * Receives synchronous errors that are raised by `listener` and `listenerOption.predicate`.
+   * Receives synchronous errors that are raised by `listener` and
+   * `listenerOption.predicate`.
    */
   onError?: ListenerErrorHandler
 }
 
-/** @public */
+/**
+ * @public
+ */
 export type ListenerMiddleware<
   State = unknown,
   DispatchType extends ThunkDispatch<State, unknown, Action> = ThunkDispatch<
@@ -320,14 +388,13 @@ export type ListenerMiddleware<
   DispatchType
 >
 
-/** @public */
+/**
+ * @public
+ */
 export interface ListenerMiddlewareInstance<
   StateType = unknown,
-  DispatchType extends ThunkDispatch<
-    StateType,
-    unknown,
-    Action
-  > = ThunkDispatch<StateType, unknown, UnknownAction>,
+  DispatchType extends ThunkDispatch<StateType, unknown, Action> =
+    ThunkDispatch<StateType, unknown, UnknownAction>,
   ExtraArgument = unknown,
 > {
   middleware: ListenerMiddleware<StateType, DispatchType, ExtraArgument>
@@ -353,7 +420,9 @@ export interface ListenerMiddlewareInstance<
  * API Function Overloads
  */
 
-/** @public */
+/**
+ * @public
+ */
 export type TakePatternOutputWithoutTimeout<
   State,
   Predicate extends AnyListenerPredicate<State>,
@@ -362,7 +431,9 @@ export type TakePatternOutputWithoutTimeout<
     ? Promise<[ActionType, State, State]>
     : Promise<[UnknownAction, State, State]>
 
-/** @public */
+/**
+ * @public
+ */
 export type TakePatternOutputWithTimeout<
   State,
   Predicate extends AnyListenerPredicate<State>,
@@ -371,7 +442,9 @@ export type TakePatternOutputWithTimeout<
     ? Promise<[ActionType, State, State] | null>
     : Promise<[UnknownAction, State, State] | null>
 
-/** @public */
+/**
+ * @public
+ */
 export interface TakePattern<State> {
   <Predicate extends AnyListenerPredicate<State>>(
     predicate: Predicate,
@@ -386,12 +459,16 @@ export interface TakePattern<State> {
   ): TakePatternOutputWithTimeout<State, Predicate>
 }
 
-/** @public */
+/**
+ * @public
+ */
 export interface UnsubscribeListenerOptions {
   cancelActive?: true
 }
 
-/** @public */
+/**
+ * @public
+ */
 export type UnsubscribeListener = (
   unsubscribeOptions?: UnsubscribeListenerOptions,
 ) => void
@@ -414,7 +491,9 @@ export type AddListenerOverloads<
   ExtraArgument = unknown,
   AdditionalOptions = unknown,
 > = {
-  /** Accepts a "listener predicate" that is also a TS type predicate for the action*/
+  /**
+   * Accepts a "listener predicate" that is also a TS type predicate for the action.
+   */
   <
     MiddlewareActionType extends UnknownAction,
     ListenerPredicateType extends ListenerPredicate<
@@ -436,7 +515,9 @@ export type AddListenerOverloads<
     } & AdditionalOptions,
   ): Return
 
-  /** Accepts an RTK action creator, like `incrementByAmount` */
+  /**
+   * Accepts an RTK action creator, like `incrementByAmount`.
+   */
   <ActionCreatorType extends TypedActionCreatorWithMatchFunction<any>>(
     options: {
       actionCreator: ActionCreatorType
@@ -452,7 +533,9 @@ export type AddListenerOverloads<
     } & AdditionalOptions,
   ): Return
 
-  /** Accepts a specific action type string */
+  /**
+   * Accepts a specific action type string.
+   */
   <T extends string>(
     options: {
       actionCreator?: never
@@ -463,7 +546,9 @@ export type AddListenerOverloads<
     } & AdditionalOptions,
   ): Return
 
-  /** Accepts an RTK matcher function, such as `incrementByAmount.match` */
+  /**
+   * Accepts an RTK matcher function, such as `incrementByAmount.match`.
+   */
   <MatchFunctionType extends MatchFunction<Action>>(
     options: {
       actionCreator?: never
@@ -479,7 +564,9 @@ export type AddListenerOverloads<
     } & AdditionalOptions,
   ): Return
 
-  /** Accepts a "listener predicate" that just returns a boolean, no type assertion */
+  /**
+   * Accepts a "listener predicate" that just returns a boolean, no type assertion.
+   */
   <ListenerPredicateType extends AnyListenerPredicate<StateType>>(
     options: {
       actionCreator?: never
@@ -496,7 +583,9 @@ export type AddListenerOverloads<
   ): Return
 }
 
-/** @public */
+/**
+ * @public
+ */
 export type RemoveListenerOverloads<
   StateType = unknown,
   DispatchType extends Dispatch = ThunkDispatch<
@@ -513,7 +602,9 @@ export type RemoveListenerOverloads<
   UnsubscribeListenerOptions
 >
 
-/** @public */
+/**
+ * @public
+ */
 export interface RemoveListenerAction<
   ActionType extends UnknownAction,
   State,
@@ -557,9 +648,10 @@ export type TypedAddListener<
      *
      * @returns A pre-typed `addListener` with the state, dispatch and extra types already defined.
      *
-     * @example
+     * @example <caption>Create a pre-typed `addListener`</caption>
+     *
      * ```ts
-     * import { addListener } from '@reduxjs/toolkit';
+     * import { addListener } from "@reduxjs/toolkit";
      *
      * export const addAppListener = addListener.withTypes<
      *   RootState,
@@ -619,18 +711,18 @@ export type TypedRemoveListener<
      * This allows you to set the `state`, `dispatch` and `extra` types once,
      * eliminating the need to specify them with every `removeListener` call.
      *
-     * @returns A pre-typed `removeListener` with the state, dispatch and extra
-     * types already defined.
+     * @returns A pre-typed `removeListener` with the state, dispatch and extra types already defined.
      *
-     * @example
+     * @example <caption>Create a pre-typed `removeListener`</caption>
+     *
      * ```ts
-     * import { removeListener } from '@reduxjs/toolkit'
+     * import { removeListener } from "@reduxjs/toolkit";
      *
      * export const removeAppListener = removeListener.withTypes<
      *   RootState,
      *   AppDispatch,
      *   ExtraArguments
-     * >()
+     * >();
      * ```
      *
      * @template OverrideStateType - The specific type of state the middleware listener operates on.
@@ -685,17 +777,18 @@ export type TypedStartListening<
    *
    * @returns A pre-typed `startListening` with the state, dispatch and extra types already defined.
    *
-   * @example
-   * ```ts
-   * import { createListenerMiddleware } from '@reduxjs/toolkit'
+   * @example <caption>Create a pre-typed `startListening`</caption>
    *
-   * const listenerMiddleware = createListenerMiddleware()
+   * ```ts
+   * import { createListenerMiddleware } from "@reduxjs/toolkit";
+   *
+   * const listenerMiddleware = createListenerMiddleware();
    *
    * export const startAppListening = listenerMiddleware.startListening.withTypes<
    *   RootState,
    *   AppDispatch,
    *   ExtraArguments
-   * >()
+   * >();
    * ```
    *
    * @template OverrideStateType - The specific type of state the middleware listener operates on.
@@ -744,17 +837,18 @@ export type TypedStopListening<
    *
    * @returns A pre-typed `stopListening` with the state, dispatch and extra types already defined.
    *
-   * @example
-   * ```ts
-   * import { createListenerMiddleware } from '@reduxjs/toolkit'
+   * @example <caption>Create a pre-typed `stopListening`</caption>
    *
-   * const listenerMiddleware = createListenerMiddleware()
+   * ```ts
+   * import { createListenerMiddleware } from "@reduxjs/toolkit";
+   *
+   * const listenerMiddleware = createListenerMiddleware();
    *
    * export const stopAppListening = listenerMiddleware.stopListening.withTypes<
    *   RootState,
    *   AppDispatch,
    *   ExtraArguments
-   * >()
+   * >();
    * ```
    *
    * @template OverrideStateType - The specific type of state the middleware listener operates on.
@@ -804,18 +898,18 @@ export type TypedCreateListenerEntry<
    * This allows you to set the `state`, `dispatch` and `extra` types once, eliminating
    * the need to specify them with every `createListenerEntry` call.
    *
-   * @returns A pre-typed `createListenerEntry` with the state, dispatch and extra
-   * types already defined.
+   * @returns A pre-typed `createListenerEntry` with the state, dispatch and extra types already defined.
    *
-   * @example
+   * @example <caption>Create a pre-typed `createListenerEntry`</caption>
+   *
    * ```ts
-   * import { createListenerEntry } from '@reduxjs/toolkit'
+   * import { createListenerEntry } from "@reduxjs/toolkit";
    *
    * export const createAppListenerEntry = createListenerEntry.withTypes<
    *   RootState,
    *   AppDispatch,
    *   ExtraArguments
-   * >()
+   * >();
    * ```
    *
    * @template OverrideStateType - The specific type of state the middleware listener operates on.
@@ -844,7 +938,7 @@ export type TypedCreateListenerEntry<
  */
 
 /**
- * An single listener entry
+ * A single listener entry.
  *
  * @internal
  */
@@ -861,7 +955,9 @@ export type ListenerEntry<
 }
 
 /**
- * A shorthand form of the accepted args, solely so that `createListenerEntry` has validly-typed conditional logic when checking the options contents
+ * A shorthand form of the accepted args, solely so that `createListenerEntry`
+ * has validly-typed conditional logic when checking the options contents.
+ *
  * @internal
  */
 export type FallbackAddListenerOptions = {
@@ -876,11 +972,15 @@ export type FallbackAddListenerOptions = {
  * Utility Types
  */
 
-/** @public */
+/**
+ * @public
+ */
 export type GuardedType<T> = T extends (x: any, ...args: any[]) => x is infer T
   ? T
   : never
 
-/** @public */
+/**
+ * @public
+ */
 export type ListenerPredicateGuardedActionType<T> =
   T extends ListenerPredicate<infer ActionType, any> ? ActionType : never

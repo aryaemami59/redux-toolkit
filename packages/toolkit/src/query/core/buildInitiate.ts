@@ -7,21 +7,21 @@ import type {
 } from '@reduxjs/toolkit'
 import type { Dispatch } from 'redux'
 import { asSafePromise } from '../../tsHelpers'
-import { getEndpointDefinition, type Api, type ApiContext } from '../apiTypes'
+import type { Api, ApiContext } from '../apiTypes'
+import { getEndpointDefinition } from '../apiTypes'
 import type { BaseQueryError, QueryReturnValue } from '../baseQueryTypes'
 import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
-import {
-  ENDPOINT_QUERY,
-  isQueryDefinition,
-  type EndpointDefinitions,
-  type InfiniteQueryArgFrom,
-  type InfiniteQueryDefinition,
-  type MutationDefinition,
-  type PageParamFrom,
-  type QueryArgFrom,
-  type QueryDefinition,
-  type ResultTypeFrom,
+import type {
+  EndpointDefinitions,
+  InfiniteQueryArgFrom,
+  InfiniteQueryDefinition,
+  MutationDefinition,
+  PageParamFrom,
+  QueryArgFrom,
+  QueryDefinition,
+  ResultTypeFrom,
 } from '../endpointDefinitions'
+import { ENDPOINT_QUERY, isQueryDefinition } from '../endpointDefinitions'
 import { filterNullishValues } from '../utils'
 import type {
   InfiniteData,
@@ -29,6 +29,7 @@ import type {
   InfiniteQueryDirection,
   SubscriptionOptions,
 } from './apiState'
+import type { InternalMiddlewareState } from './buildMiddleware/types'
 import type {
   InfiniteQueryResultSelectorResult,
   QueryResultSelectorResult,
@@ -42,7 +43,6 @@ import type {
   ThunkApiMetaConfig,
 } from './buildThunks'
 import type { ApiEndpointQuery } from './module'
-import type { InternalMiddlewareState } from './buildMiddleware/types'
 
 export type BuildInitiateApiEndpointQuery<
   Definition extends QueryDefinition<any, any, any, any, any>,
@@ -159,10 +159,12 @@ type StartMutationActionCreator<
   arg: QueryArgFrom<D>,
   options?: {
     /**
-     * If this mutation should be tracked in the store.
-     * If you just want to manually trigger this mutation using `dispatch` and don't care about the
-     * result, state & potential errors being held in store, you can set this to false.
-     * (defaults to `true`)
+     * If this mutation should be tracked in the store. If you just want to
+     * manually trigger this mutation using `dispatch` and don't care about the
+     * result, state & potential errors being held in store, you can set this
+     * to `false`.
+     *
+     * @default true
      */
     track?: boolean
     fixedCacheKey?: string
@@ -190,7 +192,9 @@ export type MutationActionCreatorResult<
         | SerializedError
     }
 > & {
-  /** @internal */
+  /**
+   * @internal
+   */
   arg: {
     /**
      * The name of the given endpoint for the mutation
@@ -212,30 +216,32 @@ export type MutationActionCreatorResult<
   requestId: string
 
   /**
-   * A method to cancel the mutation promise. Note that this is not intended to prevent the mutation
-   * that was fired off from reaching the server, but only to assist in handling the response.
+   * A method to cancel the mutation promise. Note that this is not intended to
+   * prevent the mutation that was fired off from reaching the server, but only
+   * to assist in handling the response.
    *
-   * Calling `abort()` prior to the promise resolving will force it to reach the error state with
-   * the serialized error:
+   * Calling `abort()` prior to the promise resolving will force it to reach the
+   * error state with the serialized error:
    * `{ name: 'AbortError', message: 'Aborted' }`
    *
-   * @example
+   * @example <caption>Abort a mutation on unmount</caption>
+   *
    * ```ts
    * const [updateUser] = useUpdateUserMutation();
    *
    * useEffect(() => {
    *   const promise = updateUser(id);
-   *   promise
-   *     .unwrap()
-   *     .catch((err) => {
-   *       if (err.name === 'AbortError') return;
-   *       // else handle the unexpected error
-   *     })
+   *   promise.unwrap().catch((err) => {
+   *     if (err.name === "AbortError") {
+   *       return;
+   *     }
+   *     // else handle the unexpected error
+   *   });
    *
    *   return () => {
    *     promise.abort();
-   *   }
-   * }, [id, updateUser])
+   *   };
+   * }, [id, updateUser]);
    * ```
    */
   abort(): void
@@ -243,32 +249,37 @@ export type MutationActionCreatorResult<
    * Unwraps a mutation call to provide the raw response/error.
    *
    * @remarks
-   * If you need to access the error or success payload immediately after a mutation, you can chain .unwrap().
+   * If you need to access the error or success payload immediately after a
+   * mutation, you can chain `.unwrap()`.
    *
-   * @example
+   * @example <caption>Using `.unwrap`</caption>
+   *
    * ```ts
    * // codeblock-meta title="Using .unwrap"
-   * addPost({ id: 1, name: 'Example' })
+   * addPost({ id: 1, name: "Example" })
    *   .unwrap()
-   *   .then((payload) => console.log('fulfilled', payload))
-   *   .catch((error) => console.error('rejected', error));
+   *   .then((payload) => console.log("fulfilled", payload))
+   *   .catch((error) => console.error("rejected", error));
    * ```
    *
-   * @example
+   * @example <caption>Using `.unwrap` with async await</caption>
+   *
    * ```ts
    * // codeblock-meta title="Using .unwrap with async await"
    * try {
-   *   const payload = await addPost({ id: 1, name: 'Example' }).unwrap();
-   *   console.log('fulfilled', payload)
+   *   const payload = await addPost({ id: 1, name: "Example" }).unwrap();
+   *   console.log("fulfilled", payload);
    * } catch (error) {
-   *   console.error('rejected', error);
+   *   console.error("rejected", error);
    * }
    * ```
    */
   unwrap(): Promise<ResultTypeFrom<D>>
+
   /**
-   * A method to manually unsubscribe from the mutation call, meaning it will be removed from cache after the usual caching grace period.
-   The value returned by the hook will reset to `isUninitialized` afterwards.
+   * A method to manually unsubscribe from the mutation call, meaning it will be
+   * removed from cache after the usual caching grace period. The value returned
+   * by the hook will reset to `isUninitialized` afterwards.
    */
   reset(): void
 }

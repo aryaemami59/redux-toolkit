@@ -30,9 +30,11 @@ export type InfiniteQueryConfigOptions<DataType, PageParam, QueryArg> = {
    * The initial page parameter to use for the first page fetch.
    */
   initialPageParam: PageParam
+
   /**
-   * This function is required to automatically get the next cursor for infinite queries.
-   * The result will also be used to determine the value of `hasNextPage`.
+   * This function is required to automatically get the next cursor for infinite
+   * queries. The result will also be used to determine the value of
+   * `hasNextPage`.
    */
   getNextPageParam: (
     lastPage: DataType,
@@ -41,9 +43,11 @@ export type InfiniteQueryConfigOptions<DataType, PageParam, QueryArg> = {
     allPageParams: Array<PageParam>,
     queryArg: QueryArg,
   ) => PageParam | undefined | null
+
   /**
-   * This function can be set to automatically get the previous cursor for infinite queries.
-   * The result will also be used to determine the value of `hasPreviousPage`.
+   * This function can be set to automatically get the previous cursor for
+   * infinite queries. The result will also be used to determine the value of
+   * `hasPreviousPage`.
    */
   getPreviousPageParam?: (
     firstPage: DataType,
@@ -52,17 +56,20 @@ export type InfiniteQueryConfigOptions<DataType, PageParam, QueryArg> = {
     allPageParams: Array<PageParam>,
     queryArg: QueryArg,
   ) => PageParam | undefined | null
+
   /**
-   * If specified, only keep this many pages in cache at once.
-   * If additional pages are fetched, older pages in the other
-   * direction will be dropped from the cache.
+   * If specified, only keep this many pages in cache at once. If additional
+   * pages are fetched, older pages in the other direction will be dropped from
+   * the cache.
    */
   maxPages?: number
   /**
-   * Defaults to `true`. When this is `true` and an infinite query endpoint is refetched
-   * (due to tag invalidation, polling, arg change configuration, or manual refetching),
-   * RTK Query will try to sequentially refetch all pages currently in the cache.
-   * When `false` only the first page will be refetched.
+   * When this is `true` and an infinite query endpoint is refetched
+   * (due to tag invalidation, polling, arg change configuration, or manual
+   * refetching), RTK Query will try to sequentially refetch all pages
+   * currently in the cache. When `false` only the first page will be refetched.
+   *
+   * @default true
    */
   refetchCachedPages?: boolean
 }
@@ -140,31 +147,48 @@ export function getRequestStatusFlags(status: QueryStatus): RequestStatusFlags {
  */
 export type SubscriptionOptions = {
   /**
-   * How frequently to automatically re-fetch data (in milliseconds). Defaults to `0` (off).
+   * How frequently to automatically re-fetch data (in milliseconds).
+   * Defaults to `0` (off).
+   *
+   * @default 0
    */
   pollingInterval?: number
+
   /**
-   *  Defaults to 'false'. This setting allows you to control whether RTK Query will continue polling if the window is not focused.
+   * This setting allows you to control whether RTK Query will continue polling
+   * if the window is not focused. If
+   * {@linkcode SubscriptionOptions.pollingInterval | pollingInterval} is not
+   * set or set to `0`, this **will not be evaluated** until
+   * {@linkcode SubscriptionOptions.pollingInterval | pollingInterval} is
+   * greater than `0`.
    *
-   *  If pollingInterval is not set or set to 0, this **will not be evaluated** until pollingInterval is greater than 0.
+   * Note: requires {@linkcode setupListeners} to have been called.
    *
-   *  Note: requires [`setupListeners`](./setupListeners) to have been called.
+   * @default false
    */
   skipPollingIfUnfocused?: boolean
+
   /**
-   * Defaults to `false`. This setting allows you to control whether RTK Query will try to refetch all subscribed queries after regaining a network connection.
+   * This setting allows you to control whether RTK Query will try to refetch
+   * all subscribed queries after regaining a network connection. If you
+   * specify this option alongside `skip: true`, this **will not be evaluated**
+   * until `skip` is `false`.
    *
-   * If you specify this option alongside `skip: true`, this **will not be evaluated** until `skip` is false.
+   * Note: requires {@linkcode setupListeners} to have been called.
    *
-   * Note: requires [`setupListeners`](./setupListeners) to have been called.
+   * @default false
    */
   refetchOnReconnect?: boolean
+
   /**
-   * Defaults to `false`. This setting allows you to control whether RTK Query will try to refetch all subscribed queries after the application window regains focus.
+   * This setting allows you to control whether RTK Query will try to refetch
+   * all subscribed queries after the application window regains focus. If you
+   * specify this option alongside `skip: true`, this **will not be evaluated**
+   * until `skip` is `false`.
    *
-   * If you specify this option alongside `skip: true`, this **will not be evaluated** until `skip` is false.
+   * Note: requires {@linkcode setupListeners} to have been called.
    *
-   * Note: requires [`setupListeners`](./setupListeners) to have been called.
+   * @default false
    */
   refetchOnFocus?: boolean
 }
@@ -212,14 +236,17 @@ type BaseQuerySubState<
    * The argument originally passed into the hook or `initiate` action call
    */
   originalArgs: QueryArgFromAnyQuery<D>
+
   /**
    * A unique ID associated with the request
    */
   requestId: string
+
   /**
    * The received data from the query
    */
   data?: DataType
+
   /**
    * The received error if applicable
    */
@@ -228,14 +255,17 @@ type BaseQuerySubState<
     | (D extends QueryDefinition<any, infer BaseQuery, any, any>
         ? BaseQueryError<BaseQuery>
         : never)
+
   /**
    * The name of the endpoint associated with the query
    */
   endpointName: string
+
   /**
    * Time that the latest query started
    */
   startedTimeStamp: number
+
   /**
    * Time that the latest query was fulfilled
    */

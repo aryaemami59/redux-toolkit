@@ -1,9 +1,11 @@
 /**
- * Adapted from React: https://github.com/facebook/react/blob/master/packages/shared/formatProdErrorMessage.js
+ * Adapted from React:
+ * {@link https://github.com/facebook/react/blob/master/packages/shared/formatProdErrorMessage.js | formatProdErrorMessage}.
  *
- * Do not require this module directly! Use normal throw error calls. These messages will be replaced with error codes
- * during build.
- * @param {number} code
+ * Do not require this module directly! Use normal throw error calls. These
+ * messages will be replaced with error codes during build.
+ *
+ * @param code - The numeric error code to format into a minified error message.
  */
 export function formatProdErrorMessage(code: number) {
   return (
