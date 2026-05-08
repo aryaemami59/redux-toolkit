@@ -171,7 +171,7 @@ export interface ApiModules<
        * Can be used to await a specific query triggered in any way,
        * including via hook calls or manually dispatching `initiate` actions.
        *
-       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
+       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
        */
       getRunningQueryThunk<EndpointName extends AllQueryKeys<Definitions>>(
         endpointName: EndpointName,
@@ -194,7 +194,7 @@ export interface ApiModules<
        * Can be used to await a specific mutation triggered in any way,
        * including via hook trigger functions or manually dispatching `initiate` actions.
        *
-       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
+       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
        */
       getRunningMutationThunk<EndpointName extends MutationKeys<Definitions>>(
         endpointName: EndpointName,
@@ -212,7 +212,7 @@ export interface ApiModules<
        * Useful for SSR scenarios to await all running queries triggered in any way,
        * including via hook calls or manually dispatching `initiate` actions.
        *
-       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
+       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
        */
       getRunningQueriesThunk(): ThunkWithReturnValue<
         Array<
@@ -226,7 +226,7 @@ export interface ApiModules<
        * Useful for SSR scenarios to await all running mutations triggered in any way,
        * including via hook calls or manually dispatching `initiate` actions.
        *
-       * @see {@link https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering} for details.
+       * See https://redux-toolkit.js.org/rtk-query/usage/server-side-rendering for details.
        */
       getRunningMutationsThunk(): ThunkWithReturnValue<
         Array<MutationActionCreatorResult<any>>
@@ -242,7 +242,7 @@ export interface ApiModules<
        * @example
        *
        * ```ts no-transpile
-       * dispatch(api.util.prefetch('getPosts', undefined, { force: true }));
+       * dispatch(api.util.prefetch('getPosts', undefined, { force: true }))
        * ```
        */
       prefetch<EndpointName extends QueryKeys<Definitions>>(
@@ -475,8 +475,6 @@ export type InternalActions = SliceActions & ListenerActions
 export interface CoreModuleOptions {
   /**
    * A selector creator (usually from `reselect`, or matching the same signature)
-   *
-   * @default createSelector
    */
   createSelector?: CreateSelectorFunction<any, any, any>
 }
@@ -486,8 +484,6 @@ export interface CoreModuleOptions {
  *
  * @example
  * ```ts
- * import { buildCreateApi, coreModule } from '@reduxjs/toolkit/query';
- *
  * const createBaseApi = buildCreateApi(coreModule());
  * ```
  */

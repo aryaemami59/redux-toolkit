@@ -19,24 +19,9 @@ interface ThunkOptions<E = any> {
 }
 
 interface GetDefaultMiddlewareOptions {
-  /**
-   * @default true
-   */
   thunk?: boolean | ThunkOptions
-
-  /**
-   * @default true
-   */
   immutableCheck?: boolean | ImmutableStateInvariantMiddlewareOptions
-
-  /**
-   * @default true
-   */
   serializableCheck?: boolean | SerializableStateInvariantMiddlewareOptions
-
-  /**
-   * @default true
-   */
   actionCreatorCheck?: boolean | ActionCreatorInvariantMiddlewareOptions
 }
 

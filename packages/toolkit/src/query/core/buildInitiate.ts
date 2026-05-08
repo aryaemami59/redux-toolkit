@@ -158,12 +158,10 @@ type StartMutationActionCreator<
   arg: QueryArgFrom<D>,
   options?: {
     /**
-     * If this mutation should be tracked in the store. If you just want to
-     * manually trigger this mutation using `dispatch` and don't care about the
-     * result, state & potential errors being held in store, you can set this
-     * to `false`.
-     *
-     * @default true
+     * If this mutation should be tracked in the store.
+     * If you just want to manually trigger this mutation using `dispatch` and don't care about the
+     * result, state & potential errors being held in store, you can set this to false.
+     * (defaults to `true`)
      */
     track?: boolean
     fixedCacheKey?: string
@@ -196,9 +194,7 @@ export type MutationActionCreatorResult<
         | SerializedError
     }
 > & {
-  /**
-   * @internal
-   */
+  /** @internal */
   arg: {
     /**
      * The name of the given endpoint for the mutation
@@ -233,17 +229,17 @@ export type MutationActionCreatorResult<
    *
    * useEffect(() => {
    *   const promise = updateUser(id);
-   *   promise.unwrap().catch((err) => {
-   *     if (err.name === 'AbortError') {
-   *       return;
-   *     }
-   *     // else handle the unexpected error
-   *   });
+   *   promise
+   *     .unwrap()
+   *     .catch((err) => {
+   *       if (err.name === 'AbortError') return;
+   *       // else handle the unexpected error
+   *     })
    *
    *   return () => {
    *     promise.abort();
-   *   };
-   * }, [id, updateUser]);
+   *   }
+   * }, [id, updateUser])
    * ```
    */
   abort(): void
@@ -267,7 +263,7 @@ export type MutationActionCreatorResult<
    * // codeblock-meta title="Using .unwrap with async await"
    * try {
    *   const payload = await addPost({ id: 1, name: 'Example' }).unwrap();
-   *   console.log('fulfilled', payload);
+   *   console.log('fulfilled', payload)
    * } catch (error) {
    *   console.error('rejected', error);
    * }

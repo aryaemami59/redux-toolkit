@@ -8,7 +8,6 @@ import type { SerializeQueryArgs } from './defaultSerializeQueryArgs'
 import { defaultSerializeQueryArgs } from './defaultSerializeQueryArgs'
 import type {
   EndpointBuilder,
-  EndpointDefinition,
   EndpointDefinitions,
   SchemaFailureConverter,
   SchemaFailureHandler,
@@ -20,7 +19,6 @@ import {
   ENDPOINT_QUERY,
   isInfiniteQueryDefinition,
 } from './endpointDefinitions'
-import type { fetchBaseQuery } from './fetchBaseQuery'
 
 export interface CreateApiOptions<
   BaseQuery extends BaseQueryFn,
@@ -29,18 +27,12 @@ export interface CreateApiOptions<
   TagTypes extends string = never,
 > {
   /**
-   * The base query used by each endpoint if no
-   * {@linkcode EndpointDefinition.queryFn | queryFn} option is specified.
-   * RTK Query exports a utility called
-   * {@linkcode fetchBaseQuery} as a lightweight wrapper around
-   * {@linkcode fetch} for common use-cases. See
-   * {@link https://redux-toolkit.js.org/rtk-query/usage/customizing-queries | Customizing Queries}
-   * if {@linkcode fetchBaseQuery} does not handle your requirements.
+   * The base query used by each endpoint if no `queryFn` option is specified. RTK Query exports a utility called [fetchBaseQuery](./fetchBaseQuery) as a lightweight wrapper around `fetch` for common use-cases. See [Customizing Queries](../../rtk-query/usage/customizing-queries) if `fetchBaseQuery` does not handle your requirements.
    *
    * @example
    *
    * ```ts
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
+   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query'
    *
    * const api = createApi({
    *   // highlight-start
@@ -49,25 +41,17 @@ export interface CreateApiOptions<
    *   endpoints: (build) => ({
    *     // ...endpoints
    *   }),
-   * });
+   * })
    * ```
    */
   baseQuery: BaseQuery
-
   /**
-   * An array of string tag type names. Specifying tag types is optional, but
-   * you should define them so that they can be used for caching and
-   * invalidation. When defining a tag type, you will be able to
-   * {@link https://redux-toolkit.js.org/rtk-query/usage/automated-refetching#providing-tags | provide}
-   * them with {@linkcode EndpointDefinition.providesTags | providesTags} and
-   * {@link https://redux-toolkit.js.org/rtk-query/usage/automated-refetching#invalidating-tags | invalidate}
-   * them with {@linkcode EndpointDefinition.invalidatesTags | invalidatesTags}
-   * when configuring {@linkcode CreateApiOptions.endpoints | endpoints}.
+   * An array of string tag type names. Specifying tag types is optional, but you should define them so that they can be used for caching and invalidation. When defining a tag type, you will be able to [provide](../../rtk-query/usage/automated-refetching#providing-tags) them with `providesTags` and [invalidate](../../rtk-query/usage/automated-refetching#invalidating-tags) them with `invalidatesTags` when configuring [endpoints](#endpoints).
    *
    * @example
    *
    * ```ts
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query';
+   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query'
    *
    * const api = createApi({
    *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
@@ -77,17 +61,12 @@ export interface CreateApiOptions<
    *   endpoints: (build) => ({
    *     // ...endpoints
    *   }),
-   * });
+   * })
    * ```
-   *
-   * @default []
    */
   tagTypes?: readonly TagTypes[]
-
   /**
-   * The {@linkcode reducerPath} is a _unique_ key that your service will be
-   * mounted to in your store. If you call {@linkcode createApi} more than once
-   * in your application, you will need to provide a unique value each time.
+   * The `reducerPath` is a _unique_ key that your service will be mounted to in your store. If you call `createApi` more than once in your application, you will need to provide a unique value each time. Defaults to `'api'`.
    *
    * @example
    *
@@ -100,7 +79,7 @@ export interface CreateApiOptions<
    *   reducerPath: 'apiOne',
    *   // highlight-end
    *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-   *   endpoints: (build) => ({
+   *   endpoints: (builder) => ({
    *     // ...endpoints
    *   }),
    * });
@@ -110,102 +89,83 @@ export interface CreateApiOptions<
    *   reducerPath: 'apiTwo',
    *   // highlight-end
    *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-   *   endpoints: (build) => ({
+   *   endpoints: (builder) => ({
    *     // ...endpoints
    *   }),
    * });
    * ```
-   *
-   * @default 'api'
    */
   reducerPath?: ReducerPath
   /**
    * Accepts a custom function if you have a need to change the creation of cache keys for any reason.
    */
   serializeQueryArgs?: SerializeQueryArgs<unknown>
-
   /**
-   * Endpoints are a set of operations that you want to perform against your
-   * server. You define them as an object using the builder syntax. There are
-   * three endpoint types: {@linkcode EndpointBuilder.query | query},
-   * {@linkcode EndpointBuilder.infiniteQuery | infiniteQuery} and
-   * {@linkcode EndpointBuilder.mutation | mutation}.
+   * Endpoints are a set of operations that you want to perform against your server. You define them as an object using the builder syntax. There are three endpoint types: [`query`](../../rtk-query/usage/queries), [`infiniteQuery`](../../rtk-query/usage/infinite-queries) and [`mutation`](../../rtk-query/usage/mutations).
    */
   endpoints(
     build: EndpointBuilder<BaseQuery, TagTypes, ReducerPath>,
   ): Definitions
   /**
-   * This is how long RTK Query will keep your data cached for **after** the last component unsubscribes. For example, if you query an endpoint, then unmount the component, then mount another component that makes the same request within the given time frame, the most recent value will be served from the cache.
+   * Defaults to `60` _(this value is in seconds)_. This is how long RTK Query will keep your data cached for **after** the last component unsubscribes. For example, if you query an endpoint, then unmount the component, then mount another component that makes the same request within the given time frame, the most recent value will be served from the cache.
    *
    * @example
    * ```ts
    * // codeblock-meta title="keepUnusedDataFor example"
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-   *
+   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
    * interface Post {
-   *   id: number;
-   *   name: string;
+   *   id: number
+   *   name: string
    * }
-   *
-   * type PostsResponse = Post[];
+   * type PostsResponse = Post[]
    *
    * const api = createApi({
    *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
    *   endpoints: (build) => ({
    *     getPosts: build.query<PostsResponse, void>({
-   *       query: () => 'posts',
-   *     }),
+   *       query: () => 'posts'
+   *     })
    *   }),
    *   // highlight-start
-   *   keepUnusedDataFor: 5,
+   *   keepUnusedDataFor: 5
    *   // highlight-end
-   * });
+   * })
    * ```
-   *
-   * @default 60
    */
   keepUnusedDataFor?: number
   /**
-   * This setting allows you to control whether if a cached result is already available RTK Query will only serve a cached result, or if it should `refetch` when set to `true` or if an adequate amount of time has passed since the last successful query result.
+   * Defaults to `false`. This setting allows you to control whether if a cached result is already available RTK Query will only serve a cached result, or if it should `refetch` when set to `true` or if an adequate amount of time has passed since the last successful query result.
    * - `false` - Will not cause a query to be performed _unless_ it does not exist yet.
    * - `true` - Will always refetch when a new subscriber to a query is added. Behaves the same as calling the `refetch` callback or passing `forceRefetch: true` in the action creator.
    * - `number` - **Value is in seconds**. If a number is provided and there is an existing query in the cache, it will compare the current time vs the last fulfilled timestamp, and only refetch if enough time has elapsed.
    *
    * If you specify this option alongside `skip: true`, this **will not be evaluated** until `skip` is false.
-   *
-   * @default false
    */
   refetchOnMountOrArgChange?: boolean | number
   /**
-   * This setting allows you to control whether RTK Query will try to refetch all subscribed queries after the application window regains focus.
+   * Defaults to `false`. This setting allows you to control whether RTK Query will try to refetch all subscribed queries after the application window regains focus.
    *
    * If you specify this option alongside `skip: true`, this **will not be evaluated** until `skip` is false.
    *
    * Note: requires [`setupListeners`](./setupListeners) to have been called.
-   *
-   * @default false
    */
   refetchOnFocus?: boolean
   /**
-   * This setting allows you to control whether RTK Query will try to refetch all subscribed queries after regaining a network connection.
+   * Defaults to `false`. This setting allows you to control whether RTK Query will try to refetch all subscribed queries after regaining a network connection.
    *
    * If you specify this option alongside `skip: true`, this **will not be evaluated** until `skip` is false.
    *
    * Note: requires [`setupListeners`](./setupListeners) to have been called.
-   *
-   * @default false
    */
   refetchOnReconnect?: boolean
   /**
-   * This setting allows you to control when tags are invalidated after a mutation.
+   * Defaults to `'delayed'`. This setting allows you to control when tags are invalidated after a mutation.
    *
    * - `'immediately'`: Queries are invalidated instantly after the mutation finished, even if they are running.
    *   If the query provides tags that were invalidated while it ran, it won't be re-fetched.
    * - `'delayed'`: Invalidation only happens after all queries and mutations are settled.
    *   This ensures that queries are always invalidated correctly and automatically "batches" invalidations of concurrent mutations.
    *   Note that if you constantly have some queries (or mutations) running, this can delay tag invalidations indefinitely.
-   *
-   * @default 'delayed'
    */
   invalidationBehavior?: 'delayed' | 'immediately'
   /**
@@ -216,14 +176,14 @@ export interface CreateApiOptions<
    *
    * ```ts
    * // codeblock-meta title="next-redux-wrapper rehydration example"
-   * import type { Action, PayloadAction } from '@reduxjs/toolkit';
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-   * import { HYDRATE } from 'next-redux-wrapper';
+   * import type { Action, PayloadAction } from '@reduxjs/toolkit'
+   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+   * import { HYDRATE } from 'next-redux-wrapper'
    *
    * type RootState = any; // normally inferred from state
    *
    * function isHydrateAction(action: Action): action is PayloadAction<RootState> {
-   *   return action.type === HYDRATE;
+   *   return action.type === HYDRATE
    * }
    *
    * export const api = createApi({
@@ -231,14 +191,14 @@ export interface CreateApiOptions<
    *   // highlight-start
    *   extractRehydrationInfo(action, { reducerPath }): any {
    *     if (isHydrateAction(action)) {
-   *       return action.payload[reducerPath];
+   *       return action.payload[reducerPath]
    *     }
    *   },
    *   // highlight-end
    *   endpoints: (build) => ({
    *     // omitted
    *   }),
-   * });
+   * })
    * ```
    */
   extractRehydrationInfo?: (
@@ -269,12 +229,8 @@ export interface CreateApiOptions<
    * @example
    * ```ts
    * // codeblock-meta no-transpile
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-   *
-   * type Post = {
-   *   id: number;
-   *   name: string;
-   * };
+   * import { createApi } from '@reduxjs/toolkit/query/react'
+   * import * as v from "valibot"
    *
    * const api = createApi({
    *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
@@ -284,9 +240,9 @@ export interface CreateApiOptions<
    *     }),
    *   }),
    *   onSchemaFailure: (error, info) => {
-   *     console.error(error, info);
+   *     console.error(error, info)
    *   },
-   * });
+   * })
    * ```
    */
   onSchemaFailure?: SchemaFailureHandler
@@ -299,13 +255,8 @@ export interface CreateApiOptions<
    * @example
    * ```ts
    * // codeblock-meta no-transpile
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-   * import * as v from 'valibot';
-   *
-   * type Post = {
-   *   id: number;
-   *   name: string;
-   * };
+   * import { createApi } from '@reduxjs/toolkit/query/react'
+   * import * as v from "valibot"
    *
    * const api = createApi({
    *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
@@ -316,16 +267,18 @@ export interface CreateApiOptions<
    *     }),
    *   }),
    *   catchSchemaFailure: (error, info) => ({
-   *     status: 'CUSTOM_ERROR' as const,
-   *     error: `${error.schemaName} failed validation`,
+   *     status: "CUSTOM_ERROR",
+   *     error: error.schemaName + " failed validation",
    *     data: error.issues,
    *   }),
-   * });
+   * })
    * ```
    */
   catchSchemaFailure?: SchemaFailureConverter<BaseQuery>
 
   /**
+   * Defaults to `false`.
+   *
    * If set to `true`, will skip schema validation for all endpoints, unless overridden by the endpoint.
    *
    * Can be overridden for specific schemas by passing an array of schema types to skip.
@@ -333,27 +286,20 @@ export interface CreateApiOptions<
    * @example
    * ```ts
    * // codeblock-meta no-transpile
-   * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-   * import * as v from 'valibot';
-   *
-   * type Post = {
-   *   id: number;
-   *   name: string;
-   * };
+   * import { createApi } from '@reduxjs/toolkit/query/react'
+   * import * as v from "valibot"
    *
    * const api = createApi({
    *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
-   *   skipSchemaValidation: process.env.NODE_ENV === 'test' ? ['response'] : false, // skip schema validation for response in tests, since we'll be mocking the response
+   *   skipSchemaValidation: process.env.NODE_ENV === "test" ? ["response"] : false, // skip schema validation for response in tests, since we'll be mocking the response
    *   endpoints: (build) => ({
    *     getPost: build.query<Post, { id: number }>({
    *       query: ({ id }) => `/post/${id}`,
    *       responseSchema: v.object({ id: v.number(), name: v.string() }),
    *     }),
-   *   }),
-   * });
+   *   })
+   * })
    * ```
-   *
-   * @default false
    */
   skipSchemaValidation?: boolean | SchemaType[]
 }
@@ -362,7 +308,7 @@ export type CreateApi<Modules extends ModuleName> = {
   /**
    * Creates a service to use in your application. Contains only the basic redux logic (the core module).
    *
-   * {@link https://redux-toolkit.js.org/rtk-query/api/createApi}
+   * @link https://redux-toolkit.js.org/rtk-query/api/createApi
    */
   <
     BaseQuery extends BaseQueryFn,
@@ -375,42 +321,27 @@ export type CreateApi<Modules extends ModuleName> = {
 }
 
 /**
- * Builds a {@linkcode createApi} method based on the provided
- * {@linkcode modules}.
+ * Builds a `createApi` method based on the provided `modules`.
  *
- * {@link https://redux-toolkit.js.org/rtk-query/usage/customizing-create-api}
+ * @link https://redux-toolkit.js.org/rtk-query/usage/customizing-create-api
  *
  * @example
  * ```ts
- * import {
- *   buildCreateApi,
- *   coreModule,
- *   reactHooksModule,
- * } from '@reduxjs/toolkit/query/react';
- * import * as React from 'react';
- * import type { ReactReduxContextValue } from 'react-redux';
- * import {
- *   createDispatchHook,
- *   createSelectorHook,
- *   createStoreHook,
- * } from 'react-redux';
- *
  * const MyContext = React.createContext<ReactReduxContextValue | null>(null);
- *
  * const customCreateApi = buildCreateApi(
  *   coreModule(),
  *   reactHooksModule({
  *     hooks: {
  *       useDispatch: createDispatchHook(MyContext),
  *       useSelector: createSelectorHook(MyContext),
- *       useStore: createStoreHook(MyContext),
- *     },
- *   }),
+ *       useStore: createStoreHook(MyContext)
+ *     }
+ *   })
  * );
  * ```
  *
- * @param modules - A variable number of modules that customize how the {@linkcode createApi} method handles endpoints
- * @returns A {@linkcode createApi} method using the provided {@linkcode modules}.
+ * @param modules - A variable number of modules that customize how the `createApi` method handles endpoints
+ * @returns A `createApi` method using the provided `modules`.
  */
 export function buildCreateApi<Modules extends [Module<any>, ...Module<any>[]]>(
   ...modules: Modules
