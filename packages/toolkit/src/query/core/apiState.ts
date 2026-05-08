@@ -59,10 +59,12 @@ export type InfiniteQueryConfigOptions<DataType, PageParam, QueryArg> = {
    */
   maxPages?: number
   /**
-   * Defaults to `true`. When this is `true` and an infinite query endpoint is refetched
-   * (due to tag invalidation, polling, arg change configuration, or manual refetching),
-   * RTK Query will try to sequentially refetch all pages currently in the cache.
-   * When `false` only the first page will be refetched.
+   * When this is `true` and an infinite query endpoint is refetched
+   * (due to tag invalidation, polling, arg change configuration, or manual
+   * refetching), RTK Query will try to sequentially refetch all pages
+   * currently in the cache. When `false` only the first page will be refetched.
+   *
+   * @default true
    */
   refetchCachedPages?: boolean
 }
@@ -140,31 +142,45 @@ export function getRequestStatusFlags(status: QueryStatus): RequestStatusFlags {
  */
 export type SubscriptionOptions = {
   /**
-   * How frequently to automatically re-fetch data (in milliseconds). Defaults to `0` (off).
+   * How frequently to automatically re-fetch data (in milliseconds).
+   * Defaults to `0` (off).
+   *
+   * @default 0
    */
   pollingInterval?: number
   /**
-   *  Defaults to 'false'. This setting allows you to control whether RTK Query will continue polling if the window is not focused.
+   * This setting allows you to control whether RTK Query will continue polling
+   * if the window is not focused. If
+   * {@linkcode SubscriptionOptions.pollingInterval | pollingInterval} is not
+   * set or set to `0`, this **will not be evaluated** until
+   * {@linkcode SubscriptionOptions.pollingInterval | pollingInterval} is
+   * greater than `0`.
    *
-   *  If pollingInterval is not set or set to 0, this **will not be evaluated** until pollingInterval is greater than 0.
+   * Note: requires {@linkcode setupListeners} to have been called.
    *
-   *  Note: requires [`setupListeners`](./setupListeners) to have been called.
+   * @default false
    */
   skipPollingIfUnfocused?: boolean
   /**
-   * Defaults to `false`. This setting allows you to control whether RTK Query will try to refetch all subscribed queries after regaining a network connection.
+   * This setting allows you to control whether RTK Query will try to refetch
+   * all subscribed queries after regaining a network connection. If you
+   * specify this option alongside `skip: true`, this **will not be evaluated**
+   * until `skip` is `false`.
    *
-   * If you specify this option alongside `skip: true`, this **will not be evaluated** until `skip` is false.
+   * Note: requires {@linkcode setupListeners} to have been called.
    *
-   * Note: requires [`setupListeners`](./setupListeners) to have been called.
+   * @default false
    */
   refetchOnReconnect?: boolean
   /**
-   * Defaults to `false`. This setting allows you to control whether RTK Query will try to refetch all subscribed queries after the application window regains focus.
+   * This setting allows you to control whether RTK Query will try to refetch
+   * all subscribed queries after the application window regains focus. If you
+   * specify this option alongside `skip: true`, this **will not be evaluated**
+   * until `skip` is `false`.
    *
-   * If you specify this option alongside `skip: true`, this **will not be evaluated** until `skip` is false.
+   * Note: requires {@linkcode setupListeners} to have been called.
    *
-   * Note: requires [`setupListeners`](./setupListeners) to have been called.
+   * @default false
    */
   refetchOnFocus?: boolean
 }

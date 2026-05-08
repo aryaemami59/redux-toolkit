@@ -155,7 +155,12 @@ export interface ImmutableStateInvariantMiddlewareOptions {
     Defaults to undefined
    */
   ignoredPaths?: IgnoredPaths
-  /** Print a warning if checks take longer than N ms. Default: 32ms */
+
+  /**
+   * Print a warning if checks take longer than N ms.
+   *
+   * @default 32
+   */
   warnAfter?: number
 }
 

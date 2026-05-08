@@ -7,22 +7,22 @@ import type {
 } from '@reduxjs/toolkit'
 import type { Dispatch } from 'redux'
 import { asSafePromise } from '../../tsHelpers'
-import { getEndpointDefinition, type Api, type ApiContext } from '../apiTypes'
+import type { Api, ApiContext } from '../apiTypes'
+import { getEndpointDefinition } from '../apiTypes'
 import type { BaseQueryError, QueryReturnValue } from '../baseQueryTypes'
 import type { InternalSerializeQueryArgs } from '../defaultSerializeQueryArgs'
-import {
-  ENDPOINT_QUERY,
-  isQueryDefinition,
-  type EndpointDefinition,
-  type EndpointDefinitions,
-  type InfiniteQueryArgFrom,
-  type InfiniteQueryDefinition,
-  type MutationDefinition,
-  type PageParamFrom,
-  type QueryArgFrom,
-  type QueryDefinition,
-  type ResultTypeFrom,
+import type {
+  EndpointDefinition,
+  EndpointDefinitions,
+  InfiniteQueryArgFrom,
+  InfiniteQueryDefinition,
+  MutationDefinition,
+  PageParamFrom,
+  QueryArgFrom,
+  QueryDefinition,
+  ResultTypeFrom,
 } from '../endpointDefinitions'
+import { ENDPOINT_QUERY, isQueryDefinition } from '../endpointDefinitions'
 import { filterNullishValues } from '../utils'
 import type {
   InfiniteData,
@@ -30,6 +30,7 @@ import type {
   InfiniteQueryDirection,
   SubscriptionOptions,
 } from './apiState'
+import type { InternalMiddlewareState } from './buildMiddleware/types'
 import type {
   InfiniteQueryResultSelectorResult,
   QueryResultSelectorResult,
@@ -43,7 +44,6 @@ import type {
   ThunkApiMetaConfig,
 } from './buildThunks'
 import type { ApiEndpointQuery } from './module'
-import type { InternalMiddlewareState } from './buildMiddleware/types'
 
 export type BuildInitiateApiEndpointQuery<
   Definition extends QueryDefinition<any, any, any, any, any>,
@@ -160,10 +160,12 @@ type StartMutationActionCreator<
   arg: QueryArgFrom<D>,
   options?: {
     /**
-     * If this mutation should be tracked in the store.
-     * If you just want to manually trigger this mutation using `dispatch` and don't care about the
-     * result, state & potential errors being held in store, you can set this to false.
-     * (defaults to `true`)
+     * If this mutation should be tracked in the store. If you just want to
+     * manually trigger this mutation using `dispatch` and don't care about the
+     * result, state & potential errors being held in store, you can set this
+     * to `false`.
+     *
+     * @default true
      */
     track?: boolean
     fixedCacheKey?: string
@@ -191,7 +193,9 @@ export type MutationActionCreatorResult<
         | SerializedError
     }
 > & {
-  /** @internal */
+  /**
+   * @internal
+   */
   arg: {
     /**
      * The name of the given endpoint for the mutation
@@ -226,17 +230,17 @@ export type MutationActionCreatorResult<
    *
    * useEffect(() => {
    *   const promise = updateUser(id);
-   *   promise
-   *     .unwrap()
-   *     .catch((err) => {
-   *       if (err.name === 'AbortError') return;
-   *       // else handle the unexpected error
-   *     })
+   *   promise.unwrap().catch((err) => {
+   *     if (err.name === 'AbortError') {
+   *       return;
+   *     }
+   *     // else handle the unexpected error
+   *   });
    *
    *   return () => {
    *     promise.abort();
-   *   }
-   * }, [id, updateUser])
+   *   };
+   * }, [id, updateUser]);
    * ```
    */
   abort(): void
@@ -260,7 +264,7 @@ export type MutationActionCreatorResult<
    * // codeblock-meta title="Using .unwrap with async await"
    * try {
    *   const payload = await addPost({ id: 1, name: 'Example' }).unwrap();
-   *   console.log('fulfilled', payload)
+   *   console.log('fulfilled', payload);
    * } catch (error) {
    *   console.error('rejected', error);
    * }

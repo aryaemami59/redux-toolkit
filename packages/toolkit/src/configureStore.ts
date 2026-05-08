@@ -1,36 +1,35 @@
 import type {
+  Action,
+  Middleware,
   Reducer,
   ReducersMapObject,
-  Middleware,
-  Action,
-  StoreEnhancer,
   Store,
+  StoreEnhancer,
   UnknownAction,
 } from 'redux'
-import {
-  applyMiddleware,
-  createStore,
-  compose,
-  combineReducers,
-  isPlainObject,
-} from './reduxImports'
 import type { DevToolsEnhancerOptions as DevToolsOptions } from './devtoolsExtension'
 import { composeWithDevTools } from './devtoolsExtension'
-
+import type { GetDefaultEnhancers } from './getDefaultEnhancers'
+import { buildGetDefaultEnhancers } from './getDefaultEnhancers'
 import type {
-  ThunkMiddlewareFor,
   GetDefaultMiddleware,
+  ThunkMiddlewareFor,
 } from './getDefaultMiddleware'
 import { buildGetDefaultMiddleware } from './getDefaultMiddleware'
+import {
+  applyMiddleware,
+  combineReducers,
+  compose,
+  createStore,
+  isPlainObject,
+} from './reduxImports'
 import type {
   ExtractDispatchExtensions,
-  ExtractStoreExtensions,
   ExtractStateExtensions,
+  ExtractStoreExtensions,
   UnknownIfNonSpecific,
 } from './tsHelpers'
 import type { Tuple } from './utils'
-import type { GetDefaultEnhancers } from './getDefaultEnhancers'
-import { buildGetDefaultEnhancers } from './getDefaultEnhancers'
 
 /**
  * Options for `configureStore()`.
@@ -55,19 +54,23 @@ export interface ConfigureStoreOptions<
    * If not supplied, defaults to the set of middleware returned by `getDefaultMiddleware()`.
    *
    * @example `middleware: (gDM) => gDM().concat(logger, apiMiddleware, yourCustomMiddleware)`
-   * @see https://redux-toolkit.js.org/api/getDefaultMiddleware#intended-usage
+   * @see {@link https://redux-toolkit.js.org/api/getDefaultMiddleware#intended-usage}
    */
   middleware?: (getDefaultMiddleware: GetDefaultMiddleware<S>) => M
 
   /**
-   * Whether to enable Redux DevTools integration. Defaults to `true`.
+   * Whether to enable Redux DevTools integration.
    *
    * Additional configuration can be done by passing Redux DevTools options
+   *
+   * @default true
    */
   devTools?: boolean | DevToolsOptions
 
   /**
-   * Whether to check for duplicate middleware instances. Defaults to `true`.
+   * Whether to check for duplicate middleware instances.
+   *
+   * @default true
    */
   duplicateMiddlewareCheck?: boolean
 
