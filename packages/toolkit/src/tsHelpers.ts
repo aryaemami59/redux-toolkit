@@ -207,14 +207,10 @@ export const hasMatchFunction = <T>(
   return v && typeof (v as HasMatchFunction<T>).match === 'function'
 }
 
-/**
- * @public
- */
+/** @public */
 export type Matcher<T> = HasMatchFunction<T> | TypeGuard<T>
 
-/**
- * @public
- */
+/** @public */
 export type ActionFromMatcher<MatcherType extends Matcher<any>> =
   MatcherType extends Matcher<infer InferredMatchedActionType>
     ? InferredMatchedActionType

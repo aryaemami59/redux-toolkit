@@ -116,8 +116,7 @@ export function isNestedFrozen(value: object) {
 }
 
 /**
- * Options for
- * {@linkcode createSerializableStateInvariantMiddleware | createSerializableStateInvariantMiddleware()}.
+ * Options for `createSerializableStateInvariantMiddleware()`.
  *
  * @public
  */
@@ -125,9 +124,7 @@ export interface SerializableStateInvariantMiddlewareOptions {
   /**
    * The function to check if a value is considered serializable. This
    * function is applied recursively to every value contained in the
-   * state. Defaults to {@linkcode isPlain | isPlain()}.
-   *
-   * @default isPlain
+   * state. Defaults to `isPlain()`.
    */
   isSerializable?: (value: any) => boolean
   /**
@@ -139,54 +136,42 @@ export interface SerializableStateInvariantMiddlewareOptions {
 
   /**
    * An array of action types to ignore when checking for serializability.
-   *
-   * @default []
+   * Defaults to []
    */
   ignoredActions?: string[]
 
   /**
    * An array of dot-separated path strings or regular expressions to ignore
-   * when checking for serializability.
-   *
-   * @default ['meta.arg', 'meta.baseQueryMeta']
+   * when checking for serializability, Defaults to
+   * ['meta.arg', 'meta.baseQueryMeta']
    */
   ignoredActionPaths?: (string | RegExp)[]
 
   /**
    * An array of dot-separated path strings or regular expressions to ignore
-   * when checking for serializability.
-   *
-   * @default []
+   * when checking for serializability, Defaults to []
    */
   ignoredPaths?: (string | RegExp)[]
   /**
    * Execution time warning threshold. If the middleware takes longer
    * than `warnAfter` ms, a warning will be displayed in the console.
-   *
-   * @default 32
+   * Defaults to 32ms.
    */
   warnAfter?: number
 
   /**
    * Opt out of checking state. When set to `true`, other state-related params will be ignored.
-   *
-   * @default false
    */
   ignoreState?: boolean
 
   /**
    * Opt out of checking actions. When set to `true`, other action-related params will be ignored.
-   *
-   * @default false
    */
   ignoreActions?: boolean
 
   /**
-   * Opt out of caching the results. The cache uses a {@linkcode WeakSet} and
-   * speeds up repeated checking processes. The cache is automatically disabled
-   * if no browser support for {@linkcode WeakSet} is present.
-   *
-   * @default false
+   * Opt out of caching the results. The cache uses a WeakSet and speeds up repeated checking processes.
+   * The cache is automatically disabled if no browser support for WeakSet is present.
    */
   disableCache?: boolean
 }
@@ -196,7 +181,7 @@ export interface SerializableStateInvariantMiddlewareOptions {
  * state is serializable. If a non-serializable value is found within the
  * state, an error is printed to the console.
  *
- * @param [options={}] Middleware options.
+ * @param options Middleware options.
  *
  * @public
  */

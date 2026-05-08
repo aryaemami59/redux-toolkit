@@ -54,23 +54,19 @@ export interface ConfigureStoreOptions<
    * If not supplied, defaults to the set of middleware returned by `getDefaultMiddleware()`.
    *
    * @example `middleware: (gDM) => gDM().concat(logger, apiMiddleware, yourCustomMiddleware)`
-   * @see {@link https://redux-toolkit.js.org/api/getDefaultMiddleware#intended-usage}
+   * @see https://redux-toolkit.js.org/api/getDefaultMiddleware#intended-usage
    */
   middleware?: (getDefaultMiddleware: GetDefaultMiddleware<S>) => M
 
   /**
-   * Whether to enable Redux DevTools integration.
+   * Whether to enable Redux DevTools integration. Defaults to `true`.
    *
    * Additional configuration can be done by passing Redux DevTools options
-   *
-   * @default true
    */
   devTools?: boolean | DevToolsOptions
 
   /**
-   * Whether to check for duplicate middleware instances.
-   *
-   * @default true
+   * Whether to check for duplicate middleware instances. Defaults to `true`.
    */
   duplicateMiddlewareCheck?: boolean
 
