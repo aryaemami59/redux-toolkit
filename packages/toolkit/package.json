@@ -230,13 +230,14 @@
     "tsdown": "^0.22.2",
     "tsx": "^4.22.4",
     "typescript": "^5.9.3",
+    "unrun": "^0.3.0",
     "valibot": "^1.0.0",
     "vite-tsconfig-paths": "^4.3.1",
     "vitest": "^4"
   },
   "scripts": {
     "clean": "rimraf dist/ .rolldown/",
-    "run-build": "tsdown --config-loader='tsx' --config=$INIT_CWD/tsdown.config.mts",
+    "run-build": "tsdown --config-loader='unrun' --config=$INIT_CWD/tsdown.config.mts",
     "build": "yarn clean && yarn run-build",
     "build-only": "yarn clean && yarn run-build",
     "format": "prettier --write \"(src|examples)/**/*.{ts,tsx}\" \"**/*.md\"",
