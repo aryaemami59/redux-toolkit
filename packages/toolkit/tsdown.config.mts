@@ -42,8 +42,6 @@ const RE_TS = /\.([cm]?)tsx?$/
 
 const RE_DTS = /\.d\.([cm]?)ts$/
 
-const RE_JS = /\.([cm]?)jsx?$/
-
 /**
  * @internal
  */
@@ -65,7 +63,7 @@ type GenerateBundleObjectHook = Id<
  * Only acts on production CJS builds (chunks ending in `.production.min.cjs`).
  *
  * @param [pluginOptions={}] - Options forwarded to the plugin.
- * @returns A Rolldown plugin that emits the CJS entry file.
+ * @returns A {@linkcode Rolldown.Plugin | Rolldown plugin} that emits the CJS entry file.
  * @internal
  */
 const writeCommonJSEntryPlugin = (
@@ -95,6 +93,7 @@ const writeCommonJSEntryPlugin = (
               this.emitFile({
                 fileName: `${chunkDirectory}/index.js`,
                 isEntry: true,
+                sourcemapFileName: `${chunkDirectory}/index.js.map`,
                 type: 'prebuilt-chunk',
                 code: `"use strict";
 if (process.env.NODE_ENV === "production") {
@@ -116,7 +115,7 @@ if (process.env.NODE_ENV === "production") {
  * a file.
  *
  * @param [mangleErrorsPluginOptions={}] - Options forwarded to the `mangleErrorsPlugin`. Supported options include `minify` to indicate whether error messages should be further minified.
- * @returns A Rolldown plugin that applies the Babel transformation to TypeScript/TSX sources matching the configured filter and returns transformed code and source maps.
+ * @returns A {@linkcode Rolldown.Plugin | Rolldown plugin} that applies the Babel transformation to TypeScript/TSX sources matching the configured filter and returns transformed code and source maps.
  * @internal
  */
 const mangleErrorsTransform = (
@@ -201,7 +200,7 @@ const mangleErrorsTransform = (
  * generated bundle to ensure only declaration artifacts remain.
  *
  * @param [pluginOptions={}] - Options forwarded to the plugin.
- * @returns A Rolldown plugin that prunes .cjs files from the bundle.
+ * @returns A {@linkcode Rolldown.Plugin | Rolldown plugin} that prunes .cjs files from the bundle.
  * @internal
  */
 const removeCJSOutputsFromDTSBuilds = (
@@ -533,7 +532,8 @@ const annotateAsPurePlugin = (
 
 /**
  * Represents a `const` variable declaration whose identifier is annotated with
- * the {@linkcode https://www.typescriptlang.org/docs/handbook/symbols.html#unique-symbol | unique symbol}
+ * the
+ * {@linkcode https://www.typescriptlang.org/docs/handbook/symbols.html#unique-symbol | unique symbol}
  * type in a TypeScript declaration file (`.d.ts`).
  *
  * @example
@@ -575,7 +575,7 @@ type UniqueSymbolVariableDeclaration = Id<
  * 2. Splits mixed `export { value, type Type }` into separate value/type exports.
  *
  * @param [pluginOptions={}] - Options forwarded to the plugin.
- * @returns A Rolldown plugin that rewrites imports and exports in `.d.ts` files.
+ * @returns A {@linkcode Rolldown.Plugin | Rolldown plugin} that rewrites imports and exports in `.d.ts` files.
  * @internal
  */
 const splitTypeImports = (
@@ -588,11 +588,6 @@ const splitTypeImports = (
   return {
     name: 'split-type-imports',
     renderChunk: {
-      // filter: {
-      //   code: {
-      //     include: [/type/],
-      //   },
-      // },
       order,
       async handler(code, chunk) {
         if (!(RE_DTS.test(chunk.fileName) && chunk.isEntry)) {
@@ -838,7 +833,7 @@ const splitTypeImports = (
  * declarations (e.g., `export declare const X: unique symbol`).
  *
  * @param [pluginOptions={}] - Options forwarded to the plugin.
- * @returns A Rolldown plugin that fixes unique symbol exports in `.d.ts` files.
+ * @returns A {@linkcode Rolldown.Plugin | Rolldown plugin} that fixes unique symbol exports in `.d.ts` files.
  * @internal
  */
 const fixUniqueSymbolExports = (
