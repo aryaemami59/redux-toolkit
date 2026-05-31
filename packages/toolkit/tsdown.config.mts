@@ -253,7 +253,7 @@ const annotateAsPure = (nodePath: NodePath): void => {
     return
   }
 
-  nodePath.addComment('leading', '@__PURE__', false)
+  nodePath.addComment('leading', ' @__PURE__ ', false)
 }
 
 /**

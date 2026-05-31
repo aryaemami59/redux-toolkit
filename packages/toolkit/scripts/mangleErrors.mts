@@ -248,7 +248,7 @@ export const mangleErrorsPlugin = declare(
             const prodMessageWithPureAnnotation = t.addComment(
               prodMessage,
               'leading',
-              '@__PURE__',
+              ' @__PURE__ ',
               false,
             )
 
