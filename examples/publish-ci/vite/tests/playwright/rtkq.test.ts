@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test('RTK / RTKQ Interactions', async ({ page }) => {
   page.on('console', (msg) => console.log('Console message: ', msg.text()))

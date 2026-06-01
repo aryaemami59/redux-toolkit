@@ -1,7 +1,6 @@
-import * as React from 'react'
-import { useEffect } from 'react'
-import { timeApi } from '../../app/services/times'
+import { useEffect, useState } from 'react'
 import { useAppDispatch } from '../../app/hooks'
+import { timeApi } from '../../app/services/times'
 
 export const TimeDisplay = ({
   offset,
@@ -10,7 +9,7 @@ export const TimeDisplay = ({
   offset: string
   label: string
 }) => {
-  const [data, setData] = React.useState<any>(null)
+  const [data, setData] = useState<any>(null)
   const dispatch = useAppDispatch()
 
   useEffect(() => {
