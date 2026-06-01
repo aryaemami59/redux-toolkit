@@ -1,10 +1,7 @@
 import type { NextPage } from 'next'
-import Head from 'next/head'
-
 import { Counter } from '../features/counter/Counter'
-import { TimeDisplay } from '../features/time/TimeList'
 import { Post } from '../features/posts/Post'
-import styles from '../styles/Home.module.css'
+import { TimeDisplay } from '../features/time/TimeList'
 
 const IndexPage: NextPage = () => {
   return (

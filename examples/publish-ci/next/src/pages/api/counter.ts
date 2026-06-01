@@ -1,6 +1,9 @@
 import type { NextApiHandler } from 'next'
 
-const countHandler: NextApiHandler = async (request, response) => {
+const countHandler: NextApiHandler<{ data: number }> = async (
+  request,
+  response,
+) => {
   const { amount = 1 } = request.body
 
   // simulate IO latency
