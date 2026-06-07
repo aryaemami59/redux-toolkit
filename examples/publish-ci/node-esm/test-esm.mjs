@@ -1,7 +1,7 @@
 // TODO This entire file doesn't work yet with RTK 1.9.3 master
 
 import assert from 'node:assert'
-import path from 'path'
+import path from 'node:path'
 import { importMetaResolve } from 'resolve-esm'
 
 import { createSlice } from '@reduxjs/toolkit'
