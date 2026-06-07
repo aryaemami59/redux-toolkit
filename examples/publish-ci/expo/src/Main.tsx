@@ -2,13 +2,13 @@ import { StatusBar } from 'expo-status-bar'
 import type { JSX } from 'react'
 import {
   Platform,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
   useColorScheme,
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { Header } from './components/Header'
 import { LearnMoreLinks, LearnReduxLinks } from './components/LearnReduxLinks'
 import { Section } from './components/Section'

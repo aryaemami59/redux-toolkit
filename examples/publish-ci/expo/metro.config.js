@@ -1,4 +1,4 @@
-require('ts-node/register')
+require('tsx/cjs')
 
 const { config } = require('./metro.base.config.ts')
 

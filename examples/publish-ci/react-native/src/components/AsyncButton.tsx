@@ -52,7 +52,7 @@ export const AsyncButton = ({
     extrapolate: 'clamp',
   })
 
-  const progressStyle: Animated.WithAnimatedObject<ViewStyle> = {
+  const progressStyle: Animated.WithAnimatedValue<ViewStyle> = {
     width: progressInterpolate,
     opacity,
   }

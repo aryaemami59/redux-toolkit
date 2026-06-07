@@ -2,8 +2,8 @@ import { act, screen } from '@testing-library/react-native'
 import { Main } from './Main'
 import { renderWithProviders } from './utils/test-utils'
 
-test('Main should have correct initial render', () => {
-  renderWithProviders(<Main />)
+test('Main should have correct initial render', async () => {
+  await renderWithProviders(<Main />)
 
   const countLabel = screen.getByLabelText('Count')
 
@@ -18,7 +18,7 @@ test('Main should have correct initial render', () => {
 })
 
 test('Increment value and Decrement value should work as expected', async () => {
-  const { user } = renderWithProviders(<Main />)
+  const { user } = await renderWithProviders(<Main />)
 
   const countLabel = screen.getByLabelText('Count')
 
@@ -36,7 +36,7 @@ test('Increment value and Decrement value should work as expected', async () => 
 })
 
 test('Add Amount should work as expected', async () => {
-  const { user } = renderWithProviders(<Main />)
+  const { user } = await renderWithProviders(<Main />)
 
   const countLabel = screen.getByLabelText('Count')
 
@@ -62,7 +62,7 @@ test('Add Amount should work as expected', async () => {
 })
 
 it('Add Async should work as expected', async () => {
-  const { user } = renderWithProviders(<Main />)
+  const { user } = await renderWithProviders(<Main />)
 
   const addAsyncButton = screen.getByText('Add Async')
 
@@ -104,7 +104,7 @@ it('Add Async should work as expected', async () => {
 })
 
 test('Add If Odd should work as expected', async () => {
-  const { user } = renderWithProviders(<Main />)
+  const { user } = await renderWithProviders(<Main />)
 
   const countLabel = screen.getByLabelText('Count')
 

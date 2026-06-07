@@ -55,7 +55,7 @@ export const installQuotesFetchMock = () => {
     )
   })
 
-  global.fetch = mockFetch as unknown as typeof fetch
+  global.fetch = mockFetch
 
   return mockFetch
 }
