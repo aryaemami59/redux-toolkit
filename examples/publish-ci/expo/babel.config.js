@@ -1,5 +1,5 @@
-/** @import { ConfigFunction } from "@babel/core" */
-/** @import { BabelPresetExpoOptions } from "babel-preset-expo" */
+/** @import { type ConfigFunction } from '@babel/core' */
+/** @import { type BabelPresetExpoOptions } from 'babel-preset-expo' */
 
 /**
  * @satisfies {ConfigFunction}

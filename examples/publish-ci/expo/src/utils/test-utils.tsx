@@ -40,7 +40,7 @@ type ExtendedRenderOptions = Omit<RenderOptions, 'queries'> & {
  * @param extendedRenderOptions - Optional configuration options for rendering. This includes `preloadedState` for initial Redux state and `store` for a specific Redux store instance. Any additional properties are passed to React Testing Library's render function.
  * @returns An object containing the Redux store used in the render, User event API for simulating user interactions in tests, and all of React Testing Library's query functions for testing the component.
  */
-export const renderWithProviders = (
+export const renderWithProviders = async (
   ui: ReactElement,
   extendedRenderOptions: ExtendedRenderOptions = {},
 ) => {
@@ -55,10 +55,15 @@ export const renderWithProviders = (
     <Provider store={store}>{children}</Provider>
   )
 
+  const renderResult = await render(ui, {
+    wrapper: Wrapper,
+    ...renderOptions,
+  })
+
   // Return an object with the store and all of RTL's query functions
   return {
     store,
     user: userEvent.setup(),
-    ...render(ui, { wrapper: Wrapper, ...renderOptions }),
+    ...renderResult,
   }
 }

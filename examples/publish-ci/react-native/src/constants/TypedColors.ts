@@ -1,5 +1,3 @@
-import { Colors } from 'react-native/Libraries/NewAppScreen'
-
 type AllColors = {
   primary: string
   white: string
@@ -10,4 +8,12 @@ type AllColors = {
   black: string
 }
 
-export const TypedColors: AllColors = Colors satisfies AllColors as AllColors
+export const TypedColors: AllColors = {
+  light: '#DAE1E7',
+  lighter: '#F3F3F3',
+  white: '#FFF',
+  dark: '#444',
+  darker: '#222',
+  black: '#000',
+  primary: '#1292B4',
+}
