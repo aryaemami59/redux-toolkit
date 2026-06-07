@@ -1,6 +1,11 @@
 {
   "compilerOptions": {
+    "allowArbitraryExtensions": true,
     "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "checkJs": true,
+    "declaration": true,
+    "declarationMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
@@ -8,19 +13,32 @@
     "jsx": "react-jsx",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "esnext",
+    "moduleDetection": "force",
     "moduleResolution": "bundler",
     "noEmit": true,
+    "noEmitOnError": true,
+    "noErrorTruncation": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "outDir": "./dist",
     "plugins": [
       {
         "name": "next"
       }
     ],
     "resolveJsonModule": true,
+    "rootDir": "./",
     "skipLibCheck": true,
+    "sourceMap": true,
     "strict": true,
-    "target": "esnext"
+    "target": "esnext",
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
+    "types": ["node"],
+    "useDefineForClassFields": true,
+    "useUnknownInCatchVariables": true,
+    "verbatimModuleSyntax": true
   },
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "dist"],
   "include": [
     "next-env.d.ts",
     "**/*.ts",

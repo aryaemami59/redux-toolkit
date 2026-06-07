@@ -1,4 +1,4 @@
-/** @import { ConfigFunction } from '@babel/core' */
+/** @import { type ConfigFunction } from '@babel/core' */
 
 /**
  * @satisfies {ConfigFunction}

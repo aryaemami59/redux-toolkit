@@ -1,12 +1,13 @@
 import js from '@eslint/js'
 import prettierConfig from 'eslint-config-prettier/flat'
 import jestPlugin from 'eslint-plugin-jest'
-import reactPlugin from 'eslint-plugin-react'
 import reactHooksPlugin from 'eslint-plugin-react-hooks'
+import reactXPlugin from 'eslint-plugin-react-x'
+import { defineConfig } from 'eslint/config'
 import globals from 'globals'
-import { config, configs } from 'typescript-eslint'
+import { configs } from 'typescript-eslint'
 
-const eslintConfig = config(
+const eslintConfig = defineConfig(
   {
     name: 'global-ignores',
     ignores: [
@@ -30,20 +31,19 @@ const eslintConfig = config(
     name: `${js.meta.name}/recommended`,
     ...js.configs.recommended,
   },
-  configs.strictTypeChecked,
-  configs.stylisticTypeChecked,
   {
     name: `${jestPlugin.meta.name}/recommended`,
     ...jestPlugin.configs['flat/recommended'],
   },
+  reactHooksPlugin.configs.flat.recommended,
   {
-    name: 'eslint-plugin-react/jsx-runtime',
-    ...reactPlugin.configs.flat['jsx-runtime'],
-  },
-  reactHooksPlugin.configs['recommended-latest'],
-  {
+    extends: [
+      configs.strictTypeChecked,
+      configs.stylisticTypeChecked,
+      reactXPlugin.configs['strict-type-checked'],
+    ],
+    files: ['**/*.?(c|m)[tj]s?(x)'],
     name: 'main',
-
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.node,
@@ -54,18 +54,6 @@ const eslintConfig = config(
     },
     rules: {
       'no-undef': [0],
-      '@typescript-eslint/no-unused-vars': [
-        2,
-        {
-          args: 'all',
-          argsIgnorePattern: '^_',
-          caughtErrors: 'all',
-          caughtErrorsIgnorePattern: '^_',
-          destructuredArrayIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-          ignoreRestSiblings: true,
-        },
-      ],
       'no-restricted-imports': [
         2,
         {
@@ -88,6 +76,8 @@ const eslintConfig = config(
           disallowTypeAnnotations: true,
         },
       ],
+      '@typescript-eslint/no-unsafe-assignment': [0],
+      '@typescript-eslint/no-useless-default-assignment': [0],
     },
 
     linterOptions: {
@@ -95,8 +85,8 @@ const eslintConfig = config(
     },
   },
   {
+    files: ['metro.config.js', 'babel.config.js'],
     name: 'commonjs-files',
-    files: ['metro.config.js'],
     languageOptions: {
       sourceType: 'commonjs',
     },

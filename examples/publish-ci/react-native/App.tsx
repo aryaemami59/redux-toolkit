@@ -1,6 +1,6 @@
 import type { JSX } from 'react'
 import {
-  SafeAreaView,
+  Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -8,18 +8,48 @@ import {
   View,
   useColorScheme,
 } from 'react-native'
-import {
-  DebugInstructions,
-  HermesBadge,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { Header } from './src/components/Header'
-import { LearnReduxLinks } from './src/components/LearnReduxLinks'
+import {
+  LearnMoreLinks,
+  LearnReduxLinks,
+} from './src/components/LearnReduxLinks'
 import { Section } from './src/components/Section'
 import { TypedColors } from './src/constants/TypedColors'
 import { Counter } from './src/features/counter/Counter'
 import { Quotes } from './src/features/quotes/Quotes'
+
+const ReloadInstructions = Platform.select({
+  ios: () => (
+    <Text>
+      Press <Text style={styles.highlight}>Cmd + R</Text> in the simulator to
+      reload your app's code.
+    </Text>
+  ),
+  default: () => (
+    <Text>
+      Double tap <Text style={styles.highlight}>R</Text> on your keyboard to
+      reload your app's code.
+    </Text>
+  ),
+})
+
+const DebugInstructions = Platform.select({
+  ios: () => (
+    <Text>
+      Press <Text style={styles.highlight}>Cmd + D</Text> in the simulator or{' '}
+      <Text style={styles.highlight}>Shake</Text> your device to open the Dev
+      Menu.
+    </Text>
+  ),
+  default: () => (
+    <Text>
+      Press <Text style={styles.highlight}>Cmd or Ctrl + M</Text> or{' '}
+      <Text style={styles.highlight}>Shake</Text> your device to open the Dev
+      Menu.
+    </Text>
+  ),
+})
 
 export const App = (): JSX.Element => {
   const isDarkMode = useColorScheme() === 'dark'
@@ -39,7 +69,7 @@ export const App = (): JSX.Element => {
         style={backgroundStyle}
       >
         <Header />
-        <HermesBadge />
+        {/* <HermesBadge /> */}
         <View
           style={{
             backgroundColor: isDarkMode ? TypedColors.black : TypedColors.white,
