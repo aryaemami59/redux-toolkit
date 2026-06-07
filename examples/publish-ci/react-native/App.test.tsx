@@ -5,12 +5,12 @@ import type { Dispatch, PropsWithChildren } from 'react'
 import { Component, PureComponent } from 'react'
 import type { TextStyle } from 'react-native'
 import { Button, Text, View } from 'react-native'
-import { connect, Provider } from 'react-redux'
+import { legacy_connect as connect, Provider } from 'react-redux'
 import { App } from './App'
 import { renderWithProviders } from './src/utils/test-utils'
 
-test('App should have correct initial render', () => {
-  renderWithProviders(<App />)
+test('App should have correct initial render', async () => {
+  await renderWithProviders(<App />)
 
   const countLabel = screen.getByLabelText('Count')
 
@@ -25,7 +25,7 @@ test('App should have correct initial render', () => {
 })
 
 test('Increment value and Decrement value should work as expected', async () => {
-  const { user } = renderWithProviders(<App />)
+  const { user } = await renderWithProviders(<App />)
 
   const countLabel = screen.getByLabelText('Count')
 
@@ -43,7 +43,7 @@ test('Increment value and Decrement value should work as expected', async () => 
 })
 
 test('Add Amount should work as expected', async () => {
-  const { user } = renderWithProviders(<App />)
+  const { user } = await renderWithProviders(<App />)
 
   const countLabel = screen.getByLabelText('Count')
 
@@ -69,7 +69,7 @@ test('Add Amount should work as expected', async () => {
 })
 
 it('Add Async should work as expected', async () => {
-  const { user } = renderWithProviders(<App />)
+  const { user } = await renderWithProviders(<App />)
 
   const addAsyncButton = screen.getByText('Add Async')
 
@@ -111,7 +111,7 @@ it('Add Async should work as expected', async () => {
 })
 
 test('Add If Odd should work as expected', async () => {
-  const { user } = renderWithProviders(<App />)
+  const { user } = await renderWithProviders(<App />)
 
   const countLabel = screen.getByLabelText('Count')
 
@@ -216,11 +216,14 @@ test('React-Redux issue #2150: Nested component updates should be properly batch
     testID?: string
   }
 
+  // eslint-disable-next-line react-x/no-class-component
   class CounterRaw extends PureComponent<CounterProps> {
+    // eslint-disable-next-line react-x/no-unused-class-component-members
     handleIncrement = () => {
       this.props.dispatch({ type: ADD })
     }
 
+    // eslint-disable-next-line react-x/no-unused-class-component-members
     handleDate = () => {
       this.props.dispatch({ type: DATE, payload: { date: Date.now() } })
     }
@@ -237,6 +240,7 @@ test('React-Redux issue #2150: Nested component updates should be properly batch
     }
   }
 
+  // eslint-disable-next-line react-x/no-class-component
   class ButtonsRaw extends PureComponent<CounterProps> {
     handleIncrement = () => {
       this.props.dispatch({ type: ADD })
@@ -271,12 +275,14 @@ test('React-Redux issue #2150: Nested component updates should be properly batch
   const Buttons = connect(null, mapDispatchToProps)(ButtonsRaw)
   const Counter = connect(mapStateToProps, mapDispatchToProps)(CounterRaw)
 
+  // eslint-disable-next-line react-x/no-class-component
   class Container extends PureComponent<PropsWithChildren> {
     render() {
       return this.props.children
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const mapStateToPropsBreaking = (_state: unknown) => ({})
 
   const ContainerBad = connect(mapStateToPropsBreaking, null)(Container)
@@ -297,6 +303,7 @@ test('React-Redux issue #2150: Nested component updates should be properly batch
     null,
   )(Container)
 
+  // eslint-disable-next-line react-x/no-class-component
   class MainApp extends Component {
     render() {
       const $H1: TextStyle = { fontSize: 20 }
@@ -337,7 +344,9 @@ test('React-Redux issue #2150: Nested component updates should be properly batch
     }
   }
 
-  const { user, getByTestId, getByText } = renderWithProviders(<MainApp />)
+  const { user, getByTestId, getByText } = await renderWithProviders(
+    <MainApp />,
+  )
 
   expect(getByTestId('undesired-child')).toHaveTextContent('Counter Value: 0')
 

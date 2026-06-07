@@ -1,7 +1,7 @@
-import { Counter } from './features/counter/Counter'
-import { TimeDisplay } from './features/time/TimeList'
-import { Post } from './features/posts/Post'
 import './App.css'
+import { Counter } from './features/counter/Counter'
+import { Post } from './features/posts/Post'
+import { TimeDisplay } from './features/time/TimeList'
 
 function App() {
   return (
