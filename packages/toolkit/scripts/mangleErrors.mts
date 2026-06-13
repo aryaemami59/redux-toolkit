@@ -45,7 +45,7 @@ export type BabelPluginResult<
     >,
     'name'
   > & {
-    name?: PluginNameType | undefined
+    name?: PluginNameType
   }
 >
 
