@@ -891,6 +891,7 @@ const fixUniqueSymbolExports = (
             declare: true,
             kind: 'const',
           }) &&
+          t.isVariableDeclarator(statement.declarations[0]) &&
           t.isIdentifier(statement.declarations[0].id) &&
           t.isTSTypeAnnotation(statement.declarations[0].id.typeAnnotation) &&
           t.isTSTypeOperator(
