@@ -17,10 +17,24 @@
   "module": "./dist/index.module.js",
   "unpkg": "./dist/index.umd.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.module.js"
+      },
+      "default": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
   "scripts": {
-    "build": "microbundle",
-    "prepack": "rimraf dist/*; yarn build",
-    "dev": "microbundle watch",
+    "build": "microbundle build --tsconfig tsconfig.build.json",
+    "clean": "rimraf dist/",
+    "prepack": "yarn clean && yarn build",
+    "dev": "microbundle watch --tsconfig tsconfig.build.json",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -35,9 +49,9 @@
     "@reduxjs/toolkit": "^1.6.0 || ^2.0.0",
     "@types/node": "^25.5.0",
     "graphql": "^16.5.0",
-    "microbundle": "^0.13.3",
+    "microbundle": "^0.15.1",
     "rimraf": "^6.1.3",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "vitest": "^4"
   },
   "publishConfig": {

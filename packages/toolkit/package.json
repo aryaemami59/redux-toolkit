@@ -204,7 +204,7 @@
     "@types/react-dom": "^19.0.1",
     "@typescript-eslint/eslint-plugin": "^6",
     "@typescript-eslint/parser": "^6",
-    "@typescript/native-preview": "^7.0.0-dev.20260504.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260614.1",
     "axios": "^0.19.2",
     "esbuild": "^0.25.1",
     "esbuild-extra": "^0.4.0",
@@ -229,7 +229,7 @@
     "size-limit": "^11.0.1",
     "tsup": "^8.4.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "valibot": "^1.0.0",
     "vite-tsconfig-paths": "^4.3.1",
     "vitest": "^4"
@@ -261,7 +261,7 @@
   "dependencies": {
     "@standard-schema/spec": "^1.0.0",
     "@standard-schema/utils": "^0.3.0",
-    "immer": "^11.1.6",
+    "immer": "^11.1.8",
     "redux": "^5.0.1",
     "redux-thunk": "^3.1.0",
     "reselect": "^5.1.0"
