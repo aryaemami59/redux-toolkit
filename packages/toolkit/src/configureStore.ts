@@ -32,7 +32,7 @@ import type {
 import type { Tuple } from './utils'
 
 /**
- * Options for `configureStore()`.
+ * Options for {@linkcode configureStore}.
  *
  * @public
  */
@@ -45,15 +45,18 @@ export interface ConfigureStoreOptions<
 > {
   /**
    * A single reducer function that will be used as the root reducer, or an
-   * object of slice reducers that will be passed to `combineReducers()`.
+   * object of slice reducers that will be passed to {@linkcode combineReducers}.
    */
   reducer: Reducer<S, A, P> | ReducersMapObject<S, A, P>
 
   /**
-   * An array of Redux middleware to install, or a callback receiving `getDefaultMiddleware` and returning a Tuple of middleware.
-   * If not supplied, defaults to the set of middleware returned by `getDefaultMiddleware()`.
+   * An array of Redux middleware to install, or a callback receiving
+   * `getDefaultMiddleware` and returning a Tuple of middleware. If not supplied,
+   * defaults to the set of middleware returned by `getDefaultMiddleware()`.
    *
-   * @example `middleware: (gDM) => gDM().concat(logger, apiMiddleware, yourCustomMiddleware)`
+   * @example <caption>Customize the middleware</caption>
+   * `middleware: (gDM) => gDM().concat(logger, apiMiddleware, yourCustomMiddleware)`
+   *
    * @see {@link https://redux-toolkit.js.org/api/getDefaultMiddleware#intended-usage}
    */
   middleware?: (getDefaultMiddleware: GetDefaultMiddleware<S>) => M
@@ -75,23 +78,24 @@ export interface ConfigureStoreOptions<
   duplicateMiddlewareCheck?: boolean
 
   /**
-   * The initial state, same as Redux's createStore.
-   * You may optionally specify it to hydrate the state
-   * from the server in universal apps, or to restore a previously serialized
-   * user session. If you use `combineReducers()` to produce the root reducer
-   * function (either directly or indirectly by passing an object as `reducer`),
-   * this must be an object with the same shape as the reducer map keys.
+   * The initial state, same as Redux's {@linkcode createStore}. You may
+   * optionally specify it to hydrate the state from the server in universal
+   * apps, or to restore a previously serialized user session. If you use
+   * {@linkcode combineReducers} to produce the root reducer function (either
+   * directly or indirectly by passing an object as `reducer`), this must be an
+   * object with the same shape as the reducer map keys.
    */
   // we infer here, and instead complain if the reducer doesn't match
   preloadedState?: P
 
   /**
-   * The store enhancers to apply. See Redux's `createStore()`.
-   * All enhancers will be included before the DevTools Extension enhancer.
-   * If you need to customize the order of enhancers, supply a callback
-   * function that will receive a `getDefaultEnhancers` function that returns a Tuple,
-   * and should return a Tuple of enhancers (such as `getDefaultEnhancers().concat(offline)`).
-   * If you only need to add middleware, you can use the `middleware` parameter instead.
+   * The store enhancers to apply. See Redux's {@linkcode createStore}. All
+   * enhancers will be included before the DevTools Extension enhancer. If you
+   * need to customize the order of enhancers, supply a callback function that
+   * will receive a `getDefaultEnhancers` function that returns a Tuple, and
+   * should return a Tuple of enhancers (such as
+   * `getDefaultEnhancers().concat(offline)`). If you only need to add
+   * middleware, you can use the `middleware` parameter instead.
    */
   enhancers?: (getDefaultEnhancers: GetDefaultEnhancers<M>) => E
 }
@@ -101,7 +105,7 @@ export type Middlewares<S> = ReadonlyArray<Middleware<{}, S>>
 type Enhancers = ReadonlyArray<StoreEnhancer>
 
 /**
- * A Redux store returned by `configureStore()`. Supports dispatching
+ * A Redux store returned by {@linkcode configureStore}. Supports dispatching
  * side-effectful _thunks_ in addition to plain actions.
  *
  * @public
@@ -114,7 +118,8 @@ export type EnhancedStore<
   Store<S, A, UnknownIfNonSpecific<ExtractStateExtensions<E>>>
 
 /**
- * A friendly abstraction over the standard Redux `createStore()` function.
+ * A friendly abstraction over the standard Redux {@linkcode createStore}
+ * function.
  *
  * @param options The store configuration.
  * @returns A configured Redux store.

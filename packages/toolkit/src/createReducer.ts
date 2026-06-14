@@ -10,8 +10,9 @@ import { freezeDraftable } from './utils'
  * Defines a mapping from action types to corresponding action object shapes.
  *
  * @deprecated This should not be used manually - it is only used for internal
- *             inference purposes and should not have any further value.
- *             It might be removed in the future.
+ * inference purposes and should not have any further value. It might be removed
+ * in the future.
+ *
  * @public
  */
 export type Actions<T extends keyof any = string> = Record<T, Action>
@@ -31,16 +32,16 @@ export type ActionMatcherDescriptionCollection<S> = Array<
 
 /**
  * A *case reducer* is a reducer function for a specific action type. Case
- * reducers can be composed to full reducers using `createReducer()`.
+ * reducers can be composed to full reducers using {@linkcode createReducer}.
  *
  * Unlike a normal Redux reducer, a case reducer is never called with an
  * `undefined` state to determine the initial state. Instead, the initial
- * state is explicitly specified as an argument to `createReducer()`.
+ * state is explicitly specified as an argument to {@linkcode createReducer}.
  *
  * In addition, a case reducer can choose to mutate the passed-in `state`
  * value directly instead of returning a new state. This does not actually
  * cause the store state to be mutated directly; instead, thanks to
- * [immer](https://github.com/mweststrate/immer), the mutations are
+ * {@link https://github.com/mweststrate/immer | immer}, the mutations are
  * translated to copy operations that result in a new state.
  *
  * @public
@@ -51,12 +52,12 @@ export type CaseReducer<S = any, A extends Action = UnknownAction> = (
 ) => NoInfer<S> | void | Draft<NoInfer<S>>
 
 /**
- * A mapping from action types to case reducers for `createReducer()`.
+ * A mapping from action types to case reducers for {@linkcode createReducer}.
  *
- * @deprecated This should not be used manually - it is only used
- *             for internal inference purposes and using it manually
- *             would lead to type erasure.
- *             It might be removed in the future.
+ * @deprecated This should not be used manually - it is only used for internal
+ * inference purposes and using it manually would lead to type erasure. It might
+ * be removed in the future.
+ *
  * @public
  */
 export type CaseReducers<S, AS extends Actions> = {
@@ -80,32 +81,33 @@ export type ReducerWithInitialState<S extends NotFunction<any>> = Reducer<S> & {
  *
  * @remarks
  * The body of every case reducer is implicitly wrapped with a call to
- * `produce()` from the [immer](https://github.com/mweststrate/immer) library.
- * This means that rather than returning a new state object, you can also
- * mutate the passed-in state object directly; these mutations will then be
+ * `produce()` from the {@link https://github.com/mweststrate/immer | immer}
+ * library. This means that rather than returning a new state object, you can
+ * also mutate the passed-in state object directly; these mutations will then be
  * automatically and efficiently translated into copies, giving you both
  * convenience and immutability.
  *
  * @overloadSummary
- * This function accepts a callback that receives a `builder` object as its argument.
- * That builder provides `addCase`, `addMatcher` and `addDefaultCase` functions that may be
- * called to define what actions this reducer will handle.
+ * This function accepts a callback that receives a `builder` object as its
+ * argument. That builder provides `addCase`, `addMatcher` and `addDefaultCase`
+ * functions that may be called to define what actions this reducer will handle.
  *
  * @param initialState - `State | (() => State)`: The initial state that should be used when the reducer is called the first time. This may also be a "lazy initializer" function, which should return an initial state value when called. This will be used whenever the reducer is called with `undefined` as its state value, and is primarily useful for cases like reading initial state from `localStorage`.
- * @param mapOrBuilderCallback - `(builder: Builder) => void` A callback that receives a *builder* object to define
- *   case reducers via calls to `builder.addCase(actionCreatorOrType, reducer)`.
- * @example
- * ```ts
- * import type { PayloadAction, UnknownAction } from '@reduxjs/toolkit';
- * import { createAction, createReducer } from '@reduxjs/toolkit';
+ * @param mapOrBuilderCallback - `(builder: Builder) => void` A callback that receives a *builder* object to define case reducers via calls to `builder.addCase(actionCreatorOrType, reducer)`.
  *
- * const increment = createAction<number>('increment');
- * const decrement = createAction<number>('decrement');
+ * @example <caption>Define a reducer with the builder callback notation</caption>
+ *
+ * ```ts
+ * import type { PayloadAction, UnknownAction } from "@reduxjs/toolkit";
+ * import { createAction, createReducer } from "@reduxjs/toolkit";
+ *
+ * const increment = createAction<number>("increment");
+ * const decrement = createAction<number>("decrement");
  *
  * function isActionWithNumberPayload(
  *   action: UnknownAction,
  * ): action is PayloadAction<number> {
- *   return typeof action.payload === 'number';
+ *   return typeof action.payload === "number";
  * }
  *
  * const reducer = createReducer(
@@ -131,6 +133,7 @@ export type ReducerWithInitialState<S extends NotFunction<any>> = Reducer<S> & {
  *   },
  * );
  * ```
+ *
  * @public
  */
 export function createReducer<S extends NotFunction<any>>(

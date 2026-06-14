@@ -86,6 +86,7 @@ export type RetryOptions = {
   | {
       /**
        * Callback to determine if a retry should be attempted.
+       *
        * @returns `true` for another retry and `false` to quit trying prematurely.
        */
       retryCondition?: RetryConditionFunction
@@ -202,13 +203,14 @@ const retryWithBackoff: BaseQueryEnhancer<
 }
 
 /**
- * A utility that can wrap `baseQuery` in the API definition to provide retries with a basic exponential backoff.
+ * A utility that can wrap `baseQuery` in the API definition to provide retries
+ * with a basic exponential backoff.
  *
- * @example
+ * @example <caption>Retry every request 5 times by default</caption>
  *
  * ```ts
  * // codeblock-meta title="Retry every request 5 times by default"
- * import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react';
+ * import { createApi, fetchBaseQuery, retry } from "@reduxjs/toolkit/query/react";
  *
  * interface Post {
  *   id: number;
@@ -218,7 +220,7 @@ const retryWithBackoff: BaseQueryEnhancer<
  * type PostsResponse = Post[];
  *
  * // maxRetries: 5 is the default, and can be omitted. Shown for documentation purposes.
- * const staggeredBaseQuery = retry(fetchBaseQuery({ baseUrl: '/' }), {
+ * const staggeredBaseQuery = retry(fetchBaseQuery({ baseUrl: "/" }), {
  *   maxRetries: 5,
  * });
  *
@@ -226,7 +228,7 @@ const retryWithBackoff: BaseQueryEnhancer<
  *   baseQuery: staggeredBaseQuery,
  *   endpoints: (build) => ({
  *     getPosts: build.query<PostsResponse, void>({
- *       query: () => ({ url: 'posts' }),
+ *       query: () => ({ url: "posts" }),
  *     }),
  *     getPost: build.query<PostsResponse, string>({
  *       query: (id) => ({ url: `post/${id}` }),

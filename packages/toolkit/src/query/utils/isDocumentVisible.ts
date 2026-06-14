@@ -1,6 +1,9 @@
 /**
- * Assumes true for a non-browser env, otherwise makes a best effort
- * @link https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilityState
+ * Assumes `true` for a non-browser env, otherwise makes a best effort.
+ *
+ * @returns `true` if the document is considered visible, otherwise `false`.
+ *
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilityState | Document.visibilityState}
  */
 export function isDocumentVisible(): boolean {
   // `document` may not exist in non-browser envs (like RN)

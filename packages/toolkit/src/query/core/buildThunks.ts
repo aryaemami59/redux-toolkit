@@ -306,10 +306,12 @@ export type PatchCollection = {
    * An `immer` Patch describing the cache update.
    */
   patches: Patch[]
+
   /**
    * An `immer` Patch to revert the cache update.
    */
   inversePatches: Patch[]
+
   /**
    * A function that will undo the cache update.
    */

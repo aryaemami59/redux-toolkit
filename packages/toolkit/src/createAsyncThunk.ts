@@ -86,8 +86,8 @@ class FulfillWithMeta<Payload, FulfilledMeta> {
 }
 
 /**
- * Serializes an error into a plain object.
- * Reworked from https://github.com/sindresorhus/serialize-error
+ * Serializes an error into a plain object. Reworked from
+ * {@link https://github.com/sindresorhus/serialize-error | serialize-error}.
  *
  * @public
  */
@@ -185,8 +185,9 @@ type GetSerializedErrorType<ThunkApiConfig> = ThunkApiConfig extends {
 type MaybePromise<T> = T | Promise<T> | (T extends any ? Promise<T> : never)
 
 /**
- * A type describing the return value of the `payloadCreator` argument to `createAsyncThunk`.
- * Might be useful for wrapping `createAsyncThunk` in custom abstractions.
+ * A type describing the return value of the `payloadCreator` argument to
+ * {@linkcode createAsyncThunk}. Might be useful for wrapping
+ * {@linkcode createAsyncThunk} in custom abstractions.
  *
  * @public
  */
@@ -205,8 +206,9 @@ export type AsyncThunkPayloadCreatorReturnValue<
     >
 >
 /**
- * A type describing the `payloadCreator` argument to `createAsyncThunk`.
- * Might be useful for wrapping `createAsyncThunk` in custom abstractions.
+ * A type describing the `payloadCreator` argument to
+ * {@linkcode createAsyncThunk}. Might be useful for wrapping
+ * {@linkcode createAsyncThunk} in custom abstractions.
  *
  * @public
  */
@@ -220,11 +222,10 @@ export type AsyncThunkPayloadCreator<
 ) => AsyncThunkPayloadCreatorReturnValue<Returned, ThunkApiConfig>
 
 /**
- * A ThunkAction created by `createAsyncThunk`.
- * Dispatching it returns a Promise for either a
- * fulfilled or rejected action.
- * Also, the returned value contains an `abort()` method
- * that allows the asyncAction to be cancelled from the outside.
+ * A ThunkAction created by {@linkcode createAsyncThunk}. Dispatching it returns
+ * a {@linkcode Promise | promise} for either a fulfilled or rejected action.
+ * Also, the returned value contains an `abort()` method that allows the
+ * asyncAction to be cancelled from the outside.
  *
  * @public
  */
@@ -251,7 +252,8 @@ export type AsyncThunkAction<
  */
 export interface AsyncThunkDispatchConfig {
   /**
-   * An external `AbortSignal` that will be tracked by the internal `AbortSignal`.
+   * An external {@linkcode AbortSignal} that will be tracked by the internal
+   * {@linkcode AbortSignal}.
    */
   signal?: AbortSignal
 }
@@ -303,7 +305,7 @@ type AsyncThunkActionCreator<
 >
 
 /**
- * Options object for `createAsyncThunk`.
+ * Options object for {@linkcode createAsyncThunk}.
  *
  * @public
  */
@@ -312,8 +314,8 @@ export type AsyncThunkOptions<
   ThunkApiConfig extends AsyncThunkConfig = {},
 > = {
   /**
-   * A method to control whether the asyncThunk should be executed. Has access to the
-   * `arg`, `api.getState()` and `api.extra` arguments.
+   * A method to control whether the asyncThunk should be executed. Has access
+   * to the `arg`, `api.getState()` and `api.extra` arguments.
    *
    * @returns `false` if it should be skipped
    */
@@ -322,11 +324,11 @@ export type AsyncThunkOptions<
     api: Pick<GetThunkAPI<ThunkApiConfig>, 'getState' | 'extra'>,
   ): MaybePromise<boolean | undefined>
   /**
-   * If `condition` returns `false`, the asyncThunk will be skipped.
-   * This option allows you to control whether a `rejected` action with `meta.condition == false`
-   * will be dispatched or not.
+   * If `condition` returns `false`, the asyncThunk will be skipped. This option
+   * allows you to control whether a `rejected` action with
+   * `meta.condition == false` will be dispatched or not.
    *
-   * @default `false`
+   * @default false
    */
   dispatchConditionRejection?: boolean
 
@@ -335,17 +337,20 @@ export type AsyncThunkOptions<
   /**
    * A function to use when generating the `requestId` for the request sequence.
    *
-   * @default `nanoid`
+   * @default {@linkcode nanoid}
    */
   idGenerator?: (arg: ThunkArg) => string
 } & IsUnknown<
   GetPendingMeta<ThunkApiConfig>,
   {
     /**
-     * A method to generate additional properties to be added to `meta` of the pending action.
+     * A method to generate additional properties to be added to `meta` of the
+     * pending action.
      *
-     * Using this optional overload will not modify the types correctly, this overload is only in place to support JavaScript users.
-     * Please use the `ThunkApiConfig` parameter `pendingMeta` to get access to a correctly typed overload
+     * Using this optional overload will not modify the types correctly, this
+     * overload is only in place to support JavaScript users. Please use the
+     * `ThunkApiConfig` parameter `pendingMeta` to get access to a correctly
+     * typed overload.
      */
     getPendingMeta?(
       base: {
@@ -357,7 +362,8 @@ export type AsyncThunkOptions<
   },
   {
     /**
-     * A method to generate additional properties to be added to `meta` of the pending action.
+     * A method to generate additional properties to be added to `meta` of the
+     * pending action.
      */
     getPendingMeta(
       base: {
@@ -429,8 +435,8 @@ export type AsyncThunkFulfilledActionCreator<
 >
 
 /**
- * A type describing the return value of `createAsyncThunk`.
- * Might be useful for wrapping `createAsyncThunk` in custom abstractions.
+ * A type describing the return value of {@linkcode createAsyncThunk}. Might be
+ * useful for wrapping {@linkcode createAsyncThunk} in custom abstractions.
  *
  * @public
  */
@@ -464,10 +470,13 @@ export type CreateAsyncThunkFunction<
   CurriedThunkApiConfig extends AsyncThunkConfig,
 > = {
   /**
+   * A utility function that allows defining a thunk that performs asynchronous
+   * logic and returns a {@linkcode Promise | promise}.
    *
-   * @param typePrefix
-   * @param payloadCreator
-   * @param options
+   * @param typePrefix - A string action type value prefix used to generate the `pending`, `fulfilled`, and `rejected` action types.
+   * @param payloadCreator - A callback function that should return a {@linkcode Promise | promise} containing the result of some asynchronous logic.
+   * @param options - An object with options for the thunk.
+   * @returns An async thunk action creator that runs the `payloadCreator` and dispatches its lifecycle actions.
    *
    * @public
    */
@@ -483,10 +492,13 @@ export type CreateAsyncThunkFunction<
   ): AsyncThunk<Returned, ThunkArg, CurriedThunkApiConfig>
 
   /**
+   * A utility function that allows defining a thunk that performs asynchronous
+   * logic and returns a {@linkcode Promise | promise}.
    *
-   * @param typePrefix
-   * @param payloadCreator
-   * @param options
+   * @param typePrefix - A string action type value prefix used to generate the `pending`, `fulfilled`, and `rejected` action types.
+   * @param payloadCreator - A callback function that should return a {@linkcode Promise | promise} containing the result of some asynchronous logic.
+   * @param options - An object with options for the thunk.
+   * @returns An async thunk action creator that runs the `payloadCreator` and dispatches its lifecycle actions.
    *
    * @public
    */
@@ -764,6 +776,13 @@ type UnwrappedActionPayload<T extends UnwrappableAction> = Exclude<
 >['payload']
 
 /**
+ * Unwraps a fulfilled or rejected thunk action, returning the payload of a
+ * fulfilled action or throwing the error of a rejected action.
+ *
+ * @param action - A fulfilled or rejected thunk action to unwrap.
+ * @returns The payload of the fulfilled action.
+ * @throws The rejected value, or a {@linkcode SerializedError}, when the action was rejected.
+ *
  * @public
  */
 export function unwrapResult<R extends UnwrappableAction>(

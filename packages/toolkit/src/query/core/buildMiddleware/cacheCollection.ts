@@ -13,10 +13,11 @@ import type {
 export type ReferenceCacheCollection = never
 
 /**
- * @example
+ * @example <caption>keepUnusedDataFor example</caption>
+ *
  * ```ts
  * // codeblock-meta title="keepUnusedDataFor example"
- * import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+ * import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
  *
  * interface Post {
  *   id: number;
@@ -26,10 +27,10 @@ export type ReferenceCacheCollection = never
  * type PostsResponse = Post[];
  *
  * const api = createApi({
- *   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
+ *   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
  *   endpoints: (build) => ({
  *     getPosts: build.query<PostsResponse, void>({
- *       query: () => 'posts',
+ *       query: () => "posts",
  *       // highlight-start
  *       keepUnusedDataFor: 5,
  *       // highlight-end
@@ -40,9 +41,14 @@ export type ReferenceCacheCollection = never
  */
 export type CacheCollectionQueryExtraOptions = {
   /**
-   * Overrides the api-wide definition of `keepUnusedDataFor` for this endpoint only. _(This value is in seconds.)_
+   * Overrides the api-wide definition of `keepUnusedDataFor` for this endpoint
+   * only. _(This value is in seconds.)_
    *
-   * This is how long RTK Query will keep your data cached for **after** the last component unsubscribes. For example, if you query an endpoint, then unmount the component, then mount another component that makes the same request within the given time frame, the most recent value will be served from the cache.
+   * This is how long RTK Query will keep your data cached for **after** the
+   * last component unsubscribes. For example, if you query an endpoint, then
+   * unmount the component, then mount another component that makes the same
+   * request within the given time frame, the most recent value will be served
+   * from the cache.
    */
   keepUnusedDataFor?: number
 }

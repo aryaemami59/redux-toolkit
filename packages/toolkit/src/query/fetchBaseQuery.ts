@@ -45,8 +45,9 @@ export interface FetchArgs extends CustomRequestInit {
 
 /**
  * A mini-wrapper that passes arguments straight through to
- * {@link [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)}.
- * Avoids storing `fetch` in a closure, in order to permit mocking/monkey-patching.
+ * {@link https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API | fetch}.
+ * Avoids storing `fetch` in a closure, in order to permit
+ * mocking/monkey-patching.
  */
 const defaultFetchFn: typeof fetch = (...args) => fetch(...args)
 
@@ -59,28 +60,23 @@ const defaultIsJsonContentType = (headers: Headers) =>
 export type FetchBaseQueryError =
   | {
       /**
-       * * `number`:
-       *   HTTP status code
+       * - `number`: HTTP status code
        */
       status: number
       data: unknown
     }
   | {
       /**
-       * * `"FETCH_ERROR"`:
-       *   An error that occurred during execution of `fetch` or the `fetchFn` callback option
-       **/
+       * - `"FETCH_ERROR"`: An error that occurred during execution of `fetch` or the `fetchFn` callback option
+       */
       status: 'FETCH_ERROR'
       data?: undefined
       error: string
     }
   | {
       /**
-       * * `"PARSING_ERROR"`:
-       *   An error happened during parsing.
-       *   Most likely a non-JSON-response was returned with the default `responseHandler` "JSON",
-       *   or an error occurred while executing a custom `responseHandler`.
-       **/
+       * - `"PARSING_ERROR"`: An error happened during parsing. Most likely a non-JSON-response was returned with the default `responseHandler` "JSON", or an error occurred while executing a custom `responseHandler`.
+       */
       status: 'PARSING_ERROR'
       originalStatus: number
       data: string
@@ -88,18 +84,16 @@ export type FetchBaseQueryError =
     }
   | {
       /**
-       * * `"TIMEOUT_ERROR"`:
-       *   Request timed out
-       **/
+       * - `"TIMEOUT_ERROR"`: Request timed out
+       */
       status: 'TIMEOUT_ERROR'
       data?: undefined
       error: string
     }
   | {
       /**
-       * * `"CUSTOM_ERROR"`:
-       *   A custom error type that you can return from your `queryFn` where another error might not make sense.
-       **/
+       * - `"CUSTOM_ERROR"`: A custom error type that you can return from your `queryFn` where another error might not make sense.
+       */
       status: 'CUSTOM_ERROR'
       data?: unknown
       error: string
@@ -176,14 +170,15 @@ export type FetchBaseQueryArgs = {
    *
    * @default (headers: Headers) => /ion\/(vnd\.api\+)?json/.test(headers.get('content-type') || '')
    *
-   * @example
+   * @example <caption>Support additional JSON content types</caption>
+   *
    * ```ts
    * const isJsonContentType = (headers: Headers) =>
    *   [
-   *     'application/vnd.api+json',
-   *     'application/json',
-   *     'application/vnd.hal+json',
-   *   ].includes(headers.get('content-type')?.trim() ?? '');
+   *     "application/vnd.api+json",
+   *     "application/json",
+   *     "application/vnd.hal+json",
+   *   ].includes(headers.get("content-type")?.trim() ?? "");
    * ```
    */
   isJsonContentType?: (headers: Headers) => boolean
@@ -208,9 +203,10 @@ export type FetchBaseQueryMeta = { request: Request; response?: Response }
 /**
  * This is a very small wrapper around fetch that aims to simplify requests.
  *
- * @example
+ * @example <caption>Create a base query that attaches an auth header</caption>
+ *
  * ```ts
- * import { fetchBaseQuery } from '@reduxjs/toolkit/query';
+ * import { fetchBaseQuery } from "@reduxjs/toolkit/query";
  *
  * type RootState = {
  *   auth: {
@@ -219,45 +215,28 @@ export type FetchBaseQueryMeta = { request: Request; response?: Response }
  * };
  *
  * const baseQuery = fetchBaseQuery({
- *   baseUrl: 'https://api.your-really-great-app.com/v1/',
+ *   baseUrl: "https://api.your-really-great-app.com/v1/",
  *   prepareHeaders: (headers, { getState }) => {
  *     const { token } = (getState() as RootState).auth;
  *     // If we have a token set in state, let's assume that we should be passing it.
  *     if (token) {
- *       headers.set('authorization', `Bearer ${token}`);
+ *       headers.set("authorization", `Bearer ${token}`);
  *     }
  *     return headers;
  *   },
  * });
  * ```
  *
- * @param {string} baseUrl
- * The base URL for an API service.
- * Typically in the format of https://example.com/
+ * @param baseUrl - The base URL for an API service. Typically in the format of `https://example.com/`.
+ * @param prepareHeaders - An optional function that can be used to inject headers on requests. Provides a Headers object, most of the {@linkcode BaseQueryApi} (`dispatch` is not available), and the arg passed into the query function. Useful for setting authentication or headers that need to be set conditionally.
+ * @param fetchFn - Accepts a custom `fetch` function if you do not want to use the default on the window. Useful in SSR environments if you need to use a library such as `isomorphic-fetch` or `cross-fetch`.
+ * @param paramsSerializer - An optional function that can be used to stringify querystring parameters.
+ * @param isJsonContentType - An optional predicate function to determine if `JSON.stringify()` should be called on the `body` arg of {@linkcode FetchArgs}.
+ * @param jsonContentType - Used when automatically setting the content-type header for a request with a jsonifiable body that does not have an explicit content-type header. Defaults to `application/json`.
+ * @param jsonReplacer - Custom replacer function used when calling `JSON.stringify()`.
+ * @param timeout - A number in milliseconds that represents the maximum time a request can take before timing out.
  *
- * @param {(headers: Headers, api: { getState: () => unknown; arg: string | FetchArgs; extra: unknown; endpoint: string; type: 'query' | 'mutation'; forced: boolean; }) => Headers} prepareHeaders
- * An optional function that can be used to inject headers on requests.
- * Provides a Headers object, most of the `BaseQueryApi` (`dispatch` is not available), and the arg passed into the query function.
- * Useful for setting authentication or headers that need to be set conditionally.
- *
- * @link https://developer.mozilla.org/en-US/docs/Web/API/Headers
- *
- * @param {(input: RequestInfo, init?: RequestInit | undefined) => Promise<Response>} fetchFn
- * Accepts a custom `fetch` function if you do not want to use the default on the window.
- * Useful in SSR environments if you need to use a library such as `isomorphic-fetch` or `cross-fetch`
- *
- * @param {(params: Record<string, unknown>) => string} paramsSerializer
- * An optional function that can be used to stringify querystring parameters.
- *
- * @param {(headers: Headers) => boolean} isJsonContentType
- * An optional predicate function to determine if `JSON.stringify()` should be called on the `body` arg of `FetchArgs`
- *
- * @param {string} jsonContentType Used when automatically setting the content-type header for a request with a jsonifiable body that does not have an explicit content-type header. Defaults to `application/json`.
- *
- * @param {(this: any, key: string, value: any) => any} jsonReplacer Custom replacer function used when calling `JSON.stringify()`.
- *
- * @param {number} timeout
- * A number in milliseconds that represents the maximum time a request can take before timing out.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Headers | Headers}
  */
 
 export function fetchBaseQuery({

@@ -59,7 +59,9 @@ export type AutoBatchOptions =
  * - `{ type: 'raf' }`: queues using {@linkcode requestAnimationFrame} (default)
  * - `{ type: 'callback', queueNotification: (notify: () => void) => void }`: lets you provide your own callback
  *
- * @default { type: 'raf' };
+ * @default { type: 'raf' }
+ *
+ * @public
  */
 export const autoBatchEnhancer =
   (options: AutoBatchOptions = { type: 'raf' }): StoreEnhancer =>

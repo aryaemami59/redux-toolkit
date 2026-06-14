@@ -14,8 +14,12 @@ export function createEntityAdapter<T extends { id: EntityId }>(
 ): EntityAdapter<T, T['id']>
 
 /**
+ * Creates a set of prebuilt reducer functions and selectors for performing CRUD
+ * operations on a normalized entity state structure, returned as an
+ * {@linkcode EntityAdapter}.
  *
- * @param options
+ * @param options - An object configuring the adapter's `selectId` and `sortComparer` behavior.
+ * @returns An {@linkcode EntityAdapter} containing reducers, selectors, and a state factory.
  *
  * @public
  */

@@ -3,7 +3,7 @@ import { isAction, isPlainObject } from './reduxImports'
 import { getTimeMeasureUtils } from './utils'
 
 /**
- * Returns true if the passed value is "plain", i.e. a value that is either
+ * Returns `true` if the passed value is "plain", i.e. a value that is either
  * directly JSON-serializable (boolean, number, string, array, plain object)
  * or `undefined`.
  *
@@ -31,6 +31,9 @@ interface NonSerializableValue {
 export type IgnoredPaths = readonly (string | RegExp)[]
 
 /**
+ * Recursively walks a value looking for the first entry that is not considered
+ * serializable, returning its key path and value, or `false` if none is found.
+ *
  * @public
  */
 export function findNonSerializableValue(
@@ -130,10 +133,12 @@ export interface SerializableStateInvariantMiddlewareOptions {
    * @default isPlain
    */
   isSerializable?: (value: any) => boolean
+
   /**
-   * The function that will be used to retrieve entries from each
-   * value.  If unspecified, `Object.entries` will be used. Defaults
-   * to `undefined`.
+   * The function that will be used to retrieve entries from each value. If
+   * unspecified, `Object.entries` will be used.
+   *
+   * @default undefined
    */
   getEntries?: (value: any) => [string, any][]
 
@@ -159,6 +164,7 @@ export interface SerializableStateInvariantMiddlewareOptions {
    * @default []
    */
   ignoredPaths?: (string | RegExp)[]
+
   /**
    * Execution time warning threshold. If the middleware takes longer
    * than `warnAfter` ms, a warning will be displayed in the console.
@@ -168,14 +174,16 @@ export interface SerializableStateInvariantMiddlewareOptions {
   warnAfter?: number
 
   /**
-   * Opt out of checking state. When set to `true`, other state-related params will be ignored.
+   * Opt out of checking state. When set to `true`, other state-related params
+   * will be ignored.
    *
    * @default false
    */
   ignoreState?: boolean
 
   /**
-   * Opt out of checking actions. When set to `true`, other action-related params will be ignored.
+   * Opt out of checking actions. When set to `true`, other action-related
+   * params will be ignored.
    *
    * @default false
    */

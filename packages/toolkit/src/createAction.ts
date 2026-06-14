@@ -9,12 +9,12 @@ import { hasMatchFunction } from './tsHelpers'
 
 /**
  * An action with a string type and an associated payload. This is the
- * type of action returned by `createAction()` action creators.
+ * type of action returned by {@linkcode createAction} action creators.
  *
  * @template P The type of the action's payload.
- * @template T the type used for the action type.
- * @template M The type of the action's meta (optional)
- * @template E The type of the action's error (optional)
+ * @template T The type used for the action type.
+ * @template M The type of the action's meta (optional).
+ * @template E The type of the action's error (optional).
  *
  * @public
  */
@@ -38,9 +38,10 @@ export type PayloadAction<
       })
 
 /**
- * A "prepare" method to be used as the second parameter of `createAction`.
- * Takes any number of arguments and returns a Flux Standard Action without
- * type (will be added later) that *must* contain a payload (might be undefined).
+ * A "prepare" method to be used as the second parameter of
+ * {@linkcode createAction}. Takes any number of arguments and returns a Flux
+ * Standard Action without type (will be added later) that *must* contain a
+ * payload (might be undefined).
  *
  * @public
  */
@@ -51,7 +52,8 @@ export type PrepareAction<P> =
   | ((...args: any[]) => { payload: P; meta: any; error: any })
 
 /**
- * Internal version of `ActionCreatorWithPreparedPayload`. Not to be used externally.
+ * Internal version of {@linkcode ActionCreatorWithPreparedPayload}. Not to be
+ * used externally.
  *
  * @internal
  */
@@ -89,7 +91,8 @@ export type BaseActionCreator<P, T extends string, M = never, E = never> = {
 
 /**
  * An action creator that takes multiple arguments that are passed
- * to a `PrepareAction` method to create the final Action.
+ * to a {@linkcode PrepareAction} method to create the final Action.
+ *
  * @template Args arguments for the action creator function
  * @template P `payload` type
  * @template T `type` name
@@ -108,9 +111,10 @@ export interface ActionCreatorWithPreparedPayload<
   M = never,
 > extends BaseActionCreator<P, T, M, E> {
   /**
-   * Calling this {@link redux#ActionCreator} with `Args` will return
-   * an Action with a payload of type `P` and (depending on the `PrepareAction`
-   * method used) a `meta`- and `error` property of types `M` and `E` respectively.
+   * Calling this {@link redux#ActionCreator} with `Args` will return an Action
+   * with a payload of type `P` and (depending on the {@linkcode PrepareAction}
+   * method used) a `meta`- and `error` property of types `M` and `E`
+   * respectively.
    */
   (...args: Args): PayloadAction<P, T, M, E>
 }
@@ -127,9 +131,10 @@ export interface ActionCreatorWithOptionalPayload<
   T extends string = string,
 > extends BaseActionCreator<P, T> {
   /**
-   * Calling this {@link redux#ActionCreator} with an argument will
-   * return a {@link PayloadAction} of type `T` with a payload of `P`.
-   * Calling it without an argument will return a PayloadAction with a payload of `undefined`.
+   * Calling this {@link redux#ActionCreator} with an argument will return a
+   * {@linkcode PayloadAction} of type `T` with a payload of `P`. Calling it
+   * without an argument will return a {@linkcode PayloadAction} with a payload
+   * of `undefined`.
    */
   (payload?: P): PayloadAction<P, T>
 }
@@ -145,8 +150,8 @@ export interface ActionCreatorWithoutPayload<
   T extends string = string,
 > extends BaseActionCreator<undefined, T> {
   /**
-   * Calling this {@link redux#ActionCreator} will
-   * return a {@link PayloadAction} of type `T` with a payload of `undefined`
+   * Calling this {@link redux#ActionCreator} will return a
+   * {@linkcode PayloadAction} of type `T` with a payload of `undefined`.
    */
   (noArgument: void): PayloadAction<undefined, T>
 }
@@ -163,14 +168,15 @@ export interface ActionCreatorWithPayload<
   T extends string = string,
 > extends BaseActionCreator<P, T> {
   /**
-   * Calling this {@link redux#ActionCreator} with an argument will
-   * return a {@link PayloadAction} of type `T` with a payload of `P`
+   * Calling this {@link redux#ActionCreator} with an argument will return a
+   * {@linkcode PayloadAction} of type `T` with a payload of `P`.
    */
   (payload: P): PayloadAction<P, T>
 }
 
 /**
- * An action creator of type `T` whose `payload` type could not be inferred. Accepts everything as `payload`.
+ * An action creator of type `T` whose `payload` type could not be inferred.
+ * Accepts everything as `payload`.
  *
  * @inheritdoc {redux#ActionCreator}
  *
@@ -180,9 +186,9 @@ export interface ActionCreatorWithNonInferrablePayload<
   T extends string = string,
 > extends BaseActionCreator<unknown, T> {
   /**
-   * Calling this {@link redux#ActionCreator} with an argument will
-   * return a {@link PayloadAction} of type `T` with a payload
-   * of exactly the type of the argument.
+   * Calling this {@link redux#ActionCreator} with an argument will return a
+   * {@linkcode PayloadAction} of type `T` with a payload of exactly the type of
+   * the argument.
    */
   <PT extends unknown>(payload: PT): PayloadAction<PT, T>
 }
@@ -190,9 +196,9 @@ export interface ActionCreatorWithNonInferrablePayload<
 /**
  * An action creator that produces actions with a `payload` attribute.
  *
- * @typeParam P the `payload` type
- * @typeParam T the `type` of the resulting action
- * @typeParam PA if the resulting action is preprocessed by a `prepare` method, the signature of said method.
+ * @template P the `payload` type
+ * @template T the `type` of the resulting action
+ * @template PA if the resulting action is preprocessed by a `prepare` method, the signature of said method.
  *
  * @public
  */
@@ -230,11 +236,11 @@ export type PayloadActionCreator<
  * A utility function to create an action creator for the given action type
  * string. The action creator accepts a single argument, which will be included
  * in the action object as a field called payload. The action creator function
- * will also have its toString() overridden so that it returns the action type.
+ * will also have its `toString()` overridden so that it returns the action
+ * type.
  *
  * @param type The action type to use for created actions.
- * @param prepare (optional) a method that takes any number of arguments and returns { payload } or { payload, meta }.
- *                If this is given, the resulting action creator will pass its arguments to this method to calculate payload & meta.
+ * @param prepareAction (optional) A method that takes any number of arguments and returns `{ payload }` or `{ payload, meta }`. If this is given, the resulting action creator will pass its arguments to this method to calculate payload & meta.
  *
  * @public
  */
@@ -246,11 +252,11 @@ export function createAction<P = void, T extends string = string>(
  * A utility function to create an action creator for the given action type
  * string. The action creator accepts a single argument, which will be included
  * in the action object as a field called payload. The action creator function
- * will also have its toString() overridden so that it returns the action type.
+ * will also have its `toString()` overridden so that it returns the action
+ * type.
  *
  * @param type The action type to use for created actions.
- * @param prepare (optional) a method that takes any number of arguments and returns { payload } or { payload, meta }.
- *                If this is given, the resulting action creator will pass its arguments to this method to calculate payload & meta.
+ * @param prepareAction (optional) A method that takes any number of arguments and returns `{ payload }` or `{ payload, meta }`. If this is given, the resulting action creator will pass its arguments to this method to calculate payload & meta.
  *
  * @public
  */
@@ -291,7 +297,8 @@ export function createAction(type: string, prepareAction?: Function): any {
 }
 
 /**
- * Returns true if value is an RTK-like action creator, with a static type property and match method.
+ * Returns `true` if value is an RTK-like action creator, with a static type
+ * property and match method.
  */
 export function isActionCreator(
   action: unknown,
@@ -305,7 +312,8 @@ export function isActionCreator(
 }
 
 /**
- * Returns true if value is an action with a string type and valid Flux Standard Action keys.
+ * Returns `true` if value is an action with a string type and valid Flux
+ * Standard Action keys.
  */
 export function isFSA(action: unknown): action is {
   type: string

@@ -10,12 +10,13 @@ import type { Api } from '@reduxjs/toolkit/query'
 /**
  * Can be used as a `Provider` if you **do not already have a Redux store**.
  *
- * @example
+ * @example <caption>Wrap your App with ApiProvider</caption>
+ *
  * ```tsx
  * // codeblock-meta no-transpile title="Basic usage - wrap your App with ApiProvider"
- * import * as React from 'react';
- * import { ApiProvider } from '@reduxjs/toolkit/query/react';
- * import { Pokemon } from './features/Pokemon';
+ * import * as React from "react";
+ * import { ApiProvider } from "@reduxjs/toolkit/query/react";
+ * import { Pokemon } from "./features/Pokemon";
  *
  * function App() {
  *   return (
@@ -27,9 +28,8 @@ import type { Api } from '@reduxjs/toolkit/query'
  * ```
  *
  * @remarks
- * Using this together with an existing redux store, both will
- * conflict with each other - please use the traditional redux setup
- * in that case.
+ * Using this together with an existing redux store, both will conflict with
+ * each other - please use the traditional redux setup in that case.
  */
 export function ApiProvider(props: {
   children: any

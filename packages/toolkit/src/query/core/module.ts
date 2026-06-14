@@ -110,32 +110,36 @@ export interface ApiModules<
     /**
      * This api's reducer should be mounted at `store[api.reducerPath]`.
      *
-     * @example
+     * @example <caption>Mount the api in the store</caption>
+     *
      * ```ts
      * configureStore({
      *   reducer: {
      *     [api.reducerPath]: api.reducer,
      *   },
      *   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
-     * })
+     * });
      * ```
      */
     reducerPath: ReducerPath
     /**
-     * Internal actions not part of the public API. Note: These are subject to change at any given time.
+     * Internal actions not part of the public API. Note: These are subject to
+     * change at any given time.
      */
     internalActions: InternalActions
     /**
-     *  A standard redux reducer that enables core functionality. Make sure it's included in your store.
+     * A standard redux reducer that enables core functionality. Make sure it's
+     * included in your store.
      *
-     * @example
+     * @example <caption>Mount the api in the store</caption>
+     *
      * ```ts
      * configureStore({
      *   reducer: {
      *     [api.reducerPath]: api.reducer,
      *   },
      *   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
-     * })
+     * });
      * ```
      */
     reducer: Reducer<
@@ -143,16 +147,19 @@ export interface ApiModules<
       UnknownAction
     >
     /**
-     * This is a standard redux middleware and is responsible for things like polling, garbage collection and a handful of other things. Make sure it's included in your store.
+     * This is a standard redux middleware and is responsible for things like
+     * polling, garbage collection and a handful of other things. Make sure it's
+     * included in your store.
      *
-     * @example
+     * @example <caption>Mount the api in the store</caption>
+     *
      * ```ts
      * configureStore({
      *   reducer: {
      *     [api.reducerPath]: api.reducer,
      *   },
      *   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
-     * })
+     * });
      * ```
      */
     middleware: Middleware<
@@ -234,16 +241,17 @@ export interface ApiModules<
       >
 
       /**
-       * A Redux thunk that can be used to manually trigger pre-fetching of data.
+       * A Redux thunk that can be used to manually trigger pre-fetching of
+       * data.
        *
        * The thunk accepts three arguments: the name of the endpoint we are updating (such as `'getPost'`), the appropriate query arg values to construct the desired cache key, and a set of options used to determine if the data actually should be re-fetched based on cache staleness.
        *
        * React Hooks users will most likely never need to use this directly, as the `usePrefetch` hook will dispatch this thunk internally as needed when you call the prefetching function supplied by the hook.
        *
-       * @example
+       * @example <caption>Manually prefetch a query</caption>
        *
        * ```ts no-transpile
-       * dispatch(api.util.prefetch('getPosts', undefined, { force: true }));
+       * dispatch(api.util.prefetch("getPosts", undefined, { force: true }));
        * ```
        */
       prefetch<EndpointName extends QueryKeys<Definitions>>(
@@ -262,14 +270,14 @@ export interface ApiModules<
        *
        * Note that the first two arguments (`endpointName` and `arg`) are used to determine which existing cache entry to update. If no existing cache entry is found, the `updateRecipe` callback will not run.
        *
-       * @example
+       * @example <caption>Optimistically update cached data</caption>
        *
        * ```ts
        * const patchCollection = dispatch(
-       *   api.util.updateQueryData('getPosts', undefined, (draftPosts) => {
-       *     draftPosts.push({ id: 1, name: 'Teddy' })
-       *   })
-       * )
+       *   api.util.updateQueryData("getPosts", undefined, (draftPosts) => {
+       *     draftPosts.push({ id: 1, name: "Teddy" });
+       *   }),
+       * );
        * ```
        */
       updateQueryData: UpdateQueryDataThunk<
@@ -288,12 +296,12 @@ export interface ApiModules<
        *
        * If dispatched while an actual request is in progress, both the upsert and request will be handled as soon as they resolve, resulting in a "last result wins" update behavior.
        *
-       * @example
+       * @example <caption>Upsert a value into the cache</caption>
        *
        * ```ts
        * await dispatch(
-       *   api.util.upsertQueryData('getPost', {id: 1}, {id: 1, text: "Hello!"})
-       * )
+       *   api.util.upsertQueryData("getPost", { id: 1 }, { id: 1, text: "Hello!" }),
+       * );
        * ```
        */
       upsertQueryData: UpsertQueryDataThunk<
@@ -309,21 +317,26 @@ export interface ApiModules<
        *
        * In cases where it is desired to simply revert the previous changes, it may be preferable to call the `undo` method returned from dispatching `updateQueryData` instead.
        *
-       * @example
+       * @example <caption>Apply and later revert a patch</caption>
+       *
        * ```ts
        * const patchCollection = dispatch(
-       *   api.util.updateQueryData('getPosts', undefined, (draftPosts) => {
-       *     draftPosts.push({ id: 1, name: 'Teddy' })
-       *   })
-       * )
+       *   api.util.updateQueryData("getPosts", undefined, (draftPosts) => {
+       *     draftPosts.push({ id: 1, name: "Teddy" });
+       *   }),
+       * );
        *
        * // later
        * dispatch(
-       *   api.util.patchQueryData('getPosts', undefined, patchCollection.inversePatches)
-       * )
+       *   api.util.patchQueryData(
+       *     "getPosts",
+       *     undefined,
+       *     patchCollection.inversePatches,
+       *   ),
+       * );
        *
        * // or
-       * patchCollection.undo()
+       * patchCollection.undo();
        * ```
        */
       patchQueryData: PatchQueryDataThunk<
@@ -334,10 +347,10 @@ export interface ApiModules<
       /**
        * A Redux action creator that can be dispatched to manually reset the api state completely. This will immediately remove all existing cache entries, and all queries will be considered 'uninitialized'.
        *
-       * @example
+       * @example <caption>Reset the api state</caption>
        *
        * ```ts
-       * dispatch(api.util.resetApiState())
+       * dispatch(api.util.resetApiState());
        * ```
        */
       resetApiState: SliceActions['resetApiState']
@@ -357,17 +370,17 @@ export interface ApiModules<
        * - `[{ type: TagType }]`
        * - `[{ type: TagType, id: number | string }]`
        *
-       * @example
+       * @example <caption>Manually invalidate cache tags</caption>
        *
        * ```ts
-       * dispatch(api.util.invalidateTags(['Post']))
-       * dispatch(api.util.invalidateTags([{ type: 'Post', id: 1 }]))
+       * dispatch(api.util.invalidateTags(["Post"]));
+       * dispatch(api.util.invalidateTags([{ type: "Post", id: 1 }]));
        * dispatch(
        *   api.util.invalidateTags([
-       *     { type: 'Post', id: 1 },
-       *     { type: 'Post', id: 'LIST' },
-       *   ])
-       * )
+       *     { type: "Post", id: 1 },
+       *     { type: "Post", id: "LIST" },
+       *   ]),
+       * );
        * ```
        */
       invalidateTags: ActionCreatorWithPayload<

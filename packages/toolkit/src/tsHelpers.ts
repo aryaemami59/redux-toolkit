@@ -9,8 +9,8 @@ export function safeAssign<T extends object>(
 }
 
 /**
- * return True if T is `any`, otherwise return False
- * taken from https://github.com/joonhocho/tsdef
+ * Return `True` if `T` is `any`, otherwise return `False`. Taken from
+ * {@link https://github.com/joonhocho/tsdef | tsdef}.
  *
  * @internal
  */
@@ -21,8 +21,8 @@ export type IsAny<T, True, False = never> =
 export type CastAny<T, CastTo> = IsAny<T, CastTo, T>
 
 /**
- * return True if T is `unknown`, otherwise return False
- * taken from https://github.com/joonhocho/tsdef
+ * Return `True` if `T` is `unknown`, otherwise return `False`. Taken from
+ * {@link https://github.com/joonhocho/tsdef | tsdef}.
  *
  * @internal
  */
@@ -54,10 +54,11 @@ export type IsEmptyObj<T, True, False = never> = T extends any
   : never
 
 /**
- * returns True if TS version is above 3.5, False if below.
- * uses feature detection to detect TS version >= 3.5
- * * versions below 3.5 will return `{}` for unresolvable interference
- * * versions above will return `unknown`
+ * Returns `True` if TS version is above 3.5, `False` if below. Uses feature
+ * detection to detect TS version >= 3.5.
+ *
+ * - versions below 3.5 will return `{}` for unresolvable interference
+ * - versions above will return `unknown`
  *
  * @internal
  */
@@ -181,11 +182,16 @@ export const hasMatchFunction = <T>(
 }
 
 /**
+ * A function or object that can test whether a given value matches a specific
+ * action type.
+ *
  * @public
  */
 export type Matcher<T> = HasMatchFunction<T> | TypeGuard<T>
 
 /**
+ * Extracts the action type guarded by a given {@linkcode Matcher}.
+ *
  * @public
  */
 export type ActionFromMatcher<M extends Matcher<any>> =
@@ -200,15 +206,21 @@ export type Tail<T extends any[]> = T extends [any, ...infer Tail]
 export type UnknownIfNonSpecific<T> = {} extends T ? unknown : T
 
 /**
- * A Promise that will never reject.
- * @see https://github.com/reduxjs/redux-toolkit/issues/4101
+ * A {@linkcode Promise | promise} that will never reject.
+ *
+ * @see {@link https://github.com/reduxjs/redux-toolkit/issues/4101}
  */
 export type SafePromise<T> = Promise<T> & {
   __linterBrands: 'SafePromise'
 }
 
 /**
- * Properly wraps a Promise as a {@link SafePromise} with .catch(fallback).
+ * Properly wraps a {@linkcode Promise | promise} as a {@linkcode SafePromise}
+ * with `.catch(fallback)`.
+ *
+ * @param promise - The promise to wrap.
+ * @param fallback - A handler that maps a rejection reason to a fallback value.
+ * @returns A {@linkcode SafePromise} that resolves with the original value or the fallback.
  */
 export function asSafePromise<Resolved, Rejected>(
   promise: Promise<Resolved>,

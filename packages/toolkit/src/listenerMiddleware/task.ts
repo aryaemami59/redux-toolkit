@@ -3,10 +3,13 @@ import type { TaskResult } from './types'
 import { addAbortSignalListener, catchRejection, noop } from './utils'
 
 /**
- * Synchronously raises {@link TaskAbortError} if the task tied to the input `signal` has been cancelled.
- * @param signal
- * @see {TaskAbortError}
- * @throws {TaskAbortError} if the task tied to the input `signal` has been cancelled.
+ * Synchronously raises a {@linkcode TaskAbortError} if the task tied to the
+ * input `signal` has been cancelled.
+ *
+ * @param signal - The {@linkcode AbortSignal} tied to the task to validate.
+ * @throws A {@linkcode TaskAbortError} if the task tied to the input `signal` has been cancelled.
+ *
+ * @see {@linkcode TaskAbortError}
  */
 export const validateActive = (signal: AbortSignal): void => {
   if (signal.aborted) {
@@ -15,9 +18,9 @@ export const validateActive = (signal: AbortSignal): void => {
 }
 
 /**
- * Generates a race between the promise(s) and the AbortSignal
- * This avoids `Promise.race()`-related memory leaks:
- * https://github.com/nodejs/node/issues/17469#issuecomment-349794909
+ * Generates a race between the promise(s) and the {@linkcode AbortSignal}. This
+ * avoids {@linkcode Promise.race}-related memory leaks:
+ * {@link https://github.com/nodejs/node/issues/17469#issuecomment-349794909}.
  */
 export function raceWithSignal<T>(
   signal: AbortSignal,
@@ -41,11 +44,13 @@ export function raceWithSignal<T>(
 }
 
 /**
- * Runs a task and returns promise that resolves to {@link TaskResult}.
- * Second argument is an optional `cleanUp` function that always runs after task.
+ * Runs a task and returns a {@linkcode Promise | promise} that resolves to a
+ * {@linkcode TaskResult}. Second argument is an optional `cleanUp` function
+ * that always runs after task.
  *
  * **Note:** `runTask` runs the executor in the next microtask.
- * @returns
+ *
+ * @returns A {@linkcode Promise | promise} that resolves to the {@linkcode TaskResult} of the task.
  */
 export const runTask = async <T>(
   task: () => Promise<T>,
@@ -69,11 +74,12 @@ export const runTask = async <T>(
 }
 
 /**
- * Given an input `AbortSignal` and a promise returns another promise that resolves
- * as soon the input promise is provided or rejects as soon as
- * `AbortSignal.abort` is `true`.
- * @param signal
- * @returns
+ * Given an input {@linkcode AbortSignal} and a promise returns another promise
+ * that resolves as soon the input promise is provided or rejects as soon as
+ * {@linkcode AbortSignal.abort} is `true`.
+ *
+ * @param signal - The {@linkcode AbortSignal} used to cancel the returned promise.
+ * @returns A function that races the supplied promise against the `signal`.
  */
 export const createPause = <T>(signal: AbortSignal) => {
   return (promise: Promise<T>): Promise<T> => {
@@ -87,10 +93,12 @@ export const createPause = <T>(signal: AbortSignal) => {
 }
 
 /**
- * Given an input `AbortSignal` and `timeoutMs` returns a promise that resolves
- * after `timeoutMs` or rejects as soon as `AbortSignal.abort` is `true`.
- * @param signal
- * @returns
+ * Given an input {@linkcode AbortSignal} and `timeoutMs` returns a promise that
+ * resolves after `timeoutMs` or rejects as soon as
+ * {@linkcode AbortSignal.abort} is `true`.
+ *
+ * @param signal - The {@linkcode AbortSignal} used to cancel the returned delay.
+ * @returns A function that resolves after the given `timeoutMs`, unless aborted first.
  */
 export const createDelay = (signal: AbortSignal) => {
   const pause = createPause<void>(signal)

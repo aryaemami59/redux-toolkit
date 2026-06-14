@@ -64,7 +64,7 @@ export interface Slice<
   name: Name
 
   /**
-   *  The slice reducer path.
+   * The slice reducer path.
    */
   reducerPath: ReducerPath
 
@@ -80,40 +80,47 @@ export interface Slice<
   actions: CaseReducerActions<CaseReducers, Name>
 
   /**
-   * The individual case reducer functions that were passed in the `reducers` parameter.
-   * This enables reuse and testing if they were defined inline when calling `createSlice`.
+   * The individual case reducer functions that were passed in the `reducers`
+   * parameter. This enables reuse and testing if they were defined inline when
+   * calling {@linkcode createSlice}.
    */
   caseReducers: SliceDefinedCaseReducers<CaseReducers>
 
   /**
-   * Provides access to the initial state value given to the slice.
-   * If a lazy state initializer was provided, it will be called and a fresh value returned.
+   * Provides access to the initial state value given to the slice. If a lazy
+   * state initializer was provided, it will be called and a fresh value
+   * returned.
    */
   getInitialState: () => State
 
   /**
-   * Get localised slice selectors (expects to be called with *just* the slice's state as the first parameter)
+   * Get localised slice selectors (expects to be called with *just* the slice's
+   * state as the first parameter)
    */
   getSelectors(): Id<SliceDefinedSelectors<State, Selectors, State>>
 
   /**
-   * Get globalised slice selectors (`selectState` callback is expected to receive first parameter and return slice state)
+   * Get globalised slice selectors (`selectState` callback is expected to
+   * receive first parameter and return slice state)
    */
   getSelectors<RootState>(
     selectState: (rootState: RootState) => State,
   ): Id<SliceDefinedSelectors<State, Selectors, RootState>>
 
   /**
-   * Selectors that assume the slice's state is `rootState[slice.reducerPath]` (which is usually the case)
+   * Selectors that assume the slice's state is `rootState[slice.reducerPath]`
+   * (which is usually the case)
    *
-   * Equivalent to `slice.getSelectors((state: RootState) => state[slice.reducerPath])`.
+   * Equivalent to
+   * `slice.getSelectors((state: RootState) => state[slice.reducerPath])`.
    */
   get selectors(): Id<
     SliceDefinedSelectors<State, Selectors, { [K in ReducerPath]: State }>
   >
 
   /**
-   * Inject slice into provided reducer (return value from `combineSlices`), and return injected slice.
+   * Inject slice into provided reducer (return value from `combineSlices`), and
+   * return injected slice.
    */
   injectInto<NewReducerPath extends string = ReducerPath>(
     this: this,
@@ -127,9 +134,10 @@ export interface Slice<
   ): InjectedSlice<State, CaseReducers, Name, NewReducerPath, Selectors>
 
   /**
-   * Select the slice state, using the slice's current reducerPath.
+   * Select the slice state, using the slice's current
+   * {@linkcode Slice.reducerPath | reducerPath}.
    *
-   * Will throw an error if slice is not found.
+   * @throws An {@linkcode Error} if the slice is not found.
    */
   selectSlice(state: { [K in ReducerPath]: State }): State
 }
@@ -137,7 +145,8 @@ export interface Slice<
 /**
  * A slice after being called with `injectInto(reducer)`.
  *
- * Selectors can now be called with an `undefined` value, in which case they use the slice's initial state.
+ * Selectors can now be called with an `undefined` value, in which case they use
+ * the slice's initial state.
  */
 type InjectedSlice<
   State = any,
@@ -150,21 +159,25 @@ type InjectedSlice<
   'getSelectors' | 'selectors'
 > & {
   /**
-   * Get localised slice selectors (expects to be called with *just* the slice's state as the first parameter)
+   * Get localised slice selectors (expects to be called with *just* the slice's
+   * state as the first parameter)
    */
   getSelectors(): Id<SliceDefinedSelectors<State, Selectors, State | undefined>>
 
   /**
-   * Get globalised slice selectors (`selectState` callback is expected to receive first parameter and return slice state)
+   * Get globalised slice selectors (`selectState` callback is expected to
+   * receive first parameter and return slice state)
    */
   getSelectors<RootState>(
     selectState: (rootState: RootState) => State | undefined,
   ): Id<SliceDefinedSelectors<State, Selectors, RootState>>
 
   /**
-   * Selectors that assume the slice's state is `rootState[slice.name]` (which is usually the case)
+   * Selectors that assume the slice's state is `rootState[slice.name]` (which is
+   * usually the case)
    *
-   * Equivalent to `slice.getSelectors((state: RootState) => state[slice.name])`.
+   * Equivalent to
+   * `slice.getSelectors((state: RootState) => state[slice.name])`.
    */
   get selectors(): Id<
     SliceDefinedSelectors<
@@ -206,7 +219,11 @@ export interface CreateSliceOptions<
   reducerPath?: ReducerPath
 
   /**
-   * The initial state that should be used when the reducer is called the first time. This may also be a "lazy initializer" function, which should return an initial state value when called. This will be used whenever the reducer is called with `undefined` as its state value, and is primarily useful for cases like reading initial state from `localStorage`.
+   * The initial state that should be used when the reducer is called the first
+   * time. This may also be a "lazy initializer" function, which should return
+   * an initial state value when called. This will be used whenever the reducer
+   * is called with `undefined` as its state value, and is primarily useful for
+   * cases like reading initial state from `localStorage`.
    */
   initialState: State | (() => State)
 
@@ -220,28 +237,28 @@ export interface CreateSliceOptions<
     | ((creators: ReducerCreators<State>) => CR)
 
   /**
-   * A callback that receives a *builder* object to define
-   * case reducers via calls to `builder.addCase(actionCreatorOrType, reducer)`.
+   * A callback that receives a *builder* object to define case reducers via
+   * calls to `builder.addCase(actionCreatorOrType, reducer)`.
    *
+   * @example <caption>Define extra reducers with the builder callback</caption>
    *
-   * @example
    * ```ts
-   * import type { Action } from '@reduxjs/toolkit';
-   * import { createAction, createSlice } from '@reduxjs/toolkit';
+   * import type { Action } from "@reduxjs/toolkit";
+   * import { createAction, createSlice } from "@reduxjs/toolkit";
    *
-   * const incrementBy = createAction<number>('incrementBy');
-   * const decrement = createAction('decrement');
+   * const incrementBy = createAction<number>("incrementBy");
+   * const decrement = createAction("decrement");
    *
    * interface RejectedAction extends Action {
    *   error: Error;
    * }
    *
    * function isRejectedAction(action: Action): action is RejectedAction {
-   *   return action.type.endsWith('rejected');
+   *   return action.type.endsWith("rejected");
    * }
    *
    * createSlice({
-   *   name: 'counter',
+   *   name: "counter",
    *   initialState: 0,
    *   reducers: {},
    *   extraReducers: (builder) => {
@@ -266,7 +283,8 @@ export interface CreateSliceOptions<
   extraReducers?: (builder: ActionReducerMapBuilder<State>) => void
 
   /**
-   * A map of selectors that receive the slice's state and any additional arguments, and return a result.
+   * A map of selectors that receive the slice's state and any additional
+   * arguments, and return a result.
    */
   selectors?: Selectors
 }
@@ -324,7 +342,8 @@ type AsyncThunkSliceReducerDefinition<
   }
 
 /**
- * Providing these as part of the config would cause circular types, so we disallow passing them
+ * Providing these as part of the config would cause circular types, so we
+ * disallow passing them
  */
 type PreventCircular<ThunkApiConfig> = {
   [K in keyof ThunkApiConfig]: K extends 'state' | 'dispatch'
@@ -497,7 +516,7 @@ type ActionCreatorForCaseReducer<CR, Type extends string> = CR extends (
 /**
  * Extracts the CaseReducers out of a
  * {@linkcode CreateSliceOptions.reducers | reducers} object, even if they are
- * tested into a {@linkcode CaseReducerWithPrepare}.
+ * nested into a {@linkcode CaseReducerWithPrepare}.
  *
  * @internal
  */
@@ -878,7 +897,8 @@ interface ReducerHandlingContext<State> {
 interface ReducerHandlingContextMethods<State> {
   /**
    * Adds a case reducer to handle a single action type.
-   * @param actionCreator - Either a plain action type string, or an action creator generated by [`createAction`](./createAction) that can be used to determine the action type.
+   *
+   * @param actionCreator - Either a plain action type string, or an action creator generated by {@linkcode createAction} that can be used to determine the action type.
    * @param reducer - The actual case reducer function.
    */
   addCase<ActionCreator extends TypedActionCreator<string>>(
@@ -887,7 +907,8 @@ interface ReducerHandlingContextMethods<State> {
   ): ReducerHandlingContextMethods<State>
   /**
    * Adds a case reducer to handle a single action type.
-   * @param actionCreator - Either a plain action type string, or an action creator generated by [`createAction`](./createAction) that can be used to determine the action type.
+   *
+   * @param actionCreator - Either a plain action type string, or an action creator generated by {@linkcode createAction} that can be used to determine the action type.
    * @param reducer - The actual case reducer function.
    */
   addCase<Type extends string, A extends Action<Type>>(
@@ -896,15 +917,17 @@ interface ReducerHandlingContextMethods<State> {
   ): ReducerHandlingContextMethods<State>
 
   /**
-   * Allows you to match incoming actions against your own filter function instead of only the `action.type` property.
-   * @remarks
-   * If multiple matcher reducers match, all of them will be executed in the order
-   * they were defined in - even if a case reducer already matched.
-   * All calls to `builder.addMatcher` must come after any calls to `builder.addCase` and before any calls to `builder.addDefaultCase`.
-   * @param matcher - A matcher function. In TypeScript, this should be a [type predicate](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates)
-   *   function
-   * @param reducer - The actual case reducer function.
+   * Allows you to match incoming actions against your own filter function
+   * instead of only the `action.type` property.
    *
+   * @remarks
+   * If multiple matcher reducers match, all of them will be executed in the
+   * order they were defined in - even if a case reducer already matched. All
+   * calls to `builder.addMatcher` must come after any calls to
+   * `builder.addCase` and before any calls to `builder.addDefaultCase`.
+   *
+   * @param matcher - A matcher function. In TypeScript, this should be a {@link https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates | type predicate} function.
+   * @param reducer - The actual case reducer function.
    */
   addMatcher<A>(
     matcher: TypeGuard<A>,
@@ -912,11 +935,14 @@ interface ReducerHandlingContextMethods<State> {
   ): ReducerHandlingContextMethods<State>
   /**
    * Add an action to be exposed under the final `slice.actions` key.
+   *
    * @param name The key to be exposed as.
    * @param actionCreator The action to expose.
-   * @example
+   *
+   * @example <caption>Expose an action creator</caption>
+   *
    * ```ts
-   * context.exposeAction('addPost', createAction<Post>('addPost'));
+   * context.exposeAction("addPost", createAction<Post>("addPost"));
    *
    * export const { addPost } = slice.actions;
    *
@@ -929,11 +955,14 @@ interface ReducerHandlingContextMethods<State> {
   ): ReducerHandlingContextMethods<State>
   /**
    * Add a case reducer to be exposed under the final `slice.caseReducers` key.
+   *
    * @param name The key to be exposed as.
    * @param reducer The reducer to expose.
-   * @example
+   *
+   * @example <caption>Expose a case reducer</caption>
+   *
    * ```ts
-   * context.exposeCaseReducer('addPost', (state, action: PayloadAction<Post>) => {
+   * context.exposeCaseReducer("addPost", (state, action: PayloadAction<Post>) => {
    *   state.push(action.payload);
    * });
    *

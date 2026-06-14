@@ -130,11 +130,10 @@ const createTakePattern = <S>(
   signal: AbortSignal,
 ): TakePattern<S> => {
   /**
-   * A function that takes a ListenerPredicate and an optional timeout,
-   * and resolves when either the predicate returns `true` based on an action
-   * state combination or when the timeout expires.
-   * If the parent listener is canceled while waiting, this will throw a
-   * TaskAbortError.
+   * A function that takes a `ListenerPredicate` and an optional timeout, and
+   * resolves when either the predicate returns `true` based on an action state
+   * combination or when the timeout expires. If the parent listener is canceled
+   * while waiting, this will throw a {@linkcode TaskAbortError}.
    */
   const take = async <P extends AnyListenerPredicate<S>>(
     predicate: P,
@@ -212,7 +211,10 @@ const getListenerEntryPropsFrom = (options: FallbackAddListenerOptions) => {
   return { predicate, type, effect }
 }
 
-/** Accepts the possible options for creating a listener, and returns a formatted listener entry */
+/**
+ * Accepts the possible options for creating a listener, and returns a formatted
+ * listener entry.
+ */
 export const createListenerEntry: TypedCreateListenerEntry<unknown> =
   /* @__PURE__ */ assign(
     (options: FallbackAddListenerOptions) => {
@@ -271,11 +273,13 @@ const createClearListenerMiddleware = (
 }
 
 /**
- * Safely reports errors to the `errorHandler` provided.
- * Errors that occur inside `errorHandler` are notified in a new task.
- * Inspired by [rxjs reportUnhandledError](https://github.com/ReactiveX/rxjs/blob/6fafcf53dc9e557439b25debaeadfd224b245a66/src/internal/util/reportUnhandledError.ts)
- * @param errorHandler
- * @param errorToNotify
+ * Safely reports errors to the `errorHandler` provided. Errors that occur
+ * inside `errorHandler` are notified in a new task. Inspired by
+ * {@link https://github.com/ReactiveX/rxjs/blob/6fafcf53dc9e557439b25debaeadfd224b245a66/src/internal/util/reportUnhandledError.ts | rxjs reportUnhandledError}.
+ *
+ * @param errorHandler - The handler to forward the error to.
+ * @param errorToNotify - The error that should be reported.
+ * @param errorInfo - Additional context describing where the error was raised.
  */
 const safelyNotifyError = (
   errorHandler: ListenerErrorHandler,
@@ -294,6 +298,9 @@ const safelyNotifyError = (
 }
 
 /**
+ * An action creator used to add a listener entry to the listener middleware at
+ * runtime.
+ *
  * @public
  */
 export const addListener = /* @__PURE__ */ assign(
@@ -304,6 +311,9 @@ export const addListener = /* @__PURE__ */ assign(
 ) as unknown as TypedAddListener<unknown>
 
 /**
+ * An action creator that, when dispatched, removes all current listener
+ * entries.
+ *
  * @public
  */
 export const clearAllListeners = /* @__PURE__ */ createAction(
@@ -311,6 +321,9 @@ export const clearAllListeners = /* @__PURE__ */ createAction(
 )
 
 /**
+ * An action creator used to remove a listener entry from the listener
+ * middleware at runtime.
+ *
  * @public
  */
 export const removeListener = /* @__PURE__ */ assign(
@@ -325,6 +338,9 @@ const defaultErrorHandler: ListenerErrorHandler = (...args: unknown[]) => {
 }
 
 /**
+ * Creates an instance of the "listener" middleware, which lets you run logic in
+ * response to dispatched actions.
+ *
  * @public
  */
 export const createListenerMiddleware = <
