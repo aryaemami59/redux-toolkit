@@ -19,6 +19,7 @@ import type {
   VariableDeclaration,
   VariableDeclarator,
 } from '@babel/types'
+import * as t from '@babel/types'
 import * as path from 'node:path'
 import type { InlineConfig, Rolldown, UserConfig } from 'tsdown'
 import { defineConfig } from 'tsdown'
@@ -56,11 +57,11 @@ type GenerateBundleObjectHook = Id<
 >
 
 /**
- * Rolldown plugin to emit a CommonJS entry file that switches between
- * development and production bundles based on `NODE_ENV`.
- *
- * Automatically derives the folder and prefix from the output chunk filenames.
- * Only acts on production CJS builds (chunks ending in `.production.min.cjs`).
+ * A {@linkcode Rolldown.Plugin | Rolldown plugin} to emit a CommonJS entry
+ * file that switches between development and production bundles based on
+ * `NODE_ENV`. Automatically derives the folder and prefix from the output
+ * chunk filenames. Only acts on production CJS builds (chunks ending in
+ * `.production.min.cjs`).
  *
  * @param [pluginOptions={}] - Options forwarded to the plugin.
  * @returns A {@linkcode Rolldown.Plugin | Rolldown plugin} that emits the CJS entry file.
@@ -114,7 +115,7 @@ if (process.env.NODE_ENV === "production") {
  * Extract error strings, replace them with error codes, and write messages to
  * a file.
  *
- * @param [mangleErrorsPluginOptions={}] - Options forwarded to the `mangleErrorsPlugin`. Supported options include `minify` to indicate whether error messages should be further minified.
+ * @param [mangleErrorsPluginOptions={}] - Options forwarded to the {@linkcode mangleErrorsPlugin()}. Supported options include {@linkcode MangleErrorsPluginOptions.minify | minify} to indicate whether error messages should be further minified.
  * @returns A {@linkcode Rolldown.Plugin | Rolldown plugin} that applies the Babel transformation to TypeScript/TSX sources matching the configured filter and returns transformed code and source maps.
  * @internal
  */
@@ -194,13 +195,14 @@ const mangleErrorsTransform = (
 }
 
 /**
- * Rolldown plugin to remove generated CommonJS (.cjs) JavaScript outputs
- * from DTS-only builds. When generating type definition builds we may still
- * emit stray .cjs files; this plugin deletes those entries from the
- * generated bundle to ensure only declaration artifacts remain.
+ * A {@linkcode Rolldown.Plugin | Rolldown plugin} to remove generated CommonJS
+ * (`.cjs`) JavaScript outputs from DTS-only builds. When generating type
+ * definition builds we may still emit stray `.cjs` files; this plugin deletes
+ * those entries from the generated bundle to ensure only declaration artifacts
+ * remain.
  *
  * @param [pluginOptions={}] - Options forwarded to the plugin.
- * @returns A {@linkcode Rolldown.Plugin | Rolldown plugin} that prunes .cjs files from the bundle.
+ * @returns A {@linkcode Rolldown.Plugin | Rolldown plugin} that prunes `.cjs` files from the bundle.
  * @internal
  */
 const removeCJSOutputsFromDTSBuilds = (
@@ -566,8 +568,8 @@ type UniqueSymbolVariableDeclaration = Id<
 >
 
 /**
- * Rolldown plugin to implement proper `import type` / `export type` syntax in
- * TypeScript declaration files.
+ * A {@linkcode Rolldown.Plugin | Rolldown plugin} to implement proper
+ * `import type` / `export type` syntax in TypeScript declaration files.
  *
  * In a `.d.ts` file, any import whose local name is not re-exported as a plain
  * value is type-only. This plugin:
@@ -616,9 +618,11 @@ const splitTypeImports = (
           return null
         }
 
-        // Collect local names that are explicitly exported as values (no `type`
-        // keyword). In a .d.ts file any import whose local name is NOT in this
-        // set is type-only.
+        /**
+         * Collect local names that are explicitly exported as values (no
+         * `type` keyword). In a `.d.ts` file any import whose local name is
+         * NOT in this set is type-only.
+         */
         const valueExportedNames = new Set<string>()
 
         parsedFile.program.body.forEach((statement) => {
@@ -635,8 +639,9 @@ const splitTypeImports = (
           }
         })
 
-        // Preserve value imports for identifiers used as base classes in extends
-        // clauses. `import type { X }` cannot be used in `class Y extends X {}`.
+        // Preserve value imports for identifiers used as base classes in
+        // extends clauses. `import type { X }` cannot be used in
+        // `class Y extends X {}`.
         parsedFile.program.body.forEach((statement) => {
           const exportedDeclaration = t.isExportNamedDeclaration(statement)
             ? statement.declaration
@@ -655,8 +660,9 @@ const splitTypeImports = (
         parsedFile.program.body = parsedFile.program.body.flatMap(
           (statement) => {
             if (t.isImportDeclaration(statement)) {
-              // Namespace imports (`import * as X`) can't be split — convert the
-              // whole declaration to `import type * as X` when X is not a value export.
+              // Namespace imports (`import * as X`) can't be split - convert
+              // the whole declaration to `import type * as X` when X is not a
+              // value export.
               if (
                 statement.importKind === 'value' &&
                 statement.specifiers.length === 1 &&
@@ -825,15 +831,62 @@ const splitTypeImports = (
 }
 
 /**
- * Rolldown plugin to fix unique symbol exports in TypeScript declaration files.
+ * Type guard that narrows a {@linkcode t.Statement | statement} to a
+ * {@linkcode UniqueSymbolVariableDeclaration}, i.e. a `declare const`
+ * declaration whose identifier is annotated with the
+ * {@linkcode https://www.typescriptlang.org/docs/handbook/symbols.html#unique-symbol | unique symbol}
+ * type (e.g., `declare const skipToken: unique symbol`).
  *
- * TypeScript has issues with re-exporting unique symbols in barrel exports.
- * This plugin uses Babel to parse the AST, identify unique symbol declarations,
- * remove them from export statements, and convert them to individual export
- * declarations (e.g., `export declare const X: unique symbol`).
+ * @example
+ * <caption>Narrowing a parsed statement</caption>
+ *
+ * ```ts
+ * if (isUniqueSymbolDeclaration(statement)) {
+ *   // `statement` is now a `UniqueSymbolVariableDeclaration`.
+ *   allUniqueSymbols.add(statement.declarations[0].id.name);
+ * }
+ * ```
+ *
+ * @param statement - The {@linkcode t.Statement | Statement} to inspect.
+ * @returns `true` if {@linkcode statement} is a {@linkcode UniqueSymbolVariableDeclaration}, otherwise `false`.
+ * @internal
+ */
+const isUniqueSymbolDeclaration =
+  /**
+   * @template StatementType - The specific {@linkcode Statement} subtype being narrowed.
+   */
+  <StatementType extends Statement>(
+    statement: StatementType,
+  ): statement is Id<StatementType & UniqueSymbolVariableDeclaration> =>
+    t.isVariableDeclaration(statement, {
+      declare: true,
+      kind: 'const',
+    }) &&
+    t.isVariableDeclarator(statement.declarations[0]) &&
+    t.isIdentifier(statement.declarations[0].id) &&
+    t.isTSTypeAnnotation(statement.declarations[0].id.typeAnnotation) &&
+    t.isTSTypeOperator(
+      statement.declarations[0].id.typeAnnotation.typeAnnotation,
+      { operator: 'unique' },
+    ) &&
+    t.isTSSymbolKeyword(
+      statement.declarations[0].id.typeAnnotation.typeAnnotation.typeAnnotation,
+    )
+
+/**
+ * A {@linkcode Rolldown.Plugin | Rolldown plugin} to fix
+ * {@linkcode https://www.typescriptlang.org/docs/handbook/symbols.html#unique-symbol | unique symbol}
+ * exports in TypeScript declaration files. TypeScript has issues with
+ * re-exporting
+ * {@linkcode https://www.typescriptlang.org/docs/handbook/symbols.html#unique-symbol | unique symbol}
+ * in barrel exports. This plugin uses Babel to parse the AST, identify
+ * {@linkcode https://www.typescriptlang.org/docs/handbook/symbols.html#unique-symbol | unique symbol}
+ * declarations, remove them from export statements, and convert them to
+ * individual export declarations
+ * (e.g., `export declare const X: unique symbol`).
  *
  * @param [pluginOptions={}] - Options forwarded to the plugin.
- * @returns A {@linkcode Rolldown.Plugin | Rolldown plugin} that fixes unique symbol exports in `.d.ts` files.
+ * @returns A {@linkcode Rolldown.Plugin | Rolldown plugin} that fixes {@linkcode https://www.typescriptlang.org/docs/handbook/symbols.html#unique-symbol | unique symbol} exports in `.d.ts` files.
  * @internal
  */
 const fixUniqueSymbolExports = (
@@ -883,25 +936,6 @@ const fixUniqueSymbolExports = (
 
         const allUniqueSymbols = new Set<string>()
         const exportedUniqueSymbols = new Set<string>()
-
-        const isUniqueSymbolDeclaration = <StatementType extends Statement>(
-          statement: StatementType,
-        ): statement is Id<StatementType & UniqueSymbolVariableDeclaration> =>
-          t.isVariableDeclaration(statement, {
-            declare: true,
-            kind: 'const',
-          }) &&
-          t.isVariableDeclarator(statement.declarations[0]) &&
-          t.isIdentifier(statement.declarations[0].id) &&
-          t.isTSTypeAnnotation(statement.declarations[0].id.typeAnnotation) &&
-          t.isTSTypeOperator(
-            statement.declarations[0].id.typeAnnotation.typeAnnotation,
-            { operator: 'unique' },
-          ) &&
-          t.isTSSymbolKeyword(
-            statement.declarations[0].id.typeAnnotation.typeAnnotation
-              .typeAnnotation,
-          )
 
         // First pass: find all unique symbol declarations
         parsedFile.program.body.forEach((statement) => {
