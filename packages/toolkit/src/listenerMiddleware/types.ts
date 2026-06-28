@@ -94,9 +94,7 @@ export type TaskCancelled = {
 
 /** @public */
 export type TaskResult<Value> =
-  | TaskResolved<Value>
-  | TaskRejected
-  | TaskCancelled
+  TaskResolved<Value> | TaskRejected | TaskCancelled
 
 /** @public */
 export interface ForkedTask<T> {

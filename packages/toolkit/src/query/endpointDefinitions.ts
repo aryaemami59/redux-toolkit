@@ -1722,7 +1722,9 @@ export type UpdateDefinitions<
   NewTagTypes extends string,
   NewDefinitions extends EndpointDefinitions,
 > = {
-  [EndpointNameType in keyof Definitions]: Definitions[EndpointNameType] extends QueryDefinition<
+  [
+    EndpointNameType in keyof Definitions
+  ]: Definitions[EndpointNameType] extends QueryDefinition<
     infer InferredQueryArgumentType,
     infer InferredBaseQueryFunctionType,
     any,

@@ -3179,8 +3179,7 @@ const injectedRtkApi = api.injectEndpoints({
 });
 export { injectedRtkApi as enhancedApi };
 export type GetApiV1AnimalsApiResponse = /** status 200 Success */ (
-  | Dog
-  | Cat
+  Dog | Cat
 )[];
 export type GetApiV1AnimalsApiArg = {
   type?: AnimalType;

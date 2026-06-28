@@ -50,7 +50,7 @@
     "!skills/_artifacts"
   ],
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.18.4",
+    "@arethetypeswrong/cli": "^0.18.5",
     "@oazapfts/runtime": "^1.0.3",
     "@reduxjs/toolkit": "^1.6.0",
     "@tanstack/intent": "^0.0.19",

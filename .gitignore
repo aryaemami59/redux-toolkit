@@ -32,6 +32,8 @@ typesversions
 *.tgz
 
 tsconfig.vitest-temp.json
+.vitest-dump/
+.vitest/
 
 # node version manager files
 .node-version
@@ -41,6 +43,3 @@ tsconfig.vitest-temp.json
 docs/dev-plans
 # Perf protobufs
 *.pb.gz
-
-.rolldown/
-.vitest-dump/

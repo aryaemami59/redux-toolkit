@@ -4,19 +4,13 @@ import type { MaybePromise, Override } from './tsHelpers'
 import { anySignal, joinUrls, timeoutSignal } from './utils/index'
 
 export type ResponseHandler =
-  | 'content-type'
-  | 'json'
-  | 'text'
-  | ((response: Response) => Promise<any>)
+  'content-type' | 'json' | 'text' | ((response: Response) => Promise<any>)
 
 type CustomRequestInit = Override<
   RequestInit,
   {
     headers?:
-      | Headers
-      | string[][]
-      | Record<string, string | undefined>
-      | undefined
+      Headers | string[][] | Record<string, string | undefined> | undefined
   }
 >
 

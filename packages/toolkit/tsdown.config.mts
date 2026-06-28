@@ -21,7 +21,7 @@ import type {
 } from '@babel/types'
 import * as t from '@babel/types'
 import * as path from 'node:path'
-import type { InlineConfig, Rolldown, UserConfig } from 'tsdown'
+import type { InlineConfig, Rolldown, UserConfig, UserConfigFn } from 'tsdown'
 import { defineConfig } from 'tsdown'
 import packageJson from './package.json' with { type: 'json' }
 import type {
@@ -31,16 +31,34 @@ import type {
 import { mangleErrorsPlugin } from './scripts/mangleErrors.mjs'
 import type { Id } from './src/tsHelpers.js'
 
+/**
+ * @internal
+ */
 const cwd = import.meta.dirname
 
+/**
+ * @internal
+ */
 const packageJsonPath = path.join(cwd, 'package.json')
 
+/**
+ * @internal
+ */
 const sourceRootDirectory = path.join(cwd, 'src')
 
+/**
+ * @internal
+ */
 const RE_NODE_MODULES = /[\\/]node_modules[\\/]/
 
+/**
+ * @internal
+ */
 const RE_TS = /\.([cm]?)tsx?$/
 
+/**
+ * @internal
+ */
 const RE_DTS = /\.d\.([cm]?)ts$/
 
 /**
@@ -73,7 +91,7 @@ const writeCommonJSEntryPlugin = (
   const { order = null } = pluginOptions
 
   return {
-    name: 'write-commonjs-entry',
+    name: `${packageJson.name}:write-commonjs-entry`,
     generateBundle: {
       order,
       handler(outputOptions, bundle, isWrite) {
@@ -92,16 +110,16 @@ const writeCommonJSEntryPlugin = (
               )
 
               this.emitFile({
-                fileName: `${chunkDirectory}/index.js`,
-                isEntry: true,
-                sourcemapFileName: `${chunkDirectory}/index.js.map`,
-                type: 'prebuilt-chunk',
                 code: `"use strict";
 if (process.env.NODE_ENV === "production") {
   module.exports = require("./${prefix}.production.min.cjs");
 } else {
   module.exports = require("./${prefix}.development.cjs");
 }\n`,
+                fileName: `${chunkDirectory}/index.js`,
+                isEntry: true,
+                sourcemapFileName: `${chunkDirectory}/index.js.map`,
+                type: 'prebuilt-chunk',
               })
             }
           })
@@ -125,7 +143,7 @@ const mangleErrorsTransform = (
   const { minify = false } = mangleErrorsPluginOptions
 
   return {
-    name: 'mangle-errors-plugin',
+    name: `${packageJson.name}:mangle-errors`,
     transform: {
       filter: {
         code: {
@@ -211,7 +229,7 @@ const removeCJSOutputsFromDTSBuilds = (
   const { order = null } = pluginOptions
 
   return {
-    name: 'remove-cjs-outputs-from-dts-builds',
+    name: `${packageJson.name}:remove-cjs-outputs-from-dts-builds`,
     generateBundle: {
       order,
       handler(outputOptions, bundle, isWrite) {
@@ -467,7 +485,7 @@ const annotateAsPurePlugin = (
   const { callExpressions = [], order = null } = annotateAsPurePluginOptions
 
   return {
-    name: 'annotate-as-pure',
+    name: `${packageJson.name}:annotate-as-pure`,
     transform: {
       filter: {
         id: {
@@ -588,7 +606,7 @@ const splitTypeImports = (
   const { order = null } = pluginOptions
 
   return {
-    name: 'split-type-imports',
+    name: `${packageJson.name}:split-type-imports`,
     renderChunk: {
       order,
       async handler(code, chunk) {
@@ -899,7 +917,7 @@ const fixUniqueSymbolExports = (
   const processedFiles = new Set<string>()
 
   return {
-    name: 'fix-unique-symbol-exports',
+    name: `${packageJson.name}:fix-unique-symbol-exports`,
     renderChunk: {
       filter: {
         code: {
@@ -1017,19 +1035,26 @@ const fixUniqueSymbolExports = (
   }
 }
 
+/**
+ * @internal
+ */
 const peerAndProductionDependencies = Object.keys({
   ...packageJson.dependencies,
   ...packageJson.peerDependencies,
 } as const) satisfies Extract<Rolldown.ExternalOption, unknown[]>
 
+/**
+ * @internal
+ */
 const neverBundle = [
   ...peerAndProductionDependencies,
   /uncheckedindexed/,
 ] as const satisfies Extract<Rolldown.ExternalOption, unknown[]>
 
-export default defineConfig((cliOptions) => {
+const tsdownConfig: UserConfigFn = defineConfig((cliOptions) => {
   const commonOptions = {
     clean: false,
+    cjsDefault: false,
     cwd,
     deps: {
       neverBundle,
@@ -1040,9 +1065,12 @@ export default defineConfig((cliOptions) => {
       enabled: true,
     },
     dts: false,
+    entry: {
+      'redux-toolkit': 'src/index.ts',
+    },
     failOnWarn: true,
     fixedExtension: false,
-    format: ['cjs', 'es'],
+    format: ['esm'],
     hash: false,
     inputOptions: (options) => {
       const plugins = options.plugins
@@ -1067,11 +1095,6 @@ export default defineConfig((cliOptions) => {
         ],
         transform: {
           ...options.transform,
-          typescript: {
-            ...options.transform?.typescript,
-            optimizeConstEnums: true,
-            optimizeEnums: true,
-          },
           inject: {
             ...options.transform?.inject,
             'Object.assign': [
@@ -1080,10 +1103,16 @@ export default defineConfig((cliOptions) => {
             ],
             React: ['react', '*'],
           },
+          typescript: {
+            ...options.transform?.typescript,
+            optimizeConstEnums: true,
+            optimizeEnums: true,
+          },
         },
       } as const satisfies Rolldown.InputOptions
     },
     minify: false,
+    name: packageJson.name,
     nodeProtocol: true,
     outDir: 'dist',
     outExtensions: ({ format, options }) => ({
@@ -1112,7 +1141,6 @@ export default defineConfig((cliOptions) => {
           jsdoc: false,
           legal: true,
         },
-        strict: true,
         ...(format === 'cjs' && !context.cjsDts
           ? {
               externalLiveBindings: false,
@@ -1125,6 +1153,7 @@ export default defineConfig((cliOptions) => {
               ],
             }
           : {}),
+        strict: true,
       } as const satisfies Rolldown.OutputOptions
     },
     platform: 'node',
@@ -1155,7 +1184,9 @@ export default defineConfig((cliOptions) => {
       emitDtsOnly: true,
       emitJs: false,
       enabled: true,
+      generator: 'tsc',
       incremental: false,
+      logger: console,
       newContext: false,
       oxc: false,
       parallel: false,
@@ -1163,7 +1194,11 @@ export default defineConfig((cliOptions) => {
       sideEffects: false,
       sourcemap: true,
       tsconfig: commonOptions.tsconfig,
+      tsgo: false,
+      tsMacro: false,
+      vue: false,
     },
+    format: ['cjs', 'esm'],
     inputOptions: (options) => {
       const plugins = options.plugins
         ? Array.isArray(options.plugins)
@@ -1173,6 +1208,13 @@ export default defineConfig((cliOptions) => {
 
       return {
         ...options,
+        experimental: {
+          ...options.experimental,
+          attachDebugInfo: 'none',
+          lazyBarrel: true,
+          nativeMagicString: true,
+        },
+        plugins: [...plugins, fixUniqueSymbolExports(), splitTypeImports()],
         transform: {
           ...options.transform,
           typescript: {
@@ -1181,13 +1223,6 @@ export default defineConfig((cliOptions) => {
             optimizeEnums: true,
           },
         },
-        experimental: {
-          ...options.experimental,
-          attachDebugInfo: 'none',
-          lazyBarrel: true,
-          nativeMagicString: true,
-        },
-        plugins: [...plugins, fixUniqueSymbolExports(), splitTypeImports()],
       } as const satisfies Rolldown.InputOptions
     },
     outputOptions: (options, format, context) => {
@@ -1218,7 +1253,6 @@ export default defineConfig((cliOptions) => {
 
   const modernEsmConfig = {
     ...commonOptions,
-    format: ['es'],
   } as const satisfies InlineConfig
 
   const developmentCjsConfig = {
@@ -1251,14 +1285,12 @@ export default defineConfig((cliOptions) => {
       window: JSON.stringify('window'),
     },
     env: productionCjsConfig.env,
-    format: ['es'],
     minify: productionCjsConfig.minify,
     platform: 'browser',
   } as const satisfies InlineConfig
 
   const legacyEsmConfig = {
     ...commonOptions,
-    format: ['es'],
     target: ['es2017'],
   } as const satisfies InlineConfig
 
@@ -1266,9 +1298,6 @@ export default defineConfig((cliOptions) => {
     {
       ...modernEsmConfig,
       name: 'Redux-Toolkit-Core-ESM',
-      entry: {
-        'redux-toolkit': 'src/index.ts',
-      },
       copy: ({ outDir }) => [
         {
           from: path.join(sourceRootDirectory, 'uncheckedindexed.ts'),
@@ -1276,13 +1305,13 @@ export default defineConfig((cliOptions) => {
           verbose: true,
         },
       ],
+      entry: {
+        'redux-toolkit': 'src/index.ts',
+      },
     },
     {
       ...modernEsmConfig,
       name: 'RTK-React-ESM',
-      entry: {
-        'react/redux-toolkit-react': 'src/react/index.ts',
-      },
       deps: {
         ...modernEsmConfig.deps,
         neverBundle: [
@@ -1291,14 +1320,14 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'react/redux-toolkit-react': 'src/react/index.ts',
       },
     },
     {
       ...modernEsmConfig,
       name: 'RTK-Query-ESM',
-      entry: {
-        'query/rtk-query': 'src/query/index.ts',
-      },
       deps: {
         ...modernEsmConfig.deps,
         neverBundle: [
@@ -1307,14 +1336,14 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'query/rtk-query': 'src/query/index.ts',
       },
     },
     {
       ...modernEsmConfig,
       name: 'RTK-Query-React-ESM',
-      entry: {
-        'query/react/rtk-query-react': 'src/query/react/index.ts',
-      },
       deps: {
         ...modernEsmConfig.deps,
         neverBundle: [
@@ -1323,6 +1352,9 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'query/react/rtk-query-react': 'src/query/react/index.ts',
       },
     },
 
@@ -1336,9 +1368,6 @@ export default defineConfig((cliOptions) => {
     {
       ...developmentCjsConfig,
       name: 'RTK-React-CJS-Development',
-      entry: {
-        'react/cjs/redux-toolkit-react': 'src/react/index.ts',
-      },
       deps: {
         ...developmentCjsConfig.deps,
         neverBundle: [
@@ -1347,14 +1376,14 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'react/cjs/redux-toolkit-react': 'src/react/index.ts',
       },
     },
     {
       ...developmentCjsConfig,
       name: 'RTK-Query-CJS-Development',
-      entry: {
-        'query/cjs/rtk-query': 'src/query/index.ts',
-      },
       deps: {
         ...developmentCjsConfig.deps,
         neverBundle: [
@@ -1363,14 +1392,14 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'query/cjs/rtk-query': 'src/query/index.ts',
       },
     },
     {
       ...developmentCjsConfig,
       name: 'RTK-Query-React-CJS-Development',
-      entry: {
-        'query/react/cjs/rtk-query-react': 'src/query/react/index.ts',
-      },
       deps: {
         ...developmentCjsConfig.deps,
         neverBundle: [
@@ -1379,6 +1408,9 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'query/react/cjs/rtk-query-react': 'src/query/react/index.ts',
       },
     },
     {
@@ -1392,9 +1424,6 @@ export default defineConfig((cliOptions) => {
     {
       ...productionCjsConfig,
       name: 'RTK-React-CJS-Production',
-      entry: {
-        'react/cjs/redux-toolkit-react': 'src/react/index.ts',
-      },
       deps: {
         ...productionCjsConfig.deps,
         neverBundle: [
@@ -1403,14 +1432,14 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'react/cjs/redux-toolkit-react': 'src/react/index.ts',
       },
     },
     {
       ...productionCjsConfig,
       name: 'RTK-Query-CJS-Production',
-      entry: {
-        'query/cjs/rtk-query': 'src/query/index.ts',
-      },
       deps: {
         ...productionCjsConfig.deps,
         neverBundle: [
@@ -1419,14 +1448,14 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'query/cjs/rtk-query': 'src/query/index.ts',
       },
     },
     {
       ...productionCjsConfig,
       name: 'RTK-Query-React-CJS-Production',
-      entry: {
-        'query/react/cjs/rtk-query-react': 'src/query/react/index.ts',
-      },
       deps: {
         ...productionCjsConfig.deps,
         neverBundle: [
@@ -1435,6 +1464,9 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'query/react/cjs/rtk-query-react': 'src/query/react/index.ts',
       },
     },
 
@@ -1449,9 +1481,6 @@ export default defineConfig((cliOptions) => {
     {
       ...browserEsmConfig,
       name: 'RTK-React-Browser',
-      entry: {
-        'react/redux-toolkit-react': 'src/react/index.ts',
-      },
       deps: {
         ...browserEsmConfig.deps,
         neverBundle: [
@@ -1460,14 +1489,14 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'react/redux-toolkit-react': 'src/react/index.ts',
       },
     },
     {
       ...browserEsmConfig,
       name: 'RTK-Query-Browser',
-      entry: {
-        'query/rtk-query': 'src/query/index.ts',
-      },
       deps: {
         ...browserEsmConfig.deps,
         neverBundle: [
@@ -1476,14 +1505,14 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'query/rtk-query': 'src/query/index.ts',
       },
     },
     {
       ...browserEsmConfig,
       name: 'RTK-Query-React-Browser',
-      entry: {
-        'query/react/rtk-query-react': 'src/query/react/index.ts',
-      },
       deps: {
         ...browserEsmConfig.deps,
         neverBundle: [
@@ -1492,6 +1521,9 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'query/react/rtk-query-react': 'src/query/react/index.ts',
       },
     },
     {
@@ -1504,9 +1536,6 @@ export default defineConfig((cliOptions) => {
     {
       ...legacyEsmConfig,
       name: 'RTK-React-Legacy-ESM',
-      entry: {
-        'react/redux-toolkit-react': 'src/react/index.ts',
-      },
       deps: {
         ...legacyEsmConfig.deps,
         neverBundle: [
@@ -1515,14 +1544,14 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'react/redux-toolkit-react': 'src/react/index.ts',
       },
     },
     {
       ...legacyEsmConfig,
       name: 'RTK-Query-Legacy-ESM',
-      entry: {
-        'query/rtk-query': 'src/query/index.ts',
-      },
       deps: {
         ...legacyEsmConfig.deps,
         neverBundle: [
@@ -1531,14 +1560,14 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'query/rtk-query': 'src/query/index.ts',
       },
     },
     {
       ...legacyEsmConfig,
       name: 'RTK-Query-React-Legacy-ESM',
-      entry: {
-        'query/react/rtk-query-react': 'src/query/react/index.ts',
-      },
       deps: {
         ...legacyEsmConfig.deps,
         neverBundle: [
@@ -1547,6 +1576,9 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'query/react/rtk-query-react': 'src/query/react/index.ts',
       },
     },
 
@@ -1561,11 +1593,6 @@ export default defineConfig((cliOptions) => {
     {
       ...sharedDTSConfig,
       name: 'RTK-React-Type-Definitions',
-      entry: {
-        'react/index': 'src/react/index.ts',
-        // 'query/index': 'src/query/index.ts',
-        // 'query/react/index': 'src/query/react/index.ts',
-      },
       deps: {
         ...sharedDTSConfig.deps,
         neverBundle: [
@@ -1574,15 +1601,17 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'react/index': 'src/react/index.ts',
+        // 'query/index': 'src/query/index.ts',
+        // 'query/react/index': 'src/query/react/index.ts',
       },
     },
 
     {
       ...sharedDTSConfig,
       name: 'RTK-Query-Type-Definitions',
-      entry: {
-        'query/index': 'src/query/index.ts',
-      },
       deps: {
         ...sharedDTSConfig.deps,
         neverBundle: [
@@ -1591,15 +1620,15 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/react`,
           `${packageJson.name}/query`,
         ],
+      },
+      entry: {
+        'query/index': 'src/query/index.ts',
       },
     },
 
     {
       ...sharedDTSConfig,
       name: 'RTK-Query-React-Type-Definitions',
-      entry: {
-        'query/react/index': 'src/query/react/index.ts',
-      },
       deps: {
         ...sharedDTSConfig.deps,
         neverBundle: [
@@ -1609,6 +1638,11 @@ export default defineConfig((cliOptions) => {
           `${packageJson.name}/query`,
         ],
       },
+      entry: {
+        'query/react/index': 'src/query/react/index.ts',
+      },
     },
   ] as const satisfies UserConfig[]
 })
+
+export default tsdownConfig

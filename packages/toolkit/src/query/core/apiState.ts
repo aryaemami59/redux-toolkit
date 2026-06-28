@@ -353,9 +353,7 @@ export type InvalidationState<TagTypes extends string> = {
 
 export type QueryState<D extends EndpointDefinitions> = {
   [queryCacheKey: string]:
-    | QuerySubState<D[string]>
-    | InfiniteQuerySubState<D[string]>
-    | undefined
+    QuerySubState<D[string]> | InfiniteQuerySubState<D[string]> | undefined
 }
 
 export type SubscriptionInternalState = Map<string, SubscribersInternal>

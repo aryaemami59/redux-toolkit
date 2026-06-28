@@ -235,8 +235,7 @@ export type PatchQueryDataThunk<
 ) => ThunkAction<void, PartialState, any, UnknownAction>
 
 export type AllQueryKeys<Definitions extends EndpointDefinitions> =
-  | QueryKeys<Definitions>
-  | InfiniteQueryKeys<Definitions>
+  QueryKeys<Definitions> | InfiniteQueryKeys<Definitions>
 
 export type QueryArgFromAnyQueryDefinition<
   Definitions extends EndpointDefinitions,

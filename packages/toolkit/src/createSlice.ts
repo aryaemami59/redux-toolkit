@@ -450,7 +450,9 @@ export type CaseReducerActions<
   SliceCaseReducersType extends SliceCaseReducers<any>,
   SliceName extends string,
 > = {
-  [Type in keyof SliceCaseReducersType]: SliceCaseReducersType[Type] extends infer InferredDefinitionType
+  [
+    Type in keyof SliceCaseReducersType
+  ]: SliceCaseReducersType[Type] extends infer InferredDefinitionType
     ? InferredDefinitionType extends { prepare: any }
       ? ActionCreatorForCaseReducerWithPrepare<
           InferredDefinitionType,
@@ -512,7 +514,9 @@ type ActionCreatorForCaseReducer<CR, ActionType extends string> = CR extends (
 type SliceDefinedCaseReducers<
   SliceCaseReducersType extends SliceCaseReducers<any>,
 > = {
-  [SliceCaseReducersKeyType in keyof SliceCaseReducersType]: SliceCaseReducersType[SliceCaseReducersKeyType] extends infer InferredDefinitionType
+  [
+    SliceCaseReducersKeyType in keyof SliceCaseReducersType
+  ]: SliceCaseReducersType[SliceCaseReducersKeyType] extends infer InferredDefinitionType
     ? InferredDefinitionType extends AsyncThunkSliceReducerDefinition<
         any,
         any,
@@ -553,12 +557,11 @@ type SliceDefinedSelectors<
   SliceSelectorsType extends SliceSelectors<StateType>,
   RootStateType,
 > = {
-  [SliceSelectorNameType in keyof SliceSelectorsType as string extends SliceSelectorNameType
-    ? never
-    : SliceSelectorNameType]: RemappedSelector<
-    SliceSelectorsType[SliceSelectorNameType],
-    RootStateType
-  >
+  [
+    SliceSelectorNameType in keyof SliceSelectorsType as string extends SliceSelectorNameType
+      ? never
+      : SliceSelectorNameType
+  ]: RemappedSelector<SliceSelectorsType[SliceSelectorNameType], RootStateType>
 }
 
 /**
@@ -577,7 +580,9 @@ export type ValidateSliceCaseReducers<
   StateType,
   ACR extends SliceCaseReducers<StateType>,
 > = ACR & {
-  [SliceCaseReducersKeyType in keyof ACR]: ACR[SliceCaseReducersKeyType] extends {
+  [
+    SliceCaseReducersKeyType in keyof ACR
+  ]: ACR[SliceCaseReducersKeyType] extends {
     reducer(s: StateType, action?: infer InferredActionType): any
   }
     ? {

@@ -450,14 +450,14 @@ export const buildQueryLifecycleHandler: InternalHandlerBuilder = ({
       const onQueryStarted = endpointDefinition?.onQueryStarted
       if (onQueryStarted) {
         const lifecycle = {} as CacheLifecycle
-        const queryFulfilled =
-          new (Promise as PromiseConstructorWithKnownReason)<
-            { data: unknown; meta: unknown },
-            QueryFulfilledRejectionReason<any>
-          >((resolve, reject) => {
+        const queryFulfilled = new (
+          Promise as PromiseConstructorWithKnownReason
+        )<{ data: unknown; meta: unknown }, QueryFulfilledRejectionReason<any>>(
+          (resolve, reject) => {
             lifecycle.resolve = resolve
             lifecycle.reject = reject
-          })
+          },
+        )
         // prevent uncaught promise rejections from happening.
         // if the original promise is used in any way, that will create a new promise that will throw again
         queryFulfilled.catch(() => {})

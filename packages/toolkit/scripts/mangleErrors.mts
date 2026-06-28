@@ -30,12 +30,14 @@ export type BabelPluginResult<
       Id<
         Omit<
           {
-            [KeyType in keyof PluginPass<PluginOptions> as NonNullable<unknown> extends Record<
-              KeyType,
-              unknown
-            >
-              ? never
-              : KeyType]: PluginPass<PluginOptions>[KeyType]
+            [
+              KeyType in keyof PluginPass<PluginOptions> as NonNullable<unknown> extends Record<
+                KeyType,
+                unknown
+              >
+                ? never
+                : KeyType
+            ]: PluginPass<PluginOptions>[KeyType]
           },
           'opts'
         > & {

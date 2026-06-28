@@ -339,8 +339,7 @@ export function buildInitiate({
   ) {
     return (dispatch: Dispatch) => {
       return getRunningMutations(dispatch)?.get(fixedCacheKeyOrRequestId) as
-        | MutationActionCreatorResult<never>
-        | undefined
+        MutationActionCreatorResult<never> | undefined
     }
   }
 

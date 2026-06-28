@@ -1684,8 +1684,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
 
   function useQuerySubscriptionCommonImpl<
     T extends
-      | QueryActionCreatorResult<any>
-      | InfiniteQueryActionCreatorResult<any>,
+      QueryActionCreatorResult<any> | InfiniteQueryActionCreatorResult<any>,
   >(
     endpointName: string,
     arg: unknown | SkipToken,
@@ -1815,8 +1814,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
   function buildUseQueryState(
     endpointName: string,
     preSelector:
-      | typeof queryStatePreSelector
-      | typeof infiniteQueryStatePreSelector,
+      typeof queryStatePreSelector | typeof infiniteQueryStatePreSelector,
   ) {
     const useQueryState = (
       arg: any,
@@ -1904,8 +1902,7 @@ export function buildHooks<Definitions extends EndpointDefinitions>({
 
   function refetchOrErrorIfUnmounted<
     T extends
-      | QueryActionCreatorResult<any>
-      | InfiniteQueryActionCreatorResult<any>,
+      QueryActionCreatorResult<any> | InfiniteQueryActionCreatorResult<any>,
   >(promiseRef: RefObject<T | undefined>): T {
     if (!promiseRef.current)
       throw new Error('Cannot refetch a query that has not been started yet.')
