@@ -14,7 +14,7 @@ export function generateImportNode(pkg: string, namedImports: Record<string, str
   return factory.createImportDeclaration(
     undefined,
     factory.createImportClause(
-      false,
+      undefined,
       defaultImportName !== undefined ? factory.createIdentifier(defaultImportName) : undefined,
       factory.createNamedImports(
         Object.entries(namedImports).map(([propertyName, name]) =>
