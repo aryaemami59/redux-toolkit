@@ -76,6 +76,15 @@ Done
     expect(fromJson).toEqual(fromJs);
   });
 
+  test('a `defineConfig` config produces the same output', { timeout: 60_000 }, async () => {
+    await cli([`./test/config.example.js`]);
+    const fromJs = await fs.readFile(path.resolve(tmpDir, 'example.ts'), 'utf-8');
+    await cli([`./test/external-config/openapi-config.ts`]);
+    const fromDefineConfig = await fs.readFile(path.resolve(tmpDir, 'example.ts'), 'utf-8');
+
+    expect(fromDefineConfig).toEqual(fromJs);
+  });
+
   test("missing parameters doesn't fail", { timeout: 25_000 }, async () => {
     await expect(() => cli([`./test/config.invalid-example.json`])).rejects.toThrowError(
       "Error: path parameter petId does not seem to be defined in '/pet/{petId}'!"

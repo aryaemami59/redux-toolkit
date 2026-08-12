@@ -37,6 +37,30 @@ export async function generateEndpoints(options: GenerationOptions): Promise<str
   }
 }
 
+/**
+ * Identity helper that type-checks a codegen config where it is written.
+ *
+ * Equivalent to annotating with `const config: ConfigFile = { … }`, but it
+ * works inline, so `export default defineConfig({ … })` gets the same
+ * autocompletion and typo checking without a separate variable.
+ *
+ * @example
+ * <caption>A type-checked `openapi-config.ts`</caption>
+ *
+ * ```ts
+ * import { defineConfig } from '@rtk-query/codegen-openapi'
+ *
+ * export default defineConfig({
+ *   schemaFile: 'https://petstore3.swagger.io/api/v3/openapi.json',
+ *   apiFile: './src/store/emptyApi.ts',
+ *   outputFile: './src/store/petApi.ts',
+ * })
+ * ```
+ */
+export function defineConfig(config: ConfigFile): ConfigFile {
+  return config;
+}
+
 export function parseConfig(fullConfig: ConfigFile) {
   const outFiles: (CommonOptions & OutputFileOptions)[] = [];
 

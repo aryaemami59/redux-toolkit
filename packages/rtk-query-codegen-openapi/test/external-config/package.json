@@ -1,0 +1,6 @@
+{
+  "name": "codegen-external-config-fixture",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Package boundary so `@rtk-query/codegen-openapi` resolves the way it does for a real consumer. Without this, Node's package self-reference (`trySelf`) sees the enclosing workspace manifest and resolves the specifier to the unbuilt workspace `lib/` instead of the installed package."
+}

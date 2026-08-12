@@ -42,15 +42,27 @@ export const emptySplitApi = createApi({
 Generate a config file (json, js or ts) with contents like
 
 ```ts no-transpile title="openapi-config.ts"
-import type { ConfigFile } from '@rtk-query/codegen-openapi'
+import { defineConfig } from '@rtk-query/codegen-openapi'
 
-const config: ConfigFile = {
+export default defineConfig({
   schemaFile: 'https://petstore3.swagger.io/api/v3/openapi.json',
   apiFile: './src/store/emptyApi.ts',
   apiImport: 'emptySplitApi',
   outputFile: './src/store/petApi.ts',
   exportName: 'petApi',
   hooks: true,
+})
+```
+
+`defineConfig` is an identity function - it exists purely so the object is checked against `ConfigFile` where you write it, giving you autocompletion and catching typos inline. Annotating a variable works exactly as well if you prefer it:
+
+```ts no-transpile title="openapi-config.ts"
+import type { ConfigFile } from '@rtk-query/codegen-openapi'
+
+const config: ConfigFile = {
+  schemaFile: 'https://petstore3.swagger.io/api/v3/openapi.json',
+  apiFile: './src/store/emptyApi.ts',
+  outputFile: './src/store/petApi.ts',
 }
 
 export default config
