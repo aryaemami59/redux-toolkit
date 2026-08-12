@@ -8518,14 +8518,11 @@ __metadata:
     prettier: "npm:^3.2.5"
     pretty-quick: "npm:^4.0.0"
     rimraf: "npm:^6.1.3"
-    rolldown: "npm:^1.2.3"
     semver: "npm:^7.3.5"
     swagger2openapi: "npm:^7.0.4"
     ts-node: "npm:^10.9.2"
-    tsdown: "npm:^0.23.0-beta.3"
-    tsx: "npm:^4.23.12"
+    tsdown: "npm:^0.22.14"
     typescript: "npm:^5.9.3"
-    unrun: "npm:^0.3.1"
     vite-tsconfig-paths: "npm:^5.0.1"
     vitest: "npm:^4"
     yalc: "npm:^1.0.0-pre.47"
@@ -16261,7 +16258,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild@npm:^0.28.2, esbuild@npm:~0.28.0":
+"esbuild@npm:^0.28.2":
   version: 0.28.2
   resolution: "esbuild@npm:0.28.2"
   dependencies:
@@ -29599,20 +29596,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rolldown-plugin-dts@npm:^0.28.0":
-  version: 0.28.1
-  resolution: "rolldown-plugin-dts@npm:0.28.1"
+"rolldown-plugin-dts@npm:^0.27.13":
+  version: 0.27.14
+  resolution: "rolldown-plugin-dts@npm:0.27.14"
   dependencies:
     dts-resolver: "npm:^3.0.0"
     get-tsconfig: "npm:5.0.0-beta.5"
     obug: "npm:^2.1.4"
-    yuku-ast: "npm:^0.8.4"
-    yuku-codegen: "npm:^0.8.4"
-    yuku-parser: "npm:^0.8.4"
+    yuku-ast: "npm:^0.8.0"
+    yuku-codegen: "npm:^0.8.0"
+    yuku-parser: "npm:^0.8.0"
   peerDependencies:
     "@typescript/native-preview": "*"
     "@volar/typescript": ~2.4.0
-    rolldown: ^1.2.0
+    rolldown: ^1.0.0
     typescript: ^5.0.0 || ^6.0.0 || ~7.0.0
     vue-tsc: ~3.2.0 || ~3.3.0
   peerDependenciesMeta:
@@ -29624,7 +29621,7 @@ __metadata:
       optional: true
     vue-tsc:
       optional: true
-  checksum: 10/74d484a43a2cfd74a40e2b911e88353f382df8f9625b6f549a5669ab59ac41fd34848d4f7fe9bcd6277e3d02f1dc5889889c1fa945c0fba88b2aca59a0662dff
+  checksum: 10/be827f55c4c0bdb4fc02aef1e59f3a0cfba016c7d5ae43d9c727bbffdcd6064c77ffea8a779985f65cb2544fa7a58992887e2850e5fea023ec579d2b3fafd3c7
   languageName: node
   linkType: hard
 
@@ -29686,7 +29683,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rolldown@npm:^1.0.0, rolldown@npm:^1.2.3, rolldown@npm:~1.2.3":
+"rolldown@npm:~1.2.0":
   version: 1.2.3
   resolution: "rolldown@npm:1.2.3"
   dependencies:
@@ -32065,7 +32062,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinyexec@npm:^1.3.0":
+"tinyexec@npm:^1.2.4":
   version: 1.3.0
   resolution: "tinyexec@npm:1.3.0"
   checksum: 10/749a8c5aac2ffe3f04220b8966f414636c6c324d4ae88895dfffb2319db61cf1c01c5d7e8f0fb8ab747389ea0be1f0f80d850a9cce88a9d96cc5ebcb345db018
@@ -32409,9 +32406,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsdown@npm:^0.23.0-beta.3":
-  version: 0.23.0-beta.3
-  resolution: "tsdown@npm:0.23.0-beta.3"
+"tsdown@npm:^0.22.14":
+  version: 0.22.14
+  resolution: "tsdown@npm:0.22.14"
   dependencies:
     ansis: "npm:^4.3.1"
     cac: "npm:^7.0.0"
@@ -32421,22 +32418,22 @@ __metadata:
     import-without-cache: "npm:^0.4.0"
     obug: "npm:^2.1.4"
     picomatch: "npm:^4.0.5"
-    rolldown: "npm:~1.2.3"
-    rolldown-plugin-dts: "npm:^0.28.0"
-    tinyexec: "npm:^1.3.0"
+    rolldown: "npm:~1.2.0"
+    rolldown-plugin-dts: "npm:^0.27.13"
+    tinyexec: "npm:^1.2.4"
     tinyglobby: "npm:^0.2.17"
     tree-kill: "npm:^1.2.2"
     unconfig-core: "npm:^7.5.0"
-    verkit: "npm:^0.3.2"
+    verkit: "npm:^0.3.0"
   peerDependencies:
     "@arethetypeswrong/core": ^0.18.1
-    "@tsdown/css": 0.23.0-beta.3
-    "@tsdown/exe": 0.23.0-beta.3
+    "@tsdown/css": 0.22.14
+    "@tsdown/exe": 0.22.14
     "@vitejs/devtools": "*"
     publint: ^0.3.8
     tsx: "*"
     typescript: ^5.0.0 || ^6.0.0 || ^7.0.0
-    unplugin-unused: ">=0.5.0"
+    unplugin-unused: ^0.5.0
     unrun: "*"
   peerDependenciesMeta:
     "@arethetypeswrong/core":
@@ -32459,7 +32456,7 @@ __metadata:
       optional: true
   bin:
     tsdown: ./dist/run.mjs
-  checksum: 10/9f96b9d78b413d8b911c0c0c8659103213cba19f5e1db230959c3d424c5054a9555ea71a4e71fefa519c0e7abd85a0e743c6faf47f4f1f27d7b7557529ddd760
+  checksum: 10/b3f2ab6ee28de09036251d175fb4b96fda214baacc8961eb2c679224d7ea66ffd7817446fc8b38aba18273ca96bcd0431e77783fa1927b7c1add7a61fb08d1cb
   languageName: node
   linkType: hard
 
@@ -32585,21 +32582,6 @@ __metadata:
   bin:
     tsx: dist/cli.mjs
   checksum: 10/7afedeff855ba98c47dc28b33d7e8e253c4dc1f791938db402d79c174bdf806b897c1a5f91e5b1259c112520c816f826b4c5d98f0bad7e95b02dec66fedb64d2
-  languageName: node
-  linkType: hard
-
-"tsx@npm:^4.23.12":
-  version: 4.23.12
-  resolution: "tsx@npm:4.23.12"
-  dependencies:
-    esbuild: "npm:~0.28.0"
-    fsevents: "npm:~2.3.3"
-  dependenciesMeta:
-    fsevents:
-      optional: true
-  bin:
-    tsx: dist/cli.mjs
-  checksum: 10/167a5571cb211aff257d200cd75a1003b1e0e59d641c1e6ff99f6cdfada46ff6ce311e105722699b4763feb1371b2d8084bcc413c7e54aae3761c852817dc0b0
   languageName: node
   linkType: hard
 
@@ -33077,22 +33059,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unrun@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "unrun@npm:0.3.1"
-  dependencies:
-    rolldown: "npm:^1.0.0"
-  peerDependencies:
-    synckit: ^0.11.11
-  peerDependenciesMeta:
-    synckit:
-      optional: true
-  bin:
-    unrun: ./dist/cli.mjs
-  checksum: 10/c2a64bc189745eb6ab75344031aab922457fcc6d2479ef50a8dee1aeab2c8bfa9a2208abcf3ef2e05bb1da054a9bebaf85edda0f636942138d365afd2edc36a2
-  languageName: node
-  linkType: hard
-
 "upath@npm:^1.2.0":
   version: 1.2.0
   resolution: "upath@npm:1.2.0"
@@ -33420,7 +33386,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"verkit@npm:^0.3.2":
+"verkit@npm:^0.3.0":
   version: 0.3.2
   resolution: "verkit@npm:0.3.2"
   checksum: 10/23e57c28094da170e381e27c020cddde0543fbac377b111c325a18440da4502d21c58446ef25794ecc1f2434df1d6297edf760910245ac5b90199a9bb18d8634
@@ -34960,7 +34926,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yuku-ast@npm:^0.8.4":
+"yuku-ast@npm:^0.8.0, yuku-ast@npm:^0.8.4":
   version: 0.8.4
   resolution: "yuku-ast@npm:0.8.4"
   dependencies:
@@ -34969,7 +34935,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yuku-codegen@npm:^0.8.4":
+"yuku-codegen@npm:^0.8.0":
   version: 0.8.4
   resolution: "yuku-codegen@npm:0.8.4"
   dependencies:
@@ -35015,7 +34981,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yuku-parser@npm:^0.8.4":
+"yuku-parser@npm:^0.8.0":
   version: 0.8.4
   resolution: "yuku-parser@npm:0.8.4"
   dependencies:
