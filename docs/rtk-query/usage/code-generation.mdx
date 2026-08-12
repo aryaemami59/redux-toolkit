@@ -62,6 +62,14 @@ and then call the code generator:
 npx @rtk-query/codegen-openapi openapi-config.ts
 ```
 
+:::note
+
+A TypeScript config file needs no extra tooling on Node.js versions that strip TypeScript types natively - the CLI loads it directly. On older versions, install either `esbuild-runner` (alongside `esbuild`) or `ts-node`.
+
+Node's built-in support only _erases_ type annotations. If your config relies on syntax that needs a real transform - `enum`, `namespace`, parameter properties - install one of those transpilers; the CLI prefers them whenever they are present.
+
+:::
+
 #### Generating tags
 
 If your OpenAPI specification uses [tags](https://swagger.io/docs/specification/grouping-operations-with-tags/), you can specify the `tag` option to the codegen.
@@ -94,8 +102,9 @@ import { exec } from 'node:child_process'
 
 const cliPath = require.resolve('@rtk-query/codegen-openapi/cli')
 
-// you can also use esbuild-runner (esr) or ts-node instead of tsx
-exec(`tsx ${cliPath} config.ts`)
+// on Node.js versions that strip types natively, plain `node` is enough;
+// otherwise use tsx, esbuild-runner (esr) or ts-node
+exec(`node ${cliPath} config.ts`)
 ```
 
 ### Config file options
