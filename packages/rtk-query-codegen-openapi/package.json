@@ -19,7 +19,23 @@
         "default": "./lib/index.js"
       }
     },
-    "./cli": "./lib/bin/cli.mjs"
+    "./cli": {
+      "import": {
+        "types": "./lib/bin/cli.d.mts",
+        "default": "./lib/bin/cli.mjs"
+      },
+      "default": {
+        "types": "./lib/bin/cli.d.ts",
+        "default": "./lib/bin/cli.js"
+      }
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "cli": [
+        "./lib/bin/cli.d.ts"
+      ]
+    }
   },
   "repository": {
     "type": "git",
