@@ -38,10 +38,14 @@ program.version(meta.version).usage('</path/to/config.js>').parse(process.argv);
 
 const configFile = program.args[0];
 
-if (program.args.length === 0 || !/\.([mc]?(jsx?|tsx?)|jsonc?)?$/.test(configFile)) {
+// Extensions `require` can actually load: js, jsx, mjs, cjs, ts, tsx, mts, cts, json.
+const configFileExtension = /\.([jt]sx|[mc]?[jt]s|json)$/;
+const typeScriptConfigFileExtension = /\.([mc]?ts|tsx)$/;
+
+if (program.args.length === 0 || !configFileExtension.test(configFile)) {
   program.help();
 } else {
-  if (/\.[mc]?tsx?$/.test(configFile) && !ts) {
+  if (typeScriptConfigFileExtension.test(configFile) && !ts) {
     console.error('Encountered a TypeScript configfile, but neither esbuild-runner nor ts-node are installed.');
     process.exit(1);
   }

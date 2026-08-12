@@ -39,7 +39,7 @@ export const emptySplitApi = createApi({
 })
 ```
 
-Generate a config file (json, js or ts) with contents like
+Generate a config file with contents like
 
 ```ts no-transpile title="openapi-config.ts"
 import type { ConfigFile } from '@rtk-query/codegen-openapi'
@@ -61,6 +61,8 @@ and then call the code generator:
 ```bash
 npx @rtk-query/codegen-openapi openapi-config.ts
 ```
+
+The config file may use any of the following extensions: `.js`, `.jsx`, `.mjs`, `.cjs`, `.ts`, `.tsx`, `.mts`, `.cts` or `.json`. Any other extension is rejected with the usage message.
 
 #### Generating tags
 

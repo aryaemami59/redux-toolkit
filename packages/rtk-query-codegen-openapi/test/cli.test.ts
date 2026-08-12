@@ -76,6 +76,21 @@ Done
     expect(fromJson).toEqual(fromJs);
   });
 
+  // The extension is checked before the file is ever read, so these paths need not exist.
+  test.for([
+    ['./test/config.example.yaml', 'unsupported format'],
+    ['./test/config.example.jsonc', 'jsonc is not loadable by require()'],
+    ['./test/config.example.js.bak', 'unknown trailing extension'],
+    ['./test/config.example.', 'trailing dot with no extension'],
+    ['./test/config.example.mjsx', 'not a real extension'],
+    ['./test/config.example', 'no extension at all'],
+  ] as const)('rejects `%s` with the usage message (%s)', { timeout: 25_000 }, async ([configFile], { expect }) => {
+    const out = await cli([configFile]);
+
+    expect(out.stdout).toContain('Usage: cli </path/to/config.js>');
+    expect(out.stderr).toBe('');
+  });
+
   test("missing parameters doesn't fail", { timeout: 25_000 }, async () => {
     await expect(() => cli([`./test/config.invalid-example.json`])).rejects.toThrowError(
       "Error: path parameter petId does not seem to be defined in '/pet/{petId}'!"
